@@ -358,6 +358,36 @@
         border-color: var(--error-line);
       }
 
+      .status-pill.exact {
+        color: var(--green-ink);
+        background: var(--green-bg);
+        border-color: var(--green-line);
+      }
+
+      .status-pill.exact::before {
+        background: #8de0a8;
+      }
+
+      .status-pill.applying {
+        color: var(--blue-ink);
+        background: var(--blue-bg);
+        border-color: var(--blue-line);
+      }
+
+      .status-pill.applying::before {
+        background: #9eb6ff;
+      }
+
+      .status-pill.separating {
+        color: var(--soft-ink);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--line);
+      }
+
+      .status-pill.separating::before {
+        background: rgba(255, 255, 255, 0.48);
+      }
+
       details {
         border: 1px dashed rgba(255, 255, 255, 0.12);
         border-radius: 18px;
@@ -554,6 +584,32 @@
 
       .strength-supportive {
         color: var(--soft-ink);
+      }
+
+      .timing-cell {
+        min-width: 250px;
+      }
+
+      .timing-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .timing-primary {
+        color: var(--ink);
+        font-weight: 600;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .timing-meta {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
       }
 
       pre {
@@ -928,6 +984,126 @@
         return `<span class="strength-badge strength-${normalized}">${escapeHtml(normalized)}</span>`;
       }
 
+      function timingStatusBadge(value) {
+        const normalized = String(value || "separating").toLowerCase();
+        const label = normalized === "applying"
+          ? "Applying"
+          : normalized === "exact"
+            ? "Exact"
+            : "Separating";
+        return `<span class="status-pill ${normalized}">${escapeHtml(label)}</span>`;
+      }
+
+      function formatTimingMoment(isoValue, timezoneName, options = {}) {
+        if (!isoValue) return "Not available";
+
+        const parsed = new Date(isoValue);
+        if (Number.isNaN(parsed.getTime())) {
+          return isoValue;
+        }
+
+        try {
+          const formatter = new Intl.DateTimeFormat("en-GB", {
+            timeZone: timezoneName || "UTC",
+            day: "2-digit",
+            month: "short",
+            ...(options.includeYear ? { year: "numeric" } : {}),
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+
+          return formatter.format(parsed);
+        } catch (error) {
+          return isoValue;
+        }
+      }
+
+      function formatCompactDecimal(value) {
+        if (!Number.isFinite(value)) return null;
+        const rounded = Math.round(value * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+      }
+
+      function formatDurationHours(value) {
+        const duration = Number(value);
+        if (!Number.isFinite(duration) || duration <= 0) return null;
+
+        if (duration < 48) {
+          return `${Math.max(1, Math.round(duration))} h`;
+        }
+
+        const days = duration / 24;
+        if (days < 60) {
+          return `${Math.max(1, Math.round(days))} d`;
+        }
+
+        if (days < 730) {
+          return `${formatCompactDecimal(days / 30.4375)} mo`;
+        }
+
+        return `${formatCompactDecimal(days / 365.25)} y`;
+      }
+
+      function shouldIncludeTimingYear(referenceIso, ...isoValues) {
+        const reference = referenceIso ? new Date(referenceIso) : null;
+        const referenceYear = reference && !Number.isNaN(reference.getTime()) ? reference.getUTCFullYear() : null;
+        const years = isoValues
+          .map((value) => new Date(value))
+          .filter((value) => !Number.isNaN(value.getTime()))
+          .map((value) => value.getUTCFullYear());
+
+        if (!years.length) return false;
+
+        const distinctYears = new Set(years);
+        if (distinctYears.size > 1) {
+          return true;
+        }
+
+        return referenceYear !== null && years[0] !== referenceYear;
+      }
+
+      function renderAspectTiming(timing, timezoneName, referenceIso) {
+        if (!timing) {
+          return `<span class="timing-meta">Timing unavailable.</span>`;
+        }
+
+        const focusLabel = timing.will_perfect && timing.exact_utc ? "Exact" : "Closest";
+        const duration = formatDurationHours(timing.duration_hours);
+        const peakOrb = Number(timing.peak_orb);
+        const focusIso = timing.will_perfect && timing.exact_utc ? timing.exact_utc : timing.peak_utc;
+        const includeYear = shouldIncludeTimingYear(
+          referenceIso,
+          timing.start_utc,
+          timing.end_utc,
+          focusIso,
+        );
+        const focusMoment = formatTimingMoment(focusIso, timezoneName, { includeYear });
+        const startMoment = formatTimingMoment(timing.start_utc, timezoneName, { includeYear });
+        const endMoment = formatTimingMoment(timing.end_utc, timezoneName, { includeYear });
+        const metaParts = [`${startMoment} -> ${endMoment}`];
+
+        if (duration) {
+          metaParts.push(duration);
+        }
+        if (!timing.will_perfect && Number.isFinite(peakOrb)) {
+          metaParts.push(`peak orb ${peakOrb.toFixed(2)}°`);
+        }
+        if (Number(timing.duration_hours) > 24 * 180) {
+          metaParts.push("Slow transit");
+        }
+
+        return `
+          <div class="timing-cell">
+            <div class="timing-row">
+              ${timingStatusBadge(timing.status)}
+              <span class="timing-primary">${escapeHtml(focusLabel)} ${escapeHtml(focusMoment)}</span>
+            </div>
+            <span class="timing-meta">${metaParts.map((part) => escapeHtml(part)).join(" · ")}</span>
+          </div>
+        `;
+      }
+
       function renderTable(columns, rows) {
         if (!rows.length) {
           return `<p class="result-copy">No rows available.</p>`;
@@ -1132,6 +1308,14 @@
                   { label: "Natal", render: (row) => escapeHtml(row.natal_object) },
                   { label: "Orb", render: (row) => `${escapeHtml(Number(row.orb).toFixed(2))}°` },
                   { label: "Strength", render: (row) => strengthBadge(row.strength) },
+                  {
+                    label: "Timing",
+                    render: (row) => renderAspectTiming(
+                      row.timing,
+                      snapshot.transit_timezone || "UTC",
+                      snapshot.transit_utc_datetime,
+                    ),
+                  },
                 ],
                 visibleAspects,
               )}
@@ -1292,6 +1476,7 @@
           transit_date: transitDateInput.value,
           transit_time: transitTimeInput.value,
           timezone: transitTimezoneInput.value.trim() || null,
+          include_timing: true,
         };
 
         const response = await fetch("/transit-report", {
