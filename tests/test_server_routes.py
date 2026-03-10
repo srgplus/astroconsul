@@ -58,6 +58,23 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(snapshot["ephemeris_version"], "2.10.03")
         self.assertGreater(len(report["transit_positions"]), 0)
         self.assertGreater(len(report["active_aspects"]), 0)
+        self.assertNotIn("timing", report["active_aspects"][0])
+
+    def test_transit_report_can_include_timing(self) -> None:
+        report = transit_report(
+            TransitReportRequest(
+                chart_id="chart_1991_07_28_2206",
+                transit_date="2026-03-09",
+                transit_time="06:06:01",
+                timezone="Europe/Warsaw",
+                include_timing=True,
+            )
+        )
+
+        timing = report["active_aspects"][0]["timing"]
+        self.assertIn("peak_utc", timing)
+        self.assertIn("status", timing)
+        self.assertIn(timing["status"], {"applying", "exact", "separating"})
 
 
 if __name__ == "__main__":

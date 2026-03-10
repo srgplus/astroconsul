@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import swisseph as swe
@@ -14,6 +15,7 @@ from astro_utils import (
 )
 from chart_builder import CHARTS_DIR, EPHE_PATH, FLAGS, HOUSE_SYSTEM_NAME, PLANETS, swiss_ephemeris_version
 from transit_aspect_engine import compute_transit_to_natal_aspects
+from transit_timing_engine import compute_active_aspect_timing
 
 swe.set_ephe_path(str(EPHE_PATH))
 
@@ -93,11 +95,14 @@ def build_transit_report(
     chart_id: str,
     transit_date: str,
     transit_time: str,
+    *,
+    include_timing: bool = False,
 ) -> dict[str, object]:
     chart_path, natal_chart = load_saved_chart(chart_id)
     parsed_date = parse_iso_date(transit_date)
     parsed_time = parse_time_string(transit_time)
     transit_hour = time_to_decimal_hours(parsed_time)
+    transit_datetime_utc = datetime.combine(parsed_date, parsed_time, tzinfo=timezone.utc)
 
     transit_positions = compute_transit_positions(
         parsed_date.year,
@@ -119,6 +124,22 @@ def build_transit_report(
             int(item["exact_angle"]),
         )
     )
+
+    if include_timing:
+        longitude_cache: dict[tuple[str, int], float] = {}
+        timed_aspects: list[dict[str, object]] = []
+
+        for aspect in active_aspects:
+            timed_aspect = dict(aspect)
+            timed_aspect["timing"] = compute_active_aspect_timing(
+                timed_aspect,
+                transit_datetime_utc,
+                natal_chart,
+                longitude_cache=longitude_cache,
+            )
+            timed_aspects.append(timed_aspect)
+
+        active_aspects = timed_aspects
 
     return {
         "snapshot": {

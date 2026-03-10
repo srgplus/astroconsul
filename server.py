@@ -37,6 +37,7 @@ class TransitReportRequest(BaseModel):
     transit_date: str
     transit_time: str
     timezone: Optional[str] = None
+    include_timing: bool = False
 
 
 class LocationResolveRequest(BaseModel):
@@ -290,6 +291,7 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
             payload.chart_id,
             utc_dt.date().isoformat(),
             utc_dt.strftime("%H:%M:%S"),
+            include_timing=payload.include_timing,
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
