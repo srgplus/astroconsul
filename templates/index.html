@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astro Consul</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #05070b;
+        --bg-top: #101623;
+        --surface: rgba(13, 17, 25, 0.9);
+        --surface-soft: rgba(255, 255, 255, 0.03);
+        --surface-strong: rgba(255, 255, 255, 0.05);
+        --ink: #f1eee8;
+        --soft-ink: #d8dde7;
+        --muted: #99a4b6;
+        --line: rgba(255, 255, 255, 0.11);
+        --line-strong: rgba(255, 255, 255, 0.16);
+        --accent: #f0ede7;
+        --accent-ink: #10141d;
+        --green-bg: rgba(60, 118, 86, 0.2);
+        --green-line: rgba(84, 164, 116, 0.3);
+        --green-ink: #d8f1e0;
+        --blue-bg: rgba(86, 108, 154, 0.16);
+        --blue-line: rgba(110, 134, 191, 0.28);
+        --blue-ink: #dbe6ff;
+        --error-bg: rgba(140, 63, 63, 0.22);
+        --error-line: rgba(196, 105, 105, 0.3);
+        --error-ink: #ffdede;
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+        --radius-xl: 32px;
+        --radius-lg: 24px;
+        --radius-md: 18px;
+        --radius-sm: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top center, rgba(42, 72, 129, 0.22), transparent 28%),
+          radial-gradient(circle at left center, rgba(22, 45, 91, 0.18), transparent 34%),
+          linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 56%, #030407 100%);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 0;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      main {
+        width: min(1120px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 22px 0 72px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 26px;
+      }
+
+      .surface {
+        position: relative;
+        background:
+          linear-gradient(90deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 25, 0.94) 45%, rgba(18, 23, 33, 0.9)),
+          var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .surface::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 20%),
+          radial-gradient(circle at top center, rgba(52, 90, 163, 0.1), transparent 36%);
+        pointer-events: none;
+      }
+
+      .hero {
+        padding: 34px;
+      }
+
+      .hero-badges,
+      .hero-strip,
+      .card-grid,
+      .panel-grid,
+      .summary-strip,
+      .stats-grid,
+      .filter-group,
+      .inline-action-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .badge,
+      .status-pill,
+      .filter-chip,
+      .strength-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--soft-ink);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .badge::before,
+      .status-pill::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.48);
+      }
+
+      .badge.live::before,
+      .status-pill.success::before {
+        background: #8de0a8;
+      }
+
+      .badge.muted::before {
+        background: #9aabc8;
+      }
+
+      .hero h1 {
+        margin-top: 16px;
+        font-size: clamp(58px, 10vw, 76px);
+        line-height: 0.92;
+      }
+
+      .hero-copy {
+        margin-top: 18px;
+        max-width: 760px;
+        font-size: 20px;
+        color: var(--soft-ink);
+      }
+
+      .hero-strip {
+        margin-top: 28px;
+      }
+
+      .hero-note {
+        flex: 1 1 320px;
+        padding: 18px 22px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .hero-note span,
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .hero-note p {
+        color: var(--soft-ink);
+        font-size: 16px;
+      }
+
+      .section {
+        padding: 28px;
+      }
+
+      .section-head {
+        margin-bottom: 24px;
+      }
+
+      .section-head h2 {
+        margin-bottom: 10px;
+        font-size: 36px;
+      }
+
+      .section-head p {
+        max-width: 760px;
+        font-size: 16px;
+      }
+
+      .card-grid {
+        align-items: stretch;
+      }
+
+      .left-panel {
+        flex: 0 0 380px;
+      }
+
+      .right-panel {
+        flex: 1 1 0;
+      }
+
+      .panel {
+        position: relative;
+        min-height: 100%;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .panel-title {
+        margin-bottom: 6px;
+        font-size: 24px;
+      }
+
+      .panel-copy {
+        margin-bottom: 20px;
+        font-size: 15px;
+      }
+
+      .form-stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .form-grid,
+      .key-grid,
+      .stats-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        color: var(--soft-ink);
+        font-size: 13px;
+      }
+
+      .field-wide {
+        grid-column: 1 / -1;
+      }
+
+      input {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: rgba(240, 237, 231, 0.3);
+        box-shadow: 0 0 0 3px rgba(240, 237, 231, 0.06);
+      }
+
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        min-height: 48px;
+        padding: 0 18px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: default;
+        opacity: 0.7;
+      }
+
+      .primary-button {
+        color: var(--accent-ink);
+        background: var(--accent);
+      }
+
+      .secondary-button,
+      .ghost-button {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+      }
+
+      .ghost-button {
+        min-height: 38px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .status {
+        margin-top: 10px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .status.success {
+        color: var(--green-ink);
+        background: var(--green-bg);
+        border-color: var(--green-line);
+      }
+
+      .status.info {
+        color: var(--blue-ink);
+        background: var(--blue-bg);
+        border-color: var(--blue-line);
+      }
+
+      .status.error {
+        color: var(--error-ink);
+        background: var(--error-bg);
+        border-color: var(--error-line);
+      }
+
+      details {
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.015);
+      }
+
+      summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        color: var(--soft-ink);
+        font-weight: 600;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .details-body {
+        padding: 0 16px 16px;
+      }
+
+      .resolution-feedback {
+        min-height: 22px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .resolution-feedback.success {
+        color: var(--green-ink);
+      }
+
+      .resolution-feedback.error {
+        color: var(--error-ink);
+      }
+
+      .result-shell {
+        display: grid;
+        gap: 16px;
+      }
+
+      .result-kicker {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .result-title {
+        margin-top: 6px;
+        font-size: 22px;
+      }
+
+      .result-copy {
+        margin-top: 8px;
+        font-size: 15px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .info-card,
+      .summary-card,
+      .stat-card,
+      .table-card {
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .summary-card,
+      .stat-card {
+        min-height: 96px;
+      }
+
+      .info-card span,
+      .summary-card span,
+      .stat-card span,
+      .table-card .table-kicker,
+      .table-head span {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .summary-card strong,
+      .info-card strong,
+      .stat-card strong {
+        display: block;
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .summary-card strong {
+        font-size: 16px;
+      }
+
+      .table-card {
+        padding: 14px;
+      }
+
+      .table-head {
+        margin-bottom: 14px;
+      }
+
+      .table-head h4 {
+        margin-bottom: 6px;
+        font-size: 18px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 560px;
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      thead th {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      tbody td {
+        color: var(--soft-ink);
+        font-size: 14px;
+      }
+
+      .filter-group {
+        gap: 8px;
+      }
+
+      .filter-chip {
+        min-height: 30px;
+        padding: 0 12px;
+        background: transparent;
+        color: var(--muted);
+      }
+
+      .filter-chip.active {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--ink);
+        border-color: var(--line-strong);
+      }
+
+      .strength-badge {
+        min-height: 28px;
+        padding: 0 12px;
+        font-size: 11px;
+      }
+
+      .strength-badge::before {
+        content: none;
+      }
+
+      .strength-exact {
+        color: var(--green-ink);
+        background: var(--green-bg);
+        border-color: var(--green-line);
+      }
+
+      .strength-strong {
+        color: var(--blue-ink);
+        background: var(--blue-bg);
+        border-color: var(--blue-line);
+      }
+
+      .strength-supportive {
+        color: var(--soft-ink);
+      }
+
+      pre {
+        margin: 0;
+        overflow: auto;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--soft-ink);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100vw - 20px, 1120px);
+        }
+
+        .card-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .left-panel,
+        .right-panel {
+          flex: 1 1 auto;
+        }
+
+        .summary-strip,
+        .form-grid,
+        .key-grid,
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stack">
+      <section class="surface hero">
+        <div class="hero-badges">
+          <span class="badge live">Swiss Ephemeris Active</span>
+          <span class="badge muted">Local Transit Prototype</span>
+        </div>
+
+        <h1>Astro Consul</h1>
+        <p class="hero-copy">
+          Create a natal chart, save it, and generate a deterministic transit report powered by
+          Swiss Ephemeris.
+        </p>
+
+        <div class="hero-strip">
+          <div class="hero-note">
+            <span>Product Flow</span>
+            <p>Create a natal chart, reuse the saved chart ID, and generate a transit report in the browser.</p>
+          </div>
+
+          <div class="hero-note">
+            <span>Engineering Debug</span>
+            <p>Raw <code>/natal</code> remains available at the bottom for decimal UT verification only.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface section">
+        <div class="section-head">
+          <span class="eyebrow">Product Flow</span>
+          <h2>Create Natal Chart</h2>
+          <p>
+            Save a natal chart from local birth data. Location intelligence fills timezone and
+            coordinates before chart creation, and the saved <code>chart_id</code> is automatically
+            reused in the transit report form.
+          </p>
+        </div>
+
+        <div class="card-grid">
+          <section class="panel left-panel">
+            <h3 class="panel-title">Birth Details</h3>
+            <p class="panel-copy">
+              Enter a place name and the app will fill timezone and coordinates automatically.
+              Manual overrides stay available in advanced details.
+            </p>
+
+            <form id="natal-form" class="form-stack">
+              <label>
+                Name
+                <input id="name" name="name" type="text" value="Serge" />
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Birth date
+                  <input id="birth-date" name="birth_date" type="date" required value="1991-07-29" />
+                </label>
+
+                <label>
+                  Birth time
+                  <input id="birth-time" name="birth_time" type="time" step="1" required value="01:06:00" />
+                </label>
+              </div>
+
+              <label>
+                Timezone
+                <input id="timezone" name="timezone" type="text" required value="Europe/Minsk" />
+              </label>
+
+              <label>
+                Location name
+                <input id="location-name" name="location_name" type="text" required value="Brest belarus" />
+              </label>
+
+              <div class="inline-action-row">
+                <button id="resolve-button" class="ghost-button" type="button">Resolve Location</button>
+              </div>
+
+              <p id="resolution-feedback" class="resolution-feedback">
+                Timezone and coordinates will autofill from this place name.
+              </p>
+
+              <details>
+                <summary>Advanced location coordinates</summary>
+                <div class="details-body">
+                  <div class="form-grid">
+                    <label>
+                      Latitude
+                      <input id="latitude" name="latitude" type="number" step="any" required value="52.13472" />
+                    </label>
+
+                    <label>
+                      Longitude
+                      <input id="longitude" name="longitude" type="number" step="any" required value="23.65694" />
+                    </label>
+                  </div>
+                </div>
+              </details>
+
+              <button class="primary-button" type="submit">Create Natal Chart</button>
+            </form>
+
+            <div id="natal-status" class="status info">Preparing natal chart...</div>
+          </section>
+
+          <section class="panel right-panel">
+            <div id="natal-empty" class="result-shell">
+              <span class="result-kicker">Saved Natal Chart</span>
+              <h3 class="result-title">Waiting for chart data</h3>
+              <p class="result-copy">The saved natal chart summary will render here after chart creation.</p>
+            </div>
+
+            <div id="natal-result" class="result-shell hidden"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="transit-section" class="surface section">
+        <div class="section-head">
+          <span class="eyebrow">Product Flow</span>
+          <h2>Transit Report</h2>
+          <p>
+            Generate a deterministic transit report from a saved natal chart. The most recently
+            created chart ID is reused automatically.
+          </p>
+        </div>
+
+        <div class="card-grid">
+          <section class="panel left-panel">
+            <h3 class="panel-title">Transit Inputs</h3>
+            <p class="panel-copy">Paste a chart ID or use the one already prepared above.</p>
+
+            <form id="transit-form" class="form-stack">
+              <label>
+                Chart ID or chart filename
+                <input id="chart-id" name="chart_id" type="text" required value="chart_1991_07_28_2206" />
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Transit date
+                  <input id="transit-date" name="transit_date" type="date" required value="2026-03-09" />
+                </label>
+
+                <label>
+                  Transit time
+                  <input id="transit-time" name="transit_time" type="time" step="1" required value="01:19:00" />
+                </label>
+              </div>
+
+              <label>
+                Timezone
+                <input id="transit-timezone" name="timezone" type="text" value="America/Los_Angeles" />
+              </label>
+
+              <button class="primary-button" type="submit">Generate Transit Report</button>
+            </form>
+
+            <div id="transit-status" class="status info">Preparing transit report...</div>
+          </section>
+
+          <section class="panel right-panel">
+            <div id="transit-empty" class="result-shell">
+              <span class="result-kicker">Snapshot</span>
+              <h3 class="result-title">Waiting for transit context</h3>
+              <p class="result-copy">Transit snapshot, active aspects, and positions will render here.</p>
+            </div>
+
+            <div id="transit-result" class="result-shell hidden"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="surface section">
+        <div class="section-head">
+          <span class="eyebrow">Engineering Debug</span>
+          <h2>Engineering Debug</h2>
+          <p>Uses raw <code>/natal</code> with decimal UT for low-level verification only. This is not the primary product flow.</p>
+        </div>
+
+        <div class="card-grid">
+          <section class="panel left-panel">
+            <h3 class="panel-title">Raw Natal Calculator</h3>
+            <p class="panel-copy">
+              Inputs map directly to <code>/natal</code>: year, month, day, decimal UT hour,
+              latitude, and longitude.
+            </p>
+
+            <form id="debug-form" class="form-stack">
+              <div class="form-grid">
+                <label>
+                  Year
+                  <input id="debug-year" type="number" min="1" required value="1991" />
+                </label>
+
+                <label>
+                  Month
+                  <input id="debug-month" type="number" min="1" max="12" required value="7" />
+                </label>
+
+                <label>
+                  Day
+                  <input id="debug-day" type="number" min="1" max="31" required value="28" />
+                </label>
+
+                <label>
+                  Hour (decimal UT)
+                  <input id="debug-hour" type="number" step="any" required value="22.1" />
+                </label>
+
+                <label>
+                  Latitude
+                  <input id="debug-lat" type="number" step="any" required value="52.13472" />
+                </label>
+
+                <label>
+                  Longitude
+                  <input id="debug-lon" type="number" step="any" required value="23.65694" />
+                </label>
+              </div>
+
+              <button class="secondary-button" type="submit">Run Raw Natal Debug</button>
+            </form>
+
+            <div id="debug-status" class="status info">Waiting for raw debug input.</div>
+          </section>
+
+          <section class="panel right-panel">
+            <div id="debug-empty" class="result-shell">
+              <span class="result-kicker">Engineering Output</span>
+              <h3 class="result-title">Raw output will render here</h3>
+              <p class="result-copy">Use this panel for low-level verification, not for the main user flow.</p>
+            </div>
+
+            <div id="debug-result" class="result-shell hidden"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const natalForm = document.getElementById("natal-form");
+      const transitForm = document.getElementById("transit-form");
+      const debugForm = document.getElementById("debug-form");
+
+      const natalStatus = document.getElementById("natal-status");
+      const transitStatus = document.getElementById("transit-status");
+      const debugStatus = document.getElementById("debug-status");
+
+      const natalEmpty = document.getElementById("natal-empty");
+      const transitEmpty = document.getElementById("transit-empty");
+      const debugEmpty = document.getElementById("debug-empty");
+
+      const natalResult = document.getElementById("natal-result");
+      const transitResult = document.getElementById("transit-result");
+      const debugResult = document.getElementById("debug-result");
+
+      const resolveButton = document.getElementById("resolve-button");
+      const resolutionFeedback = document.getElementById("resolution-feedback");
+
+      const nameInput = document.getElementById("name");
+      const birthDateInput = document.getElementById("birth-date");
+      const birthTimeInput = document.getElementById("birth-time");
+      const timezoneInput = document.getElementById("timezone");
+      const locationNameInput = document.getElementById("location-name");
+      const latitudeInput = document.getElementById("latitude");
+      const longitudeInput = document.getElementById("longitude");
+      const chartIdInput = document.getElementById("chart-id");
+      const transitDateInput = document.getElementById("transit-date");
+      const transitTimeInput = document.getElementById("transit-time");
+      const transitTimezoneInput = document.getElementById("transit-timezone");
+
+      let transitAspectFilter = "exact-strong";
+      let lastTransitPayload = null;
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function formatJson(value) {
+        return escapeHtml(JSON.stringify(value, null, 2));
+      }
+
+      function setStatus(target, tone, text) {
+        target.className = `status ${tone}`;
+        target.textContent = text;
+      }
+
+      function setResolutionFeedback(tone, html) {
+        resolutionFeedback.className = `resolution-feedback ${tone}`;
+        resolutionFeedback.innerHTML = html;
+      }
+
+      function compactPosition(value) {
+        if (!value) return "Not available";
+        return String(value).replace(/(\d+°\d+)'?\d*"?/, "$1'");
+      }
+
+      function formatLocalDatetime(isoValue, timezoneName) {
+        if (!isoValue) return "Not available";
+        const value = isoValue.replace("Z", "");
+        const [datePart, timePart] = value.split("T");
+        if (!datePart || !timePart) return isoValue;
+        const [year, month, day] = datePart.split("-").map(Number);
+        const [hours, minutes, seconds = "00"] = timePart.split(":");
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return `${String(day).padStart(2, "0")} ${months[month - 1]} ${year} · ${hours}:${minutes}${seconds !== "00" ? `:${seconds.slice(0, 2)}` : ""} · ${timezoneName || "UTC"}`;
+      }
+
+      function formatDateTimeForStatus(dateValue, timeValue, timezoneName) {
+        if (!dateValue || !timeValue) return "Not available";
+        const [year, month, day] = dateValue.split("-").map(Number);
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return `${String(day).padStart(2, "0")} ${months[month - 1]} ${year} · ${timeValue}${timezoneName ? ` · ${timezoneName}` : ""}`;
+      }
+
+      function normaliseStrength(value) {
+        const normalized = String(value || "").toLowerCase();
+        if (normalized === "exact") return "exact";
+        if (normalized === "strong") return "strong";
+        return "supportive";
+      }
+
+      function strengthBadge(value) {
+        const normalized = normaliseStrength(value);
+        return `<span class="strength-badge strength-${normalized}">${escapeHtml(normalized)}</span>`;
+      }
+
+      function renderTable(columns, rows) {
+        if (!rows.length) {
+          return `<p class="result-copy">No rows available.</p>`;
+        }
+
+        const head = columns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("");
+        const body = rows
+          .map((row) => `<tr>${columns.map((column) => `<td>${column.render(row)}</td>`).join("")}</tr>`)
+          .join("");
+
+        return `
+          <div class="table-wrap">
+            <table>
+              <thead><tr>${head}</tr></thead>
+              <tbody>${body}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function getFilteredAspects(aspects) {
+        if (transitAspectFilter === "all") return aspects;
+        return aspects.filter((aspect) => {
+          const strength = normaliseStrength(aspect.strength);
+          return strength === "exact" || strength === "strong";
+        });
+      }
+
+      function renderNatalResult(payload) {
+        const summary = payload.natal_summary || {};
+        const anglePositions = payload.angle_positions || [];
+        const asc = anglePositions.find((item) => item.id === "ASC");
+        const mc = anglePositions.find((item) => item.id === "MC");
+        const birthDisplay = formatLocalDatetime(payload.local_birth_datetime, payload.birth_input?.timezone || payload.birth_input?.timezone_name || payload.birth_input?.timezone || timezoneInput.value.trim());
+
+        natalResult.innerHTML = `
+          <span class="result-kicker">Saved Natal Chart</span>
+          <div>
+            <h3 class="result-title">Your chart is ready</h3>
+            <p class="result-copy">Transit report is ready to use this saved chart.</p>
+          </div>
+
+          <div class="cta-row">
+            <button id="use-chart-button" class="ghost-button" type="button">Use This Chart for Transit Report</button>
+          </div>
+
+          <div class="summary-strip">
+            <article class="summary-card">
+              <span>Sun</span>
+              <strong>${escapeHtml(compactPosition(summary.sun))}</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Moon</span>
+              <strong>${escapeHtml(compactPosition(summary.moon))}</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Asc</span>
+              <strong>${escapeHtml(compactPosition(summary.asc || asc?.formatted_position))}</strong>
+            </article>
+          </div>
+
+          <div class="key-grid">
+            <article class="info-card">
+              <span>Name</span>
+              <strong>${escapeHtml(payload.name || "Serge")}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>Birth Local Datetime</span>
+              <strong>${escapeHtml(birthDisplay)}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>Location</span>
+              <strong>${escapeHtml(payload.location_name || "Not available")}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>MC</span>
+              <strong>${escapeHtml(compactPosition(mc?.formatted_position || "Not available"))}</strong>
+            </article>
+
+            <article class="info-card field-wide">
+              <span>Natal Aspects Count</span>
+              <strong>${escapeHtml(payload.natal_aspect_count)}</strong>
+            </article>
+          </div>
+
+          <section class="table-card">
+            <div class="table-head">
+              <span>Natal Positions</span>
+              <h4>Normalized natal placements</h4>
+              <p>UI-ready natal positions with sign, house, and retrograde state.</p>
+            </div>
+            ${renderTable(
+              [
+                { label: "Planet", render: (row) => escapeHtml(row.id) },
+                { label: "Position", render: (row) => escapeHtml(row.formatted_position) },
+                { label: "House", render: (row) => escapeHtml(row.house) },
+                { label: "Retrograde", render: (row) => escapeHtml(row.retrograde ? "Yes" : "No") },
+              ],
+              payload.natal_positions || [],
+            )}
+          </section>
+
+          <details>
+            <summary>Technical details</summary>
+            <div class="details-body">
+              <div class="key-grid">
+                <article class="info-card"><span>Chart ID</span><strong>${escapeHtml(payload.chart_id)}</strong></article>
+                <article class="info-card"><span>UTC Birth Datetime</span><strong>${escapeHtml(payload.utc_birth_datetime)}</strong></article>
+                <article class="info-card"><span>Julian Day</span><strong>${escapeHtml(payload.julian_day)}</strong></article>
+                <article class="info-card"><span>House System</span><strong>${escapeHtml(payload.house_system)}</strong></article>
+                <article class="info-card field-wide"><span>Chart Path</span><strong>${escapeHtml(payload.chart_path)}</strong></article>
+              </div>
+            </div>
+          </details>
+        `;
+
+        natalEmpty.classList.add("hidden");
+        natalResult.classList.remove("hidden");
+
+        const useChartButton = document.getElementById("use-chart-button");
+        useChartButton?.addEventListener("click", () => {
+          chartIdInput.value = payload.chart_id || "";
+          document.getElementById("transit-section").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      function renderTransitResult(payload) {
+        lastTransitPayload = payload;
+        const snapshot = payload.snapshot || {};
+        const allAspects = payload.active_aspects || [];
+        const visibleAspects = getFilteredAspects(allAspects);
+        const exactCount = allAspects.filter((aspect) => normaliseStrength(aspect.strength) === "exact").length;
+
+        transitResult.innerHTML = `
+          <span class="result-kicker">Snapshot</span>
+          <div>
+            <h3 class="result-title">Transit context</h3>
+            <p class="result-copy">A concise view of the transit moment, timezone, and calculation context.</p>
+          </div>
+
+          <div class="key-grid">
+            <article class="info-card">
+              <span>Transit Local Datetime</span>
+              <strong>${escapeHtml(snapshot.transit_local_datetime ? formatLocalDatetime(snapshot.transit_local_datetime, snapshot.transit_timezone) : formatDateTimeForStatus(transitDateInput.value, transitTimeInput.value, transitTimezoneInput.value))}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>Transit Timezone</span>
+              <strong>${escapeHtml(snapshot.transit_timezone || transitTimezoneInput.value || "UTC")}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>House System</span>
+              <strong>${escapeHtml(snapshot.house_system || "Not available")}</strong>
+            </article>
+
+            <article class="info-card">
+              <span>Ephemeris Version</span>
+              <strong>${escapeHtml(snapshot.ephemeris_version || snapshot.ephemeris || "Not available")}</strong>
+            </article>
+          </div>
+
+          <section class="table-card">
+            <div class="table-head">
+              <span>Active Aspects</span>
+              <h4>Transit-to-natal aspects</h4>
+              <p>Aspects remain sorted by orb. Strength badges are restrained, but exact and strong hits stand out first.</p>
+            </div>
+
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span>Total Active Aspects</span>
+                <strong>${escapeHtml(allAspects.length)}</strong>
+              </article>
+
+              <article class="stat-card">
+                <span>Exact Count</span>
+                <strong>${escapeHtml(exactCount)}</strong>
+              </article>
+
+              <article class="stat-card">
+                <span>Visible</span>
+                <strong>${escapeHtml(visibleAspects.length)}</strong>
+              </article>
+            </div>
+
+            <div class="filter-group" style="margin-top: 14px;">
+              <button class="filter-chip ${transitAspectFilter === "all" ? "active" : ""}" data-filter="all" type="button">All</button>
+              <button class="filter-chip ${transitAspectFilter === "exact-strong" ? "active" : ""}" data-filter="exact-strong" type="button">Exact + Strong</button>
+            </div>
+
+            <div style="margin-top: 14px;">
+              ${renderTable(
+                [
+                  { label: "Transit", render: (row) => escapeHtml(row.transit_object) },
+                  { label: "Aspect", render: (row) => escapeHtml(row.aspect) },
+                  { label: "Natal", render: (row) => escapeHtml(row.natal_object) },
+                  { label: "Orb", render: (row) => `${escapeHtml(Number(row.orb).toFixed(2))}°` },
+                  { label: "Strength", render: (row) => strengthBadge(row.strength) },
+                ],
+                visibleAspects,
+              )}
+            </div>
+          </section>
+
+          <section class="table-card">
+            <div class="table-head">
+              <span>Transit Positions</span>
+              <h4>Current sky positions</h4>
+              <p>Planet positions stay readable here, but the active aspects above are the primary signal.</p>
+            </div>
+            ${renderTable(
+              [
+                { label: "Planet", render: (row) => escapeHtml(row.id) },
+                { label: "Position", render: (row) => escapeHtml(row.formatted_position) },
+                { label: "Retrograde", render: (row) => escapeHtml(row.retrograde ? "Yes" : "No") },
+                { label: "Natal House", render: (row) => escapeHtml(row.natal_house) },
+              ],
+              payload.transit_positions || [],
+            )}
+          </section>
+
+          <details>
+            <summary>Technical details</summary>
+            <div class="details-body">
+              <div class="key-grid">
+                <article class="info-card"><span>Transit UTC Datetime</span><strong>${escapeHtml(snapshot.transit_utc_datetime || "Not available")}</strong></article>
+                <article class="info-card"><span>Transit Date</span><strong>${escapeHtml(snapshot.transit_date || "Not available")}</strong></article>
+                <article class="info-card"><span>Transit Time UT</span><strong>${escapeHtml(snapshot.transit_time_ut || "Not available")}</strong></article>
+                <article class="info-card"><span>Chart ID</span><strong>${escapeHtml(snapshot.chart_id || chartIdInput.value)}</strong></article>
+              </div>
+            </div>
+          </details>
+        `;
+
+        transitEmpty.classList.add("hidden");
+        transitResult.classList.remove("hidden");
+
+        transitResult.querySelectorAll("[data-filter]").forEach((button) => {
+          button.addEventListener("click", () => {
+            transitAspectFilter = button.dataset.filter;
+            renderTransitResult(lastTransitPayload);
+          });
+        });
+      }
+
+      function renderDebugResult(payload) {
+        debugResult.innerHTML = `
+          <span class="result-kicker">Engineering Output</span>
+          <div>
+            <h3 class="result-title">Raw /natal response</h3>
+            <p class="result-copy">Low-level normalized output for verification only.</p>
+          </div>
+
+          <section class="table-card">
+            <div class="table-head">
+              <span>Normalized Natal Positions</span>
+              <h4>Raw endpoint output</h4>
+            </div>
+            ${renderTable(
+              [
+                { label: "Planet", render: (row) => escapeHtml(row.id) },
+                { label: "Position", render: (row) => escapeHtml(row.formatted_position) },
+                { label: "House", render: (row) => escapeHtml(row.house) },
+                { label: "Speed", render: (row) => escapeHtml(row.speed) },
+              ],
+              payload.natal_positions || [],
+            )}
+          </section>
+
+          <details open>
+            <summary>Raw JSON</summary>
+            <div class="details-body">
+              <pre>${formatJson(payload)}</pre>
+            </div>
+          </details>
+        `;
+
+        debugEmpty.classList.add("hidden");
+        debugResult.classList.remove("hidden");
+      }
+
+      async function readJson(response) {
+        let payload = null;
+        try {
+          payload = await response.json();
+        } catch (error) {
+          payload = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(payload?.detail || `HTTP ${response.status}`);
+        }
+
+        return payload;
+      }
+
+      async function resolveLocation() {
+        const query = locationNameInput.value.trim();
+        if (!query) {
+          setResolutionFeedback("error", "Enter a location name before resolving.");
+          return;
+        }
+
+        resolveButton.disabled = true;
+        setResolutionFeedback("", "Resolving location...");
+
+        try {
+          const response = await fetch("/resolve-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ location_name: query }),
+          });
+          const payload = await readJson(response);
+          timezoneInput.value = payload.timezone || "";
+          latitudeInput.value = payload.latitude ?? "";
+          longitudeInput.value = payload.longitude ?? "";
+          setResolutionFeedback("success", `Resolved <strong>${escapeHtml(payload.resolved_name || query)}</strong>.`);
+        } catch (error) {
+          setResolutionFeedback("error", escapeHtml(error.message));
+        } finally {
+          resolveButton.disabled = false;
+        }
+      }
+
+      async function createNatalChart() {
+        setStatus(natalStatus, "info", "Creating natal chart...");
+
+        const payload = {
+          name: nameInput.value.trim() || null,
+          birth_date: birthDateInput.value,
+          birth_time: birthTimeInput.value,
+          timezone: timezoneInput.value.trim(),
+          location_name: locationNameInput.value.trim(),
+          latitude: Number(latitudeInput.value),
+          longitude: Number(longitudeInput.value),
+          time_basis: "local",
+        };
+
+        const response = await fetch("/create-natal-chart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const result = await readJson(response);
+        chartIdInput.value = result.chart_id || "";
+        renderNatalResult(result);
+        setStatus(natalStatus, "success", `Natal chart saved as ${result.chart_id}.`);
+        return result;
+      }
+
+      async function generateTransitReport() {
+        setStatus(transitStatus, "info", "Generating transit report...");
+
+        const payload = {
+          chart_id: chartIdInput.value.trim(),
+          transit_date: transitDateInput.value,
+          transit_time: transitTimeInput.value,
+          timezone: transitTimezoneInput.value.trim() || null,
+        };
+
+        const response = await fetch("/transit-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const result = await readJson(response);
+        renderTransitResult(result);
+        setStatus(transitStatus, "success", "Transit report generated.");
+        return result;
+      }
+
+      async function runDebug() {
+        setStatus(debugStatus, "info", "Running raw natal debug...");
+        const params = new URLSearchParams({
+          year: document.getElementById("debug-year").value,
+          month: document.getElementById("debug-month").value,
+          day: document.getElementById("debug-day").value,
+          hour: document.getElementById("debug-hour").value,
+          lat: document.getElementById("debug-lat").value,
+          lon: document.getElementById("debug-lon").value,
+        });
+        const response = await fetch(`/natal?${params.toString()}`);
+        const result = await readJson(response);
+        renderDebugResult(result);
+        setStatus(debugStatus, "success", "Raw natal debug completed.");
+        return result;
+      }
+
+      resolveButton.addEventListener("click", resolveLocation);
+
+      natalForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await createNatalChart();
+        } catch (error) {
+          setStatus(natalStatus, "error", error.message);
+        }
+      });
+
+      transitForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await generateTransitReport();
+        } catch (error) {
+          setStatus(transitStatus, "error", error.message);
+        }
+      });
+
+      debugForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await runDebug();
+        } catch (error) {
+          setStatus(debugStatus, "error", error.message);
+        }
+      });
+
+      window.addEventListener("load", async () => {
+        try {
+          await createNatalChart();
+        } catch (error) {
+          setStatus(natalStatus, "error", error.message);
+        }
+
+        try {
+          await generateTransitReport();
+        } catch (error) {
+          setStatus(transitStatus, "error", error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

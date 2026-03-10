@@ -1,0 +1,273 @@
+{
+  "angle_positions": [
+    {
+      "degree": 2,
+      "formatted_position": "2 Sagittarius 27' 38\"",
+      "id": "ASC",
+      "longitude": 242.460598,
+      "minute": 27,
+      "second": 38,
+      "sign": "Sagittarius"
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Virgo 16' 57\"",
+      "id": "MC",
+      "longitude": 179.282418,
+      "minute": 16,
+      "second": 57,
+      "sign": "Virgo"
+    }
+  ],
+  "angles": {
+    "asc": 242.460598,
+    "mc": 179.282418
+  },
+  "birth_data": {
+    "day": 21,
+    "hour": 6.35,
+    "latitude": 52.093751,
+    "longitude": 23.6851851,
+    "month": 11,
+    "time_basis": "UT",
+    "year": 1980
+  },
+  "birth_input": {
+    "birth_date": "1980-11-21",
+    "birth_time": "09:21:00",
+    "latitude": 52.093751,
+    "local_birth_datetime": "1980-11-21T09:21:00+03:00",
+    "location_name": "Moscow",
+    "longitude": 23.6851851,
+    "name": "Mick Mity",
+    "time_basis": "local",
+    "timezone": "Europe/Minsk",
+    "utc_birth_datetime": "1980-11-21T06:21:00Z"
+  },
+  "ephemeris_path": "/Users/sergecreator/astro-consul/ephe",
+  "ephemeris_sources": [
+    "Swiss Ephemeris files"
+  ],
+  "house_system": "Placidus",
+  "houses": [
+    242.460598,
+    276.403079,
+    320.379258,
+    359.282418,
+    26.766436,
+    46.59937,
+    62.460598,
+    96.403079,
+    140.379258,
+    179.282418,
+    206.766436,
+    226.59937
+  ],
+  "julian_day": 2444564.76458333,
+  "natal_aspects": [
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 3.043017,
+      "orb": 3.043017,
+      "p1": "Sun",
+      "p2": "Uranus"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.898352,
+      "orb": 5.101648,
+      "p1": "Moon",
+      "p2": "Mercury"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.836205,
+      "orb": 2.836205,
+      "p1": "Venus",
+      "p2": "Mars"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 3.44091,
+      "orb": 3.44091,
+      "p1": "Venus",
+      "p2": "Pluto"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 84.876257,
+      "orb": 5.123743,
+      "p1": "Mars",
+      "p2": "Jupiter"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 7.851093,
+      "orb": 7.851093,
+      "p1": "Mars",
+      "p2": "Neptune"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 2.394858,
+      "orb": 2.394858,
+      "p1": "Jupiter",
+      "p2": "Saturn"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.426022,
+      "orb": 1.573978,
+      "p1": "Neptune",
+      "p2": "Pluto"
+    }
+  ],
+  "natal_positions": [
+    {
+      "degree": 29,
+      "formatted_position": "29 Scorpio 06' 07\"",
+      "house": 12,
+      "id": "Sun",
+      "longitude": 239.102008,
+      "minute": 6,
+      "retrograde": false,
+      "second": 7,
+      "sign": "Scorpio",
+      "speed": 1.009749
+    },
+    {
+      "degree": 14,
+      "formatted_position": "14 Taurus 49' 27\"",
+      "house": 5,
+      "id": "Moon",
+      "longitude": 44.824154,
+      "minute": 49,
+      "retrograde": false,
+      "second": 27,
+      "sign": "Taurus",
+      "speed": 15.154704
+    },
+    {
+      "degree": 9,
+      "formatted_position": "9 Scorpio 43' 21\"",
+      "house": 11,
+      "id": "Mercury",
+      "longitude": 219.722506,
+      "minute": 43,
+      "retrograde": false,
+      "second": 21,
+      "sign": "Scorpio",
+      "speed": 1.123456
+    },
+    {
+      "degree": 26,
+      "formatted_position": "26 Libra 33' 14\"",
+      "house": 10,
+      "id": "Venus",
+      "longitude": 206.553871,
+      "minute": 33,
+      "retrograde": false,
+      "second": 14,
+      "sign": "Libra",
+      "speed": 1.228836
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Sagittarius 23' 24\"",
+      "house": 1,
+      "id": "Mars",
+      "longitude": 269.390076,
+      "minute": 23,
+      "retrograde": false,
+      "second": 24,
+      "sign": "Sagittarius",
+      "speed": 0.755845
+    },
+    {
+      "degree": 4,
+      "formatted_position": "4 Libra 30' 50\"",
+      "house": 10,
+      "id": "Jupiter",
+      "longitude": 184.513819,
+      "minute": 30,
+      "retrograde": false,
+      "second": 50,
+      "sign": "Libra",
+      "speed": 0.164174
+    },
+    {
+      "degree": 6,
+      "formatted_position": "6 Libra 54' 31\"",
+      "house": 10,
+      "id": "Saturn",
+      "longitude": 186.908677,
+      "minute": 54,
+      "retrograde": false,
+      "second": 31,
+      "sign": "Libra",
+      "speed": 0.091328
+    },
+    {
+      "degree": 26,
+      "formatted_position": "26 Scorpio 03' 32\"",
+      "house": 12,
+      "id": "Uranus",
+      "longitude": 236.058991,
+      "minute": 3,
+      "retrograde": false,
+      "second": 32,
+      "sign": "Scorpio",
+      "speed": 0.062045
+    },
+    {
+      "degree": 21,
+      "formatted_position": "21 Sagittarius 32' 20\"",
+      "house": 1,
+      "id": "Neptune",
+      "longitude": 261.538983,
+      "minute": 32,
+      "retrograde": false,
+      "second": 20,
+      "sign": "Sagittarius",
+      "speed": 0.035437
+    },
+    {
+      "degree": 23,
+      "formatted_position": "23 Libra 06' 47\"",
+      "house": 10,
+      "id": "Pluto",
+      "longitude": 203.112961,
+      "minute": 6,
+      "retrograde": false,
+      "second": 47,
+      "sign": "Libra",
+      "speed": 0.033942
+    }
+  ],
+  "natal_summary": {
+    "asc": "Sagittarius 2\u00b027'38\"",
+    "moon": "Taurus 14\u00b049'27\"",
+    "sun": "Scorpio 29\u00b006'07\""
+  },
+  "planets": {
+    "Jupiter": 184.513819,
+    "Mars": 269.390076,
+    "Mercury": 219.722506,
+    "Moon": 44.824154,
+    "Neptune": 261.538983,
+    "Pluto": 203.112961,
+    "Saturn": 186.908677,
+    "Sun": 239.102008,
+    "Uranus": 236.058991,
+    "Venus": 206.553871
+  },
+  "swiss_ephemeris_version": "2.10.03"
+}

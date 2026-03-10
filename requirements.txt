@@ -1,0 +1,5 @@
+pyswisseph
+fastapi
+uvicorn
+jinja2
+timezonefinder

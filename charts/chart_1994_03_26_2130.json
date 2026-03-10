@@ -1,0 +1,297 @@
+{
+  "angle_positions": [
+    {
+      "degree": 2,
+      "formatted_position": "2 Sagittarius 43' 20\"",
+      "id": "ASC",
+      "longitude": 242.722275,
+      "minute": 43,
+      "second": 20,
+      "sign": "Sagittarius"
+    },
+    {
+      "degree": 4,
+      "formatted_position": "4 Libra 34' 41\"",
+      "id": "MC",
+      "longitude": 184.578191,
+      "minute": 34,
+      "second": 41,
+      "sign": "Libra"
+    }
+  ],
+  "angles": {
+    "asc": 242.722275,
+    "mc": 184.578191
+  },
+  "birth_data": {
+    "day": 26,
+    "hour": 21.5,
+    "latitude": 55.62558,
+    "longitude": 37.60639,
+    "month": 3,
+    "time_basis": "UT",
+    "year": 1994
+  },
+  "birth_input": {
+    "birth_date": "1994-03-27",
+    "birth_time": "00:30:00",
+    "latitude": 55.62558,
+    "local_birth_datetime": "1994-03-27T00:30:00+03:00",
+    "location_name": "moscow",
+    "longitude": 37.60639,
+    "name": "Victoria",
+    "time_basis": "local",
+    "timezone": "Europe/Moscow",
+    "utc_birth_datetime": "1994-03-26T21:30:00Z"
+  },
+  "ephemeris_path": "/Users/sergecreator/astro-consul/ephe",
+  "ephemeris_sources": [
+    "Swiss Ephemeris files"
+  ],
+  "house_system": "Placidus",
+  "houses": [
+    242.722275,
+    277.632292,
+    325.308709,
+    4.578191,
+    30.4715,
+    48.548357,
+    62.722275,
+    97.632292,
+    145.308709,
+    184.578191,
+    210.4715,
+    228.548357
+  ],
+  "julian_day": 2449438.39583333,
+  "natal_aspects": [
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 117.890929,
+      "orb": 2.109071,
+      "p1": "Moon",
+      "p2": "Uranus"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.167089,
+      "orb": 4.832911,
+      "p1": "Moon",
+      "p2": "Neptune"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 59.946183,
+      "orb": 0.053817,
+      "p1": "Moon",
+      "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 5.685193,
+      "orb": 5.685193,
+      "p1": "Mercury",
+      "p2": "Mars"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.992664,
+      "orb": 4.007336,
+      "p1": "Mercury",
+      "p2": "Jupiter"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 2.820976,
+      "orb": 2.820976,
+      "p1": "Mercury",
+      "p2": "Saturn"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 86.868021,
+      "orb": 3.131979,
+      "p1": "Venus",
+      "p2": "Uranus"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.591861,
+      "orb": 0.408139,
+      "p1": "Venus",
+      "p2": "Neptune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 121.677857,
+      "orb": 1.677857,
+      "p1": "Mars",
+      "p2": "Jupiter"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 2.72384,
+      "orb": 2.72384,
+      "p1": "Uranus",
+      "p2": "Neptune"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 57.944746,
+      "orb": 2.055254,
+      "p1": "Uranus",
+      "p2": "Pluto"
+    }
+  ],
+  "natal_positions": [
+    {
+      "degree": 5,
+      "formatted_position": "5 Aries 59' 27\"",
+      "house": 4,
+      "id": "Sun",
+      "longitude": 5.990946,
+      "minute": 59,
+      "retrograde": false,
+      "second": 27,
+      "sign": "Aries",
+      "speed": 0.989504
+    },
+    {
+      "degree": 27,
+      "formatted_position": "27 Virgo 56' 36\"",
+      "house": 9,
+      "id": "Moon",
+      "longitude": 177.943304,
+      "minute": 56,
+      "retrograde": false,
+      "second": 36,
+      "sign": "Virgo",
+      "speed": 15.084067
+    },
+    {
+      "degree": 9,
+      "formatted_position": "9 Pisces 35' 11\"",
+      "house": 3,
+      "id": "Mercury",
+      "longitude": 339.586305,
+      "minute": 35,
+      "retrograde": false,
+      "second": 11,
+      "sign": "Pisces",
+      "speed": 1.2888
+    },
+    {
+      "degree": 22,
+      "formatted_position": "22 Aries 42' 08\"",
+      "house": 4,
+      "id": "Venus",
+      "longitude": 22.702254,
+      "minute": 42,
+      "retrograde": false,
+      "second": 8,
+      "sign": "Aries",
+      "speed": 1.236342
+    },
+    {
+      "degree": 15,
+      "formatted_position": "15 Pisces 16' 17\"",
+      "house": 3,
+      "id": "Mars",
+      "longitude": 345.271498,
+      "minute": 16,
+      "retrograde": false,
+      "second": 17,
+      "sign": "Pisces",
+      "speed": 0.7839
+    },
+    {
+      "degree": 13,
+      "formatted_position": "13 Scorpio 35' 37\"",
+      "house": 11,
+      "id": "Jupiter",
+      "longitude": 223.593641,
+      "minute": 35,
+      "retrograde": true,
+      "second": 37,
+      "sign": "Scorpio",
+      "speed": -0.078206
+    },
+    {
+      "degree": 6,
+      "formatted_position": "6 Pisces 45' 55\"",
+      "house": 3,
+      "id": "Saturn",
+      "longitude": 336.765329,
+      "minute": 45,
+      "retrograde": false,
+      "second": 55,
+      "sign": "Pisces",
+      "speed": 0.111359
+    },
+    {
+      "degree": 25,
+      "formatted_position": "25 Capricorn 50' 03\"",
+      "house": 2,
+      "id": "Uranus",
+      "longitude": 295.834233,
+      "minute": 50,
+      "retrograde": false,
+      "second": 3,
+      "sign": "Capricorn",
+      "speed": 0.028618
+    },
+    {
+      "degree": 23,
+      "formatted_position": "23 Capricorn 06' 37\"",
+      "house": 2,
+      "id": "Neptune",
+      "longitude": 293.110393,
+      "minute": 6,
+      "retrograde": false,
+      "second": 37,
+      "sign": "Capricorn",
+      "speed": 0.016025
+    },
+    {
+      "degree": 27,
+      "formatted_position": "27 Scorpio 53' 22\"",
+      "house": 12,
+      "id": "Pluto",
+      "longitude": 237.889487,
+      "minute": 53,
+      "retrograde": true,
+      "second": 22,
+      "sign": "Scorpio",
+      "speed": -0.014008
+    }
+  ],
+  "natal_summary": {
+    "asc": "Sagittarius 2\u00b043'20\"",
+    "moon": "Virgo 27\u00b056'36\"",
+    "sun": "Aries 5\u00b059'27\""
+  },
+  "planets": {
+    "Jupiter": 223.593641,
+    "Mars": 345.271498,
+    "Mercury": 339.586305,
+    "Moon": 177.943304,
+    "Neptune": 293.110393,
+    "Pluto": 237.889487,
+    "Saturn": 336.765329,
+    "Sun": 5.990946,
+    "Uranus": 295.834233,
+    "Venus": 22.702254
+  },
+  "swiss_ephemeris_version": "2.10.03"
+}
