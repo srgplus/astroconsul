@@ -4,7 +4,7 @@
       "degree": 2,
       "formatted_position": "2 Sagittarius 43' 20\"",
       "id": "ASC",
-      "longitude": 242.722275,
+      "longitude": 242.722278,
       "minute": 43,
       "second": 20,
       "sign": "Sagittarius"
@@ -13,21 +13,21 @@
       "degree": 4,
       "formatted_position": "4 Libra 34' 41\"",
       "id": "MC",
-      "longitude": 184.578191,
+      "longitude": 184.578192,
       "minute": 34,
       "second": 41,
       "sign": "Libra"
     }
   ],
   "angles": {
-    "asc": 242.722275,
-    "mc": 184.578191
+    "asc": 242.722278,
+    "mc": 184.578192
   },
   "birth_data": {
     "day": 26,
     "hour": 21.5,
-    "latitude": 55.62558,
-    "longitude": 37.60639,
+    "latitude": 55.625578,
+    "longitude": 37.6063916,
     "month": 3,
     "time_basis": "UT",
     "year": 1994
@@ -35,10 +35,10 @@
   "birth_input": {
     "birth_date": "1994-03-27",
     "birth_time": "00:30:00",
-    "latitude": 55.62558,
+    "latitude": 55.625578,
     "local_birth_datetime": "1994-03-27T00:30:00+03:00",
-    "location_name": "moscow",
-    "longitude": 37.60639,
+    "location_name": "Moscow",
+    "longitude": 37.6063916,
     "name": "Victoria",
     "time_basis": "local",
     "timezone": "Europe/Moscow",
@@ -50,18 +50,18 @@
   ],
   "house_system": "Placidus",
   "houses": [
-    242.722275,
-    277.632292,
-    325.308709,
-    4.578191,
-    30.4715,
-    48.548357,
-    62.722275,
-    97.632292,
-    145.308709,
-    184.578191,
-    210.4715,
-    228.548357
+    242.722278,
+    277.632295,
+    325.308712,
+    4.578192,
+    30.471502,
+    48.548359,
+    62.722278,
+    97.632295,
+    145.308712,
+    184.578192,
+    210.471502,
+    228.548359
   ],
   "julian_day": 2449438.39583333,
   "natal_aspects": [

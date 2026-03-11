@@ -14,6 +14,7 @@ from chart_builder import build_chart, make_chart_id, save_chart
 from chart_builder import swiss_ephemeris_version
 from location_service import LocationResolutionError, resolve_location_name
 from transit_builder import build_transit_report
+from transit_timeline import build_transit_timeline
 
 app = FastAPI(title="Astro Consul MVP UI")
 
@@ -38,6 +39,13 @@ class TransitReportRequest(BaseModel):
     transit_time: str
     timezone: Optional[str] = None
     include_timing: bool = False
+
+
+class TransitTimelineRequest(BaseModel):
+    chart_id: str
+    start_date: date
+    end_date: date
+    timezone: str
 
 
 class LocationResolveRequest(BaseModel):
@@ -319,3 +327,20 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
     )
     report["snapshot"] = snapshot
     return report
+
+
+@app.post("/transit-timeline")
+def transit_timeline(payload: TransitTimelineRequest) -> dict[str, object]:
+    try:
+        timeline = build_transit_timeline(
+            payload.chart_id,
+            payload.start_date,
+            payload.end_date,
+            payload.timezone,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {"timeline": timeline}

@@ -612,6 +612,56 @@
         line-height: 1.5;
       }
 
+      .timeline-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .timeline-row {
+        display: grid;
+        grid-template-columns: 82px minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .timeline-day {
+        color: var(--ink);
+        font-size: 22px;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+
+      .timeline-body {
+        min-width: 0;
+      }
+
+      .timeline-title {
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.45;
+      }
+
+      .timeline-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .timeline-empty {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
       pre {
         margin: 0;
         overflow: auto;
@@ -926,6 +976,7 @@
 
       let transitAspectFilter = "exact-strong";
       let lastTransitPayload = null;
+      let transitTimelineRequestId = 0;
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -982,6 +1033,113 @@
       function strengthBadge(value) {
         const normalized = normaliseStrength(value);
         return `<span class="strength-badge strength-${normalized}">${escapeHtml(normalized)}</span>`;
+      }
+
+      function userTimezone() {
+        return transitTimezoneInput.value.trim() || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+      }
+
+      function addDaysToIsoDate(isoDate, days) {
+        const [year, month, day] = isoDate.split("-").map(Number);
+        const shifted = new Date(Date.UTC(year, month - 1, day + days, 12, 0, 0));
+        return shifted.toISOString().slice(0, 10);
+      }
+
+      function timelineWindow(startDateValue) {
+        const startDate = startDateValue || transitDateInput.value || new Date().toISOString().slice(0, 10);
+        const endDate = addDaysToIsoDate(startDate, 30);
+        return { startDate, endDate };
+      }
+
+      function formatTimelineDay(isoValue, timezoneName) {
+        if (!isoValue) return "TBD";
+        const parsed = new Date(isoValue);
+        if (Number.isNaN(parsed.getTime())) return "TBD";
+
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            timeZone: timezoneName || "UTC",
+            month: "short",
+            day: "2-digit",
+          }).format(parsed);
+        } catch (error) {
+          return "TBD";
+        }
+      }
+
+      function formatTimelineTime(isoValue, timezoneName, label) {
+        if (!isoValue) return `${label} time unavailable`;
+        const parsed = new Date(isoValue);
+        if (Number.isNaN(parsed.getTime())) return `${label} time unavailable`;
+
+        try {
+          const formatted = new Intl.DateTimeFormat("en-GB", {
+            timeZone: timezoneName || "UTC",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }).format(parsed);
+          return `${label} ${formatted}`;
+        } catch (error) {
+          return `${label} time unavailable`;
+        }
+      }
+
+      function sameMoment(leftIso, rightIso) {
+        if (!leftIso || !rightIso) return false;
+        return new Date(leftIso).getTime() === new Date(rightIso).getTime();
+      }
+
+      function timelineDisplayState({ display_utc, exact_utc, start_utc }) {
+        if (exact_utc && sameMoment(display_utc, exact_utc)) {
+          return { label: "Exact", note: "", showTime: true };
+        }
+
+        if (start_utc && display_utc && new Date(start_utc).getTime() < new Date(display_utc).getTime()) {
+          return { label: "Ongoing", note: "", showTime: false };
+        }
+
+        return { label: "", note: "", showTime: false };
+      }
+
+      function TransitTimelineRow({ transit, aspect, natal, start_utc, exact_utc, display_utc, strength, timezoneName }) {
+        const state = timelineDisplayState({ display_utc, exact_utc, start_utc });
+        const metaText = state.showTime
+          ? formatTimelineTime(display_utc, timezoneName, state.label)
+          : state.note
+            ? `${state.label} · ${state.note}`
+            : state.label;
+        return `
+          <article class="timeline-row">
+            <div class="timeline-day">${escapeHtml(formatTimelineDay(display_utc, timezoneName))}</div>
+            <div class="timeline-body">
+              <div class="timeline-title">${escapeHtml(`${transit} ${aspect} ${natal}`)}</div>
+              ${metaText ? `<div class="timeline-meta">${escapeHtml(metaText)}</div>` : ""}
+            </div>
+            ${strengthBadge(strength)}
+          </article>
+        `;
+      }
+
+      function renderUpcomingTransitsSection(items, timezoneName, options = {}) {
+        const { isLoading = false, hasError = false } = options;
+        return `
+          <section class="table-card">
+            <div class="table-head">
+              <span>Upcoming Transits</span>
+              <h4>Nearest 10 upcoming transit moments</h4>
+            </div>
+            ${
+              isLoading
+                ? `<div class="timeline-empty">Loading upcoming transits...</div>`
+                : hasError
+                ? `<div class="timeline-empty">Unable to load upcoming transits</div>`
+                : items.length
+                ? `<div class="timeline-list">${items.map((item) => TransitTimelineRow({ ...item, timezoneName })).join("")}</div>`
+                : `<div class="timeline-empty">No upcoming transits</div>`
+            }
+          </section>
+        `;
       }
 
       function timingStatusBadge(value) {
@@ -1241,6 +1399,34 @@
         const allAspects = payload.active_aspects || [];
         const visibleAspects = getFilteredAspects(allAspects);
         const exactCount = allAspects.filter((aspect) => normaliseStrength(aspect.strength) === "exact").length;
+        const timelineTimezone = snapshot.transit_timezone || userTimezone();
+        const timelineLoading = Boolean(payload.timeline_loading);
+        const timelineError = Boolean(payload.timeline_error);
+        const timelineStart = snapshot.transit_utc_datetime ? new Date(snapshot.transit_utc_datetime) : null;
+        const timelineEnd = timelineStart ? new Date(timelineStart.getTime() + 30 * 24 * 60 * 60 * 1000) : null;
+        const timelineItems = (payload.timeline || [])
+          .filter((item) => {
+            if (item.transit === "Moon" || !item.display_utc) {
+              return false;
+            }
+
+            const displayMoment = new Date(item.display_utc);
+            if (Number.isNaN(displayMoment.getTime())) {
+              return false;
+            }
+
+            if (timelineStart && displayMoment < timelineStart) {
+              return false;
+            }
+
+            if (timelineEnd && displayMoment > timelineEnd) {
+              return false;
+            }
+
+            return true;
+          })
+          .sort((left, right) => new Date(left.display_utc).getTime() - new Date(right.display_utc).getTime())
+          .slice(0, 10);
 
         transitResult.innerHTML = `
           <span class="result-kicker">Snapshot</span>
@@ -1321,6 +1507,8 @@
               )}
             </div>
           </section>
+
+          ${renderUpcomingTransitsSection(timelineItems, timelineTimezone, { isLoading: timelineLoading, hasError: timelineError })}
 
           <section class="table-card">
             <div class="table-head">
@@ -1468,14 +1656,61 @@
         return result;
       }
 
+      async function fetchTransitTimeline(chartId, timezoneName, startDateValue) {
+        const { startDate, endDate } = timelineWindow(startDateValue);
+        const response = await fetch("/transit-timeline", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chart_id: chartId,
+            start_date: startDate,
+            end_date: endDate,
+            timezone: timezoneName,
+          }),
+        });
+        const result = await readJson(response);
+        return Array.isArray(result.timeline) ? result.timeline : [];
+      }
+
+      async function hydrateTransitTimeline(chartId, timezoneName, startDateValue, requestId) {
+        try {
+          const timeline = await fetchTransitTimeline(chartId, timezoneName, startDateValue);
+          if (requestId !== transitTimelineRequestId || !lastTransitPayload) {
+            return;
+          }
+
+          const updatedPayload = {
+            ...lastTransitPayload,
+            timeline,
+            timeline_loading: false,
+            timeline_error: false,
+          };
+          renderTransitResult(updatedPayload);
+        } catch (error) {
+          if (requestId !== transitTimelineRequestId || !lastTransitPayload) {
+            return;
+          }
+
+          const updatedPayload = {
+            ...lastTransitPayload,
+            timeline: [],
+            timeline_loading: false,
+            timeline_error: true,
+          };
+          renderTransitResult(updatedPayload);
+        }
+      }
+
       async function generateTransitReport() {
         setStatus(transitStatus, "info", "Generating transit report...");
 
+        const timezoneName = userTimezone();
+        const requestId = ++transitTimelineRequestId;
         const payload = {
           chart_id: chartIdInput.value.trim(),
           transit_date: transitDateInput.value,
           transit_time: transitTimeInput.value,
-          timezone: transitTimezoneInput.value.trim() || null,
+          timezone: timezoneName,
           include_timing: true,
         };
 
@@ -1485,8 +1720,12 @@
           body: JSON.stringify(payload),
         });
         const result = await readJson(response);
+        result.timeline = [];
+        result.timeline_loading = true;
+        result.timeline_error = false;
         renderTransitResult(result);
         setStatus(transitStatus, "success", "Transit report generated.");
+        void hydrateTransitTimeline(payload.chart_id, timezoneName, transitDateInput.value, requestId);
         return result;
       }
 
