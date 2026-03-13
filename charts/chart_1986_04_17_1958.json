@@ -4,7 +4,7 @@
       "degree": 24,
       "formatted_position": "24 Scorpio 56' 08\"",
       "id": "ASC",
-      "longitude": 234.935611,
+      "longitude": 234.935614,
       "minute": 56,
       "second": 8,
       "sign": "Scorpio"
@@ -13,15 +13,16 @@
       "degree": 17,
       "formatted_position": "17 Virgo 51' 30\"",
       "id": "MC",
-      "longitude": 167.858311,
+      "longitude": 167.858316,
       "minute": 51,
       "second": 30,
       "sign": "Virgo"
     }
   ],
   "angles": {
-    "asc": 234.935611,
-    "mc": 167.858311
+    "asc": 234.935614,
+    "mc": 167.858316,
+    "vertex": 97.669763
   },
   "birth_data": {
     "day": 17,
@@ -50,26 +51,26 @@
   ],
   "house_system": "Placidus",
   "houses": [
-    234.935611,
-    266.628111,
-    308.062152,
-    347.858311,
-    17.257084,
-    38.450653,
-    54.935611,
-    86.628111,
-    128.062152,
-    167.858311,
-    197.257084,
-    218.450653
+    234.935614,
+    266.628115,
+    308.062158,
+    347.858316,
+    17.257089,
+    38.450657,
+    54.935614,
+    86.628115,
+    128.062158,
+    167.858316,
+    197.257089,
+    218.450657
   ],
-  "julian_day": 2446538.33194444,
+  "julian_day": 2446538.33194446,
   "natal_aspects": [
     {
       "angle": 90,
       "aspect": "square",
-      "delta": 94.462347,
-      "orb": 4.462347,
+      "delta": 94.462348,
+      "orb": 4.462348,
       "p1": "Sun",
       "p2": "Moon"
     },
@@ -84,16 +85,16 @@
     {
       "angle": 120,
       "aspect": "trine",
-      "delta": 121.610134,
-      "orb": 1.610134,
+      "delta": 121.610135,
+      "orb": 1.610135,
       "p1": "Moon",
       "p2": "Mercury"
     },
     {
       "angle": 90,
       "aspect": "square",
-      "delta": 94.24738,
-      "orb": 4.24738,
+      "delta": 94.247379,
+      "orb": 4.247379,
       "p1": "Moon",
       "p2": "Pluto"
     },
@@ -160,11 +161,35 @@
       "speed": 0.977627
     },
     {
+      "degree": 24,
+      "formatted_position": "24 Scorpio 56' 08\"",
+      "house": 1,
+      "id": "ASC",
+      "longitude": 234.935614,
+      "minute": 56,
+      "retrograde": null,
+      "second": 8,
+      "sign": "Scorpio",
+      "speed": null
+    },
+    {
+      "degree": 17,
+      "formatted_position": "17 Virgo 51' 30\"",
+      "house": 10,
+      "id": "MC",
+      "longitude": 167.858316,
+      "minute": 51,
+      "retrograde": null,
+      "second": 30,
+      "sign": "Virgo",
+      "speed": null
+    },
+    {
       "degree": 1,
       "formatted_position": "1 Leo 58' 12\"",
       "house": 8,
       "id": "Moon",
-      "longitude": 121.969993,
+      "longitude": 121.969994,
       "minute": 58,
       "retrograde": false,
       "second": 12,
@@ -266,6 +291,90 @@
       "second": 3,
       "sign": "Scorpio",
       "speed": -0.02781
+    },
+    {
+      "degree": 11,
+      "formatted_position": "11 Gemini 23' 24\"",
+      "house": 7,
+      "id": "Chiron",
+      "longitude": 71.389899,
+      "minute": 23,
+      "retrograde": false,
+      "second": 24,
+      "sign": "Gemini",
+      "speed": 0.064434
+    },
+    {
+      "degree": 5,
+      "formatted_position": "5 Gemini 28' 51\"",
+      "house": 7,
+      "id": "Lilith",
+      "longitude": 65.480903,
+      "minute": 28,
+      "retrograde": false,
+      "second": 51,
+      "sign": "Gemini",
+      "speed": 0.111194
+    },
+    {
+      "degree": 17,
+      "formatted_position": "17 Sagittarius 09' 59\"",
+      "house": 1,
+      "id": "Selena",
+      "longitude": 257.166522,
+      "minute": 9,
+      "retrograde": false,
+      "second": 59,
+      "sign": "Sagittarius",
+      "speed": 0.140832
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Aries 59' 14\"",
+      "house": 5,
+      "id": "North Node",
+      "longitude": 29.987219,
+      "minute": 59,
+      "retrograde": true,
+      "second": 14,
+      "sign": "Aries",
+      "speed": -0.000789
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Libra 59' 14\"",
+      "house": 11,
+      "id": "South Node",
+      "longitude": 209.987219,
+      "minute": 59,
+      "retrograde": true,
+      "second": 14,
+      "sign": "Libra",
+      "speed": -0.000789
+    },
+    {
+      "degree": 20,
+      "formatted_position": "20 Leo 28' 24\"",
+      "house": 9,
+      "id": "Part of Fortune",
+      "longitude": 140.473266,
+      "minute": 28,
+      "retrograde": null,
+      "second": 24,
+      "sign": "Leo",
+      "speed": null
+    },
+    {
+      "degree": 7,
+      "formatted_position": "7 Cancer 40' 11\"",
+      "house": 8,
+      "id": "Vertex",
+      "longitude": 97.669763,
+      "minute": 40,
+      "retrograde": null,
+      "second": 11,
+      "sign": "Cancer",
+      "speed": null
     }
   ],
   "natal_summary": {
@@ -277,7 +386,7 @@
     "Jupiter": 342.790822,
     "Mars": 279.788837,
     "Mercury": 0.359859,
-    "Moon": 121.969993,
+    "Moon": 121.969994,
     "Neptune": 275.781638,
     "Pluto": 216.217373,
     "Saturn": 249.005725,

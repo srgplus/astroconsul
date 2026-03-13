@@ -21,7 +21,8 @@
   ],
   "angles": {
     "asc": 62.239921,
-    "mc": 299.085652
+    "mc": 299.085652,
+    "vertex": 205.360016
   },
   "birth_data": {
     "day": 28,
@@ -156,6 +157,30 @@
       "speed": 0.955543
     },
     {
+      "degree": 2,
+      "formatted_position": "2 Gemini 14' 24\"",
+      "house": 1,
+      "id": "ASC",
+      "longitude": 62.239921,
+      "minute": 14,
+      "retrograde": null,
+      "second": 24,
+      "sign": "Gemini",
+      "speed": null
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Capricorn 05' 08\"",
+      "house": 10,
+      "id": "MC",
+      "longitude": 299.085652,
+      "minute": 5,
+      "retrograde": null,
+      "second": 8,
+      "sign": "Capricorn",
+      "speed": null
+    },
+    {
       "degree": 29,
       "formatted_position": "29 Aquarius 14' 52\"",
       "house": 11,
@@ -262,6 +287,90 @@
       "second": 48,
       "sign": "Scorpio",
       "speed": -3.7e-05
+    },
+    {
+      "degree": 0,
+      "formatted_position": "0 Leo 50' 33\"",
+      "house": 4,
+      "id": "Chiron",
+      "longitude": 120.842583,
+      "minute": 50,
+      "retrograde": false,
+      "second": 33,
+      "sign": "Leo",
+      "speed": 0.11602
+    },
+    {
+      "degree": 10,
+      "formatted_position": "10 Capricorn 25' 27\"",
+      "house": 8,
+      "id": "Lilith",
+      "longitude": 280.424127,
+      "minute": 25,
+      "retrograde": false,
+      "second": 27,
+      "sign": "Capricorn",
+      "speed": 0.11075
+    },
+    {
+      "degree": 18,
+      "formatted_position": "18 Virgo 41' 32\"",
+      "house": 5,
+      "id": "Selena",
+      "longitude": 168.692258,
+      "minute": 41,
+      "retrograde": false,
+      "second": 32,
+      "sign": "Virgo",
+      "speed": 0.140807
+    },
+    {
+      "degree": 18,
+      "formatted_position": "18 Capricorn 55' 18\"",
+      "house": 9,
+      "id": "North Node",
+      "longitude": 288.921764,
+      "minute": 55,
+      "retrograde": true,
+      "second": 18,
+      "sign": "Capricorn",
+      "speed": -0.037884
+    },
+    {
+      "degree": 18,
+      "formatted_position": "18 Cancer 55' 18\"",
+      "house": 3,
+      "id": "South Node",
+      "longitude": 108.921764,
+      "minute": 55,
+      "retrograde": true,
+      "second": 18,
+      "sign": "Cancer",
+      "speed": -0.037884
+    },
+    {
+      "degree": 8,
+      "formatted_position": "8 Scorpio 19' 15\"",
+      "house": 6,
+      "id": "Part of Fortune",
+      "longitude": 218.320911,
+      "minute": 19,
+      "retrograde": null,
+      "second": 15,
+      "sign": "Scorpio",
+      "speed": null
+    },
+    {
+      "degree": 25,
+      "formatted_position": "25 Libra 21' 36\"",
+      "house": 6,
+      "id": "Vertex",
+      "longitude": 205.360016,
+      "minute": 21,
+      "retrograde": null,
+      "second": 36,
+      "sign": "Libra",
+      "speed": null
     }
   ],
   "natal_summary": {

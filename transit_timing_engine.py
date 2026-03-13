@@ -6,7 +6,7 @@ import swisseph as swe
 
 from aspect_engine import ASPECTS, angular_delta
 from astro_utils import normalize_longitude, time_to_decimal_hours
-from chart_builder import EPHE_PATH, FLAGS, PLANETS
+from chart_builder import EPHE_PATH, FLAGS, TRANSIT_OBJECT_IDS
 
 swe.set_ephe_path(str(EPHE_PATH))
 
@@ -24,6 +24,9 @@ SCAN_SETTINGS: dict[str, dict[str, timedelta]] = {
     "Uranus": {"step": timedelta(days=1), "horizon": timedelta(days=3650)},
     "Neptune": {"step": timedelta(days=1), "horizon": timedelta(days=3650)},
     "Pluto": {"step": timedelta(days=1), "horizon": timedelta(days=3650)},
+    "North Node": {"step": timedelta(hours=12), "horizon": timedelta(days=730)},
+    "South Node": {"step": timedelta(hours=12), "horizon": timedelta(days=730)},
+    "Lilith": {"step": timedelta(hours=12), "horizon": timedelta(days=730)},
 }
 
 
@@ -36,7 +39,9 @@ def format_utc_datetime(value: datetime | None) -> str | None:
 
 
 def timing_settings_for_object(transit_object_id: str) -> tuple[timedelta, timedelta]:
-    settings = SCAN_SETTINGS[transit_object_id]
+    settings = SCAN_SETTINGS.get(transit_object_id)
+    if settings is None:
+        raise ValueError(f"Unsupported transit object: {transit_object_id}")
     return settings["step"], settings["horizon"]
 
 
@@ -67,14 +72,25 @@ def compute_transit_longitude(
     moment_utc: datetime,
     longitude_cache: dict[tuple[str, int], float] | None = None,
 ) -> float:
-    if transit_object_id not in PLANETS:
-        raise ValueError(f"Unsupported transit object: {transit_object_id}")
-
     normalized_moment = moment_utc.astimezone(timezone.utc)
     cache_key = (transit_object_id, int(normalized_moment.timestamp()))
 
     if longitude_cache is not None and cache_key in longitude_cache:
         return longitude_cache[cache_key]
+
+    if transit_object_id == "South Node":
+        north_node_longitude = compute_transit_longitude(
+            "North Node",
+            normalized_moment,
+            longitude_cache=longitude_cache,
+        )
+        longitude = normalize_longitude(north_node_longitude + 180)
+        if longitude_cache is not None:
+            longitude_cache[cache_key] = longitude
+        return longitude
+
+    if transit_object_id not in TRANSIT_OBJECT_IDS:
+        raise ValueError(f"Unsupported transit object: {transit_object_id}")
 
     jd = swe.julday(
         normalized_moment.year,
@@ -82,7 +98,7 @@ def compute_transit_longitude(
         normalized_moment.day,
         time_to_decimal_hours(normalized_moment.timetz().replace(tzinfo=None)),
     )
-    values, _ = swe.calc_ut(jd, PLANETS[transit_object_id], FLAGS)
+    values, _ = swe.calc_ut(jd, TRANSIT_OBJECT_IDS[transit_object_id], FLAGS)
     longitude = normalize_longitude(values[0])
 
     if longitude_cache is not None:
@@ -318,12 +334,14 @@ def compute_active_aspect_timing(
     transit_datetime_utc: datetime,
     natal_chart: dict[str, object],
     *,
+    boundary_orb: float | None = None,
     longitude_cache: dict[tuple[str, int], float] | None = None,
 ) -> dict[str, object]:
     transit_object_id = str(aspect_record["transit_object"])
     natal_object_id = str(aspect_record["natal_object"])
     exact_angle = int(aspect_record["exact_angle"])
     allowed_orb = allowed_orb_for_aspect(aspect_record)
+    active_window_orb = boundary_orb if boundary_orb is not None else allowed_orb
     natal_longitude = natal_object_longitude(natal_chart, natal_object_id)
     step, horizon = timing_settings_for_object(transit_object_id)
     current_utc = transit_datetime_utc.astimezone(timezone.utc)
@@ -336,7 +354,7 @@ def compute_active_aspect_timing(
         transit_object_id=transit_object_id,
         natal_longitude=natal_longitude,
         exact_angle=exact_angle,
-        allowed_orb=allowed_orb,
+        allowed_orb=active_window_orb,
         longitude_cache=longitude_cache,
     )
     end_utc = scan_boundary(
@@ -347,7 +365,7 @@ def compute_active_aspect_timing(
         transit_object_id=transit_object_id,
         natal_longitude=natal_longitude,
         exact_angle=exact_angle,
-        allowed_orb=allowed_orb,
+        allowed_orb=active_window_orb,
         longitude_cache=longitude_cache,
     )
 

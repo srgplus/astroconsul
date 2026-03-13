@@ -36,7 +36,7 @@ def aspect_strength(orb: float) -> str:
         return "exact"
     if orb <= 1.0:
         return "strong"
-    if orb <= 2.0:
+    if orb <= 1.99:
         return "moderate"
     return "wide"
 
