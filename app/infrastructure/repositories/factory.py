@@ -9,6 +9,11 @@ from app.infrastructure.repositories.file_repositories import (
     FileProfileRepository,
     NullLocationCacheRepository,
 )
+from app.infrastructure.repositories.protocols import (
+    ChartRepository,
+    LocationCacheRepository,
+    ProfileRepository,
+)
 from app.infrastructure.repositories.sqlalchemy_repositories import (
     SqlAlchemyChartRepository,
     SqlAlchemyLocationCacheRepository,
@@ -18,9 +23,9 @@ from app.infrastructure.repositories.sqlalchemy_repositories import (
 
 @dataclass(frozen=True)
 class RepositoryBundle:
-    charts: object
-    profiles: object
-    locations: object
+    charts: ChartRepository
+    profiles: ProfileRepository
+    locations: LocationCacheRepository
 
 
 def get_repository_bundle(settings: Settings | None = None) -> RepositoryBundle:

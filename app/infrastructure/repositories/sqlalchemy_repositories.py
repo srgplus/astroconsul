@@ -2,20 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import date, datetime, time, timezone
+from datetime import UTC, date, datetime, time
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
-
-from natal_profiles import (
-    UsernameConflictError,
-    normalize_latest_transit,
-    normalize_time_string,
-    profile_summary,
-    resolve_transit_timezone,
-    validate_username,
-)
 
 from app.core.config import Settings
 from app.domain.astrology.charts import build_chart, chart_needs_upgrade, make_chart_id
@@ -27,14 +18,22 @@ from app.infrastructure.persistence.models import (
     ProfileModel,
     UserModel,
 )
+from natal_profiles import (
+    UsernameConflictError,
+    normalize_latest_transit,
+    normalize_time_string,
+    profile_summary,
+    resolve_transit_timezone,
+    validate_username,
+)
 
 
 def _now_utc() -> datetime:
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 def _isoformat_z(value: datetime) -> str:
-    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _chart_hash(chart: dict[str, object]) -> str:
@@ -264,9 +263,7 @@ class SqlAlchemyProfileRepository:
 
     def list_summaries(self) -> list[dict[str, Any]]:
         with self.session_factory() as session:
-            rows = session.execute(
-                select(ProfileModel).order_by(ProfileModel.updated_at.desc())
-            ).scalars()
+            rows = session.execute(select(ProfileModel).order_by(ProfileModel.updated_at.desc())).scalars()
 
             summaries: list[dict[str, Any]] = []
             for profile_model in rows:
@@ -298,18 +295,14 @@ class SqlAlchemyProfileRepository:
             chart_payload = self._load_chart_payload(chart_id)
             payload = self._profile_input_defaults(profile_input, chart_payload)
             timestamp = (
-                datetime.fromisoformat(created_at.replace("Z", "+00:00"))
-                if created_at is not None
-                else _now_utc()
+                datetime.fromisoformat(created_at.replace("Z", "+00:00")) if created_at is not None else _now_utc()
             )
             updated_timestamp = (
-                datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
-                if updated_at is not None
-                else timestamp
+                datetime.fromisoformat(updated_at.replace("Z", "+00:00")) if updated_at is not None else timestamp
             )
             profile = ProfileModel(
                 id=profile_id
-                or f"profile_{hashlib.sha256(f'{normalized_username}:{timestamp}'.encode('utf-8')).hexdigest()[:32]}",
+                or f"profile_{hashlib.sha256(f'{normalized_username}:{timestamp}'.encode()).hexdigest()[:32]}",
                 user_id=self.settings.default_user_id,
                 handle=normalized_username,
                 display_name=profile_name.strip(),
@@ -408,9 +401,7 @@ class SqlAlchemyProfileRepository:
                     location_name=normalized.get("location_name"),
                     latitude=normalized.get("latitude"),
                     longitude=normalized.get("longitude"),
-                    updated_at=datetime.fromisoformat(
-                        str(normalized["updated_at"]).replace("Z", "+00:00")
-                    ),
+                    updated_at=datetime.fromisoformat(str(normalized["updated_at"]).replace("Z", "+00:00")),
                 )
                 session.add(model)
             else:
@@ -420,9 +411,7 @@ class SqlAlchemyProfileRepository:
                 model.location_name = normalized.get("location_name")
                 model.latitude = normalized.get("latitude")
                 model.longitude = normalized.get("longitude")
-                model.updated_at = datetime.fromisoformat(
-                    str(normalized["updated_at"]).replace("Z", "+00:00")
-                )
+                model.updated_at = datetime.fromisoformat(str(normalized["updated_at"]).replace("Z", "+00:00"))
 
             session.commit()
             session.refresh(profile)

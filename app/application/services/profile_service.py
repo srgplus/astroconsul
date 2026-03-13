@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from natal_profiles import profile_summary
-
 from app.application.services.chart_service import ChartService
+from natal_profiles import profile_summary
 
 
 class ProfileService:
@@ -66,4 +65,3 @@ class ProfileService:
             "profile": profile_summary(profile, chart),
             "chart": self.chart_service.build_saved_chart_response(chart_id, chart_reference, chart),
         }
-

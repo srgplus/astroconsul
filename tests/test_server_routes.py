@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import unittest
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from chart_builder import CHARTS_DIR
-from natal_profiles import PROFILES_DIR, profile_path
-from natal_profiles import create_profile
+from natal_profiles import PROFILES_DIR, create_profile, profile_path
 from server import (
     NatalChartCreateRequest,
     NatalProfileUpsertRequest,
@@ -228,7 +227,7 @@ class ServerRouteTests(unittest.TestCase):
             "timezone": "America/Los_Angeles",
             "source": "test",
         }
-        fixed_now = datetime(2026, 3, 13, 12, 0, 0, tzinfo=timezone.utc)
+        fixed_now = datetime(2026, 3, 13, 12, 0, 0, tzinfo=UTC)
 
         profile = create_natal_profile(
             NatalProfileUpsertRequest(
@@ -449,7 +448,8 @@ class ServerRouteTests(unittest.TestCase):
         }
         legacy_chart_path.write_text(json.dumps(legacy_chart_payload, indent=2, sort_keys=True), encoding="utf-8")
 
-        with patch("server.build_chart_from_request", return_value=(legacy_chart_id, legacy_chart_path, legacy_chart_payload)):
+        mock_return = (legacy_chart_id, legacy_chart_path, legacy_chart_payload)
+        with patch("server.build_chart_from_request", return_value=mock_return):
             response = update_natal_profile(
                 profile["profile_id"],
                 NatalProfileUpsertRequest(

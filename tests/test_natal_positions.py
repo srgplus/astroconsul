@@ -41,10 +41,7 @@ class NatalPositionsTests(unittest.TestCase):
             "Pluto": 6,
         }
 
-        actual_houses = {
-            planet_id: int(self.positions_by_id[planet_id]["house"])
-            for planet_id in expected_houses
-        }
+        actual_houses = {planet_id: int(self.positions_by_id[planet_id]["house"]) for planet_id in expected_houses}
 
         self.assertEqual(actual_houses, expected_houses)
 

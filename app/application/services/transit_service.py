@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from app.application.services.input_resolution import (
@@ -63,7 +63,7 @@ class TransitService:
             transit_timezone = effective_timezone
         else:
             utc_time = parse_time_string(payload.transit_time)
-            utc_dt = datetime.combine(transit_date, utc_time, tzinfo=timezone.utc)
+            utc_dt = datetime.combine(transit_date, utc_time, tzinfo=UTC)
             local_dt = utc_dt
             transit_timezone = "UTC"
 
@@ -129,4 +129,3 @@ class TransitService:
             payload.timezone,
         )
         return {"timeline": timeline}
-

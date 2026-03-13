@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from fastapi import HTTPException
 
 from app.api.dependencies import (
@@ -32,8 +30,8 @@ def calculate_chart_handler(year: int, month: int, day: int, hour: float, lat: f
         "ephemeris_sources": chart["ephemeris_sources"],
         "planets": chart["planets"],
         "natal_positions": chart["natal_positions"],
-        "asc": chart["angles"]["asc"],
-        "mc": chart["angles"]["mc"],
+        "asc": chart["angles"]["asc"],  # type: ignore[index]
+        "mc": chart["angles"]["mc"],  # type: ignore[index]
         "angles": chart["angles"],
         "angle_positions": chart.get("angle_positions"),
         "houses": chart["houses"],
@@ -90,7 +88,7 @@ def create_profile_handler(payload) -> dict[str, object]:
         return profile_service.create_profile(
             payload,
             chart_id=chart_id,
-            chart_reference=chart_reference,
+            chart_reference=str(chart_reference),
             chart=chart,
             profile_repository=repositories.profiles,
         )
@@ -117,7 +115,7 @@ def update_profile_handler(profile_id: str, payload) -> dict[str, object]:
             payload,
             previous_chart_id=previous_chart_id,
             chart_id=chart_id,
-            chart_reference=chart_reference,
+            chart_reference=str(chart_reference),
             chart=chart,
             profile_repository=repositories.profiles,
         )
@@ -157,4 +155,3 @@ def transit_timeline_handler(payload) -> dict[str, object]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-

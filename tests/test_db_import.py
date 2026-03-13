@@ -31,9 +31,7 @@ class LegacyImportTests(unittest.TestCase):
 
             chart_id = "chart_1991_07_28_2206"
             profile_id = "profile_import_target"
-            chart_payload = json.loads(
-                Path("charts/chart_1991_07_28_2206.json").read_text(encoding="utf-8")
-            )
+            chart_payload = json.loads(Path("charts/chart_1991_07_28_2206.json").read_text(encoding="utf-8"))
             profile_payload = {
                 "profile_id": profile_id,
                 "profile_name": "Imported Profile",

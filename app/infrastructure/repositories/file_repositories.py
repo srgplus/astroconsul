@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.domain.astrology.charts import load_saved_chart, save_chart
 from natal_profiles import (
     bootstrap_profiles,
     create_profile,
@@ -12,8 +13,6 @@ from natal_profiles import (
     save_profile_latest_transit,
     update_profile,
 )
-
-from app.domain.astrology.charts import load_saved_chart, save_chart
 
 
 class FileChartRepository:

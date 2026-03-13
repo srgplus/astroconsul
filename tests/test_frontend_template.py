@@ -4,7 +4,6 @@ import re
 import unittest
 from pathlib import Path
 
-
 TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "templates" / "index.html"
 
 
@@ -51,7 +50,11 @@ class FrontendTemplateTests(unittest.TestCase):
     def test_vertex_belongs_to_special_points_groups(self) -> None:
         template = TEMPLATE_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('Vertex: { textBadge: "Vx", transitGroup: "special", transitOrder: 17, natalGroup: "special", natalOrder: 7 }', template)
+        self.assertIn(
+            'Vertex: { textBadge: "Vx", transitGroup: "special",'
+            ' transitOrder: 17, natalGroup: "special", natalOrder: 7 }',
+            template,
+        )
 
 
 if __name__ == "__main__":
