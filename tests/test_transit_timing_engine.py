@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from chart_builder import build_chart, save_chart
 from transit_builder import MAX_TRANSIT_ORB, build_transit_report
@@ -12,7 +12,7 @@ def parse_utc(value: str | None) -> datetime | None:
     if value is None:
         return None
 
-    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
 
 
 def natal_longitude_for(report: dict[str, object], object_id: str) -> float:
@@ -32,7 +32,7 @@ class TransitTimingEngineTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         chart = build_chart(1991, 7, 28, 22.1, 52.13472, 23.65694)
         cls.chart_id, cls.chart_path = save_chart(chart, chart_id="chart_1991_07_28_2206")
-        cls.transit_datetime_utc = datetime(2026, 3, 9, 3, 6, 1, tzinfo=timezone.utc)
+        cls.transit_datetime_utc = datetime(2026, 3, 9, 3, 6, 1, tzinfo=UTC)
         cls.report = build_transit_report(
             cls.chart_path.name,
             "2026-03-09",
@@ -50,9 +50,7 @@ class TransitTimingEngineTests(unittest.TestCase):
         aspect = next(
             item
             for item in self.report["active_aspects"]
-            if item["transit_object"] == "Venus"
-            and item["natal_object"] == "Saturn"
-            and item["aspect"] == "sextile"
+            if item["transit_object"] == "Venus" and item["natal_object"] == "Saturn" and item["aspect"] == "sextile"
         )
         timing = aspect["timing"]
 
@@ -88,9 +86,7 @@ class TransitTimingEngineTests(unittest.TestCase):
         aspect = next(
             item
             for item in self.report["active_aspects"]
-            if item["transit_object"] == "Venus"
-            and item["natal_object"] == "Saturn"
-            and item["aspect"] == "sextile"
+            if item["transit_object"] == "Venus" and item["natal_object"] == "Saturn" and item["aspect"] == "sextile"
         )
         peak_utc = parse_utc(aspect["timing"]["peak_utc"])
         self.assertIsNotNone(peak_utc)

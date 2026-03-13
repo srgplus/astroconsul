@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astro-consul"
+version = "0.1.0"
+description = "Modular monolith astrology application – natal charts and transit reports via Swiss Ephemeris"
+requires-python = ">=3.11"
+dependencies = [
+    "pyswisseph>=2.10,<3",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+    "jinja2>=3.1,<4",
+    "timezonefinder>=6.5,<7",
+    "sqlalchemy>=2.0,<3",
+    "alembic>=1.14,<2",
+    "psycopg[binary]>=3.2,<4",
+    "httpx>=0.28,<1",
+    "pydantic>=2.10,<3",
+]
+
+[project.optional-dependencies]
+monitoring = ["sentry-sdk>=2.0,<3"]
+dev = [
+    "ruff>=0.9,<1",
+    "mypy>=1.14,<2",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "swisseph",
+    "swisseph.*",
+    "sentry_sdk",
+    "sentry_sdk.*",
+]
+ignore_missing_imports = true
+
+# Root-level legacy modules — not yet typed; will be migrated into app/ later
+[[tool.mypy.overrides]]
+module = [
+    "aspect_engine",
+    "chart_builder",
+    "natal_profiles",
+    "transit_aspect_engine",
+    "transit_builder",
+    "transit_timing_engine",
+    "transit_timeline",
+    "location_service",
+]
+ignore_errors = true
+
+# Pre-existing dict[str, object] patterns — will be tightened when domain types are introduced
+[[tool.mypy.overrides]]
+module = [
+    "app.infrastructure.repositories.sqlalchemy_repositories",
+    "app.application.services.transit_service",
+    "app.application.services.input_resolution",
+]
+ignore_errors = true

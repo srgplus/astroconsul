@@ -37,4 +37,3 @@ __all__ = [
     "save_chart",
     "swiss_ephemeris_version",
 ]
-

@@ -74,4 +74,3 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
 @router.post("/transit-timeline")
 def transit_timeline(payload: TransitTimelineRequest) -> dict[str, object]:
     return transit_timeline_handler(payload)
-

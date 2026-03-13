@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
@@ -29,8 +29,7 @@ from app.schemas.requests import (
     TransitTimelineRequest,
 )
 from astro_utils import parse_time_string, time_to_decimal_hours
-from chart_builder import build_chart, chart_needs_upgrade, make_chart_id, save_chart
-from chart_builder import swiss_ephemeris_version
+from chart_builder import build_chart, chart_needs_upgrade, make_chart_id, save_chart, swiss_ephemeris_version
 from location_service import LocationResolutionError, resolve_location_name
 from natal_profiles import (
     UsernameConflictError,
@@ -44,8 +43,7 @@ from natal_profiles import (
     save_profile_latest_transit,
     update_profile,
 )
-from transit_builder import build_transit_report
-from transit_builder import load_saved_chart
+from transit_builder import build_transit_report, load_saved_chart
 from transit_timeline import build_transit_timeline
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -102,7 +100,7 @@ def build_chart_from_request(payload: NatalChartCreateRequest) -> tuple[str, str
             local_dt = datetime.combine(
                 payload.birth_date,
                 decimal_hour_to_time(ut_hour, "birth_time"),
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             )
             utc_dt = local_dt
             chart_date = payload.birth_date
@@ -290,7 +288,7 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
             transit_timezone = effective_timezone
         else:
             utc_time = parse_time_string(payload.transit_time)
-            utc_dt = datetime.combine(transit_date, utc_time, tzinfo=timezone.utc)
+            utc_dt = datetime.combine(transit_date, utc_time, tzinfo=UTC)
             local_dt = utc_dt
             transit_timezone = "UTC"
 

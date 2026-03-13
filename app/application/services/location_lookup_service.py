@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
+
+from app.infrastructure.repositories.protocols import LocationCacheRepository
 
 
 class LocationLookupService:
-    def __init__(self, cache_repository: object | None = None):
+    def __init__(self, cache_repository: LocationCacheRepository | None = None):
         self.cache_repository = cache_repository
 
     def resolve(
@@ -26,4 +29,3 @@ class LocationLookupService:
         if self.cache_repository is not None:
             self.cache_repository.put(normalized_query, resolved)
         return resolved
-

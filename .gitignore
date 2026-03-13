@@ -9,5 +9,8 @@ astro_consul.db
 *.sqlite3
 .env
 .env.*
+!.env.example
 profiles/*.json
 !profiles/.gitkeep
+
+*.egg-info/

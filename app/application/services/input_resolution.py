@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import date, datetime, time, timezone
-from typing import Optional, Union
+from datetime import UTC, date, datetime, time
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from app.domain.astrology.utils import parse_time_string
 
 
-def parse_ut_birth_time(value: Union[str, float]) -> float:
+def parse_ut_birth_time(value: str | float) -> float:
     if isinstance(value, (int, float)):
         hour = float(value)
     else:
@@ -36,7 +35,7 @@ def format_datetime(value: datetime) -> str:
     return formatted.replace("+00:00", "Z")
 
 
-def resolve_time_basis(time_basis: Optional[str], timezone_name: Optional[str]) -> str:
+def resolve_time_basis(time_basis: str | None, timezone_name: str | None) -> str:
     if time_basis is None:
         return "local" if timezone_name and timezone_name.strip() else "UT"
 
@@ -59,7 +58,7 @@ def decimal_hour_to_time(value: float, field_name: str) -> time:
     return time(hour=hours, minute=minutes, second=seconds)
 
 
-def parse_clock_time(value: Union[str, float], field_name: str) -> time:
+def parse_clock_time(value: str | float, field_name: str) -> time:
     if isinstance(value, (int, float)):
         decimal_hour = float(value)
         return decimal_hour_to_time(decimal_hour, field_name)
@@ -75,7 +74,7 @@ def parse_clock_time(value: Union[str, float], field_name: str) -> time:
     return parse_time_string(raw_value)
 
 
-def parse_local_clock_time(value: Union[str, float], field_name: str) -> time:
+def parse_local_clock_time(value: str | float, field_name: str) -> time:
     if isinstance(value, (int, float)):
         return decimal_hour_to_time(float(value), field_name)
 
@@ -89,7 +88,7 @@ def parse_local_clock_time(value: Union[str, float], field_name: str) -> time:
 
 def convert_local_datetime(
     local_date: date,
-    local_time_value: Union[str, float],
+    local_time_value: str | float,
     timezone_name: str,
     *,
     field_name: str,
@@ -104,14 +103,13 @@ def convert_local_datetime(
 
     local_time = parse_local_clock_time(local_time_value, field_name)
     local_dt = datetime.combine(local_date, local_time, tzinfo=tzinfo)
-    utc_dt = local_dt.astimezone(timezone.utc)
+    utc_dt = local_dt.astimezone(UTC)
     return local_dt, utc_dt
 
 
-def ensure_chart_reference(chart_id: Optional[str], profile_id: Optional[str], *, resolver) -> str:
+def ensure_chart_reference(chart_id: str | None, profile_id: str | None, *, resolver) -> str:
     if profile_id and profile_id.strip():
         return resolver(profile_id.strip())
     if chart_id and chart_id.strip():
         return chart_id.strip()
     raise ValueError("Either profile_id or chart_id is required.")
-

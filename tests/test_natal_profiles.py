@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,7 +18,6 @@ from server import (
     natal_profiles,
     update_natal_profile,
 )
-
 
 TEST_USERNAMES = {"profile_test_alpha", "profile_test_beta"}
 
@@ -215,7 +214,7 @@ class NatalProfilesBootstrapTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            fixed_now = datetime(2026, 3, 13, 18, 45, 30, tzinfo=timezone.utc)
+            fixed_now = datetime(2026, 3, 13, 18, 45, 30, tzinfo=UTC)
 
             with (
                 patch.object(natal_profiles_module, "PROFILES_DIR", temp_profiles_dir),

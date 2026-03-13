@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -81,7 +81,7 @@ class ChartService:
             local_dt = datetime.combine(
                 payload.birth_date,
                 decimal_hour_to_time(ut_hour, "birth_time"),
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             )
             utc_dt = local_dt
             chart_date = payload.birth_date

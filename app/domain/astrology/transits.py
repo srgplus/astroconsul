@@ -9,4 +9,3 @@ __all__ = [
     "build_transit_report",
     "build_transit_timeline",
 ]
-

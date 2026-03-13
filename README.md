@@ -37,13 +37,17 @@ The current browser UI still falls back to `templates/index.html` until a built 
 
 ## Requirements
 
-- Python 3.11 recommended
-- `pyswisseph`
+- Python 3.11+
+- `pyswisseph` (Swiss Ephemeris C wrapper)
 
-## Installation
+## Quick start
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env          # adjust values if needed
+python -m unittest discover -s tests
 ```
 
 ## Run
@@ -51,13 +55,13 @@ pip install -r requirements.txt
 From the project root:
 
 ```bash
-uvicorn server:app --reload
+uvicorn app.main:app --reload
 ```
 
-You can also run the new application entrypoint directly:
+The legacy entrypoint is also available:
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn server:app --reload
 ```
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000).

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from chart_builder import build_chart, save_chart
@@ -16,12 +16,12 @@ class TransitTimelineTests(unittest.TestCase):
         cls.chart_id, cls.chart_path = save_chart(chart, chart_id="chart_1991_07_28_2206")
         cls.timezone_name = "America/Los_Angeles"
         tzinfo = ZoneInfo(cls.timezone_name)
-        cls.range_start_utc = datetime.combine(date(2026, 3, 11), time.min, tzinfo=tzinfo).astimezone(timezone.utc)
+        cls.range_start_utc = datetime.combine(date(2026, 3, 11), time.min, tzinfo=tzinfo).astimezone(UTC)
         cls.range_end_utc = datetime.combine(
             date(2026, 4, 10),
             time(hour=23, minute=59, second=59),
             tzinfo=tzinfo,
-        ).astimezone(timezone.utc)
+        ).astimezone(UTC)
         cls.timeline = build_transit_timeline(
             cls.chart_id,
             date(2026, 3, 11),
@@ -34,9 +34,7 @@ class TransitTimelineTests(unittest.TestCase):
         self.assertGreater(len(self.timeline), 0)
         self.assertTrue(
             any(
-                item["transit"] == "Mars"
-                and item["natal"] == "Venus"
-                and item["aspect"] == "opposition"
+                item["transit"] == "Mars" and item["natal"] == "Venus" and item["aspect"] == "opposition"
                 for item in self.timeline
             )
         )
@@ -70,9 +68,7 @@ class TransitTimelineTests(unittest.TestCase):
         item = next(
             record
             for record in self.timeline
-            if record["transit"] == "Jupiter"
-            and record["natal"] == "Neptune"
-            and record["aspect"] == "opposition"
+            if record["transit"] == "Jupiter" and record["natal"] == "Neptune" and record["aspect"] == "opposition"
         )
 
         self.assertIsNone(item["exact_utc"])

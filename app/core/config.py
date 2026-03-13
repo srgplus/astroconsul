@@ -75,4 +75,3 @@ def get_settings() -> Settings:
 
 def clear_settings_cache() -> None:
     get_settings.cache_clear()
-

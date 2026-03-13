@@ -1,2 +1,1 @@
 """Astrology domain exports."""
-
