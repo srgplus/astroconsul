@@ -3,3 +3,7 @@ fastapi
 uvicorn
 jinja2
 timezonefinder
+sqlalchemy
+alembic
+psycopg[binary]
+httpx

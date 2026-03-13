@@ -1,14 +1,33 @@
 from __future__ import annotations
 
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, Union
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 
+from app.application.services.input_resolution import (
+    convert_local_datetime,
+    decimal_hour_to_time,
+    ensure_chart_reference,
+    format_datetime,
+    parse_clock_time,
+    parse_local_clock_time,
+    parse_ut_birth_time,
+    resolve_time_basis,
+)
+from app.main import app
+from app.schemas.requests import (
+    LocationResolveRequest,
+    NatalChartCreateRequest,
+    NatalDebugRequest,
+    NatalProfileUpsertRequest,
+    ProfileTransitReportRequest,
+    ProfileTransitTimelineRequest,
+    TransitReportRequest,
+    TransitTimelineRequest,
+)
 from astro_utils import parse_time_string, time_to_decimal_hours
 from chart_builder import build_chart, chart_needs_upgrade, make_chart_id, save_chart
 from chart_builder import swiss_ephemeris_version
@@ -29,164 +48,15 @@ from transit_builder import build_transit_report
 from transit_builder import load_saved_chart
 from transit_timeline import build_transit_timeline
 
-app = FastAPI(title="Astro Consul MVP UI")
-
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "templates" / "index.html"
 
 
-class NatalChartCreateRequest(BaseModel):
-    birth_date: date
-    birth_time: Union[str, float]
-    timezone: Optional[str] = None
-    name: Optional[str] = None
-    location_name: Optional[str] = None
-    latitude: float
-    longitude: float
-    time_basis: Optional[str] = None
-
-
-class TransitReportRequest(BaseModel):
-    chart_id: Optional[str] = None
-    profile_id: Optional[str] = None
-    transit_date: str
-    transit_time: str
-    timezone: Optional[str] = None
-    location_name: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    include_timing: bool = False
-
-
-class TransitTimelineRequest(BaseModel):
-    chart_id: Optional[str] = None
-    profile_id: Optional[str] = None
-    start_date: date
-    end_date: date
-    timezone: str
-
-
-class NatalProfileUpsertRequest(NatalChartCreateRequest):
-    profile_name: str
-    username: str
-
-
-class LocationResolveRequest(BaseModel):
-    location_name: str
-
-
-def parse_ut_birth_time(value: Union[str, float]) -> float:
-    if isinstance(value, (int, float)):
-        hour = float(value)
-    else:
-        raw_value = value.strip()
-
-        if ":" in raw_value:
-            parts = raw_value.split(":")
-            if len(parts) not in (2, 3):
-                raise ValueError("birth_time must be decimal UT or HH:MM[:SS].")
-
-            hours = int(parts[0])
-            minutes = int(parts[1])
-            seconds = int(parts[2]) if len(parts) == 3 else 0
-            hour = hours + minutes / 60 + seconds / 3600
-        else:
-            hour = float(raw_value)
-
-    if hour < 0 or hour >= 24:
-        raise ValueError("birth_time must be in UT decimal hours between 0 and 24.")
-
-    return hour
-
-
-def format_datetime(value: datetime) -> str:
-    formatted = value.isoformat(timespec="seconds")
-    return formatted.replace("+00:00", "Z")
-
-
-def resolve_time_basis(time_basis: Optional[str], timezone_name: Optional[str]) -> str:
-    if time_basis is None:
-        return "local" if timezone_name and timezone_name.strip() else "UT"
-
-    normalized = time_basis.strip().upper()
-    if normalized in {"UT", "UTC"}:
-        return "UT"
-    if normalized == "LOCAL":
-        return "local"
-
-    raise ValueError("time_basis must be either 'UT' or 'local'.")
-
-
-def parse_clock_time(value: Union[str, float], field_name: str) -> time:
-    if isinstance(value, (int, float)):
-        decimal_hour = float(value)
-        return decimal_hour_to_time(decimal_hour, field_name)
-
-    raw_value = value.strip()
-
-    if ":" not in raw_value:
-        try:
-            return decimal_hour_to_time(float(raw_value), field_name)
-        except ValueError as exc:
-            raise ValueError(f"{field_name} must be in HH:MM or HH:MM:SS format.") from exc
-
-    return parse_time_string(raw_value)
-
-
-def decimal_hour_to_time(value: float, field_name: str) -> time:
-    if value < 0 or value >= 24:
-        raise ValueError(f"{field_name} must be between 0 and 24 hours.")
-
-    total_seconds = int(round(value * 3600))
-    hours, remainder = divmod(total_seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    return time(hour=hours, minute=minutes, second=seconds)
-
-
-def parse_local_clock_time(value: Union[str, float], field_name: str) -> time:
-    if isinstance(value, (int, float)):
-        return decimal_hour_to_time(float(value), field_name)
-
-    raw_value = value.strip()
-
-    if ":" not in raw_value:
-        raise ValueError(f"{field_name} must be in HH:MM or HH:MM:SS format.")
-
-    return parse_time_string(raw_value)
-
-
-def convert_local_datetime(
-    local_date: date,
-    local_time_value: Union[str, float],
-    timezone_name: str,
-    *,
-    field_name: str,
-) -> tuple[datetime, datetime]:
-    if not timezone_name.strip():
-        raise ValueError("timezone is required when using local datetime input.")
-
-    try:
-        tzinfo = ZoneInfo(timezone_name)
-    except ZoneInfoNotFoundError as exc:
-        raise ValueError("timezone must be a valid IANA timezone, e.g. Europe/Minsk.") from exc
-
-    local_time = parse_local_clock_time(local_time_value, field_name)
-    local_dt = datetime.combine(local_date, local_time, tzinfo=tzinfo)
-    utc_dt = local_dt.astimezone(timezone.utc)
-    return local_dt, utc_dt
-
-
-def ensure_chart_reference(chart_id: Optional[str], profile_id: Optional[str]) -> str:
-    if profile_id and profile_id.strip():
-        return resolve_profile_chart_id(profile_id.strip())
-    if chart_id and chart_id.strip():
-        return chart_id.strip()
-    raise ValueError("Either profile_id or chart_id is required.")
-
-
-def build_saved_chart_response(chart_id: str, chart_path: Path, chart: dict[str, Any]) -> dict[str, Any]:
-    if chart_needs_upgrade(chart) and chart_path.exists():
-        chart_path, chart = load_saved_chart(str(chart_path))
+def build_saved_chart_response(chart_id: str, chart_path: str | Path, chart: dict[str, Any]) -> dict[str, Any]:
+    if not str(chart_path).startswith("db://"):
+        resolved_path = Path(chart_path)
+        if chart_needs_upgrade(chart) and resolved_path.exists():
+            chart_path, chart = load_saved_chart(str(resolved_path))
 
     birth_input = chart.get("birth_input") or {}
     angles = chart.get("angles") or {}
@@ -213,7 +83,7 @@ def build_saved_chart_response(chart_id: str, chart_path: Path, chart: dict[str,
     }
 
 
-def build_chart_from_request(payload: NatalChartCreateRequest) -> tuple[str, Path, dict[str, Any]]:
+def build_chart_from_request(payload: NatalChartCreateRequest) -> tuple[str, str | Path, dict[str, Any]]:
     try:
         time_basis = resolve_time_basis(payload.time_basis, payload.timezone)
 
@@ -270,12 +140,10 @@ def build_chart_from_request(payload: NatalChartCreateRequest) -> tuple[str, Pat
     return saved_chart_id, output_path, chart
 
 
-@app.get("/", response_class=HTMLResponse)
 def home() -> HTMLResponse:
     return HTMLResponse(TEMPLATE_PATH.read_text(encoding="utf-8"))
 
 
-@app.post("/resolve-location")
 def resolve_location(payload: LocationResolveRequest) -> dict[str, object]:
     try:
         return resolve_location_name(payload.location_name)
@@ -283,7 +151,6 @@ def resolve_location(payload: LocationResolveRequest) -> dict[str, object]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.get("/natal")
 def calculate_chart(
     year: int,
     month: int,
@@ -311,19 +178,16 @@ def calculate_chart(
     }
 
 
-@app.post("/create-natal-chart")
 def create_natal_chart(payload: NatalChartCreateRequest) -> dict[str, object]:
     chart_id, chart_path, chart = build_chart_from_request(payload)
     return build_saved_chart_response(chart_id, chart_path, chart)
 
 
-@app.get("/natal-profiles")
 def natal_profiles() -> dict[str, object]:
     bootstrap_profiles()
     return {"profiles": list_profile_summaries()}
 
 
-@app.get("/natal-profiles/{profile_id}")
 def natal_profile_detail(profile_id: str) -> dict[str, object]:
     _, profile = load_profile(profile_id)
     chart_path, chart = load_saved_chart(str(profile["chart_id"]))
@@ -333,7 +197,6 @@ def natal_profile_detail(profile_id: str) -> dict[str, object]:
     }
 
 
-@app.post("/natal-profiles")
 def create_natal_profile(payload: NatalProfileUpsertRequest) -> dict[str, object]:
     try:
         chart_id, chart_path, chart = build_chart_from_request(payload)
@@ -353,7 +216,6 @@ def create_natal_profile(payload: NatalProfileUpsertRequest) -> dict[str, object
     }
 
 
-@app.put("/natal-profiles/{profile_id}")
 def update_natal_profile(profile_id: str, payload: NatalProfileUpsertRequest) -> dict[str, object]:
     try:
         _, existing_profile = load_profile(profile_id)
@@ -380,7 +242,6 @@ def update_natal_profile(profile_id: str, payload: NatalProfileUpsertRequest) ->
     }
 
 
-@app.post("/transit-report")
 def transit_report(payload: TransitReportRequest) -> dict[str, object]:
     try:
         transit_date = date.fromisoformat(payload.transit_date)
@@ -410,7 +271,11 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
         transit_longitude = float(resolved_transit_location["longitude"])
 
     try:
-        chart_id = ensure_chart_reference(payload.chart_id, payload.profile_id)
+        chart_id = ensure_chart_reference(
+            payload.chart_id,
+            payload.profile_id,
+            resolver=resolve_profile_chart_id,
+        )
         effective_timezone = payload.timezone
         if (effective_timezone is None or not effective_timezone.strip()) and resolved_transit_location is not None:
             effective_timezone = str(resolved_transit_location["timezone"])
@@ -483,10 +348,13 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
     return report
 
 
-@app.post("/transit-timeline")
 def transit_timeline(payload: TransitTimelineRequest) -> dict[str, object]:
     try:
-        chart_id = ensure_chart_reference(payload.chart_id, payload.profile_id)
+        chart_id = ensure_chart_reference(
+            payload.chart_id,
+            payload.profile_id,
+            resolver=resolve_profile_chart_id,
+        )
         timeline = build_transit_timeline(
             chart_id,
             payload.start_date,
@@ -499,3 +367,36 @@ def transit_timeline(payload: TransitTimelineRequest) -> dict[str, object]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return {"timeline": timeline}
+
+
+__all__ = [
+    "LocationResolveRequest",
+    "NatalChartCreateRequest",
+    "NatalDebugRequest",
+    "NatalProfileUpsertRequest",
+    "ProfileTransitReportRequest",
+    "ProfileTransitTimelineRequest",
+    "TransitReportRequest",
+    "TransitTimelineRequest",
+    "app",
+    "build_chart_from_request",
+    "build_saved_chart_response",
+    "calculate_chart",
+    "convert_local_datetime",
+    "create_natal_chart",
+    "create_natal_profile",
+    "decimal_hour_to_time",
+    "ensure_chart_reference",
+    "format_datetime",
+    "home",
+    "natal_profile_detail",
+    "natal_profiles",
+    "parse_clock_time",
+    "parse_local_clock_time",
+    "parse_ut_birth_time",
+    "resolve_location",
+    "resolve_time_basis",
+    "transit_report",
+    "transit_timeline",
+    "update_natal_profile",
+]

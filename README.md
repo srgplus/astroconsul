@@ -3,6 +3,22 @@
 Minimal Swiss Ephemeris prototype for validating natal chart accuracy, saving natal charts,
 and running deterministic transit reports from the browser UI.
 
+## Architecture snapshot
+
+The project now has a modular-monolith backend foundation:
+
+- `app/main.py`: FastAPI application factory, CORS, optional Sentry, frontend serving
+- `app/api/v1`: versioned production-facing API routes
+- `app/application/services`: orchestration layer for charts, profiles, transits, health, and location lookup
+- `app/domain/astrology`: domain wrappers around the Swiss Ephemeris calculation modules
+- `app/infrastructure/persistence`: SQLAlchemy models and session management
+- `app/infrastructure/repositories`: file-backed and database-backed repository implementations
+- `frontend/`: Vite + React SPA scaffold for the next frontend migration step
+- `server.py`: compatibility shim that preserves the legacy import surface and `uvicorn server:app`
+
+The current browser UI still falls back to `templates/index.html` until a built SPA is present in
+`frontend/dist/`. The backend will automatically serve the SPA once it has been built.
+
 ## Project structure
 
 ```text
@@ -36,6 +52,12 @@ From the project root:
 
 ```bash
 uvicorn server:app --reload
+```
+
+You can also run the new application entrypoint directly:
+
+```bash
+uvicorn app.main:app --reload
 ```
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
@@ -117,6 +139,42 @@ Run aspect tests with:
 
 ```bash
 python -m unittest discover -s tests
+```
+
+## Database and migrations
+
+The project now includes SQLAlchemy models plus Alembic migrations for the production persistence path.
+
+Default local behavior remains file-backed. To enable database persistence, set:
+
+```bash
+export ASTRO_CONSUL_PERSISTENCE_BACKEND=database
+export ASTRO_CONSUL_DATABASE_URL=postgresql://...
+```
+
+Run migrations with:
+
+```bash
+python -m alembic upgrade head
+```
+
+Import the current JSON fixtures into the database with:
+
+```bash
+python scripts/import_legacy_json_to_db.py \
+  --database-url postgresql://... \
+  --charts-dir charts \
+  --profiles-dir profiles
+```
+
+For a clean local reset during migration tests:
+
+```bash
+python scripts/import_legacy_json_to_db.py \
+  --database-url sqlite:///./astro_consul.db \
+  --charts-dir charts \
+  --profiles-dir profiles \
+  --reset
 ```
 
 

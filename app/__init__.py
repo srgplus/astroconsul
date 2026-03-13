@@ -1,0 +1,2 @@
+"""Astro Consul application package."""
+
