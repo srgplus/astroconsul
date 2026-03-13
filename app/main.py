@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -41,12 +41,19 @@ def create_app() -> FastAPI:
             name="frontend-assets",
         )
 
+    def render_html(path) -> HTMLResponse:
+        return HTMLResponse(path.read_text(encoding="utf-8"))
+
     @app.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
+        return render_html(settings.legacy_template_path)
+
+    @app.get("/react", response_class=HTMLResponse)
+    def react_frontend() -> HTMLResponse:
         index_path = settings.frontend_index_path
-        if index_path.exists():
-            return HTMLResponse(index_path.read_text(encoding="utf-8"))
-        return HTMLResponse(settings.legacy_template_path.read_text(encoding="utf-8"))
+        if not index_path.exists():
+            raise HTTPException(status_code=404, detail="React frontend has not been built yet.")
+        return render_html(index_path)
 
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     app.include_router(legacy_router)
