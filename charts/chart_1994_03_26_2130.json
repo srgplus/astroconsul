@@ -21,7 +21,8 @@
   ],
   "angles": {
     "asc": 242.722278,
-    "mc": 184.578192
+    "mc": 184.578192,
+    "vertex": 108.790184
   },
   "birth_data": {
     "day": 26,
@@ -39,7 +40,7 @@
     "local_birth_datetime": "1994-03-27T00:30:00+03:00",
     "location_name": "Moscow",
     "longitude": 37.6063916,
-    "name": "Victoria",
+    "name": "Victoria Vickilisha",
     "time_basis": "local",
     "timezone": "Europe/Moscow",
     "utc_birth_datetime": "1994-03-26T21:30:00Z"
@@ -168,6 +169,30 @@
       "speed": 0.989504
     },
     {
+      "degree": 2,
+      "formatted_position": "2 Sagittarius 43' 20\"",
+      "house": 1,
+      "id": "ASC",
+      "longitude": 242.722278,
+      "minute": 43,
+      "retrograde": null,
+      "second": 20,
+      "sign": "Sagittarius",
+      "speed": null
+    },
+    {
+      "degree": 4,
+      "formatted_position": "4 Libra 34' 41\"",
+      "house": 10,
+      "id": "MC",
+      "longitude": 184.578192,
+      "minute": 34,
+      "retrograde": null,
+      "second": 41,
+      "sign": "Libra",
+      "speed": null
+    },
+    {
       "degree": 27,
       "formatted_position": "27 Virgo 56' 36\"",
       "house": 9,
@@ -274,6 +299,90 @@
       "second": 22,
       "sign": "Scorpio",
       "speed": -0.014008
+    },
+    {
+      "degree": 3,
+      "formatted_position": "3 Virgo 58' 42\"",
+      "house": 9,
+      "id": "Chiron",
+      "longitude": 153.978364,
+      "minute": 58,
+      "retrograde": true,
+      "second": 42,
+      "sign": "Virgo",
+      "speed": -0.059217
+    },
+    {
+      "degree": 28,
+      "formatted_position": "28 Aries 46' 11\"",
+      "house": 4,
+      "id": "Lilith",
+      "longitude": 28.769789,
+      "minute": 46,
+      "retrograde": false,
+      "second": 11,
+      "sign": "Aries",
+      "speed": 0.110988
+    },
+    {
+      "degree": 5,
+      "formatted_position": "5 Aquarius 34' 02\"",
+      "house": 2,
+      "id": "Selena",
+      "longitude": 305.567342,
+      "minute": 34,
+      "retrograde": false,
+      "second": 2,
+      "sign": "Aquarius",
+      "speed": 0.14078
+    },
+    {
+      "degree": 24,
+      "formatted_position": "24 Scorpio 50' 34\"",
+      "house": 12,
+      "id": "North Node",
+      "longitude": 234.84267,
+      "minute": 50,
+      "retrograde": true,
+      "second": 34,
+      "sign": "Scorpio",
+      "speed": -0.120926
+    },
+    {
+      "degree": 24,
+      "formatted_position": "24 Taurus 50' 34\"",
+      "house": 6,
+      "id": "South Node",
+      "longitude": 54.84267,
+      "minute": 50,
+      "retrograde": true,
+      "second": 34,
+      "sign": "Taurus",
+      "speed": -0.120926
+    },
+    {
+      "degree": 10,
+      "formatted_position": "10 Gemini 46' 12\"",
+      "house": 7,
+      "id": "Part of Fortune",
+      "longitude": 70.76992,
+      "minute": 46,
+      "retrograde": null,
+      "second": 12,
+      "sign": "Gemini",
+      "speed": null
+    },
+    {
+      "degree": 18,
+      "formatted_position": "18 Cancer 47' 25\"",
+      "house": 8,
+      "id": "Vertex",
+      "longitude": 108.790184,
+      "minute": 47,
+      "retrograde": null,
+      "second": 25,
+      "sign": "Cancer",
+      "speed": null
     }
   ],
   "natal_summary": {

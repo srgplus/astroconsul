@@ -4,7 +4,8 @@ import unittest
 from datetime import datetime, timezone
 
 from chart_builder import build_chart, save_chart
-from transit_builder import build_transit_report
+from transit_builder import MAX_TRANSIT_ORB, build_transit_report
+from transit_timing_engine import aspect_error_at
 
 
 def parse_utc(value: str | None) -> datetime | None:
@@ -12,6 +13,18 @@ def parse_utc(value: str | None) -> datetime | None:
         return None
 
     return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+
+
+def natal_longitude_for(report: dict[str, object], object_id: str) -> float:
+    for row in report["natal_positions"]:
+        if row["id"] == object_id:
+            return float(row["longitude"])
+
+    for row in report["angle_positions"]:
+        if row["id"] == object_id:
+            return float(row["longitude"])
+
+    raise AssertionError(f"Missing natal object in report: {object_id}")
 
 
 class TransitTimingEngineTests(unittest.TestCase):
@@ -54,6 +67,22 @@ class TransitTimingEngineTests(unittest.TestCase):
         self.assertLessEqual(peak_utc, end_utc)
         self.assertLessEqual(float(timing["peak_orb"]), float(aspect["orb"]))
         self.assertGreater(float(timing["duration_hours"]), 0)
+        natal_longitude = natal_longitude_for(self.report, str(aspect["natal_object"]))
+
+        start_error = aspect_error_at(
+            str(aspect["transit_object"]),
+            natal_longitude,
+            int(aspect["exact_angle"]),
+            start_utc,
+        )
+        end_error = aspect_error_at(
+            str(aspect["transit_object"]),
+            natal_longitude,
+            int(aspect["exact_angle"]),
+            end_utc,
+        )
+        self.assertLessEqual(start_error, MAX_TRANSIT_ORB + 0.02)
+        self.assertLessEqual(end_error, MAX_TRANSIT_ORB + 0.02)
 
     def test_status_matches_current_time_against_peak(self) -> None:
         aspect = next(

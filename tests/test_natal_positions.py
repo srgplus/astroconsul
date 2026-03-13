@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from chart_builder import build_chart, map_natal_planets_to_houses
+from chart_builder import NATAL_POSITION_ORDER, build_chart, map_natal_planets_to_houses
 
 
 class NatalPositionsTests(unittest.TestCase):
@@ -12,24 +12,24 @@ class NatalPositionsTests(unittest.TestCase):
         cls.positions = cls.chart["natal_positions"]
         cls.positions_by_id = {position["id"]: position for position in cls.positions}
 
-    def test_natal_positions_exists_for_all_planets(self) -> None:
-        self.assertEqual(len(self.positions), 10)
-        self.assertEqual(
-            [position["id"] for position in self.positions],
-            ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"],
-        )
+    def test_natal_positions_exists_for_all_display_objects(self) -> None:
+        self.assertEqual(len(self.positions), len(NATAL_POSITION_ORDER))
+        self.assertEqual([position["id"] for position in self.positions], NATAL_POSITION_ORDER)
 
     def test_natal_positions_include_required_fields(self) -> None:
         required_fields = {"id", "longitude", "sign", "degree", "minute", "second", "retrograde", "house"}
 
         for position in self.positions:
             self.assertTrue(required_fields.issubset(position.keys()))
-            self.assertIsInstance(position["retrograde"], bool)
-            self.assertIn(position["house"], range(1, 13))
+            self.assertIn(type(position["retrograde"]), {bool, type(None)})
+            if position["house"] is not None:
+                self.assertIn(position["house"], range(1, 13))
 
     def test_known_brest_house_mapping_matches_expected_planets(self) -> None:
         expected_houses = {
             "Sun": 4,
+            "ASC": 1,
+            "MC": 10,
             "Moon": 11,
             "Mercury": 5,
             "Venus": 5,
@@ -63,6 +63,14 @@ class NatalPositionsTests(unittest.TestCase):
         self.assertEqual(mapped_houses["WrappedIntoOne"], 1)
         self.assertEqual(mapped_houses["BeforeFirst"], 12)
         self.assertEqual(mapped_houses["SecondHouse"], 2)
+
+    def test_special_points_and_vertex_are_exposed(self) -> None:
+        for object_id in ("Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"):
+            self.assertIn(object_id, self.positions_by_id)
+
+        self.assertIn(self.positions_by_id["Part of Fortune"]["house"], range(1, 13))
+        self.assertIn(self.positions_by_id["Vertex"]["house"], range(1, 13))
+        self.assertIsNone(self.positions_by_id["Vertex"]["retrograde"])
 
     def test_angle_positions_and_natal_summary_exist(self) -> None:
         angle_ids = [position["id"] for position in self.chart["angle_positions"]]

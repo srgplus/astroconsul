@@ -1,33 +1,34 @@
 {
   "angle_positions": [
     {
-      "degree": 2,
-      "formatted_position": "2 Sagittarius 27' 38\"",
+      "degree": 9,
+      "formatted_position": "9 Sagittarius 08' 01\"",
       "id": "ASC",
-      "longitude": 242.460598,
-      "minute": 27,
-      "second": 38,
+      "longitude": 249.133627,
+      "minute": 8,
+      "second": 1,
       "sign": "Sagittarius"
     },
     {
-      "degree": 29,
-      "formatted_position": "29 Virgo 16' 57\"",
+      "degree": 14,
+      "formatted_position": "14 Libra 24' 29\"",
       "id": "MC",
-      "longitude": 179.282418,
-      "minute": 16,
-      "second": 57,
-      "sign": "Virgo"
+      "longitude": 194.408022,
+      "minute": 24,
+      "second": 29,
+      "sign": "Libra"
     }
   ],
   "angles": {
-    "asc": 242.460598,
-    "mc": 179.282418
+    "asc": 249.133627,
+    "mc": 194.408022,
+    "vertex": 116.373157
   },
   "birth_data": {
     "day": 21,
     "hour": 6.35,
-    "latitude": 52.093751,
-    "longitude": 23.6851851,
+    "latitude": 55.625578,
+    "longitude": 37.6063916,
     "month": 11,
     "time_basis": "UT",
     "year": 1980
@@ -35,13 +36,13 @@
   "birth_input": {
     "birth_date": "1980-11-21",
     "birth_time": "09:21:00",
-    "latitude": 52.093751,
+    "latitude": 55.625578,
     "local_birth_datetime": "1980-11-21T09:21:00+03:00",
     "location_name": "Moscow",
-    "longitude": 23.6851851,
-    "name": "Mick Mity",
+    "longitude": 37.6063916,
+    "name": "Nick Mity",
     "time_basis": "local",
-    "timezone": "Europe/Minsk",
+    "timezone": "Europe/Moscow",
     "utc_birth_datetime": "1980-11-21T06:21:00Z"
   },
   "ephemeris_path": "/Users/sergecreator/astro-consul/ephe",
@@ -50,18 +51,18 @@
   ],
   "house_system": "Placidus",
   "houses": [
-    242.460598,
-    276.403079,
-    320.379258,
-    359.282418,
-    26.766436,
-    46.59937,
-    62.460598,
-    96.403079,
-    140.379258,
-    179.282418,
-    206.766436,
-    226.59937
+    249.133627,
+    287.213938,
+    337.144749,
+    14.408022,
+    38.351123,
+    55.333271,
+    69.133627,
+    107.213938,
+    157.144749,
+    194.408022,
+    218.351123,
+    235.333271
   ],
   "julian_day": 2444564.76458333,
   "natal_aspects": [
@@ -144,6 +145,30 @@
       "speed": 1.009749
     },
     {
+      "degree": 9,
+      "formatted_position": "9 Sagittarius 08' 01\"",
+      "house": 1,
+      "id": "ASC",
+      "longitude": 249.133627,
+      "minute": 8,
+      "retrograde": null,
+      "second": 1,
+      "sign": "Sagittarius",
+      "speed": null
+    },
+    {
+      "degree": 14,
+      "formatted_position": "14 Libra 24' 29\"",
+      "house": 10,
+      "id": "MC",
+      "longitude": 194.408022,
+      "minute": 24,
+      "retrograde": null,
+      "second": 29,
+      "sign": "Libra",
+      "speed": null
+    },
+    {
       "degree": 14,
       "formatted_position": "14 Taurus 49' 27\"",
       "house": 5,
@@ -194,7 +219,7 @@
     {
       "degree": 4,
       "formatted_position": "4 Libra 30' 50\"",
-      "house": 10,
+      "house": 9,
       "id": "Jupiter",
       "longitude": 184.513819,
       "minute": 30,
@@ -206,7 +231,7 @@
     {
       "degree": 6,
       "formatted_position": "6 Libra 54' 31\"",
-      "house": 10,
+      "house": 9,
       "id": "Saturn",
       "longitude": 186.908677,
       "minute": 54,
@@ -250,10 +275,94 @@
       "second": 47,
       "sign": "Libra",
       "speed": 0.033942
+    },
+    {
+      "degree": 15,
+      "formatted_position": "15 Taurus 10' 04\"",
+      "house": 5,
+      "id": "Chiron",
+      "longitude": 45.167645,
+      "minute": 10,
+      "retrograde": true,
+      "second": 4,
+      "sign": "Taurus",
+      "speed": -0.048612
+    },
+    {
+      "degree": 25,
+      "formatted_position": "25 Libra 39' 18\"",
+      "house": 10,
+      "id": "Lilith",
+      "longitude": 205.65511,
+      "minute": 39,
+      "retrograde": false,
+      "second": 18,
+      "sign": "Libra",
+      "speed": 0.111931
+    },
+    {
+      "degree": 9,
+      "formatted_position": "9 Pisces 14' 33\"",
+      "house": 3,
+      "id": "Selena",
+      "longitude": 339.242521,
+      "minute": 14,
+      "retrograde": false,
+      "second": 33,
+      "sign": "Pisces",
+      "speed": 0.140827
+    },
+    {
+      "degree": 14,
+      "formatted_position": "14 Leo 06' 16\"",
+      "house": 8,
+      "id": "North Node",
+      "longitude": 134.104499,
+      "minute": 6,
+      "retrograde": true,
+      "second": 16,
+      "sign": "Leo",
+      "speed": -0.185888
+    },
+    {
+      "degree": 14,
+      "formatted_position": "14 Aquarius 06' 16\"",
+      "house": 2,
+      "id": "South Node",
+      "longitude": 314.104499,
+      "minute": 6,
+      "retrograde": true,
+      "second": 16,
+      "sign": "Aquarius",
+      "speed": -0.185888
+    },
+    {
+      "degree": 24,
+      "formatted_position": "24 Taurus 51' 21\"",
+      "house": 5,
+      "id": "Part of Fortune",
+      "longitude": 54.855773,
+      "minute": 51,
+      "retrograde": null,
+      "second": 21,
+      "sign": "Taurus",
+      "speed": null
+    },
+    {
+      "degree": 26,
+      "formatted_position": "26 Cancer 22' 23\"",
+      "house": 8,
+      "id": "Vertex",
+      "longitude": 116.373157,
+      "minute": 22,
+      "retrograde": null,
+      "second": 23,
+      "sign": "Cancer",
+      "speed": null
     }
   ],
   "natal_summary": {
-    "asc": "Sagittarius 2\u00b027'38\"",
+    "asc": "Sagittarius 9\u00b008'01\"",
     "moon": "Taurus 14\u00b049'27\"",
     "sun": "Scorpio 29\u00b006'07\""
   },
