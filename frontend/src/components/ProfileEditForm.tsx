@@ -25,15 +25,18 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
     const match = dt.match(/T(\d{2}:\d{2}:\d{2})/)
     return match ? match[1] : ""
   })
+  const birthInput = (chart as Record<string, unknown>).birth_input as Record<string, unknown> | undefined
   const [timezone, setTimezone] = useState(() => {
-    return (chart as Record<string, unknown>).timezone as string || ""
+    return (birthInput?.timezone as string) || ""
   })
-  const [locationName, setLocationName] = useState(chart.location_name || profile.location_name || "")
+  const [locationName, setLocationName] = useState(() => {
+    return (birthInput?.location_name as string) || chart.location_name || profile.location_name || ""
+  })
   const [latitude, setLatitude] = useState(() => {
-    return (chart as Record<string, unknown>).latitude as number || 0
+    return (birthInput?.latitude as number) || 0
   })
   const [longitude, setLongitude] = useState(() => {
-    return (chart as Record<string, unknown>).longitude as number || 0
+    return (birthInput?.longitude as number) || 0
   })
 
   const [saving, setSaving] = useState(false)

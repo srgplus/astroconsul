@@ -4,7 +4,7 @@
       "degree": 23,
       "formatted_position": "23 Libra 03' 17\"",
       "id": "ASC",
-      "longitude": 203.054745,
+      "longitude": 203.054742,
       "minute": 3,
       "second": 17,
       "sign": "Libra"
@@ -13,16 +13,16 @@
       "degree": 2,
       "formatted_position": "2 Leo 23' 13\"",
       "id": "MC",
-      "longitude": 122.386843,
+      "longitude": 122.386838,
       "minute": 23,
       "second": 13,
       "sign": "Leo"
     }
   ],
   "angles": {
-    "asc": 203.054745,
-    "mc": 122.386843,
-    "vertex": 49.679172
+    "asc": 203.054742,
+    "mc": 122.386838,
+    "vertex": 49.679166
   },
   "birth_data": {
     "day": 13,
@@ -51,26 +51,34 @@
   ],
   "house_system": "Placidus",
   "houses": [
-    203.054745,
-    228.889524,
-    262.387089,
-    302.386843,
-    337.325737,
-    3.568196,
-    23.054745,
-    48.889524,
-    82.387089,
-    122.386843,
-    157.325737,
-    183.568196
+    203.054742,
+    228.88952,
+    262.387085,
+    302.386838,
+    337.325732,
+    3.568192,
+    23.054742,
+    48.88952,
+    82.387085,
+    122.386838,
+    157.325732,
+    183.568192
   ],
-  "julian_day": 2450308.84722222,
+  "julian_day": 2450308.84722221,
   "natal_aspects": [
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.196964,
+      "orb": 2.196964,
+      "p1": "Sun",
+      "p2": "ASC"
+    },
     {
       "angle": 90,
       "aspect": "square",
-      "delta": 91.178606,
-      "orb": 1.178606,
+      "delta": 91.178612,
+      "orb": 1.178612,
       "p1": "Sun",
       "p2": "Vertex"
     },
@@ -81,6 +89,14 @@
       "orb": 3.434986,
       "p1": "Moon",
       "p2": "Saturn"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 7.911259,
+      "orb": 7.911259,
+      "p1": "Moon",
+      "p2": "MC"
     },
     {
       "angle": 60,
@@ -125,16 +141,16 @@
     {
       "angle": 60,
       "aspect": "sextile",
-      "delta": 62.196967,
-      "orb": 2.196967,
+      "delta": 62.196964,
+      "orb": 2.196964,
       "p1": "Moon",
       "p2": "Part of Fortune"
     },
     {
       "angle": 120,
       "aspect": "trine",
-      "delta": 117.188707,
-      "orb": 2.811293,
+      "delta": 117.188713,
+      "orb": 2.811287,
       "p1": "Mercury",
       "p2": "Vertex"
     },
@@ -221,8 +237,8 @@
     {
       "angle": 90,
       "aspect": "square",
-      "delta": 90.138459,
-      "orb": 0.138459,
+      "delta": 90.138456,
+      "orb": 0.138456,
       "p1": "Mars",
       "p2": "Part of Fortune"
     },
@@ -261,10 +277,18 @@
     {
       "angle": 90,
       "aspect": "square",
-      "delta": 86.029428,
-      "orb": 3.970572,
+      "delta": 86.029431,
+      "orb": 3.970569,
       "p1": "Jupiter",
       "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.523727,
+      "orb": 4.476273,
+      "p1": "Saturn",
+      "p2": "MC"
     },
     {
       "angle": 180,
@@ -309,8 +333,8 @@
     {
       "angle": 180,
       "aspect": "opposition",
-      "delta": 174.368047,
-      "orb": 5.631953,
+      "delta": 174.36805,
+      "orb": 5.63195,
       "p1": "Saturn",
       "p2": "Part of Fortune"
     },
@@ -333,10 +357,42 @@
     {
       "angle": 180,
       "aspect": "opposition",
+      "delta": 179.475367,
+      "orb": 0.524633,
+      "p1": "Uranus",
+      "p2": "MC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
       "delta": 176.13031,
       "orb": 3.86969,
       "p1": "Uranus",
       "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 92.644758,
+      "orb": 2.644758,
+      "p1": "Neptune",
+      "p2": "ASC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 173.312662,
+      "orb": 6.687338,
+      "p1": "Neptune",
+      "p2": "MC"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 117.949258,
+      "orb": 2.050742,
+      "p1": "Pluto",
+      "p2": "MC"
     },
     {
       "angle": 120,
@@ -353,6 +409,14 @@
       "orb": 7.807663,
       "p1": "Pluto",
       "p2": "Selena"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 3.345057,
+      "orb": 3.345057,
+      "p1": "MC",
+      "p2": "Lilith"
     },
     {
       "angle": 120,
@@ -381,8 +445,8 @@
     {
       "angle": 0,
       "aspect": "conjunction",
-      "delta": 0.374548,
-      "orb": 0.374548,
+      "delta": 0.374545,
+      "orb": 0.374545,
       "p1": "Chiron",
       "p2": "Part of Fortune"
     },
@@ -429,8 +493,8 @@
     {
       "angle": 120,
       "aspect": "trine",
-      "delta": 124.351305,
-      "orb": 4.351305,
+      "delta": 124.351302,
+      "orb": 4.351302,
       "p1": "Selena",
       "p2": "Part of Fortune"
     },
@@ -445,16 +509,16 @@
     {
       "angle": 0,
       "aspect": "conjunction",
-      "delta": 3.507673,
-      "orb": 3.507673,
+      "delta": 3.50767,
+      "orb": 3.50767,
       "p1": "North Node",
       "p2": "Part of Fortune"
     },
     {
       "angle": 180,
       "aspect": "opposition",
-      "delta": 176.492327,
-      "orb": 3.507673,
+      "delta": 176.49233,
+      "orb": 3.50767,
       "p1": "South Node",
       "p2": "Part of Fortune"
     }
@@ -477,7 +541,7 @@
       "formatted_position": "23 Libra 03' 17\"",
       "house": 1,
       "id": "ASC",
-      "longitude": 203.054745,
+      "longitude": 203.054742,
       "minute": 3,
       "retrograde": null,
       "second": 17,
@@ -489,7 +553,7 @@
       "formatted_position": "2 Leo 23' 13\"",
       "house": 10,
       "id": "MC",
-      "longitude": 122.386843,
+      "longitude": 122.386838,
       "minute": 23,
       "retrograde": null,
       "second": 13,
@@ -669,7 +733,7 @@
       "formatted_position": "12 Libra 29' 42\"",
       "house": 12,
       "id": "Part of Fortune",
-      "longitude": 192.495064,
+      "longitude": 192.495061,
       "minute": 29,
       "retrograde": null,
       "second": 42,
@@ -681,7 +745,7 @@
       "formatted_position": "19 Taurus 40' 45\"",
       "house": 8,
       "id": "Vertex",
-      "longitude": 49.679172,
+      "longitude": 49.679166,
       "minute": 40,
       "retrograde": null,
       "second": 45,

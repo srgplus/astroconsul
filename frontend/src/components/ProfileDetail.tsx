@@ -1,5 +1,4 @@
 import { Fragment } from "react"
-import { NatalZodiacRing } from "./NatalZodiacRing"
 import type { NatalAspect, NatalPosition, ProfileDetailResponse, TransitReportResponse } from "../types"
 
 type ProfileDetailProps = {
@@ -65,6 +64,9 @@ const GROUPS: ObjectGroup[] = [
   { label: "Special Points", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
 
+const DISPLAY_NAMES: Record<string, string> = { Selena: "Selene" }
+function dn(id: string): string { return DISPLAY_NAMES[id] ?? id }
+
 function formatPosition(p: NatalPosition): string {
   return `${p.sign} ${p.degree}\u00B0${String(p.minute).padStart(2, "0")}'${String(Math.round(p.second)).padStart(2, "0")}"`
 }
@@ -75,49 +77,31 @@ function retroLabel(r: boolean | null): string {
   return "\u2014"
 }
 
-function NatalPositionsTable({ positions }: { positions: NatalPosition[] }) {
+export function NatalPositionsTable({ positions }: { positions: NatalPosition[] }) {
   const byId = new Map(positions.map((p) => [p.id, p]))
 
   return (
-    <div className="natal-positions-card">
-      <div className="eyebrow">Natal Positions</div>
-      <table className="natal-positions-table">
-        <thead>
-          <tr>
-            <th>Object</th>
-            <th>Position</th>
-            <th>House</th>
-            <th>Retrograde</th>
-          </tr>
-        </thead>
-        <tbody>
-          {GROUPS.map((group) => {
-            const rows = group.ids.map((id) => byId.get(id)).filter(Boolean) as NatalPosition[]
-            if (!rows.length) return null
-            return (
-              <Fragment key={group.label}>
-                <tr className="natal-positions-group">
-                  <td colSpan={4}>{group.label}</td>
-                </tr>
-                {rows.map((p) => (
-                  <tr key={p.id}>
-                    <td className="natal-obj-cell">
-                      <span className="natal-obj-glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
-                      <strong>{p.id}</strong>
-                    </td>
-                    <td>
-                      <span className="natal-sign-glyph">{SIGN_GLYPHS[p.sign] ?? ""}</span>
-                      {" "}{formatPosition(p)}
-                    </td>
-                    <td>{p.house}</td>
-                    <td>{retroLabel(p.retrograde)}</td>
-                  </tr>
-                ))}
-              </Fragment>
-            )
-          })}
-        </tbody>
-      </table>
+    <div className="natal-pos">
+      {GROUPS.map((group) => {
+        const rows = group.ids.map((id) => byId.get(id)).filter(Boolean) as NatalPosition[]
+        if (!rows.length) return null
+        return (
+          <Fragment key={group.label}>
+            <div className="natal-pos__group">{group.label}</div>
+            {rows.map((p) => (
+              <div key={p.id} className="natal-pos__row">
+                <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
+                <span className="natal-pos__name">{dn(p.id)}</span>
+                <span className="natal-pos__house">△{p.house || "—"}</span>
+                <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                <span className="natal-pos__sign-name">{p.sign}</span>
+                <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
+              </div>
+            ))}
+          </Fragment>
+        )
+      })}
     </div>
   )
 }
@@ -137,48 +121,161 @@ function aspectStrength(orb: number): string {
   return "wide"
 }
 
-function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
+const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC"])
+const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
+
+function categorizeNatalAspect(a: NatalAspect): string {
+  if (PERSONAL_IDS.has(a.p1)) return "Personal Planets"
+  if (OUTER_IDS.has(a.p1)) return "Outer Planets"
+  return "Special Points"
+}
+
+export function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
   const sorted = [...aspects].sort((a, b) => a.orb - b.orb)
 
+  const groupOrder = ["Personal Planets", "Outer Planets", "Special Points"]
+  const groups: Record<string, NatalAspect[]> = {}
+  for (const a of sorted) {
+    const cat = categorizeNatalAspect(a)
+    if (!groups[cat]) groups[cat] = []
+    groups[cat].push(a)
+  }
+  const groupedAspects = groupOrder
+    .filter((label) => groups[label]?.length)
+    .map((label) => ({ label, aspects: groups[label]! }))
+
   return (
-    <div className="natal-positions-card">
-      <div className="eyebrow">Natal Aspects</div>
-      <table className="natal-positions-table natal-aspects-table">
-        <thead>
-          <tr>
-            <th>Planet 1</th>
-            <th>Aspect</th>
-            <th>Planet 2</th>
-            <th>Orb</th>
-            <th>Strength</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((a, i) => {
+    <div className="natal-asp">
+      <div className="natal-asp__header">
+        <span>Planet 1</span>
+        <span className="natal-asp__header-center">Aspect</span>
+        <span>Planet 2</span>
+        <span style={{ textAlign: "right" }}>Orb</span>
+        <span style={{ textAlign: "right" }}>Str</span>
+      </div>
+      {groupedAspects.map((group) => (
+        <Fragment key={group.label}>
+          <div className="natal-asp__group">{group.label}</div>
+          {group.aspects.map((a, i) => {
             const strength = aspectStrength(a.orb)
             return (
-              <tr key={`${a.p1}-${a.p2}-${a.aspect}-${i}`}>
-                <td className="natal-obj-cell">
-                  <span className="natal-obj-glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
-                  <strong>{a.p1}</strong>
-                </td>
-                <td className="natal-aspect-cell">
-                  <span className="natal-aspect-glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                  {" "}{a.aspect}
-                </td>
-                <td className="natal-obj-cell">
-                  <span className="natal-obj-glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
-                  <strong>{a.p2}</strong>
-                </td>
-                <td>{a.orb.toFixed(2)}°</td>
-                <td>
-                  <span className={`strength-badge strength-badge--${strength}`}>{strength}</span>
-                </td>
-              </tr>
+              <div key={`${a.p1}-${a.p2}-${a.aspect}-${i}`} className="natal-asp__row">
+                <span className="natal-asp__planet">
+                  <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
+                  <strong>{dn(a.p1)}</strong>
+                </span>
+                <span className="natal-asp__aspect">
+                  <span className="natal-asp__glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
+                  <span className="natal-asp__aspect-name">{a.aspect}</span>
+                </span>
+                <span className="natal-asp__planet">
+                  <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
+                  <strong>{dn(a.p2)}</strong>
+                </span>
+                <span className="natal-asp__orb">{a.orb.toFixed(2)}°</span>
+                <span className={`natal-asp__str natal-asp__str--${strength}`}>{strength.toUpperCase()}</span>
+              </div>
             )
           })}
-        </tbody>
-      </table>
+        </Fragment>
+      ))}
+    </div>
+  )
+}
+
+function computeAge(birthDate: string): number | null {
+  const d = new Date(birthDate)
+  if (isNaN(d.getTime())) return null
+  const now = new Date()
+  let age = now.getFullYear() - d.getFullYear()
+  const monthDiff = now.getMonth() - d.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < d.getDate())) age--
+  return age
+}
+
+export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }) {
+  const positions = detail.chart.natal_positions ?? []
+  const byId = new Map(positions.map((p) => [p.id, p]))
+  const sun = byId.get("Sun")
+  const moon = byId.get("Moon")
+  const asc = byId.get("ASC")
+
+  const birthInput = (detail.chart as Record<string, unknown>).birth_input as Record<string, unknown> | undefined
+  const birthDate = (birthInput?.birth_date as string) ?? detail.chart.local_birth_datetime?.slice(0, 10) ?? null
+  const birthTime = (birthInput?.birth_time as string) ?? null
+  const timezone = (birthInput?.timezone as string) ?? null
+  const localDt = (birthInput?.local_birth_datetime as string) ?? detail.chart.local_birth_datetime ?? null
+  const locationName = (birthInput?.location_name as string) ?? detail.chart.location_name ?? null
+  const age = birthDate ? computeAge(birthDate) : null
+
+  const formatDate = (d: string) => {
+    const parts = d.split("-")
+    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`
+    return d
+  }
+
+  // Extract GMT offset from ISO datetime like "1994-03-27T00:30:00+03:00"
+  const gmtOffset = (() => {
+    if (!localDt) return null
+    const m = localDt.match(/([+-])(\d{2}):(\d{2})$/)
+    if (!m) return null
+    const sign = m[1]
+    const hours = parseInt(m[2], 10)
+    const mins = parseInt(m[3], 10)
+    const label = mins > 0 ? `GMT${sign}${hours}:${String(mins).padStart(2, "0")}` : `GMT${sign}${hours}`
+    return label.replace("+0", "+").replace("-0", "-").replace("GMT+", "UTC+").replace("GMT-", "UTC-")
+  })()
+
+  return (
+    <div className="profile-summary">
+      <div className="profile-summary__signs">
+        {sun ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[sun.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">Sun</div>
+              <div className="profile-summary__sign-value">{sun.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {moon ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[moon.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">Moon</div>
+              <div className="profile-summary__sign-value">{moon.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {asc ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[asc.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">ASC</div>
+              <div className="profile-summary__sign-value">{asc.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {age !== null ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon age-badge">{age}</span>
+            <div>
+              <div className="profile-summary__sign-label">Age</div>
+              <div className="profile-summary__sign-value">y.o.</div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <div className="profile-summary__meta">
+        {locationName ? <span>{locationName}</span> : null}
+        <span>
+          {birthDate ? formatDate(birthDate) : ""}
+          {birthTime ? `, ${birthTime.slice(0, 5)}` : ""}
+          {timezone ? ` (${timezone}` : ""}
+          {gmtOffset ? `, ${gmtOffset}` : ""}
+          {timezone || gmtOffset ? ")" : ""}
+        </span>
+      </div>
     </div>
   )
 }
@@ -191,27 +288,14 @@ export function ProfileDetail({
   transitReport,
   onEditClick,
 }: ProfileDetailProps) {
-  const activeAsc = coerceNumber(activeDetail?.chart.asc)
-  const activeMc = coerceNumber(activeDetail?.chart.mc)
-
   return (
     <>
-      <div className="card-head">
-        <div className="detail-header">
-          <div>
-            <div className="eyebrow">Profile View</div>
-            <h2>{activeDetail?.profile.profile_name || "Select a profile"}</h2>
-            {activeDetail ? (
-              <p>@{activeDetail.profile.username}</p>
-            ) : null}
-          </div>
-          {activeDetail ? (
-            <button type="button" className="edit-btn" onClick={onEditClick}>
-              Edit
-            </button>
-          ) : null}
+      {!detailLoading && !detailError && activeDetail ? (
+        <div className="profile-summary-row">
+          <ProfileSummaryCard detail={activeDetail} />
+          <button type="button" className="edit-btn" onClick={onEditClick}>Edit</button>
         </div>
-      </div>
+      ) : null}
 
       {detailLoading ? (
         <div className="ring-stage loading-state">
@@ -229,74 +313,7 @@ export function ProfileDetail({
       {!detailLoading && !detailError && !activeProfileId ? (
         <div className="ring-stage empty-state">
           <strong>Select a profile</strong>
-          <span>The natal zodiac ring will appear here for the active profile.</span>
-        </div>
-      ) : null}
-
-      {!detailLoading && !detailError && activeProfileId ? (
-        <div className="ring-stage">
-          <NatalZodiacRing
-            asc={activeAsc}
-            mc={activeMc}
-            houses={activeDetail?.chart.houses ?? null}
-            planets={(activeDetail?.chart.natal_positions ?? [])
-              .filter((p) => Number.isFinite(p.longitude))
-              .map((p) => ({
-                id: p.id,
-                longitude: p.longitude,
-                glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-              }))}
-            transitPlanets={(transitReport?.transit_positions ?? [])
-              .filter((p) => Number.isFinite(p.longitude))
-              .map((p) => ({
-                id: p.id,
-                longitude: p.longitude,
-                glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-              }))}
-            transitAspects={(transitReport?.active_aspects ?? [])
-              .filter((a) => a.is_within_orb)
-              .map((a) => ({
-                transit_object: a.transit_object,
-                natal_object: a.natal_object,
-                aspect: a.aspect,
-                orb: a.orb,
-                strength: a.strength,
-              }))}
-            size={520}
-            theme="light"
-          />
-        </div>
-      ) : null}
-
-      {!detailLoading && !detailError && activeProfileId ? (
-        <div className="ring-legend">
-          <div className="eyebrow">Ring Legend</div>
-          <div className="ring-legend__grid">
-            <div className="ring-legend__section">
-              <div className="ring-legend__title">Rings (outer → inner)</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--zodiac" />Zodiac signs</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--house-num" />House numbers</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--natal" />Natal planets</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--natal-sp" />Natal special points</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--transit" />Transit planets</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--transit-sp" />Transit special points</div>
-              <div className="ring-legend__item"><span className="ring-legend__swatch ring-legend__swatch--center" />Aspect lines (center)</div>
-            </div>
-            <div className="ring-legend__section">
-              <div className="ring-legend__title">Lines</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--axis" />AC/DC/MC/IC axes</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--house-div" />House dividers</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--tick" />Planet position tick</div>
-            </div>
-            <div className="ring-legend__section">
-              <div className="ring-legend__title">Aspect colors</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--conjunction" />Conjunction (solid)</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--opposition" />Opposition (dashed)</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--square" />Square (short dash)</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--trine" />Trine (long dash)</div>
-              <div className="ring-legend__item"><span className="ring-legend__line ring-legend__line--sextile" />Sextile (dots)</div>
-            </div>
-          </div>
+          <span>Choose a natal profile to view chart details.</span>
         </div>
       ) : null}
 

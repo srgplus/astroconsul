@@ -147,6 +147,30 @@
       "p2": "Neptune"
     },
     {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 125.424245,
+      "orb": 5.424245,
+      "p1": "Mercury",
+      "p2": "ASC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.106066,
+      "orb": 5.893934,
+      "p1": "Venus",
+      "p2": "ASC"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 118.816636,
+      "orb": 1.183364,
+      "p1": "Venus",
+      "p2": "MC"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 91.431586,
@@ -195,6 +219,14 @@
       "p2": "Saturn"
     },
     {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.932506,
+      "orb": 5.067494,
+      "p1": "Jupiter",
+      "p2": "MC"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 88.599077,
@@ -233,6 +265,14 @@
       "orb": 3.524822,
       "p1": "Saturn",
       "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.324334,
+      "orb": 4.324334,
+      "p1": "Uranus",
+      "p2": "MC"
     },
     {
       "angle": 0,
@@ -297,6 +337,22 @@
       "orb": 1.45239,
       "p1": "Pluto",
       "p2": "Vertex"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.462348,
+      "orb": 4.462348,
+      "p1": "ASC",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.308206,
+      "orb": 0.691794,
+      "p1": "MC",
+      "p2": "Selena"
     },
     {
       "angle": 0,

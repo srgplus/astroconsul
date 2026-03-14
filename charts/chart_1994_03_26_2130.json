@@ -67,6 +67,22 @@
   "julian_day": 2449438.39583333,
   "natal_aspects": [
     {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 123.268668,
+      "orb": 3.268668,
+      "p1": "Sun",
+      "p2": "ASC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 178.587246,
+      "orb": 1.412754,
+      "p1": "Sun",
+      "p2": "MC"
+    },
+    {
       "angle": 60,
       "aspect": "sextile",
       "delta": 60.423604,
@@ -97,6 +113,14 @@
       "orb": 0.053817,
       "p1": "Moon",
       "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.634888,
+      "orb": 6.634888,
+      "p1": "Moon",
+      "p2": "MC"
     },
     {
       "angle": 60,
@@ -219,6 +243,14 @@
       "p2": "Vertex"
     },
     {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.043051,
+      "orb": 4.043051,
+      "p1": "Saturn",
+      "p2": "ASC"
+    },
+    {
       "angle": 180,
       "aspect": "opposition",
       "delta": 177.213035,
@@ -317,6 +349,14 @@
     {
       "angle": 0,
       "aspect": "conjunction",
+      "delta": 4.832791,
+      "orb": 4.832791,
+      "p1": "Pluto",
+      "p2": "ASC"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
       "delta": 3.046817,
       "orb": 3.046817,
       "p1": "Pluto",
@@ -329,6 +369,54 @@
       "orb": 3.046817,
       "p1": "Pluto",
       "p2": "South Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.144086,
+      "orb": 1.855914,
+      "p1": "ASC",
+      "p2": "MC"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.743914,
+      "orb": 1.256086,
+      "p1": "ASC",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.845064,
+      "orb": 2.845064,
+      "p1": "ASC",
+      "p2": "Selena"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 7.879608,
+      "orb": 7.879608,
+      "p1": "ASC",
+      "p2": "North Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 172.120392,
+      "orb": 7.879608,
+      "p1": "ASC",
+      "p2": "South Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 120.98915,
+      "orb": 0.98915,
+      "p1": "MC",
+      "p2": "Selena"
     },
     {
       "angle": 120,

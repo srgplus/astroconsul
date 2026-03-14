@@ -75,6 +75,22 @@
       "p2": "Saturn"
     },
     {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 63.114657,
+      "orb": 3.114657,
+      "p1": "Sun",
+      "p2": "ASC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 173.78389,
+      "orb": 6.21611,
+      "p1": "Sun",
+      "p2": "MC"
+    },
+    {
       "angle": 0,
       "aspect": "conjunction",
       "delta": 4.486245,
@@ -107,6 +123,14 @@
       "p2": "Venus"
     },
     {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 92.966333,
+      "orb": 2.966333,
+      "p1": "Moon",
+      "p2": "ASC"
+    },
+    {
       "angle": 120,
       "aspect": "trine",
       "delta": 123.874301,
@@ -131,6 +155,14 @@
       "p2": "Mars"
     },
     {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.708693,
+      "orb": 0.291307,
+      "p1": "Mercury",
+      "p2": "ASC"
+    },
+    {
       "angle": 0,
       "aspect": "conjunction",
       "delta": 1.188362,
@@ -145,6 +177,14 @@
       "orb": 3.782669,
       "p1": "Venus",
       "p2": "Uranus"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.876306,
+      "orb": 4.876306,
+      "p1": "Venus",
+      "p2": "ASC"
     },
     {
       "angle": 120,
@@ -193,6 +233,22 @@
       "orb": 2.593457,
       "p1": "Jupiter",
       "p2": "Pluto"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 118.848003,
+      "orb": 1.151997,
+      "p1": "Saturn",
+      "p2": "ASC"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.25345,
+      "orb": 4.25345,
+      "p1": "Saturn",
+      "p2": "MC"
     },
     {
       "angle": 180,
@@ -297,6 +353,38 @@
       "orb": 1.358334,
       "p1": "Pluto",
       "p2": "South Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 123.101453,
+      "orb": 3.101453,
+      "p1": "ASC",
+      "p2": "MC"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.628412,
+      "orb": 1.371588,
+      "p1": "ASC",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 178.270135,
+      "orb": 1.729865,
+      "p1": "MC",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 93.739181,
+      "orb": 3.739181,
+      "p1": "MC",
+      "p2": "Vertex"
     },
     {
       "angle": 90,

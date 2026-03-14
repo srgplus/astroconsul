@@ -385,7 +385,6 @@ def build_chart(
                 for p in natal_positions
                 if p.get("longitude") is not None
                 and str(p.get("id")) not in planets
-                and str(p.get("id")) not in ("ASC", "MC")
             },
         }),
         "natal_summary": build_natal_summary(natal_positions, angle_positions),
@@ -413,7 +412,7 @@ def chart_needs_upgrade(chart: dict[str, Any]) -> bool:
     if not isinstance(vertex_position, dict) or vertex_position.get("house") is None:
         return True
 
-    # Check if natal_aspects include special points
+    # Check if natal_aspects include special points and ASC/MC
     natal_aspects = chart.get("natal_aspects", [])
     special_ids = {"Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"}
     has_special = any(
@@ -421,7 +420,16 @@ def chart_needs_upgrade(chart: dict[str, Any]) -> bool:
         for a in natal_aspects
         if isinstance(a, dict)
     )
-    return not has_special
+    if not has_special:
+        return True
+
+    angle_ids = {"ASC", "MC"}
+    has_angles = any(
+        a.get("p1") in angle_ids or a.get("p2") in angle_ids
+        for a in natal_aspects
+        if isinstance(a, dict)
+    )
+    return not has_angles
 
 
 def make_chart_id(year: int, month: int, day: int, hour: float) -> str:

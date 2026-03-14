@@ -46,6 +46,15 @@ const OBJECT_GLYPHS: Record<string, string> = {
   MC: "MC",
 }
 
+/** Display names that differ from backend IDs */
+const DISPLAY_NAMES: Record<string, string> = {
+  Selena: "Selene",
+}
+
+function displayName(id: string): string {
+  return DISPLAY_NAMES[id] ?? id
+}
+
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648",
   Taurus: "\u2649",
@@ -132,6 +141,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
   const [timelineOpen, setTimelineOpen] = useState(false)
   const [resolving, setResolving] = useState(false)
   const [resolvedLabel, setResolvedLabel] = useState<string | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const controllerRef = useRef<AbortController | null>(null)
 
@@ -167,12 +177,16 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
       }
     }
 
-    // Use the already-fetched report from App.tsx if available
-    setReport(initialReport ?? null)
+    setReport(null)
     setTimeline([])
     setError(null)
     setResolvedLabel(null)
   }, [activeDetail?.profile.profile_id])
+
+  // Sync initialReport from App.tsx (arrives asynchronously after auto-fetch)
+  useEffect(() => {
+    if (initialReport) setReport(initialReport)
+  }, [initialReport])
 
   async function handleResolveLocation() {
     if (!locationName.trim()) return
@@ -302,61 +316,77 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
   return (
     <section className="card">
       <div className="card-head">
-        <div className="eyebrow">Transits</div>
-        <h2>Transit report{activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}</h2>
-        <p>Compute active transits for a given moment.</p>
-      </div>
-
-      <form className="transit-form" onSubmit={handleSubmit}>
-        <div className="transit-fields">
-          <label className="transit-field">
-            <span className="transit-field-label">Date</span>
-            <input
-              type="date"
-              value={transitDate}
-              onChange={(e) => setTransitDate(e.target.value)}
-              required
-            />
-          </label>
-          <label className="transit-field">
-            <span className="transit-field-label">Time</span>
-            <input
-              type="time"
-              step="1"
-              value={transitTime}
-              onChange={(e) => setTransitTime(e.target.value)}
-              required
-            />
-          </label>
-          <label className="transit-field">
-            <span className="transit-field-label">Timezone</span>
-            <input
-              type="text"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              placeholder="America/New_York"
-            />
-          </label>
-          <label className="transit-field">
-            <span className="transit-field-label">Location (optional)</span>
-            <input
-              type="text"
-              value={locationName}
-              onChange={(e) => { setLocationName(e.target.value); setResolvedLabel(null) }}
-              onBlur={() => { if (locationName.trim()) handleResolveLocation() }}
-              placeholder="e.g. Moscow"
-            />
-          </label>
-        </div>
-        {resolvedLabel ? (
-          <div className="edit-resolve-hint" style={{ marginTop: 8 }}>{resolvedLabel}</div>
-        ) : null}
-        <div className="transit-actions">
-          <button type="submit" className="status" disabled={loading}>
-            {loading ? "Computing…" : "Generate Transit Report"}
+        <div className="transit-head-row">
+          <div>
+            <div className="eyebrow">Transits</div>
+            <h2>Transit report{activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}</h2>
+          </div>
+          <button type="button" className="edit-btn" onClick={() => setSettingsOpen(true)}>
+            Edit
           </button>
         </div>
-      </form>
+      </div>
+
+      {settingsOpen ? (
+        <div className="settings-overlay" onClick={() => setSettingsOpen(false)}>
+          <div className="settings-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="settings-popup-head">
+              <h3>Transit Settings</h3>
+              <button type="button" className="settings-close" onClick={() => setSettingsOpen(false)}>×</button>
+            </div>
+            <form className="transit-form" onSubmit={(e) => { handleSubmit(e); setSettingsOpen(false) }}>
+              <div className="transit-fields">
+                <label className="transit-field">
+                  <span className="transit-field-label">Date</span>
+                  <input
+                    type="date"
+                    value={transitDate}
+                    onChange={(e) => setTransitDate(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="transit-field">
+                  <span className="transit-field-label">Time</span>
+                  <input
+                    type="time"
+                    step="1"
+                    value={transitTime}
+                    onChange={(e) => setTransitTime(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="transit-field">
+                  <span className="transit-field-label">Timezone</span>
+                  <input
+                    type="text"
+                    value={timezone}
+                    onChange={(e) => setTimezone(e.target.value)}
+                    placeholder="America/New_York"
+                  />
+                </label>
+                <label className="transit-field">
+                  <span className="transit-field-label">Location (optional)</span>
+                  <input
+                    type="text"
+                    value={locationName}
+                    onChange={(e) => { setLocationName(e.target.value); setResolvedLabel(null) }}
+                    onBlur={() => { if (locationName.trim()) handleResolveLocation() }}
+                    placeholder="e.g. Moscow"
+                  />
+                </label>
+              </div>
+              {resolvedLabel ? (
+                <div className="edit-resolve-hint" style={{ marginTop: 8 }}>{resolvedLabel}</div>
+              ) : null}
+              <div className="transit-actions">
+                <button type="submit" className="status" disabled={loading}>
+                  {loading ? "Computing…" : "Generate Transit Report"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
 
       {error ? (
         <div className="transit-result error-state">
@@ -400,9 +430,8 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
             <div className="aspect-cards-wrapper">
               <div className="aspect-cards-header">
                 <span>Transit</span>
-                <span>Aspect</span>
-                <span>Natal</span>
-                <span className="aspect-cards-header-orb">Orb</span>
+                <span className="aspect-cards-header-center">Aspect</span>
+                <span className="aspect-cards-header-right">Natal</span>
               </div>
               {groupedAspects.map((group) => (
                 <div key={group.label} className="aspect-group">
@@ -415,60 +444,38 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                         key={`${a.transit_object}-${a.aspect}-${a.natal_object}-${i}`}
                         className="aspect-card"
                       >
-                        {/* Row 1: planet names, aspect, orb */}
+                        {/* Row 1: transit — aspect+orb — natal */}
                         <div className="aspect-card-row1">
                           <div className="aspect-card-planet transit-side">
                             <span className="planet-glyph">{OBJECT_GLYPHS[a.transit_object] ?? ""}</span>
                             <span className="planet-name">
-                              {a.transit_object}
+                              {displayName(a.transit_object)}
                               {tp?.retrograde ? <span className="retro-badge">Ⓡ</span> : null}
                             </span>
+                            <span className="planet-meta">
+                              {tp ? `${SIGN_GLYPHS[tp.sign] ?? ""} ${tp.sign} · △${tp.natal_house}` : ""}
+                            </span>
                           </div>
-                          <div className="aspect-card-aspect">
-                            <span className="aspect-glyph-symbol">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                            <span className="aspect-name">{a.aspect}</span>
+                          <div className="aspect-card-center">
+                            <div className="aspect-card-center-row">
+                              <span className="aspect-glyph-symbol">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
+                              <span className="aspect-name">{a.aspect}</span>
+                            </div>
+                            <span className="aspect-orb">{a.orb.toFixed(2)}°</span>
                           </div>
                           <div className="aspect-card-planet natal-side">
                             <span className="planet-glyph">{OBJECT_GLYPHS[a.natal_object] ?? ""}</span>
                             <span className="planet-name">
-                              {a.natal_object}
+                              {displayName(a.natal_object)}
                               {np?.retrograde ? <span className="retro-badge">Ⓡ</span> : null}
                             </span>
+                            <span className="planet-meta">
+                              {np ? `${SIGN_GLYPHS[np.sign] ?? ""} ${np.sign}${np.house ? ` · △${np.house}` : ""}` : ""}
+                            </span>
                           </div>
-                          <div className="aspect-card-orb">{a.orb.toFixed(2)}°</div>
                         </div>
 
-                        {/* Row 2: sign + house details */}
-                        <div className="aspect-card-row2">
-                          <div className="aspect-card-meta transit-side">
-                            {tp ? (
-                              <>
-                                <span className="meta-sign">{SIGN_GLYPHS[tp.sign] ?? ""}</span>
-                                <span className="meta-label">{tp.sign}</span>
-                                <span className="meta-sep">·</span>
-                                <span className="meta-house">△{tp.natal_house}</span>
-                              </>
-                            ) : null}
-                          </div>
-                          <div className="aspect-card-meta-spacer" />
-                          <div className="aspect-card-meta natal-side">
-                            {np ? (
-                              <>
-                                <span className="meta-sign">{SIGN_GLYPHS[np.sign] ?? ""}</span>
-                                <span className="meta-label">{np.sign}</span>
-                                {np.house ? (
-                                  <>
-                                    <span className="meta-sep">·</span>
-                                    <span className="meta-house">△{np.house}</span>
-                                  </>
-                                ) : null}
-                              </>
-                            ) : null}
-                          </div>
-                          <div className="aspect-card-orb-spacer" />
-                        </div>
-
-                        {/* Row 3: strength, status, timing */}
+                        {/* Row 3: strength, status, duration + timeline on same line */}
                         <div className="aspect-card-row3">
                           <span className={`strength-badge strength-${a.strength}`}>
                             {a.strength}
@@ -483,16 +490,15 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                               {formatDuration(a.timing.duration_hours)}
                             </span>
                           ) : null}
+                          {a.timing ? (
+                            <>
+                              <span className="timing-sep">|</span>
+                              <span className="timeline-marker timeline-start">▶ {formatUtc(a.timing.start_utc)}</span>
+                              <span className="timeline-marker timeline-exact">◎ {formatUtc(a.timing.exact_utc)}</span>
+                              <span className="timeline-marker timeline-end">✓ {formatUtc(a.timing.end_utc)}</span>
+                            </>
+                          ) : null}
                         </div>
-
-                        {/* Row 4: timeline ▶ ◎ ✓ */}
-                        {a.timing ? (
-                          <div className="aspect-card-timeline">
-                            <span className="timeline-marker timeline-start">▶ {formatUtc(a.timing.start_utc)}</span>
-                            <span className="timeline-marker timeline-exact">◎ {formatUtc(a.timing.exact_utc)}</span>
-                            <span className="timeline-marker timeline-end">✓ {formatUtc(a.timing.end_utc)}</span>
-                          </div>
-                        ) : null}
                       </div>
                     )
                   })}

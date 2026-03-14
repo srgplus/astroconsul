@@ -219,6 +219,22 @@
       "p2": "Saturn"
     },
     {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.22495,
+      "orb": 2.22495,
+      "p1": "Saturn",
+      "p2": "ASC"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 7.499345,
+      "orb": 7.499345,
+      "p1": "Saturn",
+      "p2": "MC"
+    },
+    {
       "angle": 180,
       "aspect": "opposition",
       "delta": 178.796782,
@@ -257,6 +273,38 @@
       "orb": 3.260196,
       "p1": "Pluto",
       "p2": "Vertex"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 90.108894,
+      "orb": 0.108894,
+      "p1": "ASC",
+      "p2": "Selena"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.029128,
+      "orb": 4.970872,
+      "p1": "ASC",
+      "p2": "North Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 60.303523,
+      "orb": 0.303523,
+      "p1": "MC",
+      "p2": "North Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 119.696477,
+      "orb": 0.303523,
+      "p1": "MC",
+      "p2": "South Node"
     },
     {
       "angle": 90,

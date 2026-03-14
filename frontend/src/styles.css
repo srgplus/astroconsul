@@ -128,14 +128,46 @@ select {
 }
 
 .app-shell {
-  width: min(1240px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 28px 0 56px;
+  margin-left: 248px;
+  padding: 20px 24px 40px;
   display: grid;
-  gap: 24px;
+  gap: 0;
 }
 
-.hero,
+/* --- Top bar --- */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-bar-logo {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Cards --- */
+
 .card {
   position: relative;
   padding: 24px;
@@ -148,7 +180,6 @@ select {
   overflow: visible;
 }
 
-.hero::before,
 .card::before {
   content: "";
   position: absolute;
@@ -157,38 +188,16 @@ select {
   pointer-events: none;
 }
 
-.hero-topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.hero h1,
 .card h2 {
   margin: 0;
   font-family: "Iowan Old Style", Georgia, serif;
   letter-spacing: -0.03em;
 }
 
-.hero h1 {
-  margin-top: 12px;
-  font-size: clamp(2.8rem, 7vw, 5.3rem);
-  line-height: 0.94;
-}
-
-.hero p,
 .card p,
 .card span {
   color: var(--muted);
   line-height: 1.6;
-}
-
-.hero p {
-  max-width: 760px;
-  margin-top: 14px;
-  font-size: 1.02rem;
 }
 
 .eyebrow {
@@ -227,33 +236,501 @@ select {
 /* --- Main layout: sidebar + content --- */
 
 .main-layout {
+  display: block;
+}
+
+/* --- Sticky header (Weather-style) --- */
+
+.content-pane {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 16px 0 12px;
+  text-align: center;
+}
+
+.sticky-header .content-tabs {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* --- Widget grid (Apple Weather style) --- */
+
+.widget-grid {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-bottom: 40px;
   align-items: start;
 }
 
+.widget-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.widget {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+    var(--surface);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.widget:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transform: scale(1.008);
+}
+
+.widget-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-count {
+  font-size: 0.65rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.widget:hover .widget-hint {
+  opacity: 1;
+}
+
+/* --- Chart widget --- */
+
+.widget--chart {
+  padding: 8px;
+}
+
+.widget--chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.widget--chart-tall {
+  grid-row: span 2;
+}
+
+.widget--wheel-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.widget--wheel-right svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wheel-mode-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.wheel-mode-toggle button {
+  all: unset;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.wheel-mode-toggle button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* --- Summary widget --- */
+
+.widget--summary {
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-transit-info {
+  margin-bottom: 8px;
+}
+
+.widget-transit-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.widget-transit-stats {
+  display: flex;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.widget-transit-strong {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* --- Compact widget --- */
+
+.widget--compact {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Widget planet preview rows --- */
+
+.widget-planets-preview,
+.widget-aspects-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.widget-planet-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.widget-planet-glyph {
+  font-size: 0.9rem;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.widget-planet-name {
+  font-weight: 600;
+  min-width: 56px;
+}
+
+.widget-planet-sign {
+  color: var(--muted);
+  flex: 1;
+}
+
+.widget-planet-deg {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* --- Widget aspect preview rows --- */
+
+.widget-aspect-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.widget-aspect-glyph {
+  font-size: 0.85rem;
+  width: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.widget-aspect-name {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.widget-aspect-orb {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.widget-empty-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding: 8px 0;
+}
+
+/* --- Widget popup overlay (expanded detail) --- */
+
+.widget-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.widget-popup {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  width: min(680px, calc(100vw - 40px));
+  max-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
+  animation: popupSlideUp 0.2s ease;
+}
+
+@keyframes popupSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.widget-popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.widget-popup-head h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.widget-popup-body {
+  overflow-y: auto;
+  padding: 16px 20px 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* --- Fullscreen wheel overlay --- */
+
+.wheel-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wheel-fs-in 0.3s ease-out;
+}
+
+@keyframes wheel-fs-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.wheel-fullscreen__close {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.4rem;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wheel-fullscreen__close:hover {
+  background: var(--line);
+}
+
+.wheel-fullscreen__toggle {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wheel-fullscreen__toggle button {
+  all: unset;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.wheel-fullscreen__toggle button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.wheel-fullscreen__ring {
+  position: relative;
+  width: min(calc(100vh - 20px), calc(100vw - 20px));
+  height: min(calc(100vh - 20px), calc(100vw - 20px));
+}
+
+.wheel-fullscreen__ring svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .sidebar {
-  position: sticky;
-  top: 20px;
-  padding: 20px;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 220px;
+  padding: 16px 12px;
   border: 1px solid var(--line);
   border-radius: 28px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
     var(--surface);
   box-shadow: var(--shadow);
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
+  height: calc(100vh - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
 }
 
 .sidebar-head {
-  margin-bottom: 16px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
 }
 
-.content-area {
-  display: grid;
-  gap: 16px;
+.sidebar-search {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.sidebar-search input::placeholder {
+  color: var(--muted);
+}
+
+.sidebar-search input:focus {
+  border-color: var(--line-strong);
+}
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.sidebar-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-icon-btn:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.content-profile-name {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.content-profile-username {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .content-tabs {
@@ -309,18 +786,22 @@ select {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .profile-list-item {
   width: 100%;
-  padding: 16px 18px;
+  min-height: 88px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 16px;
   text-align: left;
   color: var(--ink);
   background: var(--surface-soft);
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   transition:
     transform 160ms ease,
     border-color 160ms ease,
@@ -374,95 +855,246 @@ select {
 
 /* --- Natal positions table --- */
 
-.natal-positions-card {
-  position: relative;
-  z-index: 1;
-  margin-top: 24px;
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: var(--surface-soft);
+/* --- Profile summary card --- */
+.profile-summary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.natal-positions-card .eyebrow {
-  margin-bottom: 14px;
+.profile-summary-row .profile-summary {
+  flex: 1;
 }
 
-.natal-positions-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
+.profile-summary-row .edit-btn {
+  margin-top: 14px;
+  flex-shrink: 0;
 }
 
-.natal-positions-table th {
-  padding: 10px 12px;
-  text-align: left;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
+.profile-summary {
+  padding: 12px 8px;
   border-bottom: 1px solid var(--line);
 }
 
-.natal-positions-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--ink);
+.profile-summary__signs {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.natal-positions-group td {
-  padding: 14px 12px 8px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  border-bottom: 1px solid var(--line);
-}
-
-.natal-obj-cell {
+.profile-summary__sign-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.natal-obj-glyph {
+.profile-summary__sign-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.profile-summary__sign-icon.age-badge {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: rgba(128, 128, 128, 0.12);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.profile-summary__sign-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.profile-summary__sign-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.profile-summary__meta {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* --- Compact natal positions list --- */
+
+.natal-pos {
+  position: relative;
+  z-index: 1;
+  margin-top: 12px;
+  padding: 8px 0;
+}
+
+.natal-pos__group {
+  padding: 6px 8px 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.natal-pos__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+  font-size: 0.82rem;
+}
+
+.natal-pos__glyph {
   font-family: "Noto Sans Symbols 2", sans-serif;
-  width: 26px;
-  height: 26px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  width: 20px;
+  text-align: center;
+  color: var(--muted-strong);
+  flex-shrink: 0;
+}
+
+.natal-pos__name {
+  font-weight: 600;
+  min-width: 60px;
+}
+
+.natal-pos__sign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: rgba(138, 100, 220, 0.22);
+  color: #c4a8f0;
+  flex-shrink: 0;
+}
+
+.natal-pos__sign-name {
+  font-size: 0.75rem;
+  color: var(--muted);
+  min-width: 52px;
+}
+
+.natal-pos__deg {
+  color: var(--muted);
+  font-size: 0.78rem;
+  min-width: 48px;
+}
+
+.natal-pos__house {
+  color: var(--muted);
+  font-size: 0.75rem;
+  min-width: 28px;
+  text-align: right;
+}
+
+.natal-pos__retro {
+  color: #e8a050;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* --- Compact natal aspects list --- */
+
+.natal-asp {
+  margin-top: 12px;
+  padding: 8px 0;
+}
+
+.natal-asp__group {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 8px 2px;
+}
+
+.natal-asp__header {
+  display: grid;
+  grid-template-columns: 100px 90px 110px 48px 52px;
+  gap: 4px;
+  padding: 2px 8px 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.natal-asp__header-center { text-align: center; }
+
+.natal-asp__row {
+  display: grid;
+  grid-template-columns: 100px 90px 110px 48px 52px;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.natal-asp__planet {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.natal-asp__aspect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.natal-asp__glyph {
+  font-size: 0.9rem;
   color: var(--muted-strong);
 }
 
-.natal-sign-glyph {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  background: rgba(138, 100, 220, 0.22);
-  color: #c4a8f0;
-}
-
-.natal-aspect-cell {
+.natal-asp__aspect-name {
+  font-size: 0.72rem;
+  color: var(--muted);
   text-transform: capitalize;
 }
 
-.natal-aspect-glyph {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-size: 0.95rem;
-  color: var(--muted-strong);
+.natal-asp__orb {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: right;
+  min-width: 36px;
 }
+
+.natal-asp__str {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-align: center;
+  min-width: 42px;
+  margin-left: auto;
+}
+.natal-asp__str--exact { background: rgba(100, 220, 140, 0.22); color: #7de8a6; }
+.natal-asp__str--strong { background: rgba(100, 160, 220, 0.22); color: #8ac4f0; }
+.natal-asp__str--moderate { background: rgba(200, 180, 100, 0.22); color: #d4c878; }
+.natal-asp__str--wide { background: rgba(160, 160, 160, 0.15); color: var(--muted); }
 
 .strength-badge {
   display: inline-block;
@@ -633,6 +1265,12 @@ select {
   user-select: none;
 }
 
+.natal-zodiac-ring__tick-dot {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.5;
+}
+
 .natal-zodiac-ring__planet-tick {
   stroke: #ffffff;
   stroke-width: 0.5;
@@ -696,6 +1334,149 @@ select {
   color: var(--accent-ink);
   background: var(--accent);
   border-color: var(--accent);
+}
+
+/* --- Transit settings popup --- */
+
+.transit-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.settings-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 6px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.settings-btn:hover { background: var(--line); }
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-popup {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  width: min(480px, calc(100vw - 40px));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.settings-popup-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.settings-popup-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.settings-close {
+  font-size: 1.5rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px 8px;
+}
+.settings-close:hover { color: var(--fg); }
+
+/* --- Info popup --- */
+.info-popup {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  width: min(560px, calc(100vw - 40px));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.info-popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 8px;
+}
+
+.info-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 4px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px 12px;
+}
+
+.info-grid--houses {
+  grid-template-columns: 1fr;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  padding: 2px 0;
+}
+
+.info-item--wide {
+  grid-column: 1 / -1;
+}
+
+.info-glyph {
+  font-size: 1.1rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--muted-strong);
+}
+
+.info-house-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(128, 128, 128, 0.12);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-muted {
+  font-size: 0.72rem;
+  color: var(--muted);
 }
 
 /* --- Transit form --- */
@@ -924,7 +1705,7 @@ select {
 
 .aspect-cards-header {
   display: grid;
-  grid-template-columns: 1fr auto 1fr 60px;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 10px 16px;
   font-size: 0.7rem;
@@ -937,7 +1718,12 @@ select {
   border-bottom: 1px solid var(--line);
 }
 
-.aspect-cards-header-orb {
+.aspect-cards-header-center {
+  text-align: center;
+  min-width: 80px;
+}
+
+.aspect-cards-header-right {
   text-align: right;
 }
 
@@ -956,7 +1742,7 @@ select {
 }
 
 .aspect-card {
-  padding: 14px 16px;
+  padding: 10px 16px;
   border-top: 1px solid var(--line);
   background: var(--surface);
   transition: background 0.15s;
@@ -970,22 +1756,52 @@ select {
   border-radius: 0 0 12px 12px;
 }
 
-/* Row 1: planet — aspect — planet — orb */
+/* Row 1: transit — aspect+orb — natal */
 .aspect-card-row1 {
   display: grid;
-  grid-template-columns: 1fr auto 1fr 60px;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .aspect-card-planet {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .aspect-card-planet.natal-side {
-  justify-content: flex-start;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.planet-meta {
+  width: 100%;
+  font-size: 0.74rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.aspect-card-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 80px;
+}
+.aspect-card-center-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aspect-orb {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .planet-glyph {
@@ -1013,14 +1829,6 @@ select {
   vertical-align: middle;
 }
 
-.aspect-card-aspect {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  min-width: 80px;
-}
-
 .aspect-glyph-symbol {
   font-size: 1.1rem;
   opacity: 0.8;
@@ -1032,67 +1840,13 @@ select {
   text-transform: lowercase;
 }
 
-.aspect-card-orb {
-  text-align: right;
-  font-size: 0.92rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Row 2: sign + house metadata */
-.aspect-card-row2 {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr 60px;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.aspect-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.76rem;
-  color: var(--muted);
-}
-
-.aspect-card-meta.natal-side {
-  justify-content: flex-start;
-}
-
-.meta-sign {
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-.meta-label {
-  opacity: 0.8;
-}
-
-.meta-sep {
-  opacity: 0.4;
-}
-
-.meta-house {
-  font-size: 0.72rem;
-  opacity: 0.7;
-}
-
-.aspect-card-meta-spacer,
-.aspect-card-orb-spacer {
-  min-width: 80px;
-}
-
-.aspect-card-orb-spacer {
-  min-width: 60px;
-}
-
-/* Row 3: strength + status */
+/* Row 3: strength + status + timeline (all on one line) */
 .aspect-card-row3 {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-top: 5px;
 }
 
 .timing-dot {
@@ -1100,19 +1854,16 @@ select {
   vertical-align: middle;
 }
 
-/* Row 4: timeline markers */
-.aspect-card-timeline {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 6px;
-  font-size: 0.72rem;
+.timing-sep {
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  opacity: 0.3;
+  font-size: 0.72rem;
 }
 
 .timeline-marker {
   white-space: nowrap;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline-start {
@@ -1328,10 +2079,13 @@ select {
 @media (max-width: 960px) {
   .main-layout {
     grid-template-columns: 1fr;
+    margin-left: 0;
   }
 
   .sidebar {
     position: static;
+    width: auto;
+    height: auto;
     max-height: none;
   }
 
@@ -1346,7 +2100,6 @@ select {
     padding-top: 20px;
   }
 
-  .hero,
   .card,
   .sidebar {
     padding: 20px;
@@ -1371,11 +2124,9 @@ select {
 
 /* ---- Light theme overrides for ring hardcoded colors ---- */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .hero,
   :root:not([data-theme="dark"]) .card {
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.015), transparent 28%), var(--surface);
   }
-  :root:not([data-theme="dark"]) .hero::before,
   :root:not([data-theme="dark"]) .card::before {
     background: radial-gradient(circle at top center, rgba(114, 142, 183, 0.04), transparent 36%);
   }
@@ -1386,6 +2137,7 @@ select {
   :root:not([data-theme="dark"]) .natal-zodiac-ring__axis-chevron { stroke: #ffffff; }
   :root:not([data-theme="dark"]) .natal-zodiac-ring__axis-label-outer { fill: #ffffff; }
   :root:not([data-theme="dark"]) .natal-zodiac-ring__axis-label-outer { fill: #333333; }
+  :root:not([data-theme="dark"]) .natal-zodiac-ring__tick-dot { stroke: #555555; }
   :root:not([data-theme="dark"]) .natal-zodiac-ring__planet-tick { stroke: #555555; }
   :root:not([data-theme="dark"]) .natal-zodiac-ring__planet-glyph { fill: #222222; }
   :root:not([data-theme="dark"]) .natal-zodiac-ring__transit-glyph { fill: #444444; }
@@ -1393,11 +2145,9 @@ select {
   :root:not([data-theme="dark"]) .sidebar { background: var(--surface); border-color: var(--line); }
 }
 
-:root[data-theme="light"] .hero,
 :root[data-theme="light"] .card {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.015), transparent 28%), var(--surface);
 }
-:root[data-theme="light"] .hero::before,
 :root[data-theme="light"] .card::before {
   background: radial-gradient(circle at top center, rgba(114, 142, 183, 0.04), transparent 36%);
 }
@@ -1408,6 +2158,7 @@ select {
 :root[data-theme="light"] .natal-zodiac-ring__axis-chevron { stroke: #ffffff; }
 :root[data-theme="light"] .natal-zodiac-ring__axis-label-outer { fill: #ffffff; }
 :root[data-theme="light"] .natal-zodiac-ring__axis-label-outer { fill: #333333; }
+:root[data-theme="light"] .natal-zodiac-ring__tick-dot { stroke: #555555; }
 :root[data-theme="light"] .natal-zodiac-ring__planet-tick { stroke: #555555; }
 :root[data-theme="light"] .natal-zodiac-ring__planet-glyph { fill: #222222; }
 :root[data-theme="light"] .natal-zodiac-ring__transit-glyph { fill: #444444; }
@@ -1502,6 +2253,70 @@ select {
 .ring-legend__line--square { border-color: #e67e22; border-top-style: dashed; }
 .ring-legend__line--trine { border-color: #2980b9; border-top-style: dashed; }
 .ring-legend__line--sextile { border-color: #27ae60; border-top-style: dotted; }
+
+/* --- Houses knowledge base in legend --- */
+
+.ring-legend__houses {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.ring-legend__houses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ring-legend__house-card {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  transition: background 0.15s;
+}
+
+.ring-legend__house-card:hover {
+  background: var(--surface);
+}
+
+.ring-legend__house-num {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 28px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.ring-legend__house-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ring-legend__house-modern {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ring-legend__house-latin {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.ring-legend__house-keywords {
+  font-size: 0.68rem;
+  color: var(--muted);
+  opacity: 0.75;
+  line-height: 1.4;
+}
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .ring-legend__line--axis { border-color: #111111; }
