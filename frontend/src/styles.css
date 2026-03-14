@@ -914,17 +914,246 @@ select {
   color: var(--muted);
 }
 
+/* --- Aspect cards (transit-to-natal) --- */
+
+.aspect-cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.aspect-cards-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 60px;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.aspect-cards-header-orb {
+  text-align: right;
+}
+
+.aspect-group {
+  margin-bottom: 0;
+}
+
+.aspect-group-label {
+  padding: 10px 16px 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
+}
+
+.aspect-card {
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  transition: background 0.15s;
+}
+
+.aspect-card:hover {
+  background: var(--surface-soft);
+}
+
+.aspect-card:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+/* Row 1: planet — aspect — planet — orb */
+.aspect-card-row1 {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 60px;
+  align-items: center;
+  gap: 8px;
+}
+
+.aspect-card-planet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aspect-card-planet.natal-side {
+  justify-content: flex-start;
+}
+
+.planet-glyph {
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+.planet-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.retro-badge {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.aspect-card-aspect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 80px;
+}
+
+.aspect-glyph-symbol {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.aspect-name {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+
+.aspect-card-orb {
+  text-align: right;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Row 2: sign + house metadata */
+.aspect-card-row2 {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 60px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.aspect-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.aspect-card-meta.natal-side {
+  justify-content: flex-start;
+}
+
+.meta-sign {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.meta-label {
+  opacity: 0.8;
+}
+
+.meta-sep {
+  opacity: 0.4;
+}
+
+.meta-house {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.aspect-card-meta-spacer,
+.aspect-card-orb-spacer {
+  min-width: 80px;
+}
+
+.aspect-card-orb-spacer {
+  min-width: 60px;
+}
+
+/* Row 3: strength + status */
+.aspect-card-row3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.timing-dot {
+  font-size: 0.55rem;
+  vertical-align: middle;
+}
+
+/* Row 4: timeline markers */
+.aspect-card-timeline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-marker {
+  white-space: nowrap;
+}
+
+.timeline-start {
+  color: var(--muted);
+}
+
+.timeline-exact {
+  color: var(--ok);
+}
+
+.timeline-end {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
 /* --- Timeline --- */
 
 .timeline-section {
   margin-top: 28px;
 }
 
-.timeline-section h3 {
+.timeline-toggle {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 12px;
   font-family: "Iowan Old Style", Georgia, serif;
   font-size: 1.2rem;
   letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.timeline-toggle:hover {
+  opacity: 0.7;
+}
+
+.timeline-toggle-arrow {
+  font-size: 0.9rem;
+  opacity: 0.5;
 }
 
 /* --- Modal overlay --- */

@@ -107,6 +107,7 @@ export function App() {
       return {
         transit_date: now.toISOString().slice(0, 10),
         transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+        include_timing: true,
       }
     }
 
@@ -122,6 +123,7 @@ export function App() {
           transit_time: p.transitTime,
           timezone: p.timezone || null,
           location_name: p.locationName || null,
+          include_timing: true,
         }
         usedSaved = true
       } else {
