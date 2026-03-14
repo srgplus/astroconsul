@@ -83,6 +83,22 @@
       "p2": "Uranus"
     },
     {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 2.479573,
+      "orb": 2.479573,
+      "p1": "Sun",
+      "p2": "North Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 177.520427,
+      "orb": 2.479573,
+      "p1": "Sun",
+      "p2": "South Node"
+    },
+    {
       "angle": 120,
       "aspect": "trine",
       "delta": 121.610135,
@@ -99,12 +115,44 @@
       "p2": "Pluto"
     },
     {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 56.489091,
+      "orb": 3.510909,
+      "p1": "Moon",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 91.982775,
+      "orb": 1.982775,
+      "p1": "Moon",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.017225,
+      "orb": 1.982775,
+      "p1": "Moon",
+      "p2": "South Node"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 84.578221,
       "orb": 5.421779,
       "p1": "Mercury",
       "p2": "Neptune"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 91.431586,
+      "orb": 1.431586,
+      "p1": "Venus",
+      "p2": "Part of Fortune"
     },
     {
       "angle": 60,
@@ -131,6 +179,14 @@
       "p2": "Pluto"
     },
     {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 177.880926,
+      "orb": 2.119074,
+      "p1": "Mars",
+      "p2": "Vertex"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 93.785097,
@@ -139,12 +195,140 @@
       "p2": "Saturn"
     },
     {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.599077,
+      "orb": 1.400923,
+      "p1": "Jupiter",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 85.6243,
+      "orb": 4.3757,
+      "p1": "Jupiter",
+      "p2": "Selena"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 114.878941,
+      "orb": 5.121059,
+      "p1": "Jupiter",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 177.615826,
+      "orb": 2.384174,
+      "p1": "Saturn",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 176.475178,
+      "orb": 3.524822,
+      "p1": "Saturn",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 5.016128,
+      "orb": 5.016128,
+      "p1": "Uranus",
+      "p2": "Selena"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 121.709384,
+      "orb": 1.709384,
+      "p1": "Uranus",
+      "p2": "Part of Fortune"
+    },
+    {
       "angle": 60,
       "aspect": "sextile",
       "delta": 59.564265,
       "orb": 0.435735,
       "p1": "Neptune",
       "p2": "Pluto"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 114.205581,
+      "orb": 5.794419,
+      "p1": "Neptune",
+      "p2": "North Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 178.111875,
+      "orb": 1.888125,
+      "p1": "Neptune",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 173.769846,
+      "orb": 6.230154,
+      "p1": "Pluto",
+      "p2": "North Node"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.230154,
+      "orb": 6.230154,
+      "p1": "Pluto",
+      "p2": "South Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 118.54761,
+      "orb": 1.45239,
+      "p1": "Pluto",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 5.908996,
+      "orb": 5.908996,
+      "p1": "Chiron",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.223377,
+      "orb": 5.776623,
+      "p1": "Chiron",
+      "p2": "Selena"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 116.693256,
+      "orb": 3.306744,
+      "p1": "Selena",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 180.0,
+      "orb": 0.0,
+      "p1": "North Node",
+      "p2": "South Node"
     }
   ],
   "natal_positions": [

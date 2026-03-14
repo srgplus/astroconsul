@@ -27,7 +27,7 @@ class HealthEndpointTests(unittest.TestCase):
         self.assertIn(payload["status"], {"ok", "error"})
         self.assertEqual(payload["checks"]["database"]["status"], "skipped")
         self.assertEqual(payload["checks"]["ephemeris"]["status"], "ok")
-        self.assertEqual(payload["checks"]["frontend"]["status"], "legacy-template")
+        self.assertIn(payload["checks"]["frontend"]["status"], {"ready", "not-built"})
 
 
 if __name__ == "__main__":

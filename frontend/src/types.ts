@@ -1,0 +1,188 @@
+// ---------------------------------------------------------------------------
+// Shared TypeScript types — mirrors actual backend API payloads
+// ---------------------------------------------------------------------------
+
+// --- Health ---
+
+export type HealthCheck = {
+  status: string
+  detail?: string
+}
+
+export type HealthResponse = {
+  status: string
+  checks?: Record<string, HealthCheck>
+}
+
+// --- Profiles ---
+
+export type LatestTransit = {
+  transit_date: string
+  transit_time: string
+  timezone: string
+  location_name: string | null
+  latitude: number | null
+  longitude: number | null
+  updated_at: string
+}
+
+export type ProfileSummary = {
+  profile_id: string
+  profile_name: string
+  username: string
+  location_name?: string | null
+  local_birth_datetime?: string | null
+  latest_transit?: LatestTransit | null
+}
+
+export type NatalPosition = {
+  id: string
+  longitude: number
+  degree: number
+  minute: number
+  second: number
+  sign: string
+  formatted_position: string
+  house: number
+  retrograde: boolean | null
+  speed: number | null
+}
+
+export type AnglePosition = {
+  id: string
+  longitude: number
+  degree: number
+  minute: number
+  second: number
+  sign: string
+  formatted_position: string
+}
+
+export type NatalAspect = {
+  p1: string
+  p2: string
+  aspect: string
+  angle: number
+  delta: number
+  orb: number
+}
+
+export type SavedChart = {
+  chart_id?: string
+  asc?: number | string | null
+  mc?: number | string | null
+  houses?: Array<number | string> | null
+  planets?: Record<string, number> | null
+  natal_positions?: NatalPosition[] | null
+  angle_positions?: AnglePosition[] | null
+  natal_aspects?: NatalAspect[] | null
+  location_name?: string | null
+  local_birth_datetime?: string | null
+  house_system?: string | null
+  [key: string]: unknown
+}
+
+export type ProfileDetailResponse = {
+  profile: ProfileSummary
+  chart: SavedChart
+}
+
+// --- Transits ---
+
+export type TransitSnapshot = {
+  chart_id: string
+  profile_id?: string | null
+  transit_utc_datetime: string
+  transit_date: string
+  transit_time_ut: string
+  transit_timezone: string
+  transit_location_name: string | null
+  transit_latitude: number | null
+  transit_longitude: number | null
+  house_system: string | null
+  ephemeris_version: string
+  [key: string]: unknown
+}
+
+export type TransitPosition = {
+  id: string
+  longitude: number
+  degree: number
+  minute: number
+  second: number
+  sign: string
+  formatted_position: string
+  speed: number
+  retrograde: boolean
+  natal_house: number
+}
+
+export type AspectTiming = {
+  start_utc: string | null
+  peak_utc: string | null
+  exact_utc: string | null
+  end_utc: string | null
+  peak_orb: number | null
+  status: string | null
+  will_perfect: boolean
+  duration_hours: number | null
+}
+
+export type ActiveAspect = {
+  transit_object: string
+  natal_object: string
+  aspect: string
+  exact_angle: number
+  delta: number
+  orb: number
+  is_within_orb: boolean
+  strength: string
+  timing: AspectTiming | null
+}
+
+export type TransitReportResponse = {
+  snapshot: TransitSnapshot | null
+  natal_positions: NatalPosition[] | null
+  angle_positions: AnglePosition[] | null
+  transit_positions: TransitPosition[] | null
+  active_aspects: ActiveAspect[] | null
+}
+
+export type TimelineItem = {
+  transit: string
+  natal: string
+  aspect: string
+  start_utc: string | null
+  exact_utc: string | null
+  end_utc: string | null
+  display_utc: string | null
+  strength: string
+}
+
+export type TransitTimelineResponse = {
+  timeline: TimelineItem[]
+}
+
+// --- Profile Edit ---
+
+export type ProfileUpsertRequest = {
+  profile_name: string
+  username: string
+  birth_date: string
+  birth_time: string
+  timezone: string | null
+  location_name: string | null
+  latitude: number
+  longitude: number
+  time_basis?: string | null
+  name?: string | null
+}
+
+export type LocationResponse = {
+  location_name: string
+  resolved_name: string
+  latitude: number
+  longitude: number
+  timezone: string
+  source: string | null
+}

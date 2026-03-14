@@ -2,36 +2,48 @@
   "angle_positions": [
     {
       "degree": 2,
-      "formatted_position": "2 Gemini 14' 24\"",
+      "formatted_position": "2 Gemini 12' 51\"",
       "id": "ASC",
-      "longitude": 62.239921,
-      "minute": 14,
-      "second": 24,
+      "longitude": 62.214171,
+      "minute": 12,
+      "second": 51,
       "sign": "Gemini"
     },
     {
       "degree": 29,
-      "formatted_position": "29 Capricorn 05' 08\"",
+      "formatted_position": "29 Capricorn 06' 46\"",
       "id": "MC",
-      "longitude": 299.085652,
-      "minute": 5,
-      "second": 8,
+      "longitude": 299.112718,
+      "minute": 6,
+      "second": 46,
       "sign": "Capricorn"
     }
   ],
   "angles": {
-    "asc": 62.239921,
-    "mc": 299.085652,
-    "vertex": 205.360016
+    "asc": 62.214171,
+    "mc": 299.112718,
+    "vertex": 205.373537
   },
   "birth_data": {
     "day": 28,
     "hour": 22.1,
-    "latitude": 52.13472,
-    "longitude": 23.65694,
+    "latitude": 52.093751,
+    "longitude": 23.6851851,
     "month": 7,
     "time_basis": "UT",
     "year": 1991
+  },
+  "birth_input": {
+    "birth_date": "1991-07-29",
+    "birth_time": "01:06:00",
+    "latitude": 52.093751,
+    "local_birth_datetime": "1991-07-29T01:06:00+03:00",
+    "location_name": "Brest, Brest Region, Belarus",
+    "longitude": 23.6851851,
+    "name": null,
+    "time_basis": "local",
+    "timezone": "Europe/Minsk",
+    "utc_birth_datetime": "1991-07-28T22:06:00Z"
   },
   "ephemeris_path": "/Users/sergecreator/astro-consul/ephe",
   "ephemeris_sources": [
@@ -39,18 +51,18 @@
   ],
   "house_system": "Placidus",
   "houses": [
-    62.239921,
-    84.187609,
-    101.253769,
-    119.085652,
-    142.661926,
-    182.131261,
-    242.239921,
-    264.187609,
-    281.253769,
-    299.085652,
-    322.661926,
-    2.131261
+    62.214171,
+    84.178673,
+    101.26255,
+    119.112718,
+    142.708085,
+    182.178344,
+    242.214171,
+    264.178673,
+    281.26255,
+    299.112718,
+    322.708085,
+    2.178344
   ],
   "julian_day": 2448466.42083333,
   "natal_aspects": [
@@ -61,6 +73,22 @@
       "orb": 1.96266,
       "p1": "Sun",
       "p2": "Saturn"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.486245,
+      "orb": 4.486245,
+      "p1": "Sun",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 92.966333,
+      "orb": 2.966333,
+      "p1": "Sun",
+      "p2": "Part of Fortune"
     },
     {
       "angle": 180,
@@ -77,6 +105,14 @@
       "orb": 7.842639,
       "p1": "Moon",
       "p2": "Venus"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 123.874301,
+      "orb": 3.874301,
+      "p1": "Moon",
+      "p2": "Vertex"
     },
     {
       "angle": 0,
@@ -113,10 +149,42 @@
     {
       "angle": 120,
       "aspect": "trine",
+      "delta": 123.33365,
+      "orb": 3.33365,
+      "p1": "Venus",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 61.204684,
+      "orb": 1.204684,
+      "p1": "Venus",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
       "delta": 122.594307,
       "orb": 2.594307,
       "p1": "Mars",
       "p2": "Uranus"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 122.145288,
+      "orb": 2.145288,
+      "p1": "Mars",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 60.016322,
+      "orb": 0.016322,
+      "p1": "Mars",
+      "p2": "Part of Fortune"
     },
     {
       "angle": 90,
@@ -127,6 +195,22 @@
       "p2": "Pluto"
     },
     {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 177.476415,
+      "orb": 2.523585,
+      "p1": "Saturn",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 85.071007,
+      "orb": 4.928993,
+      "p1": "Saturn",
+      "p2": "Part of Fortune"
+    },
+    {
       "angle": 0,
       "aspect": "conjunction",
       "delta": 3.957017,
@@ -135,12 +219,124 @@
       "p2": "Neptune"
     },
     {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 0.449019,
+      "orb": 0.449019,
+      "p1": "Uranus",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.577985,
+      "orb": 2.577985,
+      "p1": "Uranus",
+      "p2": "Part of Fortune"
+    },
+    {
       "angle": 60,
       "aspect": "sextile",
       "delta": 57.266733,
       "orb": 2.733267,
       "p1": "Neptune",
       "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.406036,
+      "orb": 4.406036,
+      "p1": "Neptune",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 116.137905,
+      "orb": 3.862095,
+      "p1": "Neptune",
+      "p2": "Selena"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.091601,
+      "orb": 4.091601,
+      "p1": "Neptune",
+      "p2": "North Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 175.908399,
+      "orb": 4.091601,
+      "p1": "Neptune",
+      "p2": "South Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.871172,
+      "orb": 1.128828,
+      "p1": "Pluto",
+      "p2": "Selena"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 61.358334,
+      "orb": 1.358334,
+      "p1": "Pluto",
+      "p2": "North Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 118.641666,
+      "orb": 1.358334,
+      "p1": "Pluto",
+      "p2": "South Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 84.530954,
+      "orb": 5.469046,
+      "p1": "Chiron",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.128966,
+      "orb": 2.128966,
+      "p1": "Lilith",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 120.229506,
+      "orb": 0.229506,
+      "p1": "Selena",
+      "p2": "North Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 59.770494,
+      "orb": 0.229506,
+      "p1": "Selena",
+      "p2": "South Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 180.0,
+      "orb": 0.0,
+      "p1": "North Node",
+      "p2": "South Node"
     }
   ],
   "natal_positions": [
@@ -158,25 +354,25 @@
     },
     {
       "degree": 2,
-      "formatted_position": "2 Gemini 14' 24\"",
+      "formatted_position": "2 Gemini 12' 51\"",
       "house": 1,
       "id": "ASC",
-      "longitude": 62.239921,
-      "minute": 14,
+      "longitude": 62.214171,
+      "minute": 12,
       "retrograde": null,
-      "second": 24,
+      "second": 51,
       "sign": "Gemini",
       "speed": null
     },
     {
       "degree": 29,
-      "formatted_position": "29 Capricorn 05' 08\"",
+      "formatted_position": "29 Capricorn 06' 46\"",
       "house": 10,
       "id": "MC",
-      "longitude": 299.085652,
-      "minute": 5,
+      "longitude": 299.112718,
+      "minute": 6,
       "retrograde": null,
-      "second": 8,
+      "second": 46,
       "sign": "Capricorn",
       "speed": null
     },
@@ -350,31 +546,31 @@
     },
     {
       "degree": 8,
-      "formatted_position": "8 Scorpio 19' 15\"",
+      "formatted_position": "8 Scorpio 17' 43\"",
       "house": 6,
       "id": "Part of Fortune",
-      "longitude": 218.320911,
-      "minute": 19,
+      "longitude": 218.295161,
+      "minute": 17,
       "retrograde": null,
-      "second": 15,
+      "second": 43,
       "sign": "Scorpio",
       "speed": null
     },
     {
       "degree": 25,
-      "formatted_position": "25 Libra 21' 36\"",
+      "formatted_position": "25 Libra 22' 25\"",
       "house": 6,
       "id": "Vertex",
-      "longitude": 205.360016,
-      "minute": 21,
+      "longitude": 205.373537,
+      "minute": 22,
       "retrograde": null,
-      "second": 36,
+      "second": 25,
       "sign": "Libra",
       "speed": null
     }
   ],
   "natal_summary": {
-    "asc": "Gemini 2\u00b014'24\"",
+    "asc": "Gemini 2\u00b012'51\"",
     "moon": "Aquarius 29\u00b014'52\"",
     "sun": "Leo 5\u00b019'44\""
   },

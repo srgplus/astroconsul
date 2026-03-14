@@ -41,19 +41,15 @@ def create_app() -> FastAPI:
             name="frontend-assets",
         )
 
-    def render_html(path) -> HTMLResponse:
-        return HTMLResponse(path.read_text(encoding="utf-8"))
-
     @app.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
-        return render_html(settings.legacy_template_path)
-
-    @app.get("/react", response_class=HTMLResponse)
-    def react_frontend() -> HTMLResponse:
         index_path = settings.frontend_index_path
         if not index_path.exists():
-            raise HTTPException(status_code=404, detail="React frontend has not been built yet.")
-        return render_html(index_path)
+            raise HTTPException(
+                status_code=404,
+                detail="Frontend has not been built yet. Run: cd frontend && npm run build",
+            )
+        return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     app.include_router(legacy_router)

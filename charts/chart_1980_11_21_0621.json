@@ -77,10 +77,82 @@
     {
       "angle": 180,
       "aspect": "opposition",
+      "delta": 175.753765,
+      "orb": 4.246235,
+      "p1": "Sun",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 122.728851,
+      "orb": 2.728851,
+      "p1": "Sun",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
       "delta": 174.898352,
       "orb": 5.101648,
       "p1": "Moon",
       "p2": "Mercury"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 0.343491,
+      "orb": 0.343491,
+      "p1": "Moon",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.280345,
+      "orb": 0.719655,
+      "p1": "Moon",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 90.719655,
+      "orb": 0.719655,
+      "p1": "Moon",
+      "p2": "South Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.554861,
+      "orb": 5.445139,
+      "p1": "Mercury",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 119.520015,
+      "orb": 0.479985,
+      "p1": "Mercury",
+      "p2": "Selena"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 85.618007,
+      "orb": 4.381993,
+      "p1": "Mercury",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.381993,
+      "orb": 4.381993,
+      "p1": "Mercury",
+      "p2": "South Node"
     },
     {
       "angle": 60,
@@ -99,6 +171,22 @@
       "p2": "Pluto"
     },
     {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 0.898761,
+      "orb": 0.898761,
+      "p1": "Venus",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 90.180714,
+      "orb": 0.180714,
+      "p1": "Venus",
+      "p2": "Vertex"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 84.876257,
@@ -115,6 +203,14 @@
       "p2": "Neptune"
     },
     {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 63.734966,
+      "orb": 3.734966,
+      "p1": "Mars",
+      "p2": "Lilith"
+    },
+    {
       "angle": 0,
       "aspect": "conjunction",
       "delta": 2.394858,
@@ -123,12 +219,84 @@
       "p2": "Saturn"
     },
     {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 178.796782,
+      "orb": 1.203218,
+      "p1": "Uranus",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 119.685834,
+      "orb": 0.314166,
+      "p1": "Uranus",
+      "p2": "Vertex"
+    },
+    {
       "angle": 60,
       "aspect": "sextile",
       "delta": 58.426022,
       "orb": 1.573978,
       "p1": "Neptune",
       "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 2.542149,
+      "orb": 2.542149,
+      "p1": "Pluto",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 86.739804,
+      "orb": 3.260196,
+      "p1": "Pluto",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.936854,
+      "orb": 1.063146,
+      "p1": "Chiron",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 91.063146,
+      "orb": 1.063146,
+      "p1": "Chiron",
+      "p2": "South Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.281953,
+      "orb": 0.718047,
+      "p1": "Lilith",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 180.0,
+      "orb": 0.0,
+      "p1": "North Node",
+      "p2": "South Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 61.517384,
+      "orb": 1.517384,
+      "p1": "Part of Fortune",
+      "p2": "Vertex"
     }
   ],
   "natal_positions": [
