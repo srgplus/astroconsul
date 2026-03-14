@@ -1,58 +1,33 @@
-import { useEffect, useState } from "react"
-import { NatalZodiacRing } from "./components/NatalZodiacRing"
+import { useEffect, useState, useCallback } from "react"
+import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport } from "./api"
+import { ProfileList } from "./components/ProfileList"
+import { ProfileDetail } from "./components/ProfileDetail"
+import { ProfileEditForm } from "./components/ProfileEditForm"
+import { TransitsTab } from "./components/TransitsTab"
+import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse } from "./types"
 
-type HealthResponse = {
-  status: string
-  checks?: Record<string, { status: string; detail?: string }>
-}
+type View = "profile" | "transits"
+type Theme = "system" | "light" | "dark"
 
-type ProfileSummary = {
-  profile_id: string
-  profile_name: string
-  username: string
-  location_name?: string | null
-  local_birth_datetime?: string | null
-}
+function useTheme() {
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem("theme") as Theme) || "system")
 
-type SavedChart = {
-  asc?: number | string | null
-  mc?: number | string | null
-  houses?: Array<number | string> | null
-  location_name?: string | null
-  local_birth_datetime?: string | null
-}
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === "system") {
+      root.removeAttribute("data-theme")
+      localStorage.removeItem("theme")
+    } else {
+      root.setAttribute("data-theme", theme)
+      localStorage.setItem("theme", theme)
+    }
+  }, [theme])
 
-type ProfileDetailResponse = {
-  profile: ProfileSummary
-  chart: SavedChart
-}
-
-function coerceNumber(value: number | string | null | undefined): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value
-  }
-
-  if (typeof value === "string") {
-    const numeric = Number(value)
-    return Number.isFinite(numeric) ? numeric : null
-  }
-
-  return null
-}
-
-function profileMeta(detail: ProfileDetailResponse | null): string {
-  if (!detail) return "Natal chart profile"
-
-  const bits = [
-    detail.profile.username ? `@${detail.profile.username}` : null,
-    detail.chart.location_name || detail.profile.location_name || null,
-    detail.chart.local_birth_datetime || detail.profile.local_birth_datetime || null,
-  ].filter(Boolean)
-
-  return bits.length ? bits.join(" · ") : "Natal chart profile"
+  return [theme, setTheme] as const
 }
 
 export function App() {
+  const [theme, setTheme] = useTheme()
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [profiles, setProfiles] = useState<ProfileSummary[]>([])
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
@@ -60,48 +35,34 @@ export function App() {
   const [bootError, setBootError] = useState<string | null>(null)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [activeView, setActiveView] = useState<View>("profile")
+  const [isEditing, setIsEditing] = useState(false)
+  const [transitReport, setTransitReport] = useState<TransitReportResponse | null>(null)
 
   useEffect(() => {
     let cancelled = false
 
     async function bootstrap() {
       try {
-        const [healthResponse, profilesResponse] = await Promise.all([
-          fetch("/api/v1/health/ready"),
-          fetch("/api/v1/profiles"),
-        ])
-
-        if (!healthResponse.ok) {
-          throw new Error("Health endpoint did not respond successfully.")
-        }
-
-        if (!profilesResponse.ok) {
-          throw new Error("Profiles endpoint did not respond successfully.")
-        }
-
         const [healthPayload, profilesPayload] = await Promise.all([
-          healthResponse.json() as Promise<HealthResponse>,
-          profilesResponse.json() as Promise<{ profiles: ProfileSummary[] }>,
+          fetchHealth(),
+          fetchProfiles(),
         ])
 
-        if (cancelled) {
-          return
-        }
+        if (cancelled) return
 
         setHealth(healthPayload)
         setProfiles(profilesPayload.profiles)
-        setActiveProfileId((currentValue) => currentValue || profilesPayload.profiles[0]?.profile_id || null)
-      } catch (caughtError) {
+        setActiveProfileId((current) => current || profilesPayload.profiles[0]?.profile_id || null)
+      } catch (err) {
         if (!cancelled) {
-          setBootError(caughtError instanceof Error ? caughtError.message : "Unknown error")
+          setBootError(err instanceof Error ? err.message : "Unknown error")
         }
       }
     }
 
     bootstrap()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -116,123 +77,175 @@ export function App() {
     setDetailLoading(true)
     setDetailError(null)
 
-    async function loadProfileDetail() {
-      try {
-        const response = await fetch(`/api/v1/profiles/${encodeURIComponent(activeProfileId)}`, {
-          signal: controller.signal,
-        })
-
-        if (!response.ok) {
-          throw new Error("Profile detail endpoint did not respond successfully.")
-        }
-
-        const payload = await response.json() as ProfileDetailResponse
+    fetchProfileDetail(activeProfileId, controller.signal)
+      .then((payload) => {
         setActiveDetail(payload)
-      } catch (caughtError) {
-        if (controller.signal.aborted) {
-          return
-        }
-
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return
         setActiveDetail(null)
-        setDetailError(caughtError instanceof Error ? caughtError.message : "Unknown error")
-      } finally {
-        if (!controller.signal.aborted) {
-          setDetailLoading(false)
-        }
-      }
-    }
+        setDetailError(err instanceof Error ? err.message : "Unknown error")
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setDetailLoading(false)
+      })
 
-    loadProfileDetail()
     return () => controller.abort()
   }, [activeProfileId])
 
-  const activeAsc = coerceNumber(activeDetail?.chart.asc)
-  const activeMc = coerceNumber(activeDetail?.chart.mc)
+  // Fetch transit positions using saved params (or now as fallback)
+  useEffect(() => {
+    if (!activeProfileId) {
+      setTransitReport(null)
+      return
+    }
+
+    const controller = new AbortController()
+
+    function nowParams() {
+      const now = new Date()
+      return {
+        transit_date: now.toISOString().slice(0, 10),
+        transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+      }
+    }
+
+    let params: { transit_date: string; transit_time: string; timezone?: string | null; location_name?: string | null }
+    let usedSaved = false
+
+    try {
+      const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
+      const p = saved[activeProfileId]
+      if (p?.transitDate && p?.transitTime) {
+        params = {
+          transit_date: p.transitDate,
+          transit_time: p.transitTime,
+          timezone: p.timezone || null,
+          location_name: p.locationName || null,
+        }
+        usedSaved = true
+      } else {
+        params = nowParams()
+      }
+    } catch {
+      params = nowParams()
+    }
+
+    fetchTransitReport(activeProfileId, params, controller.signal)
+      .then(setTransitReport)
+      .catch(() => {
+        if (controller.signal.aborted) return
+        if (usedSaved) {
+          // Saved params failed — retry with current time
+          fetchTransitReport(activeProfileId, nowParams(), controller.signal)
+            .then(setTransitReport)
+            .catch(() => setTransitReport(null))
+        } else {
+          setTransitReport(null)
+        }
+      })
+
+    return () => controller.abort()
+  }, [activeProfileId])
+
+  const refreshProfile = useCallback(async () => {
+    setIsEditing(false)
+    if (activeProfileId) {
+      try {
+        const [detail, profilesPayload] = await Promise.all([
+          fetchProfileDetail(activeProfileId),
+          fetchProfiles(),
+        ])
+        setActiveDetail(detail)
+        setProfiles(profilesPayload.profiles)
+      } catch {
+        // silent — detail will remain stale
+      }
+    }
+  }, [activeProfileId])
 
   return (
     <main className="app-shell">
       <section className="hero">
         <div className="hero-topline">
           <div className="eyebrow">Astro Consul</div>
-          {health ? <span className={`status ${health.status}`}>API {health.status}</span> : null}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark")}
+              title={`Theme: ${theme}`}
+            >
+              {theme === "dark" ? "\u263D" : theme === "light" ? "\u2600" : "\u25D0"}
+            </button>
+            {health ? <span className={`status ${health.status}`}>API {health.status}</span> : null}
+          </div>
         </div>
-        <h1>Natal Zodiac Ring</h1>
-        <p>
-          Phase one is intentionally narrow: render only the outer zodiac ring in SVG, rotate it from the active
-          profile&apos;s natal ASC, and keep the center empty until the next layers arrive.
-        </p>
+        <h1>Astro Consul</h1>
+        <p>Natal chart profiles and transit reports.</p>
       </section>
 
-      <section className="profile-layout">
-        <article className="card profile-list-card">
-          <div className="card-head">
-            <div className="eyebrow">Profile</div>
-            <h2>Active natal source</h2>
+      <div className="main-layout">
+        <aside className="sidebar">
+          <div className="sidebar-head">
+            <div className="eyebrow">Profiles</div>
           </div>
+          <ProfileList
+            profiles={profiles}
+            activeProfileId={activeProfileId}
+            onSelect={setActiveProfileId}
+          />
+        </aside>
 
-          {profiles.length ? (
-            <div className="profile-list">
-              {profiles.map((profile) => (
-                <button
-                  key={profile.profile_id}
-                  type="button"
-                  className={`profile-list-item ${profile.profile_id === activeProfileId ? "active" : ""}`}
-                  onClick={() => setActiveProfileId(profile.profile_id)}
-                >
-                  <strong>{profile.profile_name}</strong>
-                  <span>@{profile.username}</span>
-                  {profile.location_name ? <span>{profile.location_name}</span> : null}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-card">
-              <strong>No profiles yet</strong>
-              <span>Create a natal profile first to preview the zodiac ring.</span>
-            </div>
-          )}
-        </article>
+        <section className="content-area">
+          <nav className="content-tabs">
+            <button
+              type="button"
+              className={`tab-button ${activeView === "profile" ? "active" : ""}`}
+              onClick={() => setActiveView("profile")}
+            >
+              Profile
+            </button>
+            <button
+              type="button"
+              className={`tab-button ${activeView === "transits" ? "active" : ""}`}
+              onClick={() => setActiveView("transits")}
+            >
+              Transits
+            </button>
+          </nav>
 
-        <article className="card ring-card">
-          <div className="card-head">
-            <div className="eyebrow">Profile View</div>
-            <h2>{activeDetail?.profile.profile_name || "Waiting for an active profile"}</h2>
-            <p>{profileMeta(activeDetail)}</p>
-          </div>
-
-          {detailLoading ? (
-            <div className="ring-stage loading-state">
-              <p>Loading natal chart context…</p>
-            </div>
-          ) : null}
-
-          {!detailLoading && detailError ? (
-            <div className="ring-stage error-state">
-              <strong>Unable to load profile detail</strong>
-              <span>{detailError}</span>
-            </div>
-          ) : null}
-
-          {!detailLoading && !detailError && !activeProfileId ? (
-            <div className="ring-stage empty-state">
-              <strong>Select a profile</strong>
-              <span>The natal zodiac ring will appear here for the active profile.</span>
-            </div>
-          ) : null}
-
-          {!detailLoading && !detailError && activeProfileId ? (
-            <div className="ring-stage">
-              <NatalZodiacRing
-                asc={activeAsc}
-                mc={activeMc}
-                houses={activeDetail?.chart.houses ?? null}
-                size={520}
-                theme="light"
+          <div className="content-body card">
+            <div style={{ display: activeView === "profile" ? "contents" : "none" }}>
+              <ProfileDetail
+                activeDetail={activeDetail}
+                detailLoading={detailLoading}
+                detailError={detailError}
+                activeProfileId={activeProfileId}
+                transitReport={transitReport}
+                onEditClick={() => setIsEditing(true)}
               />
             </div>
-          ) : null}
-        </article>
-      </section>
+            <div style={{ display: activeView === "transits" ? "contents" : "none" }}>
+              <TransitsTab
+                activeProfileId={activeProfileId}
+                activeDetail={activeDetail}
+                onTransitReport={setTransitReport}
+                initialReport={transitReport}
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {isEditing && activeProfileId && activeDetail ? (
+        <ProfileEditForm
+          profileId={activeProfileId}
+          activeDetail={activeDetail}
+          onClose={() => setIsEditing(false)}
+          onSaved={refreshProfile}
+        />
+      ) : null}
 
       {bootError ? (
         <section className="card error-card">

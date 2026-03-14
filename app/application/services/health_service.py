@@ -19,7 +19,7 @@ class HealthService:
 
     def ready(self) -> dict[str, object]:
         ephemeris_exists = Path(self.settings.ephemeris_path).exists()
-        frontend_status = "ready" if self.settings.frontend_index_path.exists() else "legacy-template"
+        frontend_status = "ready" if self.settings.frontend_index_path.exists() else "not-built"
         database_status = database_healthcheck(self.settings)
         overall = "ok" if ephemeris_exists and database_status["status"] != "error" else "error"
 
@@ -33,11 +33,7 @@ class HealthService:
                 },
                 "frontend": {
                     "status": frontend_status,
-                    "detail": str(
-                        self.settings.frontend_index_path
-                        if self.settings.frontend_index_path.exists()
-                        else self.settings.legacy_template_path
-                    ),
+                    "detail": str(self.settings.frontend_index_path),
                 },
             },
         }
