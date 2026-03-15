@@ -137,7 +137,6 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
   const [mobileView, setMobileView] = useState<"list" | "detail">("list")
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 720
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
   const [guideOpen, setGuideOpen] = useState(false)
@@ -387,7 +386,8 @@ export function App() {
     <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
       <div className="main-layout">
         <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
-          <div className="sidebar-toolbar">
+          {/* Desktop toolbar (burger + add) */}
+          <div className="sidebar-toolbar sidebar-toolbar--desktop">
             <button
               type="button"
               className="sidebar-toolbar-btn"
@@ -407,9 +407,20 @@ export function App() {
               </button>
             )}
           </div>
+
+          {/* Mobile header: "Astromi" title + settings/info */}
+          <div className="mobile-list-header">
+            <h1 className="mobile-list-title">Astromi</h1>
+            <div className="mobile-list-header-actions">
+              <button type="button" className="sidebar-icon-btn" onClick={() => setSettingsOpen(true)} title={t("sidebar.settings")}>{"\u2699"}</button>
+              <button type="button" className="sidebar-icon-btn" onClick={() => setGuideOpen(true)} title={t("sidebar.howItWorks")}>{"\u2139"}</button>
+            </div>
+          </div>
+
           {!sidebarCollapsed && (
             <>
-              <div className="sidebar-search">
+              {/* Desktop search (top) */}
+              <div className="sidebar-search sidebar-search--desktop">
                 <input
                   type="text"
                   placeholder={t("sidebar.search")}
@@ -447,7 +458,7 @@ export function App() {
                     } else {
                       setActiveProfileId(id)
                     }
-                    if (isMobile) setMobileView("detail")
+                    setMobileView("detail")
                   }}
                   tiiMap={tiiMap}
                   primaryProfileId={primaryProfileId}
@@ -457,7 +468,8 @@ export function App() {
                   }}
                 />
               </div>
-              <div className="sidebar-footer">
+              {/* Desktop footer */}
+              <div className="sidebar-footer sidebar-footer--desktop">
                 <button
                   type="button"
                   className="sidebar-icon-btn"
@@ -483,18 +495,42 @@ export function App() {
                   {theme === "dark" ? "\u263D" : theme === "light" ? "\u2600" : "\u25D0"}
                 </button>
               </div>
+              {/* Mobile footer: search + add button */}
+              <div className="mobile-list-footer">
+                <div className="mobile-search-bar">
+                  <span className="mobile-search-icon">{"\uD83D\uDD0D"}</span>
+                  <input
+                    type="text"
+                    placeholder={t("sidebar.search")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="mobile-add-btn"
+                  onClick={() => setIsCreating(true)}
+                  title={t("sidebar.newProfile")}
+                >
+                  +
+                </button>
+              </div>
             </>
           )}
         </aside>
 
         <div className="content-pane">
-          <button
-            type="button"
-            className="mobile-back-btn"
-            onClick={() => setMobileView("list")}
-          >
-            ‹ {t("sidebar.back")}
-          </button>
+          {/* Mobile bottom bar: list button (like Apple Weather) */}
+          <div className="mobile-detail-bottombar">
+            <button
+              type="button"
+              className="mobile-list-btn"
+              onClick={() => setMobileView("list")}
+              title={t("sidebar.back")}
+            >
+              {"\u2630"}
+            </button>
+          </div>
           {contentLoading && activeProfileId ? (
             <div className="content-loader">
               <div className="content-loader__spinner" />
@@ -544,16 +580,8 @@ export function App() {
           )}
 
           <div className="widget-grid">
-            {/* Left column: Natal + Transits */}
+            {/* Left column: Transits + Climate */}
             <div className="widget-col-left">
-              {/* Natal widget */}
-              {activeDetail ? (
-                <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
-                  <div className="widget-title">{t("widget.natal")}</div>
-                  <ProfileSummaryCard detail={activeDetail} />
-                </div>
-              ) : null}
-
               {/* Active Transits widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
@@ -569,7 +597,15 @@ export function App() {
               ) : null}
             </div>
 
-            {/* Right column: Wheel (full height) */}
+            {/* Right column: Natal + Wheel */}
+            <div className="widget-col-right">
+              {/* Natal widget */}
+              {activeDetail ? (
+                <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
+                  <div className="widget-title">{t("widget.natal")}</div>
+                  <ProfileSummaryCard detail={activeDetail} />
+                </div>
+              ) : null}
             <div className="widget widget--chart widget--wheel-right" onClick={() => activeDetail && setWheelExpanded(true)}>
               <div className="wheel-mode-toggle" onClick={(e) => e.stopPropagation()}>
                 <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("widget.natal")}</button>
@@ -614,7 +650,8 @@ export function App() {
                 />
               ) : null}
             </div>
-          </div>
+            </div>{/* end widget-col-right */}
+          </div>{/* end widget-grid */}
           </div>{/* end opacity wrapper */}
         </div>
       </div>
