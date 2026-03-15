@@ -8,3 +8,6 @@ alembic
 psycopg[binary]
 httpx
 pydantic
+python-dotenv
+PyJWT
+cryptography
