@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env from project root (two levels up from this file)
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
 
 def _parse_csv(value: str | None) -> list[str]:
     if value is None:
@@ -30,6 +35,10 @@ class Settings:
     default_user_id: str
     default_auth_subject: str
     default_user_email: str
+    auth_enabled: bool
+    supabase_url: str | None
+    supabase_anon_key: str | None
+    supabase_jwt_secret: str | None
 
     @property
     def use_database(self) -> bool:
@@ -70,6 +79,10 @@ def get_settings() -> Settings:
         default_user_id=os.getenv("ASTRO_CONSUL_DEFAULT_USER_ID", "user_local_dev"),
         default_auth_subject=os.getenv("ASTRO_CONSUL_DEFAULT_AUTH_SUBJECT", "local-dev"),
         default_user_email=os.getenv("ASTRO_CONSUL_DEFAULT_USER_EMAIL", "local@example.com"),
+        auth_enabled=os.getenv("ASTRO_CONSUL_AUTH_ENABLED", "false").lower() in ("true", "1", "yes"),
+        supabase_url=os.getenv("ASTRO_CONSUL_SUPABASE_URL"),
+        supabase_anon_key=os.getenv("ASTRO_CONSUL_SUPABASE_ANON_KEY"),
+        supabase_jwt_secret=os.getenv("ASTRO_CONSUL_SUPABASE_JWT_SECRET"),
     )
 
 

@@ -14,6 +14,13 @@ type TransitAspect = {
   strength: string
 }
 
+type NatalAspect = {
+  p1: string
+  p2: string
+  aspect: string
+  orb: number
+}
+
 type NatalZodiacRingProps = {
   asc: number | null
   mc?: number | null
@@ -21,6 +28,7 @@ type NatalZodiacRingProps = {
   planets?: PlanetMarker[] | null
   transitPlanets?: PlanetMarker[] | null
   transitAspects?: TransitAspect[] | null
+  natalAspects?: NatalAspect[] | null
   size?: number
   theme?: "dark" | "light"
   className?: string
@@ -227,12 +235,103 @@ function coerceHouseValues(houses: Array<number | string> | null | undefined): n
     .filter((value): value is number => value !== null)
 }
 
-const ASPECT_LINE_STYLES: Record<string, { dash: string; width: number; opacity: number; color: string }> = {
-  conjunction: { dash: "none", width: 0.5, opacity: 1, color: "#e74c3c" },
-  opposition: { dash: "6,3", width: 0.5, opacity: 0.9, color: "#e74c3c" },
-  square: { dash: "2,3", width: 0.5, opacity: 0.9, color: "#e67e22" },
-  trine: { dash: "8,4", width: 0.5, opacity: 0.85, color: "#2980b9" },
-  sextile: { dash: "1.5,3", width: 0.5, opacity: 0.8, color: "#27ae60" },
+// --- Localization-ready label maps (English default, Russian prepared) ---
+type Locale = "en" | "ru"
+const LOCALE: Locale = "en" // switch to "ru" later
+
+const ASPECT_LABELS: Record<Locale, Record<string, string>> = {
+  en: { conjunction: "Conjunction", opposition: "Opposition", square: "Square", trine: "Trine", sextile: "Sextile" },
+  ru: { conjunction: "Соединение", opposition: "Оппозиция", square: "Квадрат", trine: "Трин", sextile: "Секстиль" },
+}
+
+const SIGN_LABELS: Record<Locale, Record<string, string>> = {
+  en: {
+    ARIES: "Aries", TAURUS: "Taurus", GEMINI: "Gemini", CANCER: "Cancer",
+    LEO: "Leo", VIRGO: "Virgo", LIBRA: "Libra", SCORPIO: "Scorpio",
+    SAGITTARIUS: "Sagittarius", CAPRICORN: "Capricorn", AQUARIUS: "Aquarius", PISCES: "Pisces",
+  },
+  ru: {
+    ARIES: "Овен", TAURUS: "Телец", GEMINI: "Близнецы", CANCER: "Рак",
+    LEO: "Лев", VIRGO: "Дева", LIBRA: "Весы", SCORPIO: "Скорпион",
+    SAGITTARIUS: "Стрелец", CAPRICORN: "Козерог", AQUARIUS: "Водолей", PISCES: "Рыбы",
+  },
+}
+
+const AXIS_LABELS: Record<Locale, Record<string, string>> = {
+  en: { AC: "Ascendant", DC: "Descendant", MC: "Midheaven", IC: "Imum Coeli" },
+  ru: { AC: "Асцендент", DC: "Десцендент", MC: "Середина Неба", IC: "Глубина Неба" },
+}
+
+const HOUSE_LABEL: Record<Locale, string> = { en: "House", ru: "Дом" }
+
+const SIGN_GLYPHS: Record<string, string> = {
+  ARIES: "\u2648", TAURUS: "\u2649", GEMINI: "\u264A", CANCER: "\u264B",
+  LEO: "\u264C", VIRGO: "\u264D", LIBRA: "\u264E", SCORPIO: "\u264F",
+  SAGITTARIUS: "\u2650", CAPRICORN: "\u2651", AQUARIUS: "\u2652", PISCES: "\u2653",
+}
+
+const SIGN_ELEMENTS: Record<string, { en: string; ru: string; emoji: string }> = {
+  ARIES:       { en: "Fire",  ru: "Огонь", emoji: "🔥" },
+  TAURUS:      { en: "Earth", ru: "Земля", emoji: "🌍" },
+  GEMINI:      { en: "Air",   ru: "Воздух", emoji: "💨" },
+  CANCER:      { en: "Water", ru: "Вода",  emoji: "💧" },
+  LEO:         { en: "Fire",  ru: "Огонь", emoji: "🔥" },
+  VIRGO:       { en: "Earth", ru: "Земля", emoji: "🌍" },
+  LIBRA:       { en: "Air",   ru: "Воздух", emoji: "💨" },
+  SCORPIO:     { en: "Water", ru: "Вода",  emoji: "💧" },
+  SAGITTARIUS: { en: "Fire",  ru: "Огонь", emoji: "🔥" },
+  CAPRICORN:   { en: "Earth", ru: "Земля", emoji: "🌍" },
+  AQUARIUS:    { en: "Air",   ru: "Воздух", emoji: "💨" },
+  PISCES:      { en: "Water", ru: "Вода",  emoji: "💧" },
+}
+
+function formatOrbDMS(orb: number): string {
+  const deg = Math.floor(orb)
+  const minFloat = (orb - deg) * 60
+  const min = Math.floor(minFloat)
+  const sec = Math.round((minFloat - min) * 60)
+  return `${deg}°${String(min).padStart(2, "0")}'${String(sec).padStart(2, "0")}"`
+}
+
+function t_aspect(key: string): string { return ASPECT_LABELS[LOCALE][key] ?? key }
+function t_sign(key: string): string { return SIGN_LABELS[LOCALE][key] ?? key }
+function t_axis(key: string): string { return AXIS_LABELS[LOCALE][key] ?? key }
+function t_house(): string { return HOUSE_LABEL[LOCALE] }
+
+/** Build tooltip label for a planet: "Venus 12°15'30" ♓ Pisces · House 5" */
+function planetTooltipLabel(id: string, longitude: number, houseValues: number[]): string {
+  const signIndex = Math.floor((longitude % 360) / 30)
+  const signKey = SIGNS[signIndex] ?? "ARIES"
+  const posInSign = longitude % 30
+  const posDMS = formatOrbDMS(posInSign)
+  const glyph = SIGN_GLYPHS[signKey] ?? ""
+
+  // Determine house
+  let houseNum = 0
+  if (houseValues.length === 12) {
+    for (let i = 0; i < 12; i++) {
+      const cusp = houseValues[i]!
+      const nextCusp = houseValues[(i + 1) % 12]!
+      const lng = longitude % 360
+      if (nextCusp > cusp) {
+        if (lng >= cusp && lng < nextCusp) { houseNum = i + 1; break }
+      } else {
+        // wraps around 0°
+        if (lng >= cusp || lng < nextCusp) { houseNum = i + 1; break }
+      }
+    }
+  }
+
+  const housePart = houseNum > 0 ? ` · ${t_house()} ${houseNum}` : ""
+  return `${id} ${posDMS} ${glyph} ${t_sign(signKey)}${housePart}`
+}
+
+const ASPECT_LINE_STYLES: Record<string, { dash: string; width: number; opacity: number; color: string; glyph: string }> = {
+  conjunction: { dash: "none", width: 0.5, opacity: 1, color: "#e74c3c", glyph: "\u260C" },
+  opposition: { dash: "6,3", width: 0.5, opacity: 0.9, color: "#e74c3c", glyph: "\u260D" },
+  square: { dash: "2,3", width: 0.5, opacity: 0.9, color: "#e67e22", glyph: "\u25A1" },
+  trine: { dash: "8,4", width: 0.5, opacity: 0.85, color: "#2980b9", glyph: "\u25B3" },
+  sextile: { dash: "1.5,3", width: 0.5, opacity: 0.8, color: "#27ae60", glyph: "\u273B" },
 }
 
 export function NatalZodiacRing({
@@ -242,6 +341,7 @@ export function NatalZodiacRing({
   planets,
   transitPlanets,
   transitAspects,
+  natalAspects,
   size = 360,
   theme = "light",
   className,
@@ -485,13 +585,20 @@ export function NatalZodiacRing({
         const startAngle = zodiacAngle(startLongitude, ascLongitude)
         const endAngle = zodiacAngle(endLongitude, ascLongitude)
 
+        const midAngle = (startAngle + endAngle) / 2
+        const midPoint = polar(center, zodiacLabelRadius, midAngle)
+        const el = SIGN_ELEMENTS[sign]
+        const signLabel = `${SIGN_GLYPHS[sign] ?? ""} ${t_sign(sign)} — ${el?.[LOCALE] ?? ""}`
         return (
           <g key={sign}>
             <path
               className="natal-zodiac-ring__sector"
               d={sectorPath(center, zodiacInnerRadius, zodiacOuterRadius, startAngle, endAngle)}
+              onMouseEnter={() => setTooltip({ label: signLabel, x: midPoint.x, y: midPoint.y })}
+              onMouseLeave={() => setTooltip(null)}
+              style={{ cursor: "pointer" }}
             />
-            <text className="natal-zodiac-ring__label">
+            <text className="natal-zodiac-ring__label" pointerEvents="none">
               <textPath
                 href={`#${idBase}-${sign.toLowerCase()}-label-path`}
                 startOffset="50%"
@@ -640,7 +747,7 @@ export function NatalZodiacRing({
                   <g
                     key={`transit-glyph-${planet.id}`}
                     className="natal-zodiac-ring__glyph-hover"
-                    onMouseEnter={() => setTooltip({ label: `${planet.id} (transit)`, x: glyphPoint.x, y: glyphPoint.y })}
+                    onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues), x: glyphPoint.x, y: glyphPoint.y })}
                     onMouseLeave={() => setTooltip(null)}
                   >
                     <text
@@ -661,12 +768,23 @@ export function NatalZodiacRing({
         </>
       )}
 
-      {houseValues.map((_, index) => {
+      {houseValues.map((houseLongitude, index) => {
+        const nextLng = houseValues[(index + 1) % houseValues.length]!
+        const midLng = midpointLongitude(houseLongitude, nextLng)
+        const midAngle = zodiacAngle(midLng, ascLongitude)
+        const midPoint = polar(center, houseLabelRadius, midAngle)
+        const signIndex = Math.floor((houseLongitude % 360) / 30)
+        const signKey = SIGNS[signIndex] ?? "ARIES"
+        const cuspDMS = formatOrbDMS(houseLongitude % 30)
+        const houseLabel = `${t_house()} ${index + 1} (${cuspDMS}) ${SIGN_GLYPHS[signKey] ?? ""} ${t_sign(signKey)}`
         return (
           <text
             key={`house-label-${index + 1}`}
             className="natal-zodiac-ring__house-label"
             dominantBaseline="central"
+            onMouseEnter={() => setTooltip({ label: houseLabel, x: midPoint.x, y: midPoint.y })}
+            onMouseLeave={() => setTooltip(null)}
+            style={{ cursor: "pointer" }}
           >
             <textPath
               href={`#${idBase}-house-label-path-${index}`}
@@ -710,7 +828,7 @@ export function NatalZodiacRing({
               <g
                 key={`planet-glyph-${planet.id}`}
                 className="natal-zodiac-ring__glyph-hover"
-                onMouseEnter={() => setTooltip({ label: planet.id, x: glyphPoint.x, y: glyphPoint.y })}
+                onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues), x: glyphPoint.x, y: glyphPoint.y })}
                 onMouseLeave={() => setTooltip(null)}
               >
                 <text
@@ -738,19 +856,34 @@ export function NatalZodiacRing({
       ].map(({ marker, longitude, label, hasArrow }) => {
         if (!marker || longitude === null) return null
         const lp = axisLabelPoint(longitude)
+        const axisTooltipLabel = `${label} — ${t_axis(label)} (${longitude.toFixed(1)}°)`
         return (
           <g key={label}>
+            {/* Invisible wide hit area for axis line */}
+            <line
+              x1={marker.innerPoint.x}
+              y1={marker.innerPoint.y}
+              x2={marker.tip.x}
+              y2={marker.tip.y}
+              stroke="transparent"
+              strokeWidth={10}
+              onMouseEnter={() => setTooltip({ label: axisTooltipLabel, x: lp.x, y: lp.y })}
+              onMouseLeave={() => setTooltip(null)}
+              style={{ cursor: "pointer" }}
+            />
             <line
               className="natal-zodiac-ring__axis-line"
               x1={marker.innerPoint.x}
               y1={marker.innerPoint.y}
               x2={marker.tip.x}
               y2={marker.tip.y}
+              pointerEvents="none"
             />
             {hasArrow ? (
               <polyline
                 className="natal-zodiac-ring__axis-chevron"
                 points={`${marker.leftWing.x},${marker.leftWing.y} ${marker.tip.x},${marker.tip.y} ${marker.rightWing.x},${marker.rightWing.y}`}
+                pointerEvents="none"
               />
             ) : null}
             <text
@@ -759,12 +892,91 @@ export function NatalZodiacRing({
               y={lp.y}
               textAnchor="middle"
               dominantBaseline="middle"
+              pointerEvents="none"
             >
               {label}
             </text>
           </g>
         )
       })}
+      {/* Natal-to-natal aspect lines */}
+      {natalAspects && natalAspects.length > 0 && (() => {
+        const natalLongitudes = new Map(planetMarkers.map((p) => [p.id, p.longitude]))
+        const natalIsPlanetMap = new Map(planetMarkers.map((p) => [p.id, isPlanet(p.id)]))
+        const notchLen = Math.max(ringSize * 0.006, 2)
+        return natalAspects
+          .filter((a) => natalLongitudes.has(a.p1) && natalLongitudes.has(a.p2))
+          .map((a, i) => {
+            const angle1 = zodiacAngle(natalLongitudes.get(a.p1)!, ascLongitude)
+            const angle2 = zodiacAngle(natalLongitudes.get(a.p2)!, ascLongitude)
+
+            const band1Inner = natalIsPlanetMap.get(a.p1) ? upperBandInner : lowerBandInner
+            const band2Inner = natalIsPlanetMap.get(a.p2) ? upperBandInner : lowerBandInner
+
+            const p1 = polar(center, band1Inner - notchLen, angle1)
+            const p2 = polar(center, band2Inner - notchLen, angle2)
+
+            const style = ASPECT_LINE_STYLES[a.aspect] ?? ASPECT_LINE_STYLES.sextile!
+            const aspectLabel = `${t_aspect(a.aspect)} ${a.p1} - ${a.p2} <${formatOrbDMS(a.orb)}>`
+            const midX = (p1.x + p2.x) / 2
+            const midY = (p1.y + p2.y) / 2
+
+            const glyphR = 5
+            const dx = p2.x - p1.x
+            const dy = p2.y - p1.y
+            const len = Math.sqrt(dx * dx + dy * dy)
+            const ux = len > 0 ? dx / len : 0
+            const uy = len > 0 ? dy / len : 0
+            const g1x = midX - ux * glyphR
+            const g1y = midY - uy * glyphR
+            const g2x = midX + ux * glyphR
+            const g2y = midY + uy * glyphR
+
+            return (
+              <g key={`natal-aspect-${a.p1}-${a.p2}-${i}`}>
+                <line
+                  x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                  stroke="transparent"
+                  strokeWidth={8}
+                  onMouseEnter={() => setTooltip({ label: aspectLabel, x: midX, y: midY })}
+                  onMouseLeave={() => setTooltip(null)}
+                  style={{ cursor: "pointer" }}
+                />
+                <line
+                  className="natal-zodiac-ring__aspect-line"
+                  x1={p1.x} y1={p1.y} x2={g1x} y2={g1y}
+                  stroke={style.color}
+                  strokeDasharray={style.dash}
+                  strokeWidth={style.width}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                />
+                <line
+                  className="natal-zodiac-ring__aspect-line"
+                  x1={g2x} y1={g2y} x2={p2.x} y2={p2.y}
+                  stroke={style.color}
+                  strokeDasharray={style.dash}
+                  strokeWidth={style.width}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                />
+                <text
+                  x={midX} y={midY}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={8}
+                  fill={style.color}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight={400}
+                >
+                  {style.glyph}
+                </text>
+              </g>
+            )
+          })
+      })()}
       {/* Transit-to-natal aspect lines — on top of all layers */}
       {transitAspects && transitAspects.length > 0 && (() => {
         const natalLongitudes = new Map(planetMarkers.map((p) => [p.id, p.longitude]))
@@ -777,50 +989,141 @@ export function NatalZodiacRing({
           .map((a, i) => {
             const natalAngle = zodiacAngle(natalLongitudes.get(a.natal_object)!, ascLongitude)
             const transitAngle = zodiacAngle(transitLongitudes.get(a.transit_object)!, ascLongitude)
-            // Natal side: inner tick tip of the object's own band
-            const natalBandInner = natalIsPlanet.get(a.natal_object) ? upperBandInner : lowerBandInner
-            // Transit side: outer tick tip of the object's own band
-            const transitBandOuter = transitIsPlanet.get(a.transit_object) ? tUpperBandOuter : tLowerBandOuter
-            const p1 = polar(center, natalBandInner - notchLen, natalAngle)
-            const p2 = polar(center, transitBandOuter + notchLen, transitAngle)
+
+            // Band edges for each object
+            const nBandOuter = natalIsPlanet.get(a.natal_object) ? upperBandOuter : lowerBandOuter
+            const nBandInner = natalIsPlanet.get(a.natal_object) ? upperBandInner : lowerBandInner
+            const tBandOuter = transitIsPlanet.get(a.transit_object) ? tUpperBandOuter : tLowerBandOuter
+            const tBandInner = transitIsPlanet.get(a.transit_object) ? tUpperBandInner : tLowerBandInner
+
+            // Pick tick facing the OTHER endpoint using radial dot product.
+            // For each endpoint we check: does the line approach from outside or inside?
+            // If the other point is radially outward → outer tick; if inward → inner tick.
+            const nMid = polar(center, (nBandOuter + nBandInner) / 2, natalAngle)
+            const tMid = polar(center, (tBandOuter + tBandInner) / 2, transitAngle)
+
+            // Radial outward unit vector at transit angle
+            const tRad = (transitAngle * Math.PI) / 180
+            const tOutX = Math.cos(tRad)
+            const tOutY = -Math.sin(tRad)
+            const dotTransit = (nMid.x - tMid.x) * tOutX + (nMid.y - tMid.y) * tOutY
+            const p2 = dotTransit > 0
+              ? polar(center, tBandOuter + notchLen, transitAngle)   // natal is outward → outer tick
+              : polar(center, tBandInner - notchLen, transitAngle)   // natal is inward → inner tick
+
+            // Radial outward unit vector at natal angle
+            const nRad = (natalAngle * Math.PI) / 180
+            const nOutX = Math.cos(nRad)
+            const nOutY = -Math.sin(nRad)
+            const dotNatal = (tMid.x - nMid.x) * nOutX + (tMid.y - nMid.y) * nOutY
+            const p1 = dotNatal > 0
+              ? polar(center, nBandOuter + notchLen, natalAngle)     // transit is outward → outer tick
+              : polar(center, nBandInner - notchLen, natalAngle)     // transit is inward → inner tick
+
             const style = ASPECT_LINE_STYLES[a.aspect] ?? ASPECT_LINE_STYLES.sextile!
+            const aspectLabel = `${t_aspect(a.aspect)} ${a.transit_object} - ${a.natal_object} <${formatOrbDMS(a.orb)}>`
+            const midX = (p1.x + p2.x) / 2
+            const midY = (p1.y + p2.y) / 2
+
+            // Split line into two segments with a gap for the glyph
+            const glyphR = 5
+            const dx = p2.x - p1.x
+            const dy = p2.y - p1.y
+            const len = Math.sqrt(dx * dx + dy * dy)
+            const ux = len > 0 ? dx / len : 0
+            const uy = len > 0 ? dy / len : 0
+            // Gap endpoints: midpoint ± glyphR along line direction
+            const g1x = midX - ux * glyphR
+            const g1y = midY - uy * glyphR
+            const g2x = midX + ux * glyphR
+            const g2y = midY + uy * glyphR
+
             return (
-              <line
-                key={`aspect-${a.transit_object}-${a.natal_object}-${i}`}
-                className="natal-zodiac-ring__aspect-line"
-                x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-                stroke={style.color}
-                strokeDasharray={style.dash}
-                strokeWidth={style.width}
-                opacity={style.opacity}
-              />
+              <g key={`aspect-${a.transit_object}-${a.natal_object}-${i}`}>
+                {/* Invisible wide hit area for hover */}
+                <line
+                  x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                  stroke="transparent"
+                  strokeWidth={8}
+                  onMouseEnter={() => setTooltip({ label: aspectLabel, x: midX, y: midY })}
+                  onMouseLeave={() => setTooltip(null)}
+                  style={{ cursor: "pointer" }}
+                />
+                {/* Segment 1: p1 → gap start */}
+                <line
+                  className="natal-zodiac-ring__aspect-line"
+                  x1={p1.x} y1={p1.y} x2={g1x} y2={g1y}
+                  stroke={style.color}
+                  strokeDasharray={style.dash}
+                  strokeWidth={style.width}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                />
+                {/* Segment 2: gap end → p2 */}
+                <line
+                  className="natal-zodiac-ring__aspect-line"
+                  x1={g2x} y1={g2y} x2={p2.x} y2={p2.y}
+                  stroke={style.color}
+                  strokeDasharray={style.dash}
+                  strokeWidth={style.width}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                />
+                {/* Aspect glyph at midpoint — interrupts the line */}
+                <text
+                  x={midX} y={midY}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={8}
+                  fill={style.color}
+                  opacity={style.opacity}
+                  pointerEvents="none"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight={400}
+                >
+                  {style.glyph}
+                </text>
+              </g>
             )
           })
       })()}
-      {tooltip && (
-        <g className="natal-zodiac-ring__tooltip" pointerEvents="none">
-          <rect
-            x={tooltip.x - 30}
-            y={tooltip.y - planetGlyphSize - 14}
-            width={Math.max(tooltip.label.length * 6.5, 40)}
-            height={16}
-            rx={3}
-            fill="rgba(0,0,0,0.8)"
-          />
-          <text
-            x={tooltip.x - 30 + Math.max(tooltip.label.length * 6.5, 40) / 2}
-            y={tooltip.y - planetGlyphSize - 6}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="#fff"
-            fontSize={10}
-            fontFamily="system-ui, sans-serif"
-            fontWeight={400}
-          >
-            {tooltip.label}
-          </text>
-        </g>
-      )}
+      {tooltip && (() => {
+        const pad = 8
+        const charW = 6.2
+        const textW = tooltip.label.length * charW
+        const boxW = Math.max(textW + pad * 2, 50)
+        const boxH = 22
+        // Clamp tooltip within SVG bounds
+        let tx = tooltip.x - boxW / 2
+        let ty = tooltip.y - planetGlyphSize - boxH - 4
+        if (tx < 2) tx = 2
+        if (tx + boxW > ringSize - 2) tx = ringSize - boxW - 2
+        if (ty < 2) ty = tooltip.y + planetGlyphSize + 4
+        return (
+          <g className="natal-zodiac-ring__tooltip" pointerEvents="none">
+            <rect
+              x={tx}
+              y={ty}
+              width={boxW}
+              height={boxH}
+              rx={4}
+              fill="rgba(0,0,0,0.85)"
+            />
+            <text
+              x={tx + boxW / 2}
+              y={ty + boxH / 2}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="#fff"
+              fontSize={11}
+              fontFamily="system-ui, sans-serif"
+              fontWeight={400}
+            >
+              {tooltip.label}
+            </text>
+          </g>
+        )
+      })()}
     </svg>
   )
 }

@@ -9,7 +9,7 @@ class ChartRepository(Protocol):
 
 
 class ProfileRepository(Protocol):
-    def list_summaries(self) -> list[dict[str, Any]]: ...
+    def list_summaries(self, *, user_id: str | None = None) -> list[dict[str, Any]]: ...
     def load_profile(self, profile_id: str) -> dict[str, Any]: ...
     def create_profile(
         self,
@@ -17,6 +17,7 @@ class ProfileRepository(Protocol):
         username: str,
         chart_id: str,
         *,
+        user_id: str | None = None,
         profile_input: dict[str, object] | None = None,
         profile_id: str | None = None,
         created_at: str | None = None,

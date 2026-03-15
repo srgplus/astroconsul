@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import date, datetime, time, timezone
 from pathlib import Path
@@ -49,7 +50,11 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    import tempfile
+    data = json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
+    tmp_path = Path(tempfile.mktemp(dir=path.parent, suffix=".tmp"))
+    tmp_path.write_bytes(data)
+    os.replace(str(tmp_path), str(path))
 
 
 def normalized_optional_string(value: object) -> str | None:
@@ -182,10 +187,14 @@ def load_profile(profile_id: str) -> tuple[Path, dict[str, Any]]:
 
 
 def load_all_profiles() -> list[dict[str, Any]]:
-    return [
-        materialize_profile(path, load_json(path))
-        for path in iter_profile_paths()
-    ]
+    import logging
+    results: list[dict[str, Any]] = []
+    for path in iter_profile_paths():
+        try:
+            results.append(materialize_profile(path, load_json(path)))
+        except (json.JSONDecodeError, KeyError) as exc:
+            logging.warning("Skipping corrupt profile %s: %s", path.name, exc)
+    return results
 
 
 def existing_usernames(*, exclude_profile_id: str | None = None) -> set[str]:
@@ -237,7 +246,7 @@ def derive_profile_name(chart_id: str, chart: dict[str, Any]) -> str:
 
 def profile_summary(profile: dict[str, Any], chart: dict[str, Any]) -> dict[str, Any]:
     birth_input = chart.get("birth_input") or {}
-    return {
+    summary: dict[str, Any] = {
         "profile_id": profile["profile_id"],
         "profile_name": profile["profile_name"],
         "username": profile["username"],
@@ -251,6 +260,9 @@ def profile_summary(profile: dict[str, Any], chart: dict[str, Any]) -> dict[str,
         "natal_summary": chart.get("natal_summary"),
         "latest_transit": profile.get("latest_transit"),
     }
+    if "user_id" in profile:
+        summary["user_id"] = profile["user_id"]
+    return summary
 
 
 def bootstrap_profiles() -> None:

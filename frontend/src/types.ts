@@ -140,12 +140,25 @@ export type ActiveAspect = {
   timing: AspectTiming | null
 }
 
+export type TopTransit = {
+  transit_object: string
+  natal_object: string
+  aspect: string
+  orb: number
+  strength: string
+  _tii_contribution: number
+}
+
 export type TransitReportResponse = {
   snapshot: TransitSnapshot | null
   natal_positions: NatalPosition[] | null
   angle_positions: AnglePosition[] | null
   transit_positions: TransitPosition[] | null
   active_aspects: ActiveAspect[] | null
+  tii: number | null
+  tension_ratio: number | null
+  feels_like: string | null
+  top_transits: TopTransit[] | null
 }
 
 export type TimelineItem = {

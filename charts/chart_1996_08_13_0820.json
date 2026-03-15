@@ -67,6 +67,14 @@
   "julian_day": 2450308.84722222,
   "natal_aspects": [
     {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 62.196967,
+      "orb": 2.196967,
+      "p1": "Sun",
+      "p2": "ASC"
+    },
+    {
       "angle": 90,
       "aspect": "square",
       "delta": 91.178606,
@@ -81,6 +89,14 @@
       "orb": 3.434986,
       "p1": "Moon",
       "p2": "Saturn"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 7.911254,
+      "orb": 7.911254,
+      "p1": "Moon",
+      "p2": "MC"
     },
     {
       "angle": 60,
@@ -267,6 +283,14 @@
       "p2": "Part of Fortune"
     },
     {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.523732,
+      "orb": 4.476268,
+      "p1": "Saturn",
+      "p2": "MC"
+    },
+    {
       "angle": 180,
       "aspect": "opposition",
       "delta": 174.742595,
@@ -333,10 +357,42 @@
     {
       "angle": 180,
       "aspect": "opposition",
+      "delta": 179.475362,
+      "orb": 0.524638,
+      "p1": "Uranus",
+      "p2": "MC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
       "delta": 176.13031,
       "orb": 3.86969,
       "p1": "Uranus",
       "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 92.644755,
+      "orb": 2.644755,
+      "p1": "Neptune",
+      "p2": "ASC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 173.312657,
+      "orb": 6.687343,
+      "p1": "Neptune",
+      "p2": "MC"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 117.949253,
+      "orb": 2.050747,
+      "p1": "Pluto",
+      "p2": "MC"
     },
     {
       "angle": 120,
@@ -353,6 +409,14 @@
       "orb": 7.807663,
       "p1": "Pluto",
       "p2": "Selena"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 3.345052,
+      "orb": 3.345052,
+      "p1": "MC",
+      "p2": "Lilith"
     },
     {
       "angle": 120,

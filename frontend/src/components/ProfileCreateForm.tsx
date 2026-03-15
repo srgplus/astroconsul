@@ -1,72 +1,31 @@
 import { useState } from "react"
-import { updateProfile, resolveLocation, type PlaceCandidate } from "../api"
+import { createProfile, type PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
-import type { ProfileDetailResponse } from "../types"
 
-type ProfileEditFormProps = {
-  profileId: string
-  activeDetail: ProfileDetailResponse
+type ProfileCreateFormProps = {
   onClose: () => void
-  onSaved: () => void
+  onCreated: (profileId: string) => void
 }
 
-export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: ProfileEditFormProps) {
-  const profile = activeDetail.profile
-  const chart = activeDetail.chart
-
-  const [profileName, setProfileName] = useState(profile.profile_name)
-  const [username, setUsername] = useState(profile.username)
-  const [birthDate, setBirthDate] = useState(() => {
-    const dt = chart.local_birth_datetime || profile.local_birth_datetime || ""
-    const match = dt.match(/^(\d{4}-\d{2}-\d{2})/)
-    return match ? match[1] : ""
-  })
-  const [birthTime, setBirthTime] = useState(() => {
-    const dt = chart.local_birth_datetime || profile.local_birth_datetime || ""
-    const match = dt.match(/T(\d{2}:\d{2}:\d{2})/)
-    return match ? match[1] : ""
-  })
-  const birthInput = (chart as Record<string, unknown>).birth_input as Record<string, unknown> | undefined
-  const [timezone, setTimezone] = useState(() => {
-    return (birthInput?.timezone as string) || ""
-  })
-  const [locationName, setLocationName] = useState(() => {
-    return (birthInput?.location_name as string) || chart.location_name || profile.location_name || ""
-  })
-  const [latitude, setLatitude] = useState(() => {
-    return (birthInput?.latitude as number) || 0
-  })
-  const [longitude, setLongitude] = useState(() => {
-    return (birthInput?.longitude as number) || 0
-  })
+export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps) {
+  const [profileName, setProfileName] = useState("")
+  const [username, setUsername] = useState("")
+  const [birthDate, setBirthDate] = useState("")
+  const [birthTime, setBirthTime] = useState("")
+  const [timezone, setTimezone] = useState("")
+  const [locationName, setLocationName] = useState("")
+  const [latitude, setLatitude] = useState(0)
+  const [longitude, setLongitude] = useState(0)
 
   const [saving, setSaving] = useState(false)
-  const [resolving, setResolving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  async function handleResolve() {
-    if (!locationName.trim()) return
-    setResolving(true)
-    setError(null)
-    try {
-      const loc = await resolveLocation(locationName.trim())
-      setLatitude(loc.latitude)
-      setLongitude(loc.longitude)
-      setTimezone(loc.timezone)
-      setLocationName(loc.resolved_name || loc.location_name)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to resolve location")
-    } finally {
-      setResolving(false)
-    }
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     setError(null)
     try {
-      await updateProfile(profileId, {
+      const result = await createProfile({
         profile_name: profileName,
         username: username.replace(/^@/, ""),
         birth_date: birthDate,
@@ -77,9 +36,9 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
         longitude,
         time_basis: "local",
       })
-      onSaved()
+      onCreated(result.profile.profile_id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save profile")
+      setError(err instanceof Error ? err.message : "Failed to create profile")
       setSaving(false)
     }
   }
@@ -89,8 +48,8 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <div className="eyebrow">Profile</div>
-            <h2>Edit Profile</h2>
+            <div className="eyebrow">New Profile</div>
+            <h2>Create Natal Profile</h2>
           </div>
           <button type="button" className="edit-btn" onClick={onClose}>Close</button>
         </div>
@@ -98,15 +57,15 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
         <form className="edit-form" onSubmit={handleSave}>
           <div className="edit-section">
             <h3>Profile &amp; Birth Details</h3>
-            <p className="edit-section-desc">Each natal profile stores a public handle plus the birth data used to build its natal chart.</p>
+            <p className="edit-section-desc">Enter the birth data to generate a natal chart.</p>
             <div className="edit-form-grid">
               <div className="edit-form-field">
                 <label>Profile name</label>
-                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required />
+                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="e.g. John" required />
               </div>
               <div className="edit-form-field">
                 <label>Username</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. johndoe" required />
               </div>
               <div className="edit-form-field">
                 <label>Birth date</label>
@@ -121,7 +80,7 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
                 <input type="text" value={timezone} readOnly placeholder="Auto-filled from location" />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>Location name</label>
+                <label>Birth location</label>
                 <LocationAutocomplete
                   value={locationName}
                   onChange={setLocationName}
@@ -138,14 +97,8 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
           </div>
 
           <div className="edit-section">
-            <h3>Natal Location Controls</h3>
-            <p className="edit-section-desc">Resolve and fine-tune saved birth coordinates for the active natal profile.</p>
-            <div className="edit-resolve-row">
-              <button type="button" className="resolve-btn" onClick={handleResolve} disabled={resolving || !locationName.trim()}>
-                {resolving ? "Resolving…" : "Resolve Natal Location"}
-              </button>
-              <span className="edit-resolve-hint">Timezone and coordinates will autofill from the natal place name.</span>
-            </div>
+            <h3>Coordinates</h3>
+            <p className="edit-section-desc">Auto-filled from location. Fine-tune if needed.</p>
             <div className="edit-form-grid">
               <div className="edit-form-field">
                 <label>Latitude</label>
@@ -161,7 +114,7 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
           {error ? <div className="edit-error">{error}</div> : null}
 
           <button type="submit" className="save-btn" disabled={saving}>
-            {saving ? "Saving…" : "Save Natal Profile"}
+            {saving ? "Creating..." : "Create Profile"}
           </button>
         </form>
       </div>

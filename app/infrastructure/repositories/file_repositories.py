@@ -26,9 +26,12 @@ class FileChartRepository:
 
 
 class FileProfileRepository:
-    def list_summaries(self) -> list[dict[str, Any]]:
+    def list_summaries(self, *, user_id: str | None = None) -> list[dict[str, Any]]:
         bootstrap_profiles()
-        return list_profile_summaries()
+        summaries = list_profile_summaries()
+        if user_id is not None:
+            summaries = [s for s in summaries if s.get("user_id", "user_local_dev") == user_id]
+        return summaries
 
     def load_profile(self, profile_id: str) -> dict[str, Any]:
         _, profile = load_profile(profile_id)
@@ -40,6 +43,7 @@ class FileProfileRepository:
         username: str,
         chart_id: str,
         *,
+        user_id: str | None = None,
         profile_input: dict[str, object] | None = None,
         profile_id: str | None = None,
         created_at: str | None = None,
@@ -53,8 +57,16 @@ class FileProfileRepository:
             created_at=created_at,
             updated_at=updated_at,
         )
+        dirty = False
         if profile_id is not None:
             payload["profile_id"] = profile_id
+            dirty = True
+        if user_id is not None:
+            payload["user_id"] = user_id
+            dirty = True
+        if dirty:
+            from natal_profiles import write_json, profile_path
+            write_json(profile_path(payload["profile_id"]), payload)
         return payload
 
     def update_profile(

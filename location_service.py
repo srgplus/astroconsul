@@ -27,6 +27,41 @@ def normalize_location_query(value: str) -> str:
     return " ".join((value or "").split())
 
 
+def search_places(query_str: str, *, limit: int = 8, timeout: float = 8.0) -> list[dict[str, Any]]:
+    """Return multiple geocoded candidates for autocomplete."""
+    query = normalize_location_query(query_str)
+    if not query or len(query) < 2:
+        return []
+    params = urlencode({"q": query, "format": "jsonv2", "limit": limit, "accept-language": "en", "addressdetails": 1})
+    request = Request(
+        f"{NOMINATIM_SEARCH_URL}?{params}",
+        headers={"User-Agent": NOMINATIM_USER_AGENT, "Accept": "application/json"},
+    )
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            payload = json.load(response)
+    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError):
+        return []
+    results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in payload:
+        lat = float(item["lat"])
+        lon = float(item["lon"])
+        display = item.get("display_name") or query
+        tz = lookup_timezone_name(lat, lon) if _TIMEZONE_FINDER else None
+        key = f"{round(lat, 2)}:{round(lon, 2)}"
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append({
+            "display_name": display,
+            "latitude": lat,
+            "longitude": lon,
+            "timezone": tz,
+        })
+    return results
+
+
 def geocode_place_name(location_name: str, *, timeout: float = 8.0) -> dict[str, Any] | None:
     query = normalize_location_query(location_name)
     params = urlencode({"q": query, "format": "jsonv2", "limit": 1, "accept-language": "en"})
