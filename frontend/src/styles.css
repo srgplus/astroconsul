@@ -3421,20 +3421,62 @@ select {
 
 @media (max-width: 720px) {
   .app-shell {
-    width: min(100vw - 20px, 1240px);
-    padding-top: 20px;
+    width: 100%;
+    padding: 12px 0 20px;
+    margin-left: 0 !important;
   }
 
-  .card,
   .sidebar {
-    padding: 20px;
-    border-radius: 24px;
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 10px 0;
+  }
+
+  .sidebar--collapsed {
+    display: none;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .content-pane {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+
+  .widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .widget {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .widget:hover {
+    transform: none;
+  }
+
+  .widget--wheel-right {
+    order: -1;
+  }
+
+  .wheel-mode-toggle {
+    top: 8px;
+    right: 8px;
   }
 
   .ring-stage {
-    min-height: 420px;
-    padding: 14px;
-    border-radius: 22px;
+    min-height: 320px;
+    padding: 10px;
+    border-radius: 16px;
   }
 
   .natal-zodiac-ring__label {
@@ -3444,6 +3486,142 @@ select {
 
   .edit-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Compact sticky header: full width on mobile */
+  .cw-compact {
+    left: 0;
+    padding: 8px 16px;
+  }
+
+  /* Widget popup: nearly full screen on mobile */
+  .widget-popup {
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 32px);
+    border-radius: 16px;
+  }
+
+  .widget-popup-body {
+    padding: 12px;
+  }
+
+  /* Natal position rows: wrap on narrow screens */
+  .natal-pos__row {
+    flex-wrap: wrap;
+  }
+
+  .natal-pos__name {
+    min-width: 50px;
+  }
+
+  .natal-pos__sign-name {
+    min-width: 40px;
+  }
+
+  .natal-pos__deg {
+    min-width: 40px;
+    font-size: 0.72rem;
+  }
+
+  /* Transit cards: allow label to wrap */
+  .cw-transit-label {
+    white-space: normal;
+    font-size: 0.78rem;
+  }
+
+  .cw-transit-glyphs {
+    min-width: 52px;
+    font-size: 13px;
+  }
+
+  .cw-transit-strength {
+    min-width: 42px;
+    font-size: 8px;
+    padding: 2px 5px;
+  }
+
+  .cw-transit-orb {
+    min-width: 32px;
+    font-size: 10px;
+  }
+
+  /* Position detail lines: tighter on mobile */
+  .cw-pos-line {
+    gap: 4px;
+    font-size: 0.72rem;
+  }
+
+  .cw-pos-name {
+    min-width: 50px;
+    font-size: 0.72rem;
+  }
+
+  /* Sidebar toolbar buttons: 44px touch targets */
+  .sidebar-toolbar-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Fullscreen wheel */
+  .wheel-fullscreen__ring {
+    width: calc(100vw - 16px);
+    height: calc(100vw - 16px);
+    max-height: calc(100vh - 80px);
+  }
+
+  /* Profile list items: tighter */
+  .pli-tii {
+    font-size: 1.8rem;
+  }
+
+  /* Content tabs: scrollable on mobile */
+  .content-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  .content-tab {
+    white-space: nowrap;
+    font-size: 0.72rem;
+    padding: 6px 12px;
+  }
+
+  /* Top bar: tighter */
+  .top-bar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 400px) {
+  .cw-transit-row {
+    flex-wrap: wrap;
+  }
+
+  .cw-transit-right {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: -4px;
+  }
+
+  .natal-pos__deg,
+  .natal-pos__house {
+    font-size: 0.68rem;
+    min-width: auto;
+  }
+
+  .widget-popup {
+    width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .widget-popup-overlay {
+    padding: 0;
   }
 }
 
