@@ -1,5 +1,5 @@
 import { Fragment } from "react"
-import type { NatalAspect, NatalPosition, ProfileDetailResponse, TransitReportResponse } from "../types"
+import type { NatalAspect, NatalPosition, ProfileDetailResponse, TopTransit, TransitReportResponse } from "../types"
 
 type ProfileDetailProps = {
   activeDetail: ProfileDetailResponse | null
@@ -29,10 +29,10 @@ const OBJECT_GLYPHS: Record<string, string> = {
   Saturn: "\u2644",
   Uranus: "\u2645",
   Neptune: "\u2646",
-  Pluto: "\u2BD3",
+  Pluto: "\u2647",
   Chiron: "\u26B7",
   Lilith: "\u26B8",
-  Selena: "\u2BCC",
+  Selena: "\u263E",
   "North Node": "\u260A",
   "South Node": "\u260B",
   "Part of Fortune": "\u2297",
@@ -64,7 +64,7 @@ const GROUPS: ObjectGroup[] = [
   { label: "Special Points", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
 
-const DISPLAY_NAMES: Record<string, string> = { Selena: "Selene" }
+const DISPLAY_NAMES: Record<string, string> = {}
 function dn(id: string): string { return DISPLAY_NAMES[id] ?? id }
 
 function formatPosition(p: NatalPosition): string {
@@ -199,6 +199,10 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
   const sun = byId.get("Sun")
   const moon = byId.get("Moon")
   const asc = byId.get("ASC")
+  const mc = byId.get("MC")
+  const mercury = byId.get("Mercury")
+  const venus = byId.get("Venus")
+  const mars = byId.get("Mars")
 
   const birthInput = (detail.chart as Record<string, unknown>).birth_input as Record<string, unknown> | undefined
   const birthDate = (birthInput?.birth_date as string) ?? detail.chart.local_birth_datetime?.slice(0, 10) ?? null
@@ -256,25 +260,151 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
             </div>
           </div>
         ) : null}
-        {age !== null ? (
+      </div>
+      <div className="profile-summary__signs profile-summary__signs--secondary">
+        {mc ? (
           <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon age-badge">{age}</span>
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mc.sign] ?? ""}</span>
             <div>
-              <div className="profile-summary__sign-label">Age</div>
-              <div className="profile-summary__sign-value">y.o.</div>
+              <div className="profile-summary__sign-label">MC</div>
+              <div className="profile-summary__sign-value">{mc.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {mercury ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mercury.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">Mercury</div>
+              <div className="profile-summary__sign-value">{mercury.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {venus ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[venus.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">Venus</div>
+              <div className="profile-summary__sign-value">{venus.sign}</div>
+            </div>
+          </div>
+        ) : null}
+        {mars ? (
+          <div className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mars.sign] ?? ""}</span>
+            <div>
+              <div className="profile-summary__sign-label">Mars</div>
+              <div className="profile-summary__sign-value">{mars.sign}</div>
             </div>
           </div>
         ) : null}
       </div>
       <div className="profile-summary__meta">
-        {locationName ? <span>{locationName}</span> : null}
-        <span>
-          {birthDate ? formatDate(birthDate) : ""}
-          {birthTime ? `, ${birthTime.slice(0, 5)}` : ""}
-          {timezone ? ` (${timezone}` : ""}
-          {gmtOffset ? `, ${gmtOffset}` : ""}
-          {timezone || gmtOffset ? ")" : ""}
-        </span>
+        {age !== null ? (
+          <span className="profile-summary__age-badge">{age}</span>
+        ) : null}
+        <div className="profile-summary__meta-text">
+          {locationName ? <span>{locationName}</span> : null}
+          <span>
+            {birthDate ? formatDate(birthDate) : ""}
+            {birthTime ? `, ${birthTime.slice(0, 5)}` : ""}
+            {timezone ? ` (${timezone}` : ""}
+            {gmtOffset ? `, ${gmtOffset}` : ""}
+            {timezone || gmtOffset ? ")" : ""}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const FEELS_LIKE_COLORS: Record<string, string> = {
+  Calm: "#83e0ad",
+  "Gentle Tension": "#a8d8a0",
+  "Restless Calm": "#c4cc8a",
+  Flowing: "#7dd3e8",
+  Dynamic: "#f0c74c",
+  Pressured: "#f09c4c",
+  Supercharged: "#c084fc",
+  Intense: "#f06040",
+  Explosive: "#ef4444",
+}
+
+function tiiArcColor(tii: number): string {
+  if (tii < 25) return "#83e0ad"
+  if (tii < 50) return "#f0c74c"
+  if (tii < 75) return "#f09c4c"
+  return "#ef4444"
+}
+
+function TiiGauge({ tii }: { tii: number }) {
+  const r = 40
+  const stroke = 8
+  const circumference = Math.PI * r // half-circle
+  const progress = Math.min(tii / 100, 1)
+  const dashOffset = circumference * (1 - progress)
+
+  return (
+    <svg width="96" height="56" viewBox="0 0 96 56">
+      <path
+        d={`M ${48 - r} 48 A ${r} ${r} 0 0 1 ${48 + r} 48`}
+        fill="none"
+        stroke="var(--line)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+      />
+      <path
+        d={`M ${48 - r} 48 A ${r} ${r} 0 0 1 ${48 + r} 48`}
+        fill="none"
+        stroke={tiiArcColor(tii)}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+      />
+      <text x="48" y="44" textAnchor="middle" fill="var(--ink)" fontSize="18" fontWeight="700">
+        {Math.round(tii)}
+      </text>
+    </svg>
+  )
+}
+
+export function TiiBanner({ transitReport }: { transitReport: TransitReportResponse }) {
+  const tii = transitReport.tii
+  const feelsLike = transitReport.feels_like
+  const tensionRatio = transitReport.tension_ratio
+  const topTransits = transitReport.top_transits ?? []
+
+  if (tii == null) return null
+
+  const feelsColor = feelsLike ? FEELS_LIKE_COLORS[feelsLike] ?? "var(--muted)" : "var(--muted)"
+
+  return (
+    <div className="tii-banner">
+      <div className="tii-banner__gauge">
+        <TiiGauge tii={tii} />
+        <div className="tii-banner__label">TII</div>
+      </div>
+      <div className="tii-banner__info">
+        <div className="tii-banner__feels" style={{ color: feelsColor }}>
+          {feelsLike ?? "—"}
+        </div>
+        {tensionRatio != null ? (
+          <div className="tii-banner__tension">
+            Tension {Math.round(tensionRatio * 100)}%
+          </div>
+        ) : null}
+        {topTransits.length > 0 ? (
+          <div className="tii-banner__top">
+            {topTransits.map((t: TopTransit, i: number) => (
+              <span key={i} className="tii-banner__transit">
+                {OBJECT_GLYPHS[t.transit_object] ?? t.transit_object}{" "}
+                {ASPECT_GLYPHS[t.aspect] ?? t.aspect}{" "}
+                {OBJECT_GLYPHS[t.natal_object] ?? t.natal_object}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )
@@ -295,6 +425,10 @@ export function ProfileDetail({
           <ProfileSummaryCard detail={activeDetail} />
           <button type="button" className="edit-btn" onClick={onEditClick}>Edit</button>
         </div>
+      ) : null}
+
+      {!detailLoading && !detailError && transitReport ? (
+        <TiiBanner transitReport={transitReport} />
       ) : null}
 
       {detailLoading ? (

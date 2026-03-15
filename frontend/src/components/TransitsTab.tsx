@@ -34,10 +34,10 @@ const OBJECT_GLYPHS: Record<string, string> = {
   Saturn: "\u2644",
   Uranus: "\u2645",
   Neptune: "\u2646",
-  Pluto: "\u2BD3",
+  Pluto: "\u2647",
   Chiron: "\u26B7",
   Lilith: "\u26B8",
-  Selena: "\u2BCC",
+  Selena: "\u263E",
   "North Node": "\u260A",
   "South Node": "\u260B",
   "Part of Fortune": "\u2297",
@@ -48,7 +48,7 @@ const OBJECT_GLYPHS: Record<string, string> = {
 
 /** Display names that differ from backend IDs */
 const DISPLAY_NAMES: Record<string, string> = {
-  Selena: "Selene",
+  Selena: "Selena",
 }
 
 function displayName(id: string): string {
@@ -84,7 +84,10 @@ const STRENGTH_ORDER = ["exact", "strong", "moderate", "wide"]
 
 function todayDate(): string {
   const d = new Date()
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
 }
 
 function nowTime(): string {
@@ -101,9 +104,12 @@ function browserTimezone(): string {
 }
 
 function offsetDate(base: string, days: number): string {
-  const d = new Date(base)
+  const d = new Date(base + "T12:00:00")
   d.setDate(d.getDate() + days)
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
 }
 
 function formatUtc(iso: string | null): string {
@@ -321,9 +327,6 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
             <div className="eyebrow">Transits</div>
             <h2>Transit report{activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}</h2>
           </div>
-          <button type="button" className="edit-btn" onClick={() => setSettingsOpen(true)}>
-            Edit
-          </button>
         </div>
       </div>
 
@@ -401,7 +404,16 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
             <div className="transit-snapshot">
               {report.snapshot?.transit_utc_datetime ? (
                 <span>
-                  {new Date(report.snapshot.transit_utc_datetime).toLocaleString()} UTC
+                  {(() => {
+                    try {
+                      const utcIso = report.snapshot!.transit_utc_datetime
+                      const tz = report.snapshot!.transit_timezone || undefined
+                      const d = new Date(utcIso.endsWith("Z") ? utcIso : utcIso + "Z")
+                      return d.toLocaleString("en-US", { timeZone: tz, dateStyle: "short", timeStyle: "long" })
+                    } catch {
+                      return new Date(report.snapshot!.transit_utc_datetime).toLocaleString() + " UTC"
+                    }
+                  })()}
                 </span>
               ) : null}
               {report.snapshot?.transit_location_name ? (

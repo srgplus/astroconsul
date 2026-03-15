@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { updateProfile, resolveLocation } from "../api"
+import { updateProfile, resolveLocation, type PlaceCandidate } from "../api"
+import { LocationAutocomplete } from "./LocationAutocomplete"
 import type { ProfileDetailResponse } from "../types"
 
 type ProfileEditFormProps = {
@@ -117,11 +118,21 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
               </div>
               <div className="edit-form-field edit-form-field--full">
                 <label>Timezone</label>
-                <input type="text" value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="e.g. Europe/Moscow" />
+                <input type="text" value={timezone} readOnly placeholder="Auto-filled from location" />
               </div>
               <div className="edit-form-field edit-form-field--full">
                 <label>Location name</label>
-                <input type="text" value={locationName} onChange={(e) => setLocationName(e.target.value)} placeholder="e.g. Moscow, Russia" />
+                <LocationAutocomplete
+                  value={locationName}
+                  onChange={setLocationName}
+                  onSelect={(place: PlaceCandidate) => {
+                    setLocationName(place.display_name)
+                    setLatitude(place.latitude)
+                    setLongitude(place.longitude)
+                    if (place.timezone) setTimezone(place.timezone)
+                  }}
+                  placeholder="e.g. Moscow, Russia"
+                />
               </div>
             </div>
           </div>

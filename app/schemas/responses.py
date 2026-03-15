@@ -107,6 +107,10 @@ class TransitReportResponse(BaseModel):
     snapshot: dict[str, Any] | None = None
     transits: list[Any] | None = None
     aspects: list[Any] | None = None
+    tii: float | None = None
+    tension_ratio: float | None = None
+    feels_like: str | None = None
+    top_transits: list[Any] | None = None
 
 
 class TransitTimelineResponse(BaseModel):

@@ -93,3 +93,18 @@ export function resolveLocation(
     signal,
   }).then(json<LocationResponse>)
 }
+
+export type PlaceCandidate = {
+  display_name: string
+  latitude: number
+  longitude: number
+  timezone: string | null
+}
+
+export function searchLocations(
+  query: string,
+  signal?: AbortSignal,
+): Promise<PlaceCandidate[]> {
+  return fetch(`/api/v1/locations/search?q=${encodeURIComponent(query)}`, { signal })
+    .then(json<PlaceCandidate[]>)
+}

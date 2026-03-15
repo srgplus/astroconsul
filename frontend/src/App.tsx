@@ -1,7 +1,9 @@
-import { useEffect, useState, useCallback, Fragment } from "react"
+import { useEffect, useState, useCallback, useRef, Fragment } from "react"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport } from "./api"
-import { ProfileList } from "./components/ProfileList"
+import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
+import { DailyWeather, ActiveTransitsWidget } from "./components/DailyWeather"
+import { TiiGuide } from "./components/TiiGuide"
 import { ProfileEditForm } from "./components/ProfileEditForm"
 import { TransitsTab } from "./components/TransitsTab"
 import { NatalZodiacRing } from "./components/NatalZodiacRing"
@@ -9,8 +11,8 @@ import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitRepo
 
 const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
-  Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2BD3",
-  Chiron: "\u26B7", Lilith: "\u26B8", Selena: "\u2BCC",
+  Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
+  Chiron: "\u26B7", Lilith: "\u26B8", Selena: "\u263E",
   "North Node": "\u260A", "South Node": "\u260B", "Part of Fortune": "\u2297", Vertex: "\u22C1",
   ASC: "AC", MC: "MC",
 }
@@ -123,12 +125,18 @@ export function App() {
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [infoOpen, setInfoOpen] = useState(false)
   const [transitReport, setTransitReport] = useState<TransitReportResponse | null>(null)
   const [wheelExpanded, setWheelExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
-  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("natal")
+  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
+  const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
+  const [guideOpen, setGuideOpen] = useState(false)
+  const autoFetchRef = useRef<AbortController | null>(null)
+  const [fetchTrigger, setFetchTrigger] = useState(0)
+  const [transitLoading, setTransitLoading] = useState(false)
+  // Content is ready when both detail and transit are loaded (no flicker)
+  const contentLoading = detailLoading || transitLoading
 
   useEffect(() => {
     let cancelled = false
@@ -184,61 +192,122 @@ export function App() {
     return () => controller.abort()
   }, [activeProfileId])
 
-  // Fetch transit positions using saved params (or now as fallback)
+  // Fetch TII for all profiles (lightweight — no timing)
+  // Uses saved per-profile params from localStorage so sidebar matches hero values
+  useEffect(() => {
+    if (!profiles.length) return
+    const controller = new AbortController()
+    const now = new Date()
+    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const defaultDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
+    const defaultTime = `${String(now.getHours()).padStart(2, "0")}:00`
+
+    Promise.all(
+      profiles.map((p) => {
+        return fetchTransitReport(p.profile_id, {
+          transit_date: defaultDate,
+          transit_time: defaultTime,
+          timezone: browserTz,
+          include_timing: false,
+        }, controller.signal)
+          .then((r) => ({ id: p.profile_id, r }))
+          .catch(() => null)
+      })
+    ).then((results) => {
+      if (controller.signal.aborted) return
+      const map: Record<string, ProfileTiiData> = {}
+      for (const item of results) {
+        if (!item || item.r.tii == null) continue
+        map[item.id] = {
+          tii: item.r.tii,
+          tension_ratio: item.r.tension_ratio ?? 0,
+          feels_like: item.r.feels_like ?? "Calm",
+          location: item.r.snapshot?.transit_timezone ?? browserTz,
+        }
+      }
+      setTiiMap(map)
+    })
+
+    return () => controller.abort()
+  }, [profiles])
+
+
+
+  // Fetch transit report for active profile — use saved params if available, else current time
   useEffect(() => {
     if (!activeProfileId) {
       setTransitReport(null)
       return
     }
 
+    autoFetchRef.current?.abort()
     const controller = new AbortController()
+    autoFetchRef.current = controller
+    setTransitLoading(true)
+    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    function nowParams() {
-      const now = new Date()
-      return {
-        transit_date: now.toISOString().slice(0, 10),
-        transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
-        include_timing: true,
-      }
-    }
-
-    let params: { transit_date: string; transit_time: string; timezone?: string | null; location_name?: string | null }
-    let usedSaved = false
-
+    // Preserve profile's saved timezone & location, only update date/time to "now"
+    let savedTz = browserTz
+    let savedLoc: string | null = null
     try {
       const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
       const p = saved[activeProfileId]
-      if (p?.transitDate && p?.transitTime) {
-        params = {
-          transit_date: p.transitDate,
-          transit_time: p.transitTime,
-          timezone: p.timezone || null,
-          location_name: p.locationName || null,
-          include_timing: true,
-        }
-        usedSaved = true
-      } else {
-        params = nowParams()
+      if (p?.timezone) savedTz = p.timezone
+      if (p?.locationName) savedLoc = p.locationName
+    } catch { /* ignore */ }
+
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const day = String(now.getDate()).padStart(2, "0")
+    const params = {
+      transit_date: `${year}-${month}-${day}`,
+      transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+      timezone: savedTz,
+      location_name: savedLoc,
+      include_timing: true,
+    }
+
+    function applyReport(report: TransitReportResponse) {
+      if (controller.signal.aborted) return
+      setTransitReport(report)
+      setTransitLoading(false)
+      if (report.tii != null) {
+        setTiiMap((prev) => ({
+          ...prev,
+          [activeProfileId]: {
+            tii: report.tii!,
+            tension_ratio: report.tension_ratio ?? 0,
+            feels_like: report.feels_like ?? "Calm",
+            location: report.snapshot?.transit_timezone ?? savedTz,
+          },
+        }))
       }
-    } catch {
-      params = nowParams()
     }
 
     fetchTransitReport(activeProfileId, params, controller.signal)
-      .then(setTransitReport)
+      .then(applyReport)
       .catch(() => {
         if (controller.signal.aborted) return
-        if (usedSaved) {
-          fetchTransitReport(activeProfileId, nowParams(), controller.signal)
-            .then(setTransitReport)
-            .catch(() => setTransitReport(null))
-        } else {
-          setTransitReport(null)
+        // Retry with plain browser timezone (saved params may be stale/invalid)
+        const fallback = {
+          transit_date: params.transit_date,
+          transit_time: params.transit_time,
+          timezone: browserTz,
+          include_timing: true,
         }
+        fetchTransitReport(activeProfileId, fallback, controller.signal)
+          .then(applyReport)
+          .catch(() => {
+            if (!controller.signal.aborted) {
+              setTransitReport(null)
+              setTransitLoading(false)
+            }
+          })
       })
 
     return () => controller.abort()
-  }, [activeProfileId])
+  }, [activeProfileId, fetchTrigger])
 
   const refreshProfile = useCallback(async () => {
     setIsEditing(false)
@@ -286,15 +355,22 @@ export function App() {
                   })
                 : profiles}
               activeProfileId={activeProfileId}
-              onSelect={setActiveProfileId}
+              onSelect={(id) => {
+                if (id === activeProfileId) {
+                  setFetchTrigger((n) => n + 1)
+                } else {
+                  setActiveProfileId(id)
+                }
+              }}
+              tiiMap={tiiMap}
             />
           </div>
           <div className="sidebar-footer">
             <button
               type="button"
               className="sidebar-icon-btn"
-              onClick={() => setInfoOpen(true)}
-              title="Reference Guide"
+              onClick={() => setGuideOpen(true)}
+              title="How It Works"
             >
               {"\u2139"}
             </button>
@@ -310,10 +386,53 @@ export function App() {
         </aside>
 
         <div className="content-pane">
-          <header className="sticky-header">
-            <h1 className="content-profile-name">{activeDetail?.profile.profile_name || "Select a profile"}</h1>
-            {activeDetail ? <span className="content-profile-username">@{activeDetail.profile.username}</span> : null}
-          </header>
+          {contentLoading && activeProfileId ? (
+            <div className="content-loader">
+              <div className="content-loader__spinner" />
+            </div>
+          ) : null}
+          <div style={{ opacity: contentLoading ? 0 : 1, transition: "opacity 0.2s ease" }}>
+          {transitReport && activeDetail ? (
+            <DailyWeather
+              transitReport={transitReport}
+              activeDetail={activeDetail}
+              onGuideOpen={() => setGuideOpen(true)}
+              onTransitSettings={(date, time, tz, loc) => {
+                if (!activeProfileId) return
+                autoFetchRef.current?.abort()
+                fetchTransitReport(activeProfileId, {
+                  transit_date: date,
+                  transit_time: time,
+                  timezone: tz || undefined,
+                  location_name: loc || null,
+                  include_timing: true,
+                }).then((report) => {
+                  setTransitReport(report)
+                  try {
+                    const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
+                    saved[activeProfileId] = { transitDate: date, transitTime: time, timezone: tz, locationName: loc }
+                    localStorage.setItem("transitParams", JSON.stringify(saved))
+                  } catch { /* ignore */ }
+                  if (report.tii != null) {
+                    setTiiMap((prev) => ({
+                      ...prev,
+                      [activeProfileId!]: {
+                        tii: report.tii!,
+                        tension_ratio: report.tension_ratio ?? 0,
+                        feels_like: report.feels_like ?? "Calm",
+                        location: report.snapshot?.transit_timezone ?? "",
+                      },
+                    }))
+                  }
+                }).catch(() => {})
+              }}
+            />
+          ) : (
+            <header className="sticky-header">
+              <h1 className="content-profile-name">{activeDetail?.profile.profile_name || "Select a profile"}</h1>
+              {activeDetail ? <span className="content-profile-username">@{activeDetail.profile.username}</span> : null}
+            </header>
+          )}
 
           <div className="widget-grid">
             {/* Left column: Natal + Transits */}
@@ -323,35 +442,13 @@ export function App() {
                 <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
                   <div className="widget-title">Natal</div>
                   <ProfileSummaryCard detail={activeDetail} />
-                  <PlanetsPreview positions={natalPositions} />
-                  <div className="widget-hint">Details</div>
                 </div>
               ) : null}
 
-              {/* Transits widget */}
-              {activeDetail ? (
+              {/* Active Transits widget */}
+              {transitReport ? (
                 <div className="widget widget--summary" onClick={() => setExpandedWidget("transits")}>
-                  <div className="widget-title">Transits</div>
-                  {transitReport ? (
-                    <>
-                      <div className="widget-transit-info">
-                        {transitReport.snapshot?.transit_utc_datetime ? (
-                          <div className="widget-transit-date">
-                            {new Date(transitReport.snapshot.transit_utc_datetime).toLocaleDateString("en", {
-                              day: "numeric", month: "short", year: "numeric",
-                            })}
-                          </div>
-                        ) : null}
-                        <div className="widget-transit-stats">
-                          <span>{totalTransitAspects} aspects</span>
-                          <span className="widget-transit-strong">{strongTransitAspects} strong</span>
-                        </div>
-                      </div>
-                      <TransitAspectsPreview report={transitReport} />
-                    </>
-                  ) : (
-                    <div className="widget-empty-hint">Loading transits...</div>
-                  )}
+                  <ActiveTransitsWidget transitReport={transitReport} />
                   <div className="widget-hint">Details</div>
                 </div>
               ) : null}
@@ -403,6 +500,7 @@ export function App() {
               ) : null}
             </div>
           </div>
+          </div>{/* end opacity wrapper */}
         </div>
       </div>
 
@@ -454,7 +552,22 @@ export function App() {
                 <TransitsTab
                   activeProfileId={activeProfileId}
                   activeDetail={activeDetail}
-                  onTransitReport={setTransitReport}
+                  onTransitReport={(report) => {
+                    // Cancel any in-flight auto-fetch so it doesn't overwrite this report
+                    autoFetchRef.current?.abort()
+                    setTransitReport(report)
+                    if (activeProfileId && report.tii != null) {
+                      setTiiMap((prev) => ({
+                        ...prev,
+                        [activeProfileId]: {
+                          tii: report.tii!,
+                          tension_ratio: report.tension_ratio ?? 0,
+                          feels_like: report.feels_like ?? "Calm",
+                          location: report.snapshot?.transit_timezone ?? "",
+                        },
+                      }))
+                    }
+                  }}
                   initialReport={transitReport}
                 />
               ) : null}
@@ -512,126 +625,7 @@ export function App() {
         </div>
       ) : null}
 
-      {infoOpen ? (
-        <div className="settings-overlay" onClick={() => setInfoOpen(false)}>
-          <div className="info-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="settings-popup-head">
-              <h3>Reference Guide</h3>
-              <button type="button" className="settings-close" onClick={() => setInfoOpen(false)}>&times;</button>
-            </div>
-            <div className="info-popup-body">
-
-              <div className="info-section">
-                <h4>Planet Glyphs</h4>
-                <div className="info-grid">
-                  {[
-                    ["Sun", "\u2609"], ["Moon", "\u263D"], ["Mercury", "\u263F"], ["Venus", "\u2640"], ["Mars", "\u2642"],
-                    ["Jupiter", "\u2643"], ["Saturn", "\u2644"], ["Uranus", "\u2645"], ["Neptune", "\u2646"], ["Pluto", "\u2BD3"],
-                    ["Chiron", "\u26B7"], ["Lilith", "\u26B8"], ["Selene", "\u2BCC"],
-                    ["North Node", "\u260A"], ["South Node", "\u260B"], ["Part of Fortune", "\u2297"], ["Vertex", "\u22C1"],
-                  ].map(([name, glyph]) => (
-                    <div key={name} className="info-item">
-                      <span className="info-glyph">{glyph}</span>
-                      <span>{name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="info-section">
-                <h4>Zodiac Signs</h4>
-                <div className="info-grid">
-                  {[
-                    ["Aries", "\u2648", "Fire"], ["Taurus", "\u2649", "Earth"], ["Gemini", "\u264A", "Air"], ["Cancer", "\u264B", "Water"],
-                    ["Leo", "\u264C", "Fire"], ["Virgo", "\u264D", "Earth"], ["Libra", "\u264E", "Air"], ["Scorpio", "\u264F", "Water"],
-                    ["Sagittarius", "\u2650", "Fire"], ["Capricorn", "\u2651", "Earth"], ["Aquarius", "\u2652", "Air"], ["Pisces", "\u2653", "Water"],
-                  ].map(([name, glyph, element]) => (
-                    <div key={name} className="info-item">
-                      <span className="info-glyph">{glyph}</span>
-                      <span>{name}</span>
-                      <span className="info-muted">{element}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="info-section">
-                <h4>Aspects</h4>
-                <div className="info-grid">
-                  {[
-                    ["Conjunction", "\u260C", "0\u00B0", "Fusion of energies"],
-                    ["Sextile", "\u26B9", "60\u00B0", "Harmonious opportunity"],
-                    ["Square", "\u25A1", "90\u00B0", "Tension and challenge"],
-                    ["Trine", "\u25B3", "120\u00B0", "Effortless harmony"],
-                    ["Opposition", "\u260D", "180\u00B0", "Polarity and balance"],
-                  ].map(([name, glyph, angle, desc]) => (
-                    <div key={name} className="info-item info-item--wide">
-                      <span className="info-glyph">{glyph}</span>
-                      <span><strong>{name}</strong> ({angle})</span>
-                      <span className="info-muted">{desc}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="info-section">
-                <h4>Houses</h4>
-                <div className="info-grid info-grid--houses">
-                  {[
-                    ["1", "Self, appearance, identity"],
-                    ["2", "Finances, values, possessions"],
-                    ["3", "Communication, siblings, short trips"],
-                    ["4", "Home, family, roots"],
-                    ["5", "Creativity, romance, children"],
-                    ["6", "Health, daily routine, service"],
-                    ["7", "Partnerships, marriage, contracts"],
-                    ["8", "Transformation, shared resources"],
-                    ["9", "Philosophy, travel, higher education"],
-                    ["10", "Career, public image, ambition"],
-                    ["11", "Friends, groups, aspirations"],
-                    ["12", "Subconscious, solitude, karma"],
-                  ].map(([num, desc]) => (
-                    <div key={num} className="info-item info-item--wide">
-                      <span className="info-glyph info-house-num">{num}</span>
-                      <span>{desc}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="info-section">
-                <h4>Strength Levels</h4>
-                <div className="info-grid">
-                  {[
-                    ["EXACT", "< 1\u00B0", "exact"],
-                    ["STRONG", "1\u00B0\u20133\u00B0", "strong"],
-                    ["MODERATE", "3\u00B0\u20135\u00B0", "moderate"],
-                    ["WIDE", "> 5\u00B0", "wide"],
-                  ].map(([label, range, cls]) => (
-                    <div key={label} className="info-item">
-                      <span className={`natal-asp__str natal-asp__str--${cls}`}>{label}</span>
-                      <span className="info-muted">{range}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="info-section">
-                <h4>Symbols</h4>
-                <div className="info-grid">
-                  <div className="info-item"><span className="info-glyph">{"\u24C7"}</span><span>Retrograde</span></div>
-                  <div className="info-item"><span className="info-glyph">{"\u25B3"}</span><span>House number (e.g. {"\u25B3"}4)</span></div>
-                  <div className="info-item"><strong>AC</strong><span>Ascendant</span></div>
-                  <div className="info-item"><strong>DC</strong><span>Descendant</span></div>
-                  <div className="info-item"><strong>MC</strong><span>Midheaven</span></div>
-                  <div className="info-item"><strong>IC</strong><span>Imum Coeli</span></div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {guideOpen ? <TiiGuide onClose={() => setGuideOpen(false)} /> : null}
     </main>
   )
 }

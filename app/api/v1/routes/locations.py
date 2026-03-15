@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.dependencies import get_location_lookup_service
 from app.application.services.location_lookup_service import LocationLookupService
-from app.domain.astrology.locations import LocationResolutionError, resolve_location_name
+from app.domain.astrology.locations import LocationResolutionError, resolve_location_name, search_places
 from app.schemas.requests import LocationResolveRequest
 from app.schemas.responses import LocationResponse
 
 router = APIRouter(prefix="/locations", tags=["locations"])
+
+
+@router.get("/search")
+def location_search(q: str = Query(..., min_length=2)) -> list[dict[str, object]]:
+    """Autocomplete endpoint: returns up to 8 place candidates."""
+    return search_places(q, limit=8)
 
 
 @router.post("/resolve", response_model=LocationResponse)

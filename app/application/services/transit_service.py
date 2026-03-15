@@ -9,6 +9,12 @@ from app.application.services.input_resolution import (
     format_datetime,
 )
 from app.domain.astrology.charts import swiss_ephemeris_version
+from app.domain.astrology.tii import (
+    compute_tension_ratio,
+    compute_tii,
+    feels_like,
+    top_active_transits,
+)
 from app.domain.astrology.transits import build_transit_report, build_transit_timeline
 from app.domain.astrology.utils import parse_time_string
 
@@ -112,6 +118,15 @@ class TransitService:
                     "longitude": transit_longitude,
                 },
             )
+
+        # --- TII scoring ---
+        active_aspects = report.get("active_aspects", [])
+        tii = compute_tii(active_aspects)
+        tension_ratio = compute_tension_ratio(active_aspects)
+        report["tii"] = tii
+        report["tension_ratio"] = tension_ratio
+        report["feels_like"] = feels_like(tii, tension_ratio)
+        report["top_transits"] = top_active_transits(active_aspects)
 
         report["snapshot"] = snapshot
         return report
