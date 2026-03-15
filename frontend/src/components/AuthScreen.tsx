@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function AuthScreen() {
   const { signIn, signUp, signInWithGoogle, signInWithApple } = useAuth();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,9 +37,9 @@ export default function AuthScreen() {
     return (
       <div className="auth-screen">
         <div className="auth-form">
-          <h1 className="auth-logo">✦ Astro Consul</h1>
+          <h1 className="auth-logo">{t("auth.logo")}</h1>
           <div className="auth-success">
-            <p>Check your email to confirm your account, then sign in.</p>
+            <p>{t("auth.checkEmail")}</p>
             <button
               className="auth-btn"
               onClick={() => {
@@ -45,7 +47,7 @@ export default function AuthScreen() {
                 setMode("signin");
               }}
             >
-              Back to Sign In
+              {t("auth.backToSignIn")}
             </button>
           </div>
         </div>
@@ -56,16 +58,16 @@ export default function AuthScreen() {
   return (
     <div className="auth-screen">
       <div className="auth-form">
-        <h1 className="auth-logo">✦ Astro Consul</h1>
+        <h1 className="auth-logo">{t("auth.logo")}</h1>
         <p className="auth-subtitle">
-          {mode === "signin" ? "Sign in to your account" : "Create a new account"}
+          {mode === "signin" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit}>
           <input
             className="auth-input"
             type="email"
-            placeholder="Email"
+            placeholder={t("auth.email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -74,7 +76,7 @@ export default function AuthScreen() {
           <input
             className="auth-input"
             type="password"
-            placeholder="Password"
+            placeholder={t("auth.password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -83,12 +85,12 @@ export default function AuthScreen() {
           />
           {error ? <p className="auth-error">{error}</p> : null}
           <button className="auth-btn auth-btn--primary" type="submit" disabled={loading}>
-            {loading ? "..." : mode === "signin" ? "Sign In" : "Sign Up"}
+            {loading ? "..." : mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
           </button>
         </form>
 
         <div className="auth-divider">
-          <span>or</span>
+          <span>{t("auth.or")}</span>
         </div>
 
         <button className="auth-btn auth-btn--social" onClick={signInWithGoogle} type="button">
@@ -98,29 +100,29 @@ export default function AuthScreen() {
             <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
             <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
           </svg>
-          Continue with Google
+          {t("auth.continueGoogle")}
         </button>
 
         <button className="auth-btn auth-btn--social" onClick={signInWithApple} type="button">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
             <path d="M14.94 9.88c-.02-2.15 1.76-3.18 1.84-3.23-1-1.46-2.56-1.66-3.12-1.69-1.33-.13-2.59.78-3.26.78-.67 0-1.71-.76-2.81-.74-1.45.02-2.78.84-3.53 2.14-1.5 2.61-.38 6.47 1.08 8.59.72 1.04 1.57 2.2 2.69 2.16 1.08-.04 1.49-.7 2.8-.7 1.3 0 1.68.7 2.82.68 1.16-.02 1.89-1.06 2.6-2.1.82-1.2 1.16-2.36 1.18-2.42-.03-.01-2.26-.87-2.29-3.47ZM12.83 3.63c.6-.72 1-1.73.89-2.73-.86.04-1.9.57-2.52 1.29-.55.64-1.03 1.66-.9 2.64.96.07 1.94-.49 2.53-1.2Z"/>
           </svg>
-          Continue with Apple
+          {t("auth.continueApple")}
         </button>
 
         <p className="auth-toggle">
           {mode === "signin" ? (
             <>
-              Don&apos;t have an account?{" "}
+              {t("auth.noAccount")}{" "}
               <button type="button" onClick={() => { setMode("signup"); setError(null); }}>
-                Sign Up
+                {t("auth.signUp")}
               </button>
             </>
           ) : (
             <>
-              Already have an account?{" "}
+              {t("auth.hasAccount")}{" "}
               <button type="button" onClick={() => { setMode("signin"); setError(null); }}>
-                Sign In
+                {t("auth.signIn")}
               </button>
             </>
           )}

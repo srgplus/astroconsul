@@ -1,15 +1,17 @@
 import { useEffect, useState, useCallback, useRef, Fragment } from "react"
 import { useAuth } from "./contexts/AuthContext"
+import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
-import { DailyWeather, ActiveTransitsWidget } from "./components/DailyWeather"
+import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
 import { TiiGuide } from "./components/TiiGuide"
 import { ProfileEditForm } from "./components/ProfileEditForm"
 import { ProfileCreateForm } from "./components/ProfileCreateForm"
 import { TransitsTab } from "./components/TransitsTab"
 import { NatalZodiacRing } from "./components/NatalZodiacRing"
+import { SettingsModal } from "./components/SettingsModal"
 import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition } from "./types"
 
 const OBJECT_GLYPHS: Record<string, string> = {
@@ -120,6 +122,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 
 export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
+  const { t, lang } = useLanguage()
   const [theme, setTheme] = useTheme()
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [profiles, setProfiles] = useState<ProfileSummary[]>([])
@@ -136,6 +139,11 @@ export function App() {
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
   const [guideOpen, setGuideOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
+  const [profileOrder, setProfileOrder] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("profileOrder") ?? "[]") } catch { return [] }
+  })
   const [isCreating, setIsCreating] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const autoFetchRef = useRef<AbortController | null>(null)
@@ -160,7 +168,7 @@ export function App() {
 
         setHealth(healthPayload)
         setProfiles(profilesPayload.profiles)
-        setActiveProfileId((current) => current || profilesPayload.profiles[0]?.profile_id || null)
+        setActiveProfileId((current) => current || primaryProfileId || profilesPayload.profiles[0]?.profile_id || null)
       } catch (err) {
         if (cancelled) return
         const msg = err instanceof Error ? err.message : "Unknown error"
@@ -219,9 +227,9 @@ export function App() {
       profiles.map((p) => {
         const lt = p.latest_transit
         return fetchTransitReport(p.profile_id, {
-          transit_date: lt?.transit_date ?? defaultDate,
-          transit_time: lt?.transit_time ?? defaultTime,
-          timezone: lt?.timezone ?? browserTz,
+          transit_date: defaultDate,
+          transit_time: defaultTime,
+          timezone: browserTz,
           location_name: lt?.location_name ?? null,
           latitude: lt?.latitude ?? null,
           longitude: lt?.longitude ?? null,
@@ -239,7 +247,7 @@ export function App() {
           tii: item.r.tii,
           tension_ratio: item.r.tension_ratio ?? 0,
           feels_like: item.r.feels_like ?? "Calm",
-          location: item.r.snapshot?.transit_timezone ?? browserTz,
+          location: item.r.snapshot?.transit_location_name || item.r.snapshot?.transit_timezone || browserTz,
         }
       }
       setTiiMap(map)
@@ -305,7 +313,7 @@ export function App() {
             tii: report.tii!,
             tension_ratio: report.tension_ratio ?? 0,
             feels_like: report.feels_like ?? "Calm",
-            location: report.snapshot?.transit_timezone ?? savedTz,
+            location: report.snapshot?.transit_location_name || report.snapshot?.transit_timezone || savedTz,
           },
         }))
       }
@@ -382,7 +390,7 @@ export function App() {
               type="button"
               className="sidebar-toolbar-btn"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+              title={sidebarCollapsed ? t("sidebar.showSidebar") : t("sidebar.hideSidebar")}
             >
               {sidebarCollapsed ? "\u25C1" : "\u2630"}
             </button>
@@ -391,7 +399,7 @@ export function App() {
                 type="button"
                 className="sidebar-toolbar-btn sidebar-toolbar-btn--add"
                 onClick={() => setIsCreating(true)}
-                title="New profile"
+                title={t("sidebar.newProfile")}
               >
                 +
               </button>
@@ -402,21 +410,34 @@ export function App() {
               <div className="sidebar-search">
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder={t("sidebar.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <div className="sidebar-scroll">
                 <ProfileList
-                  profiles={searchQuery.trim()
-                    ? profiles.filter((p) => {
-                        const q = searchQuery.toLowerCase()
-                        return p.profile_name.toLowerCase().includes(q)
-                          || p.username.toLowerCase().includes(q)
-                          || (p.location_name ?? "").toLowerCase().includes(q)
-                      })
-                    : profiles}
+                  profiles={(() => {
+                    // Sort: primary first, then by saved manual order, then rest
+                    const order = profileOrder
+                    const sorted = [...profiles].sort((a, b) => {
+                      if (a.profile_id === primaryProfileId) return -1
+                      if (b.profile_id === primaryProfileId) return 1
+                      const ai = order.indexOf(a.profile_id)
+                      const bi = order.indexOf(b.profile_id)
+                      if (ai !== -1 && bi !== -1) return ai - bi
+                      if (ai !== -1) return -1
+                      if (bi !== -1) return 1
+                      return 0
+                    })
+                    if (!searchQuery.trim()) return sorted
+                    const q = searchQuery.toLowerCase()
+                    return sorted.filter((p) =>
+                      p.profile_name.toLowerCase().includes(q)
+                      || p.username.toLowerCase().includes(q)
+                      || (p.location_name ?? "").toLowerCase().includes(q)
+                    )
+                  })()}
                   activeProfileId={activeProfileId}
                   onSelect={(id) => {
                     if (id === activeProfileId) {
@@ -426,31 +447,27 @@ export function App() {
                     }
                   }}
                   tiiMap={tiiMap}
+                  primaryProfileId={primaryProfileId}
+                  onReorder={(ids) => {
+                    setProfileOrder(ids)
+                    localStorage.setItem("profileOrder", JSON.stringify(ids))
+                  }}
                 />
               </div>
               <div className="sidebar-footer">
-                <span className="sidebar-user-email" title={user.email ?? ""}>
-                  {user.email ?? ""}
-                </span>
                 <button
                   type="button"
                   className="sidebar-icon-btn"
-                  onClick={() => {
-                    signOut()
-                    setProfiles([])
-                    setActiveProfileId(null)
-                    setActiveDetail(null)
-                    setTransitReport(null)
-                  }}
-                  title="Sign out"
+                  onClick={() => setSettingsOpen(true)}
+                  title={t("sidebar.settings")}
                 >
-                  {"\u23FB"}
+                  {"\u2699"}
                 </button>
                 <button
                   type="button"
                   className="sidebar-icon-btn"
                   onClick={() => setGuideOpen(true)}
-                  title="How It Works"
+                  title={t("sidebar.howItWorks")}
                 >
                   {"\u2139"}
                 </button>
@@ -502,7 +519,7 @@ export function App() {
                         tii: report.tii!,
                         tension_ratio: report.tension_ratio ?? 0,
                         feels_like: report.feels_like ?? "Calm",
-                        location: report.snapshot?.transit_timezone ?? "",
+                        location: report.snapshot?.transit_location_name || report.snapshot?.transit_timezone || "",
                       },
                     }))
                   }
@@ -511,7 +528,7 @@ export function App() {
             />
           ) : (
             <header className="sticky-header">
-              <h1 className="content-profile-name">{activeDetail?.profile.profile_name || "Select a profile"}</h1>
+              <h1 className="content-profile-name">{activeDetail?.profile.profile_name || t("widget.selectProfile")}</h1>
               {activeDetail ? <span className="content-profile-username">@{activeDetail.profile.username}</span> : null}
             </header>
           )}
@@ -522,16 +539,22 @@ export function App() {
               {/* Natal widget */}
               {activeDetail ? (
                 <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
-                  <div className="widget-title">Natal</div>
+                  <div className="widget-title">{t("widget.natal")}</div>
                   <ProfileSummaryCard detail={activeDetail} />
                 </div>
               ) : null}
 
               {/* Active Transits widget */}
               {transitReport ? (
-                <div className="widget widget--summary" onClick={() => setExpandedWidget("transits")}>
+                <div className="widget widget--summary">
                   <ActiveTransitsWidget transitReport={transitReport} />
-                  <div className="widget-hint">Details</div>
+                </div>
+              ) : null}
+
+              {/* Cosmic Climate widget */}
+              {transitReport ? (
+                <div className="widget widget--summary">
+                  <CosmicClimateWidget transitReport={transitReport} />
                 </div>
               ) : null}
             </div>
@@ -539,8 +562,8 @@ export function App() {
             {/* Right column: Wheel (full height) */}
             <div className="widget widget--chart widget--wheel-right" onClick={() => activeDetail && setWheelExpanded(true)}>
               <div className="wheel-mode-toggle" onClick={(e) => e.stopPropagation()}>
-                <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>Natal</button>
-                <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>Transit</button>
+                <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("widget.natal")}</button>
+                <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
               </div>
               {activeDetail ? (
                 <NatalZodiacRing
@@ -620,10 +643,10 @@ export function App() {
           <div className="widget-popup" onClick={(e) => e.stopPropagation()}>
             <div className="widget-popup-head">
               <h3>
-                {expandedWidget === "summary" ? "Natal Profile" : null}
-                {expandedWidget === "planets" ? "Planet Positions" : null}
-                {expandedWidget === "aspects" ? "Natal Aspects" : null}
-                {expandedWidget === "transits" ? `Transits${activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}` : null}
+                {expandedWidget === "summary" ? t("widget.natalProfile") : null}
+                {expandedWidget === "planets" ? t("widget.planetPositions") : null}
+                {expandedWidget === "aspects" ? t("widget.natalAspects") : null}
+                {expandedWidget === "transits" ? `${t("transits.title")}${activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}` : null}
               </h3>
               <button type="button" className="settings-close" onClick={() => setExpandedWidget(null)}>&times;</button>
             </div>
@@ -631,7 +654,7 @@ export function App() {
               {expandedWidget === "summary" && activeDetail ? (
                 <div>
                   <ProfileSummaryCard detail={activeDetail} />
-                  <button type="button" className="edit-btn" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>Edit Profile</button>
+                  <button type="button" className="edit-btn" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.editProfile")}</button>
                   {natalPositions.length ? <NatalPositionsTable positions={natalPositions} /> : null}
                   {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} /> : null}
                 </div>
@@ -657,7 +680,7 @@ export function App() {
                           tii: report.tii!,
                           tension_ratio: report.tension_ratio ?? 0,
                           feels_like: report.feels_like ?? "Calm",
-                          location: report.snapshot?.transit_timezone ?? "",
+                          location: report.snapshot?.transit_location_name || report.snapshot?.transit_timezone || "",
                         },
                       }))
                     }
@@ -675,8 +698,8 @@ export function App() {
         <div className="wheel-fullscreen" onClick={() => setWheelExpanded(false)}>
           <button type="button" className="wheel-fullscreen__close" onClick={() => setWheelExpanded(false)}>&times;</button>
           <div className="wheel-fullscreen__toggle" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>Natal</button>
-            <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>Transit</button>
+            <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("wheel.natal")}</button>
+            <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
           </div>
           <div className="wheel-fullscreen__ring" onClick={(e) => e.stopPropagation()}>
             <NatalZodiacRing
@@ -720,6 +743,29 @@ export function App() {
       ) : null}
 
       {guideOpen ? <TiiGuide onClose={() => setGuideOpen(false)} /> : null}
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        email={user.email ?? null}
+        theme={theme}
+        onThemeChange={setTheme}
+        onSignOut={() => {
+          setSettingsOpen(false)
+          signOut()
+          setProfiles([])
+          setActiveProfileId(null)
+          setActiveDetail(null)
+          setTransitReport(null)
+        }}
+        transitReport={transitReport}
+        profiles={profiles}
+        primaryProfileId={primaryProfileId}
+        onPrimaryChange={(id) => {
+          setPrimaryProfileId(id)
+          localStorage.setItem("primaryProfileId", id)
+        }}
+      />
     </main>
   )
 }

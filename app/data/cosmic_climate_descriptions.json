@@ -1,0 +1,1205 @@
+{
+  "Pluto_conjunction_Sun": {
+    "ru": {
+      "meaning": "Полная переплавка идентичности — старое «я» разбирается до основания, чтобы собраться заново. Власть, контроль и подлинность становятся главными темами этого сезона. Всё что держалось на страхе или привычке — уходит.",
+      "insight": "Это не кризис, это линька. Позволь старой версии себя умереть — новая уже формируется."
+    },
+    "en": {
+      "meaning": "A complete identity overhaul — the old self is being dismantled to be rebuilt from the ground up. Power, control, and authenticity become the central themes of this season. Everything held together by fear or habit falls away.",
+      "insight": "This isn't a crisis, it's a metamorphosis. Let the old version of yourself die — the new one is already forming."
+    }
+  },
+  "Pluto_opposition_Sun": {
+    "ru": {
+      "meaning": "Сезон зеркал: другие люди отражают силу и тень, которые ты ещё не признал в себе. Динамика власти в отношениях обнажает то, что требует трансформации. Контроль vs. отпускание — главный вопрос месяцев.",
+      "insight": "Тот, кто тебя раздражает или пугает — показывает твой следующий уровень роста."
+    },
+    "en": {
+      "meaning": "A season of mirrors: other people reflect the power and shadow you haven't yet acknowledged in yourself. Power dynamics in relationships expose what needs transformation. Control vs. letting go is the central question of these months.",
+      "insight": "The person who irritates or frightens you is showing you your next level of growth."
+    }
+  },
+  "Pluto_square_Sun": {
+    "ru": {
+      "meaning": "Период внутреннего сопротивления — старая идентичность не хочет меняться, но трансформация уже началась. Внешние препятствия часто отражают внутренний конфликт между кем ты был и кем становишься. Давление реальное, но временное.",
+      "insight": "Сопротивление процессу удлиняет его. Чем раньше отпустишь старый сценарий — тем легче."
+    },
+    "en": {
+      "meaning": "A period of inner resistance — the old identity doesn't want to change, but transformation has already begun. External obstacles often mirror the internal conflict between who you were and who you're becoming. The pressure is real but temporary.",
+      "insight": "Resisting the process only prolongs it. The sooner you release the old script, the easier it gets."
+    }
+  },
+  "Pluto_trine_Sun": {
+    "ru": {
+      "meaning": "Трансформация идёт мягко — глубинные изменения происходят без драмы. Сезон когда личная сила растёт органично, без конфликтов. Старое уходит, новое приходит естественно.",
+      "insight": "Используй этот период для намеренных изменений — энергия поддерживает, сопротивления минимум."
+    },
+    "en": {
+      "meaning": "Transformation flows gently — deep changes happen without drama. A season when personal power grows organically, without conflict. The old leaves and the new arrives naturally.",
+      "insight": "Use this period for intentional changes — the energy supports you, resistance is minimal."
+    }
+  },
+  "Pluto_sextile_Sun": {
+    "ru": {
+      "meaning": "Фоновый процесс углубления — кто ты есть становится более концентрированным и подлинным. Возможности для роста через трансформацию открываются сами. Сезон тихой, но реальной силы.",
+      "insight": "Небольшие шаги к подлинности сейчас дают непропорционально большой результат."
+    },
+    "en": {
+      "meaning": "A background process of deepening — who you are becomes more concentrated and authentic. Opportunities for growth through transformation open naturally. A season of quiet but real power.",
+      "insight": "Small steps toward authenticity now yield disproportionately big results."
+    }
+  },
+  "Pluto_conjunction_Moon": {
+    "ru": {
+      "meaning": "Глубинная переработка эмоциональной памяти — старые паттерны реагирования выходят на поверхность чтобы быть трансформированными. Прошлое, семья, корни — всё пересматривается. Интенсивный сезон психологической работы.",
+      "insight": "То что поднимается — не случайно. Это именно то, что готово уйти."
+    },
+    "en": {
+      "meaning": "Deep processing of emotional memory — old reaction patterns surface to be transformed. The past, family, roots — everything is being revisited. An intense season of psychological work.",
+      "insight": "What rises to the surface isn't random. It's exactly what's ready to leave."
+    }
+  },
+  "Pluto_opposition_Moon": {
+    "ru": {
+      "meaning": "Сезон эмоциональных зеркал — близкие отношения отражают непроработанные чувства и семейные паттерны. Манипуляция, контроль или интенсивная привязанность могут быть симптомами. Трансформация через уязвимость.",
+      "insight": "Эмоциональная интенсивность сейчас — не проблема, а материал для работы."
+    },
+    "en": {
+      "meaning": "A season of emotional mirrors — close relationships reflect unprocessed feelings and family patterns. Manipulation, control, or intense attachment may be symptoms. Transformation through vulnerability.",
+      "insight": "Emotional intensity right now isn't a problem — it's raw material for the work."
+    }
+  },
+  "Pluto_square_Moon": {
+    "ru": {
+      "meaning": "Период когда подавленные эмоции и старые семейные сценарии давят изнутри. Дом, безопасность, привычные способы чувствовать — всё под вопросом. Дискомфорт реальный, но ведёт к эмоциональной свободе.",
+      "insight": "Позволь себе чувствовать то, что долго избегал — это путь наружу, не внутрь."
+    },
+    "en": {
+      "meaning": "A period when suppressed emotions and old family scripts press from within. Home, security, habitual ways of feeling — all are questioned. The discomfort is real but leads to emotional freedom.",
+      "insight": "Allow yourself to feel what you've long avoided — it's the way out, not deeper in."
+    }
+  },
+  "Pluto_trine_Moon": {
+    "ru": {
+      "meaning": "Глубокое эмоциональное исцеление идёт органично — старые раны трансформируются без кризиса. Сезон когда психологическая работа даётся легче обычного. Интуиция усиливается.",
+      "insight": "Хорошее время для терапии, работы с прошлым, глубоких разговоров с близкими."
+    },
+    "en": {
+      "meaning": "Deep emotional healing flows organically — old wounds transform without crisis. A season when psychological work comes easier than usual. Intuition strengthens.",
+      "insight": "A good time for therapy, working with the past, and deep conversations with loved ones."
+    }
+  },
+  "Pluto_sextile_Moon": {
+    "ru": {
+      "meaning": "Тихий сезон эмоционального углубления — чувства становятся более осознанными, реакции более зрелыми. Возможности для исцеления семейных паттернов открыты. Психологическая глубина растёт.",
+      "insight": "Небольшие изменения в эмоциональных привычках сейчас закрепляются надолго."
+    },
+    "en": {
+      "meaning": "A quiet season of emotional deepening — feelings become more conscious, reactions more mature. Opportunities for healing family patterns are open. Psychological depth grows.",
+      "insight": "Small changes in emotional habits now become long-lasting."
+    }
+  },
+  "Pluto_conjunction_Venus": {
+    "ru": {
+      "meaning": "Полная переработка того, что и кого ты любишь — ценности, вкусы, паттерны в отношениях переплавляются. Сезон когда поверхностные привязанности уходят, а глубокие связи трансформируются. Деньги и красота тоже меняют смысл.",
+      "insight": "Отношения которые выживут этот период — настоящие. Остальное освобождает место."
+    },
+    "en": {
+      "meaning": "A complete overhaul of what and whom you love — values, tastes, and relationship patterns are being reforged. Superficial attachments fall away while deep bonds transform. Money and beauty also shift in meaning.",
+      "insight": "Relationships that survive this period are the real ones. Everything else is making room."
+    }
+  },
+  "Pluto_opposition_Venus": {
+    "ru": {
+      "meaning": "Динамика власти в близких отношениях выходит на поверхность. Сезон когда партнёры или деньги становятся зеркалом непроработанных тем контроля и ценности. Интенсивные притяжения возможны.",
+      "insight": "Что в отношениях раздражает или притягивает с силой — показывает твою следующую работу."
+    },
+    "en": {
+      "meaning": "Power dynamics in close relationships surface. A season when partners or money become mirrors for unprocessed themes of control and value. Intense attractions are possible.",
+      "insight": "What irritates or powerfully attracts you in relationships shows you your next inner work."
+    }
+  },
+  "Pluto_square_Venus": {
+    "ru": {
+      "meaning": "Период напряжения между тем как любишь и тем как нужно любить. Старые паттерны в отношениях или с деньгами создают препятствия. Трансформация через конфликт ценностей.",
+      "insight": "Кризис в отношениях сейчас — не конец, а приглашение к более глубокой близости."
+    },
+    "en": {
+      "meaning": "A period of tension between how you love and how you need to love. Old patterns in relationships or with money create obstacles. Transformation through conflicting values.",
+      "insight": "A relationship crisis now isn't the end — it's an invitation to deeper intimacy."
+    }
+  },
+  "Pluto_trine_Venus": {
+    "ru": {
+      "meaning": "Трансформация в любви и ценностях идёт мягко и органично. Сезон когда отношения углубляются, деньги текут через подлинную ценность. Притяжение к глубоким, содержательным связям.",
+      "insight": "Хорошее время для переосмысления что действительно важно — и инвестиций туда."
+    },
+    "en": {
+      "meaning": "Transformation in love and values flows gently and organically. A season when relationships deepen, and money flows through authentic value. Attraction to deep, meaningful connections.",
+      "insight": "A good time to reconsider what truly matters — and invest there."
+    }
+  },
+  "Pluto_sextile_Venus": {
+    "ru": {
+      "meaning": "Тихий процесс углубления ценностей и отношений. Возможности для трансформации в любви открыты без давления. Финансовые изменения идут через подлинность.",
+      "insight": "Маленькие шаги к тому что по-настоящему важно дают большой накопительный эффект."
+    },
+    "en": {
+      "meaning": "A quiet process of deepening values and relationships. Opportunities for transformation in love are open without pressure. Financial changes come through authenticity.",
+      "insight": "Small steps toward what truly matters create a big cumulative effect."
+    }
+  },
+  "Pluto_conjunction_Mars": {
+    "ru": {
+      "meaning": "Полная переработка воли, агрессии и способа действовать. Старые способы добиваться целей разбираются до основ — строится новая, более концентрированная сила. Сезон интенсивной энергии и возможного кризиса направления.",
+      "insight": "Злость и сила сейчас — материал для трансформации, а не враги. Направь их осознанно."
+    },
+    "en": {
+      "meaning": "A complete overhaul of willpower, aggression, and how you take action. Old ways of achieving goals are being dismantled — a new, more concentrated force is being built. A season of intense energy and potential crisis of direction.",
+      "insight": "Anger and power right now are raw material for transformation, not enemies. Channel them consciously."
+    }
+  },
+  "Pluto_opposition_Mars": {
+    "ru": {
+      "meaning": "Сезон столкновений воль — другие люди или обстоятельства зеркалят непроработанную агрессию и желание контроля. Конфликты реальные, но служат трансформации. Власть перераспределяется.",
+      "insight": "В каждом конфликте этого сезона — вопрос: чья воля подлинная, чья — страх?"
+    },
+    "en": {
+      "meaning": "A season of clashing wills — other people or circumstances mirror unprocessed aggression and desire for control. Conflicts are real but serve transformation. Power is being redistributed.",
+      "insight": "In every conflict this season, ask: whose will is authentic, and whose comes from fear?"
+    }
+  },
+  "Pluto_square_Mars": {
+    "ru": {
+      "meaning": "Период когда воля встречает серьёзное сопротивление — внешнее или внутреннее. Агрессия, власть, контроль — горячие темы. Трансформация через преодоление, но без насилия над собой.",
+      "insight": "Если действие встречает стену — это сигнал пересмотреть направление, не удвоить силу."
+    },
+    "en": {
+      "meaning": "A period when your will meets serious resistance — external or internal. Aggression, power, control are hot topics. Transformation through overcoming, but without forcing yourself.",
+      "insight": "If action hits a wall, that's a signal to reconsider direction, not to double the force."
+    }
+  },
+  "Pluto_trine_Mars": {
+    "ru": {
+      "meaning": "Трансформация силы и воли идёт органично. Сезон когда действия опираются на глубинную мотивацию, а не реакцию. Концентрированная эффективность без лишних усилий.",
+      "insight": "Сейчас сила и намерение выровнены — используй окно для шагов которые долго откладывал."
+    },
+    "en": {
+      "meaning": "Transformation of strength and will flows organically. A season when actions are driven by deep motivation, not reaction. Concentrated effectiveness without wasted effort.",
+      "insight": "Right now strength and intention are aligned — use this window for steps you've long postponed."
+    }
+  },
+  "Pluto_sextile_Mars": {
+    "ru": {
+      "meaning": "Тихий процесс углубления мотивации и воли. Действия становятся более целенаправленными и подлинными. Открыты возможности для трансформации через активность.",
+      "insight": "Небольшие, но намеренные действия сейчас запускают долгосрочные процессы."
+    },
+    "en": {
+      "meaning": "A quiet process of deepening motivation and willpower. Actions become more purposeful and authentic. Opportunities for transformation through activity are open.",
+      "insight": "Small but intentional actions now set long-term processes in motion."
+    }
+  },
+  "Pluto_conjunction_ASC": {
+    "ru": {
+      "meaning": "Полная переработка того, каким тебя видит мир — внешность, поведение, первое впечатление меняются изнутри. Сезон когда маска больше не работает, выходит более подлинная версия. Другие чувствуют в тебе изменение.",
+      "insight": "Попытки казаться прежним требуют всё больше сил. Новое «я» уже просится наружу."
+    },
+    "en": {
+      "meaning": "A complete overhaul of how the world sees you — appearance, behavior, first impressions all change from within. The mask no longer works; a more authentic version emerges. Others sense the shift.",
+      "insight": "Trying to appear the same takes more and more effort. The new self is already pushing through."
+    }
+  },
+  "Pluto_opposition_ASC": {
+    "ru": {
+      "meaning": "Трансформация через близкие отношения — партнёры становятся агентами глубинных изменений. Сезон когда то кто ты есть проверяется тем, кого притягиваешь. Глубокие, интенсивные связи.",
+      "insight": "Самые важные люди этого периода — не случайны. Они здесь чтобы что-то изменить в тебе."
+    },
+    "en": {
+      "meaning": "Transformation through close relationships — partners become agents of deep change. A season when who you are is tested by who you attract. Deep, intense connections.",
+      "insight": "The most important people in this period aren't random. They're here to change something in you."
+    }
+  },
+  "Pluto_square_ASC": {
+    "ru": {
+      "meaning": "Период напряжения между тем кем ты являешься и тем каким хочешь казаться. Внешние обстоятельства давят на идентичность. Трансформация самопрезентации через кризис.",
+      "insight": "Ломается не ты — ломается образ который устарел. Это освобождение, не потеря."
+    },
+    "en": {
+      "meaning": "A period of tension between who you are and who you want to appear to be. External circumstances pressure your identity. Transformation of self-presentation through crisis.",
+      "insight": "It's not you that's breaking — it's an outdated image. This is liberation, not loss."
+    }
+  },
+  "Pluto_trine_ASC": {
+    "ru": {
+      "meaning": "Трансформация идентичности идёт органично — новая версия себя выходит без драмы. Сезон когда подлинность притягивает нужных людей и возможности. Харизма растёт.",
+      "insight": "Просто будь собой сейчас — это работает лучше любой стратегии."
+    },
+    "en": {
+      "meaning": "Identity transformation flows organically — the new version of yourself emerges without drama. A season when authenticity attracts the right people and opportunities. Charisma grows.",
+      "insight": "Just be yourself right now — it works better than any strategy."
+    }
+  },
+  "Pluto_sextile_ASC": {
+    "ru": {
+      "meaning": "Тихий процесс углубления самовыражения. Подлинность постепенно вытесняет маски. Возможности для трансформации через новые знакомства и среду.",
+      "insight": "Маленькие шаги к более честному самовыражению накапливаются в большие изменения."
+    },
+    "en": {
+      "meaning": "A quiet process of deepening self-expression. Authenticity gradually replaces masks. Opportunities for transformation through new connections and environments.",
+      "insight": "Small steps toward more honest self-expression accumulate into big changes."
+    }
+  },
+  "Pluto_conjunction_MC": {
+    "ru": {
+      "meaning": "Полная переработка карьеры и публичной роли — то как тебя знает мир профессионально трансформируется. Сезон когда старая карьерная идентичность уходит, новая формируется. Возможна смена пути.",
+      "insight": "Карьерный кризис этого периода — не конец, а переплавка в более подлинное призвание."
+    },
+    "en": {
+      "meaning": "A complete overhaul of career and public role — how the world knows you professionally is being transformed. The old career identity leaves as a new one forms. A path change is possible.",
+      "insight": "The career crisis of this period isn't the end — it's a reforging into a more authentic calling."
+    }
+  },
+  "Pluto_opposition_MC": {
+    "ru": {
+      "meaning": "Напряжение между публичной ролью и частной жизнью, домом и карьерой. Трансформация через конфликт между тем кем ты являешься публично и приватно. Корни и вершина — оба под вопросом.",
+      "insight": "Что-то в основании (дом, семья, прошлое) должно измениться чтобы карьера выросла."
+    },
+    "en": {
+      "meaning": "Tension between public role and private life, home and career. Transformation through the conflict between your public and private selves. Both roots and summit are in question.",
+      "insight": "Something at the foundation (home, family, past) must change for the career to grow."
+    }
+  },
+  "Pluto_square_MC": {
+    "ru": {
+      "meaning": "Период когда карьера и репутация встречают серьёзное давление. Старые способы достигать и позиционировать себя больше не работают. Трансформация через профессиональный кризис.",
+      "insight": "Препятствия в карьере сейчас указывают на направление трансформации, а не на провал."
+    },
+    "en": {
+      "meaning": "A period when career and reputation face serious pressure. Old ways of achieving and positioning yourself no longer work. Transformation through professional crisis.",
+      "insight": "Career obstacles now point to the direction of transformation, not failure."
+    }
+  },
+  "Pluto_trine_MC": {
+    "ru": {
+      "meaning": "Профессиональная трансформация идёт органично — карьера углубляется и приобретает больший смысл. Сезон когда власть и влияние растут через подлинность. Публичная роль меняется к лучшему.",
+      "insight": "Хорошее время для намеренных шагов к более значимой карьере — поддержка есть."
+    },
+    "en": {
+      "meaning": "Professional transformation flows organically — career deepens and gains greater meaning. A season when power and influence grow through authenticity. Your public role changes for the better.",
+      "insight": "A good time for intentional steps toward a more meaningful career — support is there."
+    }
+  },
+  "Pluto_sextile_MC": {
+    "ru": {
+      "meaning": "Тихий процесс углубления карьерной идентичности. Возможности для профессиональной трансформации открыты. Репутация растёт через подлинность.",
+      "insight": "Небольшие, но смелые профессиональные шаги сейчас дают непропорциональный результат."
+    },
+    "en": {
+      "meaning": "A quiet process of deepening career identity. Opportunities for professional transformation are open. Reputation grows through authenticity.",
+      "insight": "Small but bold professional steps now yield disproportionate results."
+    }
+  },
+
+  "Neptune_conjunction_Sun": {
+    "ru": {
+      "meaning": "Сезон растворения чёткой идентичности — границы «я» размываются, что может чувствоваться как потеря или освобождение. Творчество, духовность и интуиция на подъёме. Иллюзии о себе тоже возможны.",
+      "insight": "Не цепляйся за ясность — позволь себе быть в неопределённости. Она временная и продуктивная."
+    },
+    "en": {
+      "meaning": "A season of dissolving clear identity — the boundaries of self blur, which can feel like loss or liberation. Creativity, spirituality, and intuition are on the rise. Self-illusions are also possible.",
+      "insight": "Don't cling to clarity — allow yourself to sit in uncertainty. It's temporary and productive."
+    }
+  },
+  "Neptune_opposition_Sun": {
+    "ru": {
+      "meaning": "Сезон когда другие могут видеть тебя иначе чем ты есть — идеализация или разочарование в отношениях. Иллюзии о себе и о других выходят на поверхность. Духовный рост через отпускание контроля над образом.",
+      "insight": "Если кто-то тебя идеализирует или обесценивает — это их проекция, не твоя реальность."
+    },
+    "en": {
+      "meaning": "A season when others may see you differently than you are — idealization or disappointment in relationships. Illusions about yourself and others surface. Spiritual growth through releasing control over your image.",
+      "insight": "If someone idealizes or devalues you — that's their projection, not your reality."
+    }
+  },
+  "Neptune_square_Sun": {
+    "ru": {
+      "meaning": "Период туманности — направление, мотивация и идентичность могут казаться неясными. Иллюзии, самообман или чужие ожидания размывают подлинное «я». Важно не принимать ключевых решений в тумане.",
+      "insight": "Когда всё кажется неясным — подожди. Туман Нептуна временный, ясность вернётся."
+    },
+    "en": {
+      "meaning": "A foggy period — direction, motivation, and identity may seem unclear. Illusions, self-deception, or others' expectations blur the authentic self. Important not to make key decisions in the fog.",
+      "insight": "When everything seems unclear — wait. Neptune's fog is temporary; clarity will return."
+    }
+  },
+  "Neptune_trine_Sun": {
+    "ru": {
+      "meaning": "Идентичность мягко расширяется — духовное измерение жизни становится более реальным и важным. Творчество и интуиция текут без усилий. Сезон вдохновения и тонкого восприятия.",
+      "insight": "Доверяй интуиции сейчас — она точнее логики в этот период."
+    },
+    "en": {
+      "meaning": "Identity gently expands — the spiritual dimension of life becomes more real and important. Creativity and intuition flow effortlessly. A season of inspiration and subtle perception.",
+      "insight": "Trust your intuition now — it's more accurate than logic during this period."
+    }
+  },
+  "Neptune_sextile_Sun": {
+    "ru": {
+      "meaning": "Тихое расширение идентичности через духовность и творчество. Возможности для вдохновения и роста через растворение эго открыты. Интуиция тонко усиливается.",
+      "insight": "Медитация, творчество или духовная практика сейчас дадут больше чем обычно."
+    },
+    "en": {
+      "meaning": "A quiet expansion of identity through spirituality and creativity. Opportunities for inspiration and growth through ego dissolution are open. Intuition subtly strengthens.",
+      "insight": "Meditation, creativity, or spiritual practice will yield more than usual right now."
+    }
+  },
+  "Neptune_conjunction_Moon": {
+    "ru": {
+      "meaning": "Сезон глубокого слияния чувств с чем-то большим — духовность, искусство, сострадание достигают максимума. Границы между собой и другими размываются. Эмпатия и чувствительность очень высоки, как и риск эмоционального слияния.",
+      "insight": "Береги энергию — сейчас легко впитать чужие эмоции как свои. Заземление важно."
+    },
+    "en": {
+      "meaning": "A season of deep emotional merging with something greater — spirituality, art, and compassion reach their peak. Boundaries between self and others dissolve. Empathy and sensitivity are very high, as is the risk of emotional fusion.",
+      "insight": "Protect your energy — it's easy to absorb others' emotions as your own now. Grounding is essential."
+    }
+  },
+  "Neptune_opposition_Moon": {
+    "ru": {
+      "meaning": "Сезон когда близкие отношения несут элемент иллюзии или идеализации. Эмоциональные границы размываются — трудно понять где твои чувства, где чужие. Чувствительность очень высока.",
+      "insight": "Регулярно проверяй: это мои чувства или я впитал чьи-то? Граница важна сейчас."
+    },
+    "en": {
+      "meaning": "A season when close relationships carry an element of illusion or idealization. Emotional boundaries blur — hard to tell where your feelings end and others' begin. Sensitivity is very high.",
+      "insight": "Regularly check: are these my feelings, or have I absorbed someone else's? Boundaries matter now."
+    }
+  },
+  "Neptune_square_Moon": {
+    "ru": {
+      "meaning": "Период эмоционального тумана — чувства спутаны, границы нечёткие. Самообман или чужие манипуляции эмоциями возможны. Трудно понять что реально, что иллюзия в личной жизни.",
+      "insight": "Не принимай эмоциональных решений в этот период. Подожди пока туман рассеется."
+    },
+    "en": {
+      "meaning": "A period of emotional fog — feelings are confused, boundaries unclear. Self-deception or emotional manipulation by others is possible. Hard to tell what's real and what's illusion in personal life.",
+      "insight": "Don't make emotional decisions during this period. Wait for the fog to clear."
+    }
+  },
+  "Neptune_trine_Moon": {
+    "ru": {
+      "meaning": "Эмоциональная чувствительность растёт мягко и продуктивно. Сезон когда интуиция, сны и духовные практики особенно питательны. Сострадание и искусство текут органично.",
+      "insight": "Обращай внимание на сны и интуитивные сигналы — они сейчас особенно информативны."
+    },
+    "en": {
+      "meaning": "Emotional sensitivity grows gently and productively. A season when intuition, dreams, and spiritual practices are especially nourishing. Compassion and art flow organically.",
+      "insight": "Pay attention to dreams and intuitive signals — they're especially informative right now."
+    }
+  },
+  "Neptune_sextile_Moon": {
+    "ru": {
+      "meaning": "Тихое усиление интуиции и эмоциональной глубины. Возможности для духовного питания и творческого выражения чувств открыты. Сострадание растёт органично.",
+      "insight": "Небольшие инвестиции в духовную или творческую практику сейчас дают глубокий результат."
+    },
+    "en": {
+      "meaning": "A quiet strengthening of intuition and emotional depth. Opportunities for spiritual nourishment and creative expression of feelings are open. Compassion grows organically.",
+      "insight": "Small investments in spiritual or creative practice now yield deep results."
+    }
+  },
+  "Neptune_conjunction_Venus": {
+    "ru": {
+      "meaning": "Сезон романтической идеализации и растворения границ в любви — отношения могут казаться волшебными или запутанными. Творчество и эстетика достигают максимума. Деньги могут утекать через иллюзии.",
+      "insight": "Влюблённость сейчас — прекрасна, но проверяй реальность прежде чем делать шаги."
+    },
+    "en": {
+      "meaning": "A season of romantic idealization and dissolving boundaries in love — relationships may feel magical or confusing. Creativity and aesthetics peak. Money may slip away through illusions.",
+      "insight": "Falling in love now is beautiful, but reality-check before making commitments."
+    }
+  },
+  "Neptune_opposition_Venus": {
+    "ru": {
+      "meaning": "Период когда партнёры могут казаться не теми, кем являются — идеализация и разочарование в любви. Финансовые иллюзии возможны. Духовная составляющая в отношениях выходит на первый план.",
+      "insight": "Красивая история в голове об отношениях и реальный человек — сейчас их стоит различать."
+    },
+    "en": {
+      "meaning": "A period when partners may not be who they seem — idealization and disillusionment in love. Financial illusions are possible. The spiritual dimension of relationships comes to the forefront.",
+      "insight": "The beautiful story in your head about a relationship and the real person — now is the time to distinguish them."
+    }
+  },
+  "Neptune_square_Venus": {
+    "ru": {
+      "meaning": "Туман в любви и финансах — трудно видеть отношения и деньги ясно. Самообман или разочарование через иллюзии. Ценности размыты, решения в этих сферах лучше отложить.",
+      "insight": "Если что-то в отношениях кажется слишком красивым или слишком страшным — подожди с выводами."
+    },
+    "en": {
+      "meaning": "Fog in love and finances — hard to see relationships and money clearly. Self-deception or disappointment through illusions. Values are blurred; decisions in these areas are best postponed.",
+      "insight": "If something in a relationship seems too good or too scary to be true — hold off on conclusions."
+    }
+  },
+  "Neptune_trine_Venus": {
+    "ru": {
+      "meaning": "Любовь и красота текут через духовное измерение. Сезон когда отношения несут глубину и вдохновение, творчество процветает. Деньги через creative и духовные проекты.",
+      "insight": "Вложения в красоту, искусство и подлинные отношения сейчас особенно плодотворны."
+    },
+    "en": {
+      "meaning": "Love and beauty flow through a spiritual dimension. A season when relationships carry depth and inspiration, creativity thrives. Income through creative and spiritual projects.",
+      "insight": "Investments in beauty, art, and authentic relationships are especially fruitful now."
+    }
+  },
+  "Neptune_sextile_Venus": {
+    "ru": {
+      "meaning": "Тихое духовное обогащение любви и ценностей. Возможности для вдохновения через отношения и творчество открыты. Эстетическая чувствительность усиливается.",
+      "insight": "Маленькие акты красоты и нежности сейчас резонируют глубже обычного."
+    },
+    "en": {
+      "meaning": "A quiet spiritual enrichment of love and values. Opportunities for inspiration through relationships and creativity are open. Aesthetic sensitivity strengthens.",
+      "insight": "Small acts of beauty and tenderness resonate deeper than usual now."
+    }
+  },
+  "Neptune_conjunction_Mars": {
+    "ru": {
+      "meaning": "Сезон когда воля и действие растворяются — трудно сохранять чёткое направление и мотивацию. Энергия может уходить в туман. Зато духовные и творческие действия получают особую силу.",
+      "insight": "Не борись с отсутствием драйва — направь энергию на духовное или творческое, не на механическое."
+    },
+    "en": {
+      "meaning": "A season when will and action dissolve — hard to maintain clear direction and motivation. Energy may drift into fog. But spiritual and creative actions gain special power.",
+      "insight": "Don't fight the lack of drive — channel energy into spiritual or creative pursuits, not mechanical ones."
+    }
+  },
+  "Neptune_opposition_Mars": {
+    "ru": {
+      "meaning": "Период когда чужие желания и манипуляции могут размывать собственную волю. Пассивная агрессия или неясные мотивы — свои и чужие — выходят на поверхность. Трудно действовать прямо.",
+      "insight": "Проверяй чья воля двигает тебя сейчас — своя или чужие ожидания и манипуляции."
+    },
+    "en": {
+      "meaning": "A period when others' desires and manipulations may erode your own will. Passive aggression or unclear motives — yours and others' — surface. Hard to act directly.",
+      "insight": "Check whose will is driving you now — your own or others' expectations and manipulations."
+    }
+  },
+  "Neptune_square_Mars": {
+    "ru": {
+      "meaning": "Туман в действиях и мотивации — энергия есть, но направление неясно. Самообман о своих желаниях или чужие иллюзии мешают прямому действию. Период переосмысления что реально хочешь.",
+      "insight": "Если действие не идёт — это сигнал пересмотреть цель, а не давить сильнее."
+    },
+    "en": {
+      "meaning": "Fog in actions and motivation — energy is there, but direction is unclear. Self-deception about desires or others' illusions hinder direct action. A period to reconsider what you truly want.",
+      "insight": "If action isn't flowing, that's a signal to reconsider the goal, not push harder."
+    }
+  },
+  "Neptune_trine_Mars": {
+    "ru": {
+      "meaning": "Действие наполняется духовным смыслом — мотивация идёт из глубины, а не из страха. Сезон когда творческие и духовные проекты имеют особую силу. Энергия и вдохновение выровнены.",
+      "insight": "Действия которые несут смысл для других сейчас даются легче и дают больше энергии."
+    },
+    "en": {
+      "meaning": "Action fills with spiritual meaning — motivation comes from depth, not fear. A season when creative and spiritual projects carry special power. Energy and inspiration are aligned.",
+      "insight": "Actions that carry meaning for others come easier now and give you more energy in return."
+    }
+  },
+  "Neptune_sextile_Mars": {
+    "ru": {
+      "meaning": "Тихое наполнение действий смыслом и вдохновением. Возможности для реализации через творчество и духовность открыты. Мотивация становится более тонкой и глубокой.",
+      "insight": "Небольшие шаги в направлении мечты сейчас имеют непропорционально большой импульс."
+    },
+    "en": {
+      "meaning": "A quiet filling of actions with meaning and inspiration. Opportunities for realization through creativity and spirituality are open. Motivation becomes subtler and deeper.",
+      "insight": "Small steps toward your dream now carry disproportionately strong momentum."
+    }
+  },
+  "Neptune_conjunction_ASC": {
+    "ru": {
+      "meaning": "Сезон когда другие видят тебя через мистическую дымку — образ размыт, но притягателен. Граница между собой и миром истончается. Харизма и духовное присутствие сильны, самоидентификация — в тумане.",
+      "insight": "Не пытайся казаться чётким и определённым — загадочность сейчас работает на тебя."
+    },
+    "en": {
+      "meaning": "A season when others see you through a mystical haze — your image is blurred but magnetic. The boundary between self and world thins. Charisma and spiritual presence are strong; self-identification is in fog.",
+      "insight": "Don't try to appear sharp and defined — mysteriousness works in your favor now."
+    }
+  },
+  "Neptune_opposition_ASC": {
+    "ru": {
+      "meaning": "Сезон романтических проекций в близких отношениях — партнёры идеализируются или несут иллюзии. Духовные связи глубоки. Трудно видеть другого человека ясно, а не через фильтр желаний.",
+      "insight": "Самые глубокие отношения этого периода — проверяй их реальность, не только красоту."
+    },
+    "en": {
+      "meaning": "A season of romantic projections in close relationships — partners are idealized or carry illusions. Spiritual connections run deep. Hard to see the other person clearly rather than through a filter of desire.",
+      "insight": "The deepest relationships of this period — verify their reality, not just their beauty."
+    }
+  },
+  "Neptune_square_ASC": {
+    "ru": {
+      "meaning": "Период туманного самовосприятия — трудно понять как ты выглядишь для других и кем являешься. Образ и реальность расходятся. Важно не принимать решений о самопрезентации в этом тумане.",
+      "insight": "Подожди пока туман рассеется прежде чем делать большие имиджевые шаги."
+    },
+    "en": {
+      "meaning": "A period of foggy self-perception — hard to understand how you look to others and who you are. Image and reality diverge. Important not to make self-presentation decisions in this fog.",
+      "insight": "Wait for the fog to clear before making big image moves."
+    }
+  },
+  "Neptune_trine_ASC": {
+    "ru": {
+      "meaning": "Духовное и творческое измерение личности выходит органично. Сезон когда интуиция, артистизм и сострадание в самовыражении притягивают нужных людей. Харизма тонкая но реальная.",
+      "insight": "Позволь духовной и творческой стороне себя быть видимой — она работает лучше рационального."
+    },
+    "en": {
+      "meaning": "The spiritual and creative dimension of your personality emerges organically. A season when intuition, artistry, and compassion in self-expression attract the right people. Charisma is subtle but real.",
+      "insight": "Let the spiritual and creative side of yourself be visible — it works better than the rational."
+    }
+  },
+  "Neptune_sextile_ASC": {
+    "ru": {
+      "meaning": "Тихое обогащение самовыражения через духовность и творчество. Возможности для роста через художественную или духовную презентацию открыты. Интуиция в общении усиливается.",
+      "insight": "Маленькие элементы подлинности и глубины в самовыражении резонируют сильно."
+    },
+    "en": {
+      "meaning": "A quiet enrichment of self-expression through spirituality and creativity. Opportunities for growth through artistic or spiritual presentation are open. Intuition in communication strengthens.",
+      "insight": "Small elements of authenticity and depth in self-expression resonate powerfully."
+    }
+  },
+  "Neptune_conjunction_MC": {
+    "ru": {
+      "meaning": "Сезон когда карьера и призвание растворяются в тумане или духовном смысле. Чёткая профессиональная идентичность размывается — это может быть кризисом или освобождением к более призванному пути. Творческие и духовные профессии процветают.",
+      "insight": "Если карьерное направление неясно — это приглашение к более глубокому призванию, не к панике."
+    },
+    "en": {
+      "meaning": "A season when career and calling dissolve into fog or spiritual meaning. Clear professional identity blurs — this can be a crisis or liberation toward a truer path. Creative and spiritual professions thrive.",
+      "insight": "If career direction is unclear — that's an invitation to a deeper calling, not a reason to panic."
+    }
+  },
+  "Neptune_opposition_MC": {
+    "ru": {
+      "meaning": "Напряжение между карьерными иллюзиями и корнями. Публичный образ может нести духовную или художественную составляющую. Трудно видеть профессиональный путь ясно.",
+      "insight": "Что-то в основании — дом, прошлое, семья — требует ясности прежде чем карьера прояснится."
+    },
+    "en": {
+      "meaning": "Tension between career illusions and roots. Your public image may carry a spiritual or artistic quality. Hard to see the professional path clearly.",
+      "insight": "Something at the foundation — home, past, family — needs clarity before the career can clear up."
+    }
+  },
+  "Neptune_square_MC": {
+    "ru": {
+      "meaning": "Туман в карьере и репутации — профессиональное направление неясно, могут быть иллюзии или разочарования. Сезон пересмотра призвания через замешательство.",
+      "insight": "Не принимай ключевых карьерных решений пока туман не рассеется — подожди ясности."
+    },
+    "en": {
+      "meaning": "Fog in career and reputation — professional direction is unclear, illusions or disappointments may arise. A season of reconsidering your calling through confusion.",
+      "insight": "Don't make key career decisions until the fog clears — wait for clarity."
+    }
+  },
+  "Neptune_trine_MC": {
+    "ru": {
+      "meaning": "Карьера наполняется духовным смыслом и вдохновением. Сезон когда профессиональный путь резонирует с глубинными ценностями. Творческие и помогающие профессии получают особый импульс.",
+      "insight": "Шаги в сторону более смысловой карьеры сейчас получают поддержку и резонанс."
+    },
+    "en": {
+      "meaning": "Career fills with spiritual meaning and inspiration. A season when the professional path resonates with deep values. Creative and helping professions get a special boost.",
+      "insight": "Steps toward a more meaningful career now receive support and resonance."
+    }
+  },
+  "Neptune_sextile_MC": {
+    "ru": {
+      "meaning": "Тихое наполнение карьеры смыслом и вдохновением. Возможности для профессионального роста через творчество и духовность открыты. Репутация растёт через подлинность.",
+      "insight": "Небольшие шаги к более призванной карьере сейчас закладывают долгосрочный фундамент."
+    },
+    "en": {
+      "meaning": "A quiet filling of career with meaning and inspiration. Opportunities for professional growth through creativity and spirituality are open. Reputation grows through authenticity.",
+      "insight": "Small steps toward a more purpose-driven career now lay a long-term foundation."
+    }
+  },
+
+  "Uranus_conjunction_Sun": {
+    "ru": {
+      "meaning": "Сезон радикального обновления идентичности — старое «я» взрывается, освобождая место для более подлинного. Неожиданные повороты в самовыражении и жизненном пути. Свобода важнее стабильности в этот период.",
+      "insight": "То что казалось незыблемым в твоей идентичности — готово к революции. Это хорошо."
+    },
+    "en": {
+      "meaning": "A season of radical identity renewal — the old self explodes, making way for something more authentic. Unexpected turns in self-expression and life path. Freedom matters more than stability in this period.",
+      "insight": "What seemed unshakable in your identity is ready for revolution. That's a good thing."
+    }
+  },
+  "Uranus_opposition_Sun": {
+    "ru": {
+      "meaning": "Кризис середины пути — внутренняя потребность в свободе и переменах сталкивается с внешней стабильностью. Другие люди или обстоятельства провоцируют резкие изменения. Сезон неожиданных разворотов.",
+      "insight": "Бунт против устоявшегося — не каприз, а сигнал что что-то важное требует обновления."
+    },
+    "en": {
+      "meaning": "A midpoint crisis — the inner need for freedom and change collides with external stability. Other people or circumstances provoke sharp changes. A season of unexpected turnarounds.",
+      "insight": "Rebellion against the established isn't a whim — it's a signal that something important needs renewal."
+    }
+  },
+  "Uranus_square_Sun": {
+    "ru": {
+      "meaning": "Период когда стремление к переменам встречает сопротивление — внутри или снаружи. Идентичность под давлением необходимости измениться. Нестабильность реальная, но ведёт к большей свободе.",
+      "insight": "Тревога перемен сейчас меньше чем цена застревания на месте. Двигайся."
+    },
+    "en": {
+      "meaning": "A period when the drive for change meets resistance — internal or external. Identity under pressure to transform. Instability is real but leads to greater freedom.",
+      "insight": "The anxiety of change now is less than the cost of staying stuck. Move forward."
+    }
+  },
+  "Uranus_trine_Sun": {
+    "ru": {
+      "meaning": "Перемены и обновление приходят органично и без драмы. Сезон когда уникальность и оригинальность работают в твою пользу. Неожиданные возможности открываются легко.",
+      "insight": "Следуй за тем что необычно и неожиданно — сейчас именно там твой путь."
+    },
+    "en": {
+      "meaning": "Change and renewal come organically and without drama. A season when uniqueness and originality work in your favor. Unexpected opportunities open easily.",
+      "insight": "Follow what's unusual and unexpected — that's exactly where your path lies now."
+    }
+  },
+  "Uranus_sextile_Sun": {
+    "ru": {
+      "meaning": "Тихие, но реальные возможности для обновления и освобождения. Оригинальность и нестандартные подходы находят поддержку. Перемены идут мягко.",
+      "insight": "Небольшие эксперименты с самовыражением сейчас могут открыть неожиданные двери."
+    },
+    "en": {
+      "meaning": "Quiet but real opportunities for renewal and liberation. Originality and unconventional approaches find support. Changes flow gently.",
+      "insight": "Small experiments with self-expression can now open unexpected doors."
+    }
+  },
+  "Uranus_conjunction_Moon": {
+    "ru": {
+      "meaning": "Сезон эмоциональной революции — привычные способы чувствовать и реагировать взрываются. Дом, семья, безопасность — всё под знаком перемен. Нестабильность высокая, но эмоциональная свобода растёт.",
+      "insight": "Эмоциональная нестабильность сейчас — не болезнь, а освобождение от устаревших паттернов."
+    },
+    "en": {
+      "meaning": "A season of emotional revolution — habitual ways of feeling and reacting explode. Home, family, security — all under the sign of change. Instability is high, but emotional freedom grows.",
+      "insight": "Emotional instability now isn't illness — it's liberation from outdated patterns."
+    }
+  },
+  "Uranus_opposition_Moon": {
+    "ru": {
+      "meaning": "Период когда личная жизнь и дом встречают неожиданные перемены. Эмоциональные паттерны разрываются через внешние события или близких людей. Потребность в независимости растёт.",
+      "insight": "Что в личной жизни давно требовало перемен — сейчас меняется, хочешь ты того или нет."
+    },
+    "en": {
+      "meaning": "A period when personal life and home face unexpected changes. Emotional patterns are disrupted by external events or close people. The need for independence grows.",
+      "insight": "What has long needed change in personal life is now changing, whether you want it or not."
+    }
+  },
+  "Uranus_square_Moon": {
+    "ru": {
+      "meaning": "Эмоциональная турбулентность — настроение скачет, привычные якоря нестабильны. Дом или семейная ситуация под давлением перемен. Тревога и возбуждение одновременно.",
+      "insight": "Заземление важно сейчас — короткие стабилизирующие практики помогают переносить турбулентность."
+    },
+    "en": {
+      "meaning": "Emotional turbulence — mood swings, familiar anchors unstable. Home or family situation under pressure of change. Anxiety and excitement simultaneously.",
+      "insight": "Grounding is important now — short stabilizing practices help you ride the turbulence."
+    }
+  },
+  "Uranus_trine_Moon": {
+    "ru": {
+      "meaning": "Эмоциональное обновление идёт органично — новые способы чувствовать и реагировать приходят без кризиса. Сезон когда перемены в личной жизни освежают. Интуиция нестандартная и точная.",
+      "insight": "Доверяй неожиданным эмоциональным импульсам — они указывают на нужное направление."
+    },
+    "en": {
+      "meaning": "Emotional renewal flows organically — new ways of feeling and reacting arrive without crisis. A season when changes in personal life feel refreshing. Intuition is unconventional and accurate.",
+      "insight": "Trust unexpected emotional impulses — they point in the right direction."
+    }
+  },
+  "Uranus_sextile_Moon": {
+    "ru": {
+      "meaning": "Тихое обновление эмоциональных паттернов. Возможности для освобождения от устаревших реакций открыты. Перемены в личной жизни идут через небольшие, но реальные сдвиги.",
+      "insight": "Маленькие изменения в домашней рутине или эмоциональных привычках сейчас резонируют."
+    },
+    "en": {
+      "meaning": "A quiet renewal of emotional patterns. Opportunities to break free from outdated reactions are open. Changes in personal life come through small but real shifts.",
+      "insight": "Small changes in home routine or emotional habits resonate now."
+    }
+  },
+  "Uranus_conjunction_Venus": {
+    "ru": {
+      "meaning": "Революция в любви и ценностях — привычные паттерны в отношениях взрываются. Неожиданные притяжения, разрывы или полная смена вкусов и ценностей. Финансовые перемены тоже возможны.",
+      "insight": "Отношения и деньги которые не оставляют места свободе — сейчас будут трансформированы."
+    },
+    "en": {
+      "meaning": "Revolution in love and values — habitual relationship patterns explode. Unexpected attractions, breakups, or a complete shift in tastes and values. Financial changes are also possible.",
+      "insight": "Relationships and money that leave no room for freedom will be transformed now."
+    }
+  },
+  "Uranus_opposition_Venus": {
+    "ru": {
+      "meaning": "Сезон неожиданных поворотов в любви и финансах — партнёры или обстоятельства провоцируют перемены. Потребность в свободе в отношениях растёт. Нестандартные связи притягивают.",
+      "insight": "Если в отношениях душно — сейчас это особенно ощутимо и требует честного разговора."
+    },
+    "en": {
+      "meaning": "A season of unexpected turns in love and finances — partners or circumstances provoke changes. The need for freedom in relationships grows. Unconventional connections attract.",
+      "insight": "If a relationship feels stifling — that's especially noticeable now and calls for an honest conversation."
+    }
+  },
+  "Uranus_square_Venus": {
+    "ru": {
+      "meaning": "Напряжение между желанием стабильности в любви и потребностью в свободе. Финансовые неожиданности возможны. Ценности под давлением пересмотра.",
+      "insight": "Импульсивные решения в любви и деньгах сейчас рискованны — подожди пока буря уляжется."
+    },
+    "en": {
+      "meaning": "Tension between the desire for stability in love and the need for freedom. Financial surprises are possible. Values are under pressure to be reconsidered.",
+      "insight": "Impulsive decisions in love and money are risky now — wait for the storm to settle."
+    }
+  },
+  "Uranus_trine_Venus": {
+    "ru": {
+      "meaning": "Обновление в любви и ценностях идёт органично. Сезон когда нестандартные отношения и нетрадиционные ценности работают. Финансовые возможности через оригинальные идеи.",
+      "insight": "Нестандартный подход к отношениям и деньгам сейчас даёт лучшие результаты чем традиционный."
+    },
+    "en": {
+      "meaning": "Renewal in love and values flows organically. A season when unconventional relationships and non-traditional values work. Financial opportunities through original ideas.",
+      "insight": "An unconventional approach to relationships and money gives better results than traditional now."
+    }
+  },
+  "Uranus_sextile_Venus": {
+    "ru": {
+      "meaning": "Тихое обновление в любви и финансах через оригинальность. Возможности для освежающих перемен в отношениях открыты. Нестандартные ценности находят поддержку.",
+      "insight": "Небольшой эксперимент в отношениях или финансах сейчас может открыть неожиданно хороший путь."
+    },
+    "en": {
+      "meaning": "A quiet renewal in love and finances through originality. Opportunities for refreshing changes in relationships are open. Unconventional values find support.",
+      "insight": "A small experiment in relationships or finances can now open an unexpectedly good path."
+    }
+  },
+  "Uranus_conjunction_Mars": {
+    "ru": {
+      "meaning": "Взрыв энергии и воли — действия становятся более резкими, неожиданными и мощными. Сезон когда правила и ограничения ощущаются невыносимо. Риск импульсивности, потенциал революционного прорыва.",
+      "insight": "Энергия огромная, но без направления она разрушает. Найди канал для этой силы."
+    },
+    "en": {
+      "meaning": "An explosion of energy and will — actions become sharper, more unexpected, and more powerful. A season when rules and restrictions feel unbearable. Risk of impulsiveness, potential for revolutionary breakthrough.",
+      "insight": "The energy is enormous, but without direction it destroys. Find a channel for this force."
+    }
+  },
+  "Uranus_opposition_Mars": {
+    "ru": {
+      "meaning": "Период неожиданных конфликтов и внезапных действий — свои или чужие. Бунт против ограничений выходит наружу. Сезон высокого напряжения и потенциальных прорывов через конфликт.",
+      "insight": "Прежде чем действовать импульсивно — один вопрос: это свобода или побег?"
+    },
+    "en": {
+      "meaning": "A period of unexpected conflicts and sudden actions — yours or others'. Rebellion against restrictions surfaces. A season of high tension and potential breakthroughs through conflict.",
+      "insight": "Before acting impulsively — one question: is this freedom or escape?"
+    }
+  },
+  "Uranus_square_Mars": {
+    "ru": {
+      "meaning": "Напряжение между желанием действовать свободно и внешними ограничениями. Раздражение и нетерпение высоки. Риск аварий или конфликтов через импульсивность.",
+      "insight": "Замедлись перед важными действиями — импульс сейчас опережает рассудок."
+    },
+    "en": {
+      "meaning": "Tension between the desire to act freely and external restrictions. Irritation and impatience run high. Risk of accidents or conflicts through impulsiveness.",
+      "insight": "Slow down before important actions — impulse is outpacing judgment right now."
+    }
+  },
+  "Uranus_trine_Mars": {
+    "ru": {
+      "meaning": "Действие и свобода выровнены — сезон когда оригинальные, смелые шаги дают результат. Энергия высокая и направленная. Технологические и инновационные проекты получают импульс.",
+      "insight": "Сейчас — хорошее время для смелых шагов которые давно откладывал из-за страха."
+    },
+    "en": {
+      "meaning": "Action and freedom are aligned — a season when original, bold steps yield results. Energy is high and directed. Tech and innovation projects get a boost.",
+      "insight": "Now is a good time for bold steps you've been postponing out of fear."
+    }
+  },
+  "Uranus_sextile_Mars": {
+    "ru": {
+      "meaning": "Тихое усиление энергии через оригинальность и свободу действий. Возможности для инновационных проектов открыты. Нестандартные способы достигать целей работают.",
+      "insight": "Небольшой нестандартный шаг сейчас может запустить цепочку интересных событий."
+    },
+    "en": {
+      "meaning": "A quiet boost of energy through originality and freedom of action. Opportunities for innovative projects are open. Unconventional ways of reaching goals work.",
+      "insight": "A small unconventional step now can trigger a chain of interesting events."
+    }
+  },
+  "Uranus_conjunction_ASC": {
+    "ru": {
+      "meaning": "Революция в самовыражении — как тебя видит мир меняется радикально. Сезон когда старый образ взрывается, выходит более свободная и оригинальная версия. Другие чувствуют в тебе что-то новое и неожиданное.",
+      "insight": "Перестань пытаться выглядеть как раньше — новая версия себя интереснее."
+    },
+    "en": {
+      "meaning": "Revolution in self-expression — how the world sees you changes radically. The old image explodes, and a freer, more original version emerges. Others sense something new and unexpected in you.",
+      "insight": "Stop trying to look like before — the new version of yourself is more interesting."
+    }
+  },
+  "Uranus_opposition_ASC": {
+    "ru": {
+      "meaning": "Близкие отношения становятся источником неожиданных перемен. Партнёры провоцируют освобождение или конфликт вокруг свободы. Сезон пересмотра близости и независимости.",
+      "insight": "Отношения которые не дают развиваться — сейчас особенно ощущаются как клетка."
+    },
+    "en": {
+      "meaning": "Close relationships become a source of unexpected changes. Partners provoke liberation or conflict around freedom. A season of reconsidering intimacy and independence.",
+      "insight": "Relationships that don't allow growth now feel especially like a cage."
+    }
+  },
+  "Uranus_square_ASC": {
+    "ru": {
+      "meaning": "Напряжение между тем кем ты являешься и тем кем хочешь стать. Внешние обстоятельства давят на самовыражение. Перемены в образе и среде — резкие и неожиданные.",
+      "insight": "Сопротивление переменам в том как себя выражаешь сейчас дороже обходится чем принятие."
+    },
+    "en": {
+      "meaning": "Tension between who you are and who you want to become. External circumstances pressure self-expression. Changes in image and environment are sharp and unexpected.",
+      "insight": "Resisting changes in how you express yourself now costs more than accepting them."
+    }
+  },
+  "Uranus_trine_ASC": {
+    "ru": {
+      "meaning": "Обновление самовыражения идёт органично и освежает. Сезон когда оригинальность и нестандартность в образе притягивают нужных людей. Среда меняется к лучшему без драмы.",
+      "insight": "Позволь себе выглядеть и держаться иначе чем обычно — сейчас это работает."
+    },
+    "en": {
+      "meaning": "Self-expression renewal flows organically and feels refreshing. A season when originality in your image attracts the right people. Environment changes for the better without drama.",
+      "insight": "Allow yourself to look and carry yourself differently than usual — it works now."
+    }
+  },
+  "Uranus_sextile_ASC": {
+    "ru": {
+      "meaning": "Тихое обновление самовыражения через оригинальность. Возможности для освежающих перемен в образе и среде открыты. Новые знакомства через нестандартные каналы.",
+      "insight": "Небольшие изменения в том как себя подаёшь могут открыть неожиданно новые двери."
+    },
+    "en": {
+      "meaning": "A quiet renewal of self-expression through originality. Opportunities for refreshing changes in image and environment are open. New connections through unconventional channels.",
+      "insight": "Small changes in how you present yourself can open unexpectedly new doors."
+    }
+  },
+  "Uranus_conjunction_MC": {
+    "ru": {
+      "meaning": "Революция в карьере — профессиональный путь меняется радикально и неожиданно. Сезон когда старая карьерная идентичность взрывается, освобождая место для чего-то более подлинного и оригинального. Неожиданные повороты в репутации.",
+      "insight": "Карьерная нестабильность сейчас — это не провал, это запуск нового этапа."
+    },
+    "en": {
+      "meaning": "Career revolution — the professional path changes radically and unexpectedly. The old career identity explodes, making room for something more authentic and original. Unexpected reputation shifts.",
+      "insight": "Career instability now isn't failure — it's the launch of a new chapter."
+    }
+  },
+  "Uranus_opposition_MC": {
+    "ru": {
+      "meaning": "Напряжение между карьерой и домом — неожиданные перемены в одной сфере взрывают другую. Профессиональный путь требует пересмотра через изменения в корнях. Сезон нестабильности в обеих сферах.",
+      "insight": "Что нужно изменить дома чтобы карьера могла двигаться вперёд — это главный вопрос."
+    },
+    "en": {
+      "meaning": "Tension between career and home — unexpected changes in one sphere disrupt the other. Professional path needs revision through changes in roots. A season of instability in both spheres.",
+      "insight": "What needs to change at home for the career to move forward — that's the key question."
+    }
+  },
+  "Uranus_square_MC": {
+    "ru": {
+      "meaning": "Напряжение между желанием профессиональной свободы и необходимостью стабильности. Неожиданные события в карьере или репутации создают нестабильность. Период пересмотра профессионального пути.",
+      "insight": "Импульсивные карьерные решения сейчас рискованны — подожди пока буря уляжется."
+    },
+    "en": {
+      "meaning": "Tension between the desire for professional freedom and the need for stability. Unexpected career or reputation events create instability. A period of reconsidering the professional path.",
+      "insight": "Impulsive career decisions are risky now — wait for the storm to settle."
+    }
+  },
+  "Uranus_trine_MC": {
+    "ru": {
+      "meaning": "Карьерные перемены и обновление идут органично. Сезон когда оригинальность и нестандартный подход в профессии ценятся. Технологии и инновации продвигают карьеру.",
+      "insight": "Нестандартный профессиональный шаг сейчас имеет больше шансов чем традиционный."
+    },
+    "en": {
+      "meaning": "Career changes and renewal flow organically. A season when originality and unconventional approaches are valued professionally. Technology and innovation advance the career.",
+      "insight": "An unconventional professional move now has better odds than a traditional one."
+    }
+  },
+  "Uranus_sextile_MC": {
+    "ru": {
+      "meaning": "Тихое обновление карьерного пути через оригинальность. Возможности для профессиональных перемен через технологии и инновации открыты. Репутация растёт через нестандартность.",
+      "insight": "Небольшой нестандартный профессиональный шаг может открыть неожиданно интересные возможности."
+    },
+    "en": {
+      "meaning": "A quiet renewal of career path through originality. Opportunities for professional change through technology and innovation are open. Reputation grows through unconventionality.",
+      "insight": "A small unconventional professional step can open unexpectedly interesting opportunities."
+    }
+  },
+
+  "Jupiter_conjunction_Sun": {
+    "ru": {
+      "meaning": "Сезон расширения и роста идентичности — «я» становится больше, амбициознее, увереннее. Возможности открываются с необычной частотой. Риск переоценки себя или переусердствования.",
+      "insight": "Говори «да» больше чем обычно — но не забывай что за расширением следует необходимость удержать."
+    },
+    "en": {
+      "meaning": "A season of expanding identity and growth — the self becomes bigger, more ambitious, more confident. Opportunities open with unusual frequency. Risk of overestimating yourself or overdoing it.",
+      "insight": "Say 'yes' more than usual — but remember that expansion must be followed by consolidation."
+    }
+  },
+  "Jupiter_opposition_Sun": {
+    "ru": {
+      "meaning": "Рост через отношения с другими — партнёры, аудитория или обстоятельства расширяют твоё видение себя. Сезон когда внешнее признание и возможности приходят через других. Риск зависимости от чужого одобрения.",
+      "insight": "Другие сейчас — зеркало твоих возможностей. Смотри что они отражают."
+    },
+    "en": {
+      "meaning": "Growth through relationships with others — partners, audiences, or circumstances expand your self-vision. A season when external recognition and opportunities come through others. Risk of depending on others' approval.",
+      "insight": "Others are a mirror of your potential now. Pay attention to what they reflect."
+    }
+  },
+  "Jupiter_square_Sun": {
+    "ru": {
+      "meaning": "Период когда рост и расширение встречают препятствия или требуют усилий. Амбиции есть, реализация требует работы. Риск переоценки себя или разрыва между ожиданием и реальностью.",
+      "insight": "Большие планы сейчас требуют не только энтузиазма, но и конкретных шагов."
+    },
+    "en": {
+      "meaning": "A period when growth and expansion meet obstacles or require effort. Ambition is there, but execution demands work. Risk of overestimating yourself or a gap between expectations and reality.",
+      "insight": "Big plans now need not just enthusiasm but concrete steps."
+    }
+  },
+  "Jupiter_trine_Sun": {
+    "ru": {
+      "meaning": "Рост и расширение текут органично. Сезон когда уверенность, возможности и энергия выровнены. Удача и поддержка приходят относительно легко. Хорошее время для запуска.",
+      "insight": "Это окно — используй его активно. Такая поддержка будет не всегда."
+    },
+    "en": {
+      "meaning": "Growth and expansion flow organically. A season when confidence, opportunities, and energy are aligned. Luck and support come relatively easily. A good time to launch.",
+      "insight": "This is a window — use it actively. This kind of support won't last forever."
+    }
+  },
+  "Jupiter_sextile_Sun": {
+    "ru": {
+      "meaning": "Тихое расширение возможностей и уверенности. Небольшие удачи и поддержка создают импульс. Хорошее фоновое состояние для роста.",
+      "insight": "Не жди идеального момента — небольшие шаги к цели сейчас имеют попутный ветер."
+    },
+    "en": {
+      "meaning": "A quiet expansion of opportunities and confidence. Small strokes of luck and support create momentum. A good background state for growth.",
+      "insight": "Don't wait for the perfect moment — small steps toward your goal now have a tailwind."
+    }
+  },
+  "Jupiter_conjunction_Moon": {
+    "ru": {
+      "meaning": "Сезон эмоционального расширения — чувства становятся богаче, оптимизм высокий. Дом и семья могут расширяться буквально или метафорически. Интуиция и доверие к жизни на подъёме.",
+      "insight": "Позволь себе мечтать на этот период — эмоциональная почва сейчас особенно плодородна."
+    },
+    "en": {
+      "meaning": "A season of emotional expansion — feelings become richer, optimism runs high. Home and family may expand literally or metaphorically. Intuition and trust in life are on the rise.",
+      "insight": "Allow yourself to dream during this period — the emotional soil is especially fertile now."
+    }
+  },
+  "Jupiter_opposition_Moon": {
+    "ru": {
+      "meaning": "Рост через эмоциональные отношения с другими — близкие люди расширяют твой эмоциональный мир. Сезон когда семья или партнёры несут возможности роста. Риск эмоционального переизбытка.",
+      "insight": "Принимай эмоциональную поддержку от других — сейчас это путь к росту, не слабость."
+    },
+    "en": {
+      "meaning": "Growth through emotional relationships — close people expand your emotional world. A season when family or partners bring growth opportunities. Risk of emotional overflow.",
+      "insight": "Accept emotional support from others — right now it's a path to growth, not weakness."
+    }
+  },
+  "Jupiter_square_Moon": {
+    "ru": {
+      "meaning": "Период эмоционального переизбытка — чувств много, границы размываются. Оптимизм может опережать реальность в личной жизни. Риск эмоциональных решений на волне воодушевления.",
+      "insight": "Большие эмоциональные решения сейчас лучше отложить до спада волны энтузиазма."
+    },
+    "en": {
+      "meaning": "A period of emotional overflow — feelings are abundant, boundaries blur. Optimism may outpace reality in personal life. Risk of emotional decisions on a wave of enthusiasm.",
+      "insight": "Big emotional decisions are better postponed until the wave of enthusiasm subsides."
+    }
+  },
+  "Jupiter_trine_Moon": {
+    "ru": {
+      "meaning": "Эмоциональное благополучие и оптимизм текут органично. Сезон когда дом, семья и личная жизнь наполнены теплом и возможностями. Интуиция и доверие хорошо работают.",
+      "insight": "Хорошее время для важных разговоров с близкими — атмосфера располагает."
+    },
+    "en": {
+      "meaning": "Emotional well-being and optimism flow organically. A season when home, family, and personal life are filled with warmth and opportunity. Intuition and trust work well.",
+      "insight": "A good time for important conversations with loved ones — the atmosphere is right."
+    }
+  },
+  "Jupiter_sextile_Moon": {
+    "ru": {
+      "meaning": "Тихое эмоциональное расширение и оптимизм. Небольшие улучшения в личной жизни и доме создают накопительный эффект. Интуиция работает мягко но точно.",
+      "insight": "Небольшие вложения в дом и близкие отношения сейчас дают хороший отклик."
+    },
+    "en": {
+      "meaning": "A quiet emotional expansion and optimism. Small improvements in personal life and home create a cumulative effect. Intuition works softly but accurately.",
+      "insight": "Small investments in home and close relationships now yield a good response."
+    }
+  },
+  "Jupiter_conjunction_Venus": {
+    "ru": {
+      "meaning": "Сезон расширения в любви и финансах — возможности в отношениях и деньгах открываются. Притяжение к удовольствиям, красоте и изобилию высокое. Риск переизбытка или трат без контроля.",
+      "insight": "Расширяйся в любви и удовольствиях — но держи финансовую дисциплину."
+    },
+    "en": {
+      "meaning": "A season of expansion in love and finances — opportunities in relationships and money open up. Strong attraction to pleasure, beauty, and abundance. Risk of excess or uncontrolled spending.",
+      "insight": "Expand in love and pleasure — but maintain financial discipline."
+    }
+  },
+  "Jupiter_opposition_Venus": {
+    "ru": {
+      "meaning": "Рост через отношения — партнёры несут возможности и расширение. Финансовые возможности через других. Риск зависимости от партнёра или чрезмерных ожиданий от отношений.",
+      "insight": "Другие сейчас могут принести реальные возможности — будь открыт к партнёрству."
+    },
+    "en": {
+      "meaning": "Growth through relationships — partners bring opportunities and expansion. Financial opportunities through others. Risk of dependence on a partner or excessive expectations from relationships.",
+      "insight": "Others can bring real opportunities now — be open to partnership."
+    }
+  },
+  "Jupiter_square_Venus": {
+    "ru": {
+      "meaning": "Период когда желания в любви и деньгах опережают реальность. Риск переизбытка, лишних трат или нереалистичных ожиданий от отношений. Рост через трение между желанием и возможностью.",
+      "insight": "Удержи дисциплину в финансах и ожиданиях от отношений — энтузиазм опережает реальность."
+    },
+    "en": {
+      "meaning": "A period when desires in love and money outpace reality. Risk of excess, overspending, or unrealistic relationship expectations. Growth through friction between desire and possibility.",
+      "insight": "Maintain discipline in finances and relationship expectations — enthusiasm is outpacing reality."
+    }
+  },
+  "Jupiter_trine_Venus": {
+    "ru": {
+      "meaning": "Любовь и финансы текут легко и с изобилием. Сезон когда отношения и деньги поддерживают рост. Красота и удовольствие доступны без лишних усилий.",
+      "insight": "Хорошее время для инвестиций в отношения и финансового роста — поддержка есть."
+    },
+    "en": {
+      "meaning": "Love and finances flow easily and abundantly. A season when relationships and money support growth. Beauty and pleasure are accessible without extra effort.",
+      "insight": "A good time for investing in relationships and financial growth — support is there."
+    }
+  },
+  "Jupiter_sextile_Venus": {
+    "ru": {
+      "meaning": "Тихое расширение в любви и финансах. Небольшие удачи и возможности в отношениях и деньгах. Красота и приятные события как фон.",
+      "insight": "Небольшие финансовые шаги и вложения в отношения сейчас дают хороший отклик."
+    },
+    "en": {
+      "meaning": "A quiet expansion in love and finances. Small strokes of luck and opportunities in relationships and money. Beauty and pleasant events as a backdrop.",
+      "insight": "Small financial steps and investments in relationships now yield a good response."
+    }
+  },
+  "Jupiter_conjunction_Mars": {
+    "ru": {
+      "meaning": "Сезон высокой энергии и амбиций — воля и возможности выровнены. Действия масштабируются, результаты приходят быстрее. Риск переусердствования, выгорания или агрессии от избытка силы.",
+      "insight": "Энергия огромная — направь её в самые важные цели, не распыляй на всё подряд."
+    },
+    "en": {
+      "meaning": "A season of high energy and ambition — will and opportunity are aligned. Actions scale up, results come faster. Risk of overdoing it, burnout, or aggression from excess power.",
+      "insight": "The energy is enormous — channel it into your most important goals, don't scatter it everywhere."
+    }
+  },
+  "Jupiter_opposition_Mars": {
+    "ru": {
+      "meaning": "Рост через конфликт и соревнование — другие провоцируют активность и амбиции. Сезон когда конкуренция или столкновение интересов открывают возможности. Риск конфликтов от избытка напора.",
+      "insight": "Конкуренция сейчас — не враг, а катализатор. Используй её как мотивацию."
+    },
+    "en": {
+      "meaning": "Growth through conflict and competition — others provoke activity and ambition. A season when competition or clashing interests open opportunities. Risk of conflicts from excessive push.",
+      "insight": "Competition now isn't an enemy — it's a catalyst. Use it as motivation."
+    }
+  },
+  "Jupiter_square_Mars": {
+    "ru": {
+      "meaning": "Период когда энергия и амбиции опережают возможности. Риск переоценки сил, конфликтов или трат энергии впустую. Рост через трение между желанием и реальностью.",
+      "insight": "Замедлись немного — расставь приоритеты прежде чем бросаться в большой шаг."
+    },
+    "en": {
+      "meaning": "A period when energy and ambition outpace capacity. Risk of overestimating strength, conflicts, or wasting energy. Growth through friction between desire and reality.",
+      "insight": "Slow down a bit — set priorities before jumping into a big move."
+    }
+  },
+  "Jupiter_trine_Mars": {
+    "ru": {
+      "meaning": "Энергия и возможности выровнены — действия дают результат легче обычного. Сезон когда амбиции поддерживаются обстоятельствами. Хорошее время для запуска.",
+      "insight": "Запускай то что давно откладывал — сейчас ветер попутный."
+    },
+    "en": {
+      "meaning": "Energy and opportunities are aligned — actions yield results more easily than usual. A season when ambitions are supported by circumstances. A good time to launch.",
+      "insight": "Launch what you've been putting off — the wind is at your back now."
+    }
+  },
+  "Jupiter_sextile_Mars": {
+    "ru": {
+      "meaning": "Тихий подъём энергии и возможностей для действия. Небольшие шаги к целям получают поддержку. Оптимизм и воля работают вместе.",
+      "insight": "Небольшой, но смелый шаг сейчас имеет хороший шанс на успех."
+    },
+    "en": {
+      "meaning": "A quiet rise in energy and opportunities for action. Small steps toward goals receive support. Optimism and willpower work together.",
+      "insight": "A small but bold step now has a good chance of success."
+    }
+  },
+  "Jupiter_conjunction_ASC": {
+    "ru": {
+      "meaning": "Сезон расширения личного присутствия — как тебя видят другие меняется к лучшему. Оптимизм, харизма и уверенность в самовыражении высоки. Новые люди и среда приходят в жизнь.",
+      "insight": "Выходи на новую аудиторию — сейчас первое впечатление особенно сильное и позитивное."
+    },
+    "en": {
+      "meaning": "A season of expanding personal presence — how others see you changes for the better. Optimism, charisma, and confidence in self-expression are high. New people and environments enter your life.",
+      "insight": "Reach out to new audiences — first impressions are especially strong and positive now."
+    }
+  },
+  "Jupiter_opposition_ASC": {
+    "ru": {
+      "meaning": "Рост через близкие отношения — партнёры расширяют твой мир и открывают возможности. Сезон когда важные связи приходят через других. Публичное признание через партнёрство.",
+      "insight": "Ищи возможности через партнёрство и коллаборации — сейчас это твой главный путь роста."
+    },
+    "en": {
+      "meaning": "Growth through close relationships — partners expand your world and open opportunities. A season when important connections come through others. Public recognition through partnership.",
+      "insight": "Look for opportunities through partnerships and collaborations — that's your main growth path now."
+    }
+  },
+  "Jupiter_square_ASC": {
+    "ru": {
+      "meaning": "Период когда амбиции в самопрезентации опережают реальность. Риск переоценки своего влияния или слишком громких заявлений. Рост через трение между желаемым образом и реальным.",
+      "insight": "Будь собой вместо того чтобы казаться больше — аутентичность сейчас эффективнее."
+    },
+    "en": {
+      "meaning": "A period when self-presentation ambitions outpace reality. Risk of overestimating your influence or making too-bold claims. Growth through friction between desired and actual image.",
+      "insight": "Be yourself instead of trying to appear bigger — authenticity is more effective now."
+    }
+  },
+  "Jupiter_trine_ASC": {
+    "ru": {
+      "meaning": "Самовыражение и рост личного присутствия идут органично. Сезон когда харизма и оптимизм притягивают нужных людей и возможности. Среда поддерживает.",
+      "insight": "Позволь себе быть заметным — сейчас это работает в твою пользу."
+    },
+    "en": {
+      "meaning": "Self-expression and personal presence growth flow organically. A season when charisma and optimism attract the right people and opportunities. The environment is supportive.",
+      "insight": "Allow yourself to be noticed — it works in your favor right now."
+    }
+  },
+  "Jupiter_sextile_ASC": {
+    "ru": {
+      "meaning": "Тихое расширение личного присутствия и круга общения. Небольшие шаги к новым знакомствам и среде дают хороший отклик. Оптимизм в самовыражении.",
+      "insight": "Небольшие шаги к расширению среды и знакомств сейчас дают хороший результат."
+    },
+    "en": {
+      "meaning": "A quiet expansion of personal presence and social circle. Small steps toward new connections and environments yield good responses. Optimism in self-expression.",
+      "insight": "Small steps to expand your environment and network now give good results."
+    }
+  },
+  "Jupiter_conjunction_MC": {
+    "ru": {
+      "meaning": "Сезон карьерного расширения и роста — профессиональные возможности открываются масштабно. Репутация и видимость растут. Хорошее время для запуска, продвижения и публичных шагов.",
+      "insight": "Сейчас — один из лучших периодов для карьерных запусков и публичных шагов. Не жди."
+    },
+    "en": {
+      "meaning": "A season of career expansion and growth — professional opportunities open at scale. Reputation and visibility grow. A great time for launches, promotions, and public moves.",
+      "insight": "This is one of the best periods for career launches and public steps. Don't wait."
+    }
+  },
+  "Jupiter_opposition_MC": {
+    "ru": {
+      "meaning": "Рост через баланс между карьерой и домом. Возможности приходят через частную жизнь и корни. Сезон когда семья или прошлый опыт открывают профессиональные двери.",
+      "insight": "Что происходит дома сейчас напрямую влияет на карьеру — инвестируй в оба."
+    },
+    "en": {
+      "meaning": "Growth through balancing career and home. Opportunities come through private life and roots. A season when family or past experience opens professional doors.",
+      "insight": "What happens at home now directly affects career — invest in both."
+    }
+  },
+  "Jupiter_square_MC": {
+    "ru": {
+      "meaning": "Период когда карьерные амбиции опережают реальные возможности. Риск переоценки профессионального положения или слишком быстрого роста. Рост через трение.",
+      "insight": "Убедись что фундамент достаточно крепкий прежде чем строить выше."
+    },
+    "en": {
+      "meaning": "A period when career ambitions outpace real capacity. Risk of overestimating professional standing or growing too fast. Growth through friction.",
+      "insight": "Make sure the foundation is strong enough before building higher."
+    }
+  },
+  "Jupiter_trine_MC": {
+    "ru": {
+      "meaning": "Карьерный рост идёт органично и с поддержкой. Сезон когда профессиональные возможности открываются легко. Репутация и видимость растут без лишних усилий.",
+      "insight": "Хорошее время для карьерных шагов которые давно планировал — поддержка есть."
+    },
+    "en": {
+      "meaning": "Career growth flows organically with support. A season when professional opportunities open easily. Reputation and visibility grow without extra effort.",
+      "insight": "A good time for career moves you've been planning — the support is there."
+    }
+  },
+  "Jupiter_sextile_MC": {
+    "ru": {
+      "meaning": "Тихое расширение карьерных возможностей. Небольшие профессиональные шаги получают поддержку. Репутация растёт органично.",
+      "insight": "Небольшой, но конкретный профессиональный шаг сейчас имеет хороший шанс на успех."
+    },
+    "en": {
+      "meaning": "A quiet expansion of career opportunities. Small professional steps receive support. Reputation grows organically.",
+      "insight": "A small but concrete professional step now has a good chance of success."
+    }
+  }
+}

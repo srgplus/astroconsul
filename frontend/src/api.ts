@@ -69,6 +69,7 @@ export async function fetchTransitReport(
     latitude?: number | null
     longitude?: number | null
     include_timing?: boolean
+    lang?: string
   },
   signal?: AbortSignal,
 ): Promise<TransitReportResponse> {
@@ -76,7 +77,7 @@ export async function fetchTransitReport(
   return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/transits/report`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...auth },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ lang: body.lang || localStorage.getItem("lang") || "ru", ...body }),
     signal,
   }).then(json<TransitReportResponse>)
 }

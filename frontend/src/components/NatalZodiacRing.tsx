@@ -1,4 +1,5 @@
 import { useId, useState } from "react"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type PlanetMarker = {
   id: string
@@ -237,7 +238,7 @@ function coerceHouseValues(houses: Array<number | string> | null | undefined): n
 
 // --- Localization-ready label maps (English default, Russian prepared) ---
 type Locale = "en" | "ru"
-const LOCALE: Locale = "en" // switch to "ru" later
+// LOCALE is now dynamic — read from useLanguage() hook inside the component
 
 const ASPECT_LABELS: Record<Locale, Record<string, string>> = {
   en: { conjunction: "Conjunction", opposition: "Opposition", square: "Square", trine: "Trine", sextile: "Sextile" },
@@ -293,13 +294,13 @@ function formatOrbDMS(orb: number): string {
   return `${deg}°${String(min).padStart(2, "0")}'${String(sec).padStart(2, "0")}"`
 }
 
-function t_aspect(key: string): string { return ASPECT_LABELS[LOCALE][key] ?? key }
-function t_sign(key: string): string { return SIGN_LABELS[LOCALE][key] ?? key }
-function t_axis(key: string): string { return AXIS_LABELS[LOCALE][key] ?? key }
-function t_house(): string { return HOUSE_LABEL[LOCALE] }
+function t_aspect(key: string, locale: Locale): string { return ASPECT_LABELS[locale][key] ?? key }
+function t_sign(key: string, locale: Locale): string { return SIGN_LABELS[locale][key] ?? key }
+function t_axis(key: string, locale: Locale): string { return AXIS_LABELS[locale][key] ?? key }
+function t_house(locale: Locale): string { return HOUSE_LABEL[locale] }
 
 /** Build tooltip label for a planet: "Venus 12°15'30" ♓ Pisces · House 5" */
-function planetTooltipLabel(id: string, longitude: number, houseValues: number[]): string {
+function planetTooltipLabel(id: string, longitude: number, houseValues: number[], locale: Locale): string {
   const signIndex = Math.floor((longitude % 360) / 30)
   const signKey = SIGNS[signIndex] ?? "ARIES"
   const posInSign = longitude % 30
@@ -322,8 +323,8 @@ function planetTooltipLabel(id: string, longitude: number, houseValues: number[]
     }
   }
 
-  const housePart = houseNum > 0 ? ` · ${t_house()} ${houseNum}` : ""
-  return `${id} ${posDMS} ${glyph} ${t_sign(signKey)}${housePart}`
+  const housePart = houseNum > 0 ? ` · ${t_house(locale)} ${houseNum}` : ""
+  return `${id} ${posDMS} ${glyph} ${t_sign(signKey, locale)}${housePart}`
 }
 
 const ASPECT_LINE_STYLES: Record<string, { dash: string; width: number; opacity: number; color: string; glyph: string }> = {
@@ -346,6 +347,8 @@ export function NatalZodiacRing({
   theme = "light",
   className,
 }: NatalZodiacRingProps) {
+  const { lang } = useLanguage()
+  const locale: Locale = lang === "ru" ? "ru" : "en"
   const idBase = useId().replace(/:/g, "")
   const [tooltip, setTooltip] = useState<{ label: string; x: number; y: number } | null>(null)
   const ringSize = Math.max(size, 240)
@@ -588,7 +591,7 @@ export function NatalZodiacRing({
         const midAngle = (startAngle + endAngle) / 2
         const midPoint = polar(center, zodiacLabelRadius, midAngle)
         const el = SIGN_ELEMENTS[sign]
-        const signLabel = `${SIGN_GLYPHS[sign] ?? ""} ${t_sign(sign)} — ${el?.[LOCALE] ?? ""}`
+        const signLabel = `${SIGN_GLYPHS[sign] ?? ""} ${t_sign(sign, locale)} — ${el?.[locale] ?? ""}`
         return (
           <g key={sign}>
             <path
@@ -604,7 +607,7 @@ export function NatalZodiacRing({
                 startOffset="50%"
                 textAnchor="middle"
               >
-                {sign}
+                {t_sign(sign, locale).toUpperCase()}
               </textPath>
             </text>
           </g>
@@ -747,7 +750,7 @@ export function NatalZodiacRing({
                   <g
                     key={`transit-glyph-${planet.id}`}
                     className="natal-zodiac-ring__glyph-hover"
-                    onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues), x: glyphPoint.x, y: glyphPoint.y })}
+                    onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues, locale), x: glyphPoint.x, y: glyphPoint.y })}
                     onMouseLeave={() => setTooltip(null)}
                   >
                     <text
@@ -776,7 +779,7 @@ export function NatalZodiacRing({
         const signIndex = Math.floor((houseLongitude % 360) / 30)
         const signKey = SIGNS[signIndex] ?? "ARIES"
         const cuspDMS = formatOrbDMS(houseLongitude % 30)
-        const houseLabel = `${t_house()} ${index + 1} (${cuspDMS}) ${SIGN_GLYPHS[signKey] ?? ""} ${t_sign(signKey)}`
+        const houseLabel = `${t_house(locale)} ${index + 1} (${cuspDMS}) ${SIGN_GLYPHS[signKey] ?? ""} ${t_sign(signKey, locale)}`
         return (
           <text
             key={`house-label-${index + 1}`}
@@ -828,7 +831,7 @@ export function NatalZodiacRing({
               <g
                 key={`planet-glyph-${planet.id}`}
                 className="natal-zodiac-ring__glyph-hover"
-                onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues), x: glyphPoint.x, y: glyphPoint.y })}
+                onMouseEnter={() => setTooltip({ label: planetTooltipLabel(planet.id, planet.longitude, houseValues, locale), x: glyphPoint.x, y: glyphPoint.y })}
                 onMouseLeave={() => setTooltip(null)}
               >
                 <text
@@ -856,7 +859,7 @@ export function NatalZodiacRing({
       ].map(({ marker, longitude, label, hasArrow }) => {
         if (!marker || longitude === null) return null
         const lp = axisLabelPoint(longitude)
-        const axisTooltipLabel = `${label} — ${t_axis(label)} (${longitude.toFixed(1)}°)`
+        const axisTooltipLabel = `${label} — ${t_axis(label, locale)} (${longitude.toFixed(1)}°)`
         return (
           <g key={label}>
             {/* Invisible wide hit area for axis line */}
@@ -917,7 +920,7 @@ export function NatalZodiacRing({
             const p2 = polar(center, band2Inner - notchLen, angle2)
 
             const style = ASPECT_LINE_STYLES[a.aspect] ?? ASPECT_LINE_STYLES.sextile!
-            const aspectLabel = `${t_aspect(a.aspect)} ${a.p1} - ${a.p2} <${formatOrbDMS(a.orb)}>`
+            const aspectLabel = `${t_aspect(a.aspect, locale)} ${a.p1} - ${a.p2} <${formatOrbDMS(a.orb)}>`
             const midX = (p1.x + p2.x) / 2
             const midY = (p1.y + p2.y) / 2
 
@@ -1021,7 +1024,7 @@ export function NatalZodiacRing({
               : polar(center, nBandInner - notchLen, natalAngle)     // transit is inward → inner tick
 
             const style = ASPECT_LINE_STYLES[a.aspect] ?? ASPECT_LINE_STYLES.sextile!
-            const aspectLabel = `${t_aspect(a.aspect)} ${a.transit_object} - ${a.natal_object} <${formatOrbDMS(a.orb)}>`
+            const aspectLabel = `${t_aspect(a.aspect, locale)} ${a.transit_object} - ${a.natal_object} <${formatOrbDMS(a.orb)}>`
             const midX = (p1.x + p2.x) / 2
             const midY = (p1.y + p2.y) / 2
 

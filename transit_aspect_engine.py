@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from aspect_engine import ASPECTS, angular_delta
+from app.data.transit_aspects_lookup import get_aspect_description
 
 
 def detect_transit_aspect(
@@ -45,6 +46,8 @@ def compute_transit_to_natal_aspects(
     transit_objects: list[dict[str, object]],
     natal_planets: dict[str, float],
     natal_angles: dict[str, float],
+    *,
+    lang: str = "en",
 ) -> list[dict[str, object]]:
     aspects: list[dict[str, object]] = []
     natal_objects = list(natal_planets.items()) + [
@@ -61,6 +64,12 @@ def compute_transit_to_natal_aspects(
             if match is None:
                 continue
 
+            desc = get_aspect_description(
+                str(transit_object["id"]),
+                str(match["aspect"]),
+                natal_object,
+                lang=lang,
+            )
             aspects.append(
                 {
                     "transit_object": transit_object["id"],
@@ -71,6 +80,9 @@ def compute_transit_to_natal_aspects(
                     "orb": match["orb"],
                     "is_within_orb": match["is_within_orb"],
                     "strength": aspect_strength(float(match["orb"])),
+                    "meaning": desc["meaning"],
+                    "action": desc["action"],
+                    "keywords": desc["keywords"],
                 }
             )
 

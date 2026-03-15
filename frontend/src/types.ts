@@ -138,6 +138,10 @@ export type ActiveAspect = {
   is_within_orb: boolean
   strength: string
   timing: AspectTiming | null
+  meaning: string | null
+  action: string | null
+  insight: string | null
+  keywords: string[] | null
 }
 
 export type TopTransit = {
@@ -159,6 +163,7 @@ export type TransitReportResponse = {
   tension_ratio: number | null
   feels_like: string | null
   top_transits: TopTransit[] | null
+  cosmic_climate: ActiveAspect[] | null
 }
 
 export type TimelineItem = {

@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useLanguage } from "../contexts/LanguageContext"
 
 function Collapsible({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -45,171 +46,173 @@ function ZoneSection({ zone, range, color, desc, items }: {
   )
 }
 
-const ZONES = [
-  {
-    zone: "Quiet Zone",
-    range: "0\u201325\u00B0",
-    color: "#4A90D9",
-    desc: "Low planetary activity. Few or weak aspects to your natal chart.",
-    items: [
-      {
-        emoji: "\u2601\uFE0F",
-        label: "Calm",
-        tension: "tension <30%",
-        text: "Quiet day with gentle energy. Good for rest, reflection, routine tasks. Nothing demanding your attention cosmically.",
-      },
-      {
-        emoji: "\u{1F32B}\uFE0F",
-        label: "Subtle pressure",
-        tension: "tension 30\u201360%",
-        text: "Outwardly quiet but something feels slightly off. Minor friction beneath the surface. Pay attention to small signals.",
-      },
-      {
-        emoji: "\u26CF",
-        label: "Grinding",
-        tension: "tension >60%",
-        text: "Low energy but what\u2019s there is heavy. Like walking through mud. Not many events, but they feel difficult. Take it slow.",
-      },
-    ],
-  },
-  {
-    zone: "Active Zone",
-    range: "25\u201355\u00B0",
-    color: "#5DCAA5",
-    desc: "Moderate planetary activity. Several aspects engaging your chart.",
-    items: [
-      {
-        emoji: "\u2600\uFE0F",
-        label: "Flowing",
-        tension: "tension <30%",
-        text: "Good active day. Energy moves smoothly. Ideas come easily, interactions feel natural. Best day type for creative work and socializing.",
-      },
-      {
-        emoji: "\u26A1",
-        label: "Dynamic",
-        tension: "tension 30\u201360%",
-        text: "Busy, stimulating day with a mix of support and challenge. Things are happening. Stay flexible and respond to opportunities.",
-      },
-      {
-        emoji: "\u{1FAA8}",
-        label: "Pressured",
-        tension: "tension >60%",
-        text: "Active day but everything feels heavy. Like a workout \u2014 productive but demanding. Pace yourself, prioritize what matters.",
-      },
-    ],
-  },
-  {
-    zone: "Hot Zone",
-    range: "55\u201380\u00B0",
-    color: "#E8651A",
-    desc: "High planetary activity. Multiple significant aspects, some exact.",
-    items: [
-      {
-        emoji: "\u{1F305}",
-        label: "Expansive",
-        tension: "tension <30%",
-        text: "Big energy day with doors opening. Opportunities arrive naturally. Good for launches, big conversations, bold moves. Say yes.",
-      },
-      {
-        emoji: "\u26C8\uFE0F",
-        label: "Charged",
-        tension: "tension 30\u201360%",
-        text: "Intense energy building up. Like a storm gathering \u2014 powerful but unpredictable. Important decisions may arise. Stay centered.",
-      },
-      {
-        emoji: "\u{1F525}",
-        label: "Intense",
-        tension: "tension >60%",
-        text: "Hot day with strong pressure. Conflicts and breakthroughs both possible. Emotions run high. Channel the energy, don\u2019t let it control you.",
-      },
-    ],
-  },
-  {
-    zone: "Extreme Zone",
-    range: "80\u2013100\u00B0",
-    color: "#E24B4A",
-    desc: "Rare. Multiple exact aspects including outer planets. Happens a few times per year.",
-    items: [
-      {
-        emoji: "\u{1F680}",
-        label: "Powerful",
-        tension: "tension <30%",
-        text: "Maximum energy with minimal friction. Rare launch window. Whatever you start today has enormous momentum behind it.",
-      },
-      {
-        emoji: "\u2694\uFE0F",
-        label: "Volatile",
-        tension: "tension 30\u201360%",
-        text: "Extreme energy, unpredictable direction. Major shifts possible. Stay alert, avoid impulsive decisions. Big things are moving.",
-      },
-      {
-        emoji: "\u{1F4A5}",
-        label: "Explosive",
-        tension: "tension >60%",
-        text: "Maximum intensity, maximum pressure. Life-changing moments. Everything amplified. Not good or bad \u2014 just very, very powerful.",
-      },
-    ],
-  },
-] as const
+function buildZones(t: (key: string) => string) {
+  return [
+    {
+      zone: t("guide.zoneQuiet"),
+      range: t("guide.zoneQuietRange"),
+      color: "#4A90D9",
+      desc: t("guide.zoneQuietDesc"),
+      items: [
+        {
+          emoji: "\u2601\uFE0F",
+          label: t("guide.feelsCalmLabel"),
+          tension: t("guide.feelsCalmTension"),
+          text: t("guide.feelsCalmQuiet"),
+        },
+        {
+          emoji: "\u{1F32B}\uFE0F",
+          label: t("guide.feelsSubtleLabel"),
+          tension: t("guide.feelsSubtleTension"),
+          text: t("guide.feelsSubtleQuiet"),
+        },
+        {
+          emoji: "\u26CF",
+          label: t("guide.feelsGrindingLabel"),
+          tension: t("guide.feelsGrindingTension"),
+          text: t("guide.feelsGrindingQuiet"),
+        },
+      ],
+    },
+    {
+      zone: t("guide.zoneActive"),
+      range: t("guide.zoneActiveRange"),
+      color: "#5DCAA5",
+      desc: t("guide.zoneActiveDesc"),
+      items: [
+        {
+          emoji: "\u2600\uFE0F",
+          label: t("guide.feelsFlowingLabel"),
+          tension: t("guide.feelsFlowingTension"),
+          text: t("guide.feelsFlowingActive"),
+        },
+        {
+          emoji: "\u26A1",
+          label: t("guide.feelsDynamicLabel"),
+          tension: t("guide.feelsDynamicTension"),
+          text: t("guide.feelsDynamicActive"),
+        },
+        {
+          emoji: "\u{1FAA8}",
+          label: t("guide.feelsPressuredLabel"),
+          tension: t("guide.feelsPressuredTension"),
+          text: t("guide.feelsPressuredActive"),
+        },
+      ],
+    },
+    {
+      zone: t("guide.zoneHot"),
+      range: t("guide.zoneHotRange"),
+      color: "#E8651A",
+      desc: t("guide.zoneHotDesc"),
+      items: [
+        {
+          emoji: "\u{1F305}",
+          label: t("guide.feelsExpansiveLabel"),
+          tension: t("guide.feelsExpansiveTension"),
+          text: t("guide.feelsExpansiveHot"),
+        },
+        {
+          emoji: "\u26C8\uFE0F",
+          label: t("guide.feelsChargedLabel"),
+          tension: t("guide.feelsChargedTension"),
+          text: t("guide.feelsChargedHot"),
+        },
+        {
+          emoji: "\u{1F525}",
+          label: t("guide.feelsIntenseLabel"),
+          tension: t("guide.feelsIntenseTension"),
+          text: t("guide.feelsIntenseHot"),
+        },
+      ],
+    },
+    {
+      zone: t("guide.zoneExtreme"),
+      range: t("guide.zoneExtremeRange"),
+      color: "#E24B4A",
+      desc: t("guide.zoneExtremeDesc"),
+      items: [
+        {
+          emoji: "\u{1F680}",
+          label: t("guide.feelsPowerfulLabel"),
+          tension: t("guide.feelsPowerfulTension"),
+          text: t("guide.feelsPowerfulExtreme"),
+        },
+        {
+          emoji: "\u2694\uFE0F",
+          label: t("guide.feelsVolatileLabel"),
+          tension: t("guide.feelsVolatileTension"),
+          text: t("guide.feelsVolatileExtreme"),
+        },
+        {
+          emoji: "\u{1F4A5}",
+          label: t("guide.feelsExplosiveLabel"),
+          tension: t("guide.feelsExplosiveTension"),
+          text: t("guide.feelsExplosiveExtreme"),
+        },
+      ],
+    },
+  ]
+}
 
 export function TiiGuide({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage()
+  const zones = buildZones(t)
+
   return (
     <div className="settings-overlay" onClick={onClose}>
       <div className="guide-popup" onClick={(e) => e.stopPropagation()}>
         <div className="settings-popup-head">
-          <h3>How It Works</h3>
+          <h3>{t("guide.title")}</h3>
           <button type="button" className="settings-close" onClick={onClose}>&times;</button>
         </div>
         <div className="guide-body">
 
           {/* --- What is TII --- */}
           <section className="guide-section">
-            <h4 className="guide-section__title">What is TII?</h4>
+            <h4 className="guide-section__title">{t("guide.whatIsTii")}</h4>
             <p className="guide-text" style={{ fontSize: 13, color: "var(--muted)", marginBottom: 4 }}>
-              TII &mdash; <strong style={{ color: "var(--ink)" }}>Transit Influence Index</strong>
+              TII &mdash; <strong style={{ color: "var(--ink)" }}>{t("guide.tiiFull")}</strong>
             </p>
             <p className="guide-text">
-              TII measures how much planetary activity is affecting your natal chart right now.
-              Think of it as a thermometer for cosmic weather &mdash; higher number means more is happening.
+              {t("guide.tiiDesc")}
             </p>
             <p className="guide-text guide-text--muted">
-              It&rsquo;s calculated from real astronomical data: the positions of planets, the angles
-              between them, and how precisely they align with your birth chart.
+              {t("guide.tiiCalcDesc")}
             </p>
-            <Collapsible title="How it's calculated" defaultOpen={false}>
-              <pre className="guide-formula">{`TII = \u03A3 (aspect_weight \u00D7 orb_score \u00D7 planet_factor \u00D7 exactness_bonus)`}</pre>
+            <Collapsible title={t("guide.howCalc")} defaultOpen={false}>
+              <pre className="guide-formula">{t("guide.formula")}</pre>
               <div className="guide-detail-list">
-                <div><strong>Aspect weight</strong> &mdash; conjunction = 10, opposition = 8, square = 7, trine = 6, sextile = 5</div>
-                <div><strong>Orb score</strong> &mdash; min(10, 1/(orb + 0.1)) &mdash; tighter aspect = higher score</div>
-                <div><strong>Planet factor</strong> &mdash; Moon = 0.5, Sun&ndash;Mars = 1.0, Jupiter&ndash;Saturn = 1.3, Uranus&ndash;Pluto = 1.5</div>
-                <div><strong>Exactness</strong> &mdash; partile (&lt;0.1&deg;) = +50%, exact (&lt;1&deg;) = +20%</div>
+                <div><strong>{t("guide.aspectWeight")}</strong> &mdash; {t("guide.aspectWeightDesc")}</div>
+                <div><strong>{t("guide.orbScore")}</strong> &mdash; {t("guide.orbScoreDesc")}</div>
+                <div><strong>{t("guide.planetFactor")}</strong> &mdash; {t("guide.planetFactorDesc")}</div>
+                <div><strong>{t("guide.exactness")}</strong> &mdash; {t("guide.exactnessDesc")}</div>
               </div>
               <p className="guide-text guide-text--muted" style={{ marginTop: 10 }}>
-                Every number in TII can be traced back to actual planetary positions verified by NASA JPL ephemeris data.
+                {t("guide.nasaNote")}
               </p>
             </Collapsible>
-            <Collapsible title="What's included" defaultOpen={false}>
+            <Collapsible title={t("guide.whatsIncluded")} defaultOpen={false}>
               <div className="guide-detail-list">
                 <div>
-                  <strong>Transit planets (10)</strong> &mdash;{" "}
-                  {"\u2609"} Sun, {"\u263D"} Moon, {"\u263F"} Mercury, {"\u2640"} Venus, {"\u2642"} Mars,{" "}
-                  {"\u2643"} Jupiter, {"\u2644"} Saturn, {"\u2645"} Uranus, {"\u2646"} Neptune, {"\u2647"} Pluto
+                  <strong>{t("guide.transitPlanets")}</strong> &mdash;{" "}
+                  {"\u2609"} {t("planet.Sun")}, {"\u263D"} {t("planet.Moon")}, {"\u263F"} {t("planet.Mercury")}, {"\u2640"} {t("planet.Venus")}, {"\u2642"} {t("planet.Mars")},{" "}
+                  {"\u2643"} {t("planet.Jupiter")}, {"\u2644"} {t("planet.Saturn")}, {"\u2645"} {t("planet.Uranus")}, {"\u2646"} {t("planet.Neptune")}, {"\u2647"} {t("planet.Pluto")}
                 </div>
                 <div>
-                  <strong>Natal points (12)</strong> &mdash; Same 10 planets + ASC + MC
+                  <strong>{t("guide.natalPoints")}</strong> &mdash; {t("guide.natalPointsDesc")}
                 </div>
                 <div>
-                  <strong>Aspects (5)</strong> &mdash;{" "}
-                  {"\u260C"} Conjunction (8&deg;), {"\u260D"} Opposition (8&deg;),{" "}
-                  {"\u25A1"} Square (6&deg;), {"\u25B3"} Trine (6&deg;), {"\u2731"} Sextile (4&deg;)
+                  <strong>{t("guide.aspectsCount")}</strong> &mdash;{" "}
+                  {"\u260C"} {t("guide.conjunctionName")}, {"\u260D"} {t("guide.oppositionName")},{" "}
+                  {"\u25A1"} {t("guide.squareName")}, {"\u25B3"} {t("guide.trineName")}, {"\u2731"} {t("guide.sextileName")}
                 </div>
                 <div>
-                  <strong>Planet weights</strong> &mdash;{" "}
-                  Outer planets (Uranus&ndash;Pluto) count 1.5&times; more &mdash; slower and rarer.{" "}
-                  Jupiter &amp; Saturn = 1.3&times;. Moon = 0.5&times; (moves fast, changes daily).
+                  <strong>{t("guide.planetWeights")}</strong> &mdash;{" "}
+                  {t("guide.planetWeightsDesc")}
                 </div>
                 <div style={{ marginTop: 8, color: "var(--muted)", fontSize: 12 }}>
-                  <strong>Not included:</strong> Chiron, Lilith, Selena, Nodes, Part of Fortune, Vertex, DC, IC
+                  <strong>{t("guide.notIncluded")}</strong> {t("guide.notIncludedList")}
                 </div>
               </div>
             </Collapsible>
@@ -217,32 +220,30 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
 
           {/* --- What is Tension --- */}
           <section className="guide-section">
-            <h4 className="guide-section__title">What is Tension?</h4>
+            <h4 className="guide-section__title">{t("guide.whatIsTension")}</h4>
             <p className="guide-text">
-              Tension shows the balance between challenging aspects (squares &#x25A1; and oppositions &#x260D;)
-              and supportive aspects (trines &#x25B3; and sextiles &#x26B9;). High tension doesn&rsquo;t mean bad &mdash;
-              it means more friction and pressure, which can drive action and breakthroughs.
+              {t("guide.tensionDesc")}
             </p>
             <div className="guide-tension-scale">
               <div className="guide-tension-row">
                 <span className="guide-tension-bar" style={{ background: "#5DCAA5" }} />
                 <div>
-                  <strong>Low (0&ndash;30%)</strong>
-                  <span className="guide-text--muted"> &mdash; Mostly supportive aspects. Energy flows easily.</span>
+                  <strong>{t("guide.tensionLow")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.tensionLowDesc")}</span>
                 </div>
               </div>
               <div className="guide-tension-row">
                 <span className="guide-tension-bar" style={{ background: "#E8A535" }} />
                 <div>
-                  <strong>Mixed (30&ndash;60%)</strong>
-                  <span className="guide-text--muted"> &mdash; Balance of challenge and support. Dynamic day.</span>
+                  <strong>{t("guide.tensionMixed")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.tensionMixedDesc")}</span>
                 </div>
               </div>
               <div className="guide-tension-row">
                 <span className="guide-tension-bar" style={{ background: "#E24B4A" }} />
                 <div>
-                  <strong>High (60&ndash;100%)</strong>
-                  <span className="guide-text--muted"> &mdash; Dominated by challenging aspects. High pressure, high potential.</span>
+                  <strong>{t("guide.tensionHigh")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.tensionHighDesc")}</span>
                 </div>
               </div>
             </div>
@@ -250,21 +251,19 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
 
           {/* --- What is Feels Like --- */}
           <section className="guide-section">
-            <h4 className="guide-section__title">What does Feels Like mean?</h4>
+            <h4 className="guide-section__title">{t("guide.whatIsFeels")}</h4>
             <p className="guide-text">
-              Just like weather has a &ldquo;Feels Like&rdquo; temperature (actual temp adjusted for wind chill),
-              we combine TII with Tension to describe how the day actually feels.
-              Same intensity can feel very different depending on whether the energy is flowing or pressured.
+              {t("guide.feelsDesc")}
             </p>
           </section>
 
           {/* --- Intensity Zones --- */}
           <section className="guide-section">
-            <h4 className="guide-section__title">Intensity Zones</h4>
+            <h4 className="guide-section__title">{t("guide.intensityZones")}</h4>
             <p className="guide-text guide-text--muted" style={{ marginBottom: 12 }}>
-              4 zones &times; 3 tension levels = 12 unique states. Tap a zone to see details.
+              {t("guide.zonesSubtitle")}
             </p>
-            {ZONES.map((z) => (
+            {zones.map((z) => (
               <ZoneSection key={z.zone} {...z} />
             ))}
           </section>
@@ -272,20 +271,20 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
           {/* ===== Reference Guide ===== */}
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Planets &mdash; what each one governs</h4>
-            <Collapsible title="Major planets">
+            <h4 className="guide-section__title">{t("guide.planetsTitle")}</h4>
+            <Collapsible title={t("guide.majorPlanets")}>
               <div className="ref-list">
                 {([
-                  ["\u2609", "Sun", "Your core identity, ego, vitality. What drives you."],
-                  ["\u263D", "Moon", "Emotions, instincts, inner world. How you feel."],
-                  ["\u263F", "Mercury", "Communication, thinking, learning. How you process information."],
-                  ["\u2640", "Venus", "Love, beauty, values, money. What you attract."],
-                  ["\u2642", "Mars", "Action, drive, ambition, anger. How you pursue goals."],
-                  ["\u2643", "Jupiter", "Growth, luck, expansion, wisdom. Where life opens up."],
-                  ["\u2644", "Saturn", "Structure, discipline, limits, lessons. Where you must earn it."],
-                  ["\u2645", "Uranus", "Change, rebellion, innovation, surprises. Where you break free."],
-                  ["\u2646", "Neptune", "Dreams, intuition, illusion, spirituality. Where boundaries dissolve."],
-                  ["\u2647", "Pluto", "Transformation, power, death/rebirth. Where you evolve deeply."],
+                  ["\u2609", t("planet.Sun"), t("guide.sunDesc")],
+                  ["\u263D", t("planet.Moon"), t("guide.moonDesc")],
+                  ["\u263F", t("planet.Mercury"), t("guide.mercuryDesc")],
+                  ["\u2640", t("planet.Venus"), t("guide.venusDesc")],
+                  ["\u2642", t("planet.Mars"), t("guide.marsDesc")],
+                  ["\u2643", t("planet.Jupiter"), t("guide.jupiterDesc")],
+                  ["\u2644", t("planet.Saturn"), t("guide.saturnDesc")],
+                  ["\u2645", t("planet.Uranus"), t("guide.uranusDesc")],
+                  ["\u2646", t("planet.Neptune"), t("guide.neptuneDesc")],
+                  ["\u2647", t("planet.Pluto"), t("guide.plutoDesc")],
                 ] as const).map(([glyph, name, desc]) => (
                   <div key={name} className="ref-item">
                     <span className="ref-glyph">{glyph}</span>
@@ -297,16 +296,16 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             </Collapsible>
-            <Collapsible title="Other points">
+            <Collapsible title={t("guide.otherPoints")}>
               <div className="ref-list">
                 {([
-                  ["\u260A", "North Node", "Your karmic direction. Where you\u2019re growing toward."],
-                  ["\u260B", "South Node", "Your karmic past. What you\u2019re releasing."],
-                  ["\u26B7", "Chiron", "Your deepest wound and healing gift."],
-                  ["\u26B8", "Lilith", "Your shadow side. Suppressed power."],
-                  ["\u2297", "Part of Fortune", "Where luck and talent naturally flow."],
-                  ["\u22C1", "Vertex", "Fated encounters. Points of destiny."],
-                  ["\u263E", "Selena", "(White Moon) Your guardian angel point."],
+                  ["\u260A", t("planet.North Node"), t("guide.northNodeDesc")],
+                  ["\u260B", t("planet.South Node"), t("guide.southNodeDesc")],
+                  ["\u26B7", t("planet.Chiron"), t("guide.chironDesc")],
+                  ["\u26B8", t("planet.Lilith"), t("guide.lilithDesc")],
+                  ["\u2297", t("planet.Part of Fortune"), t("guide.pofDesc")],
+                  ["\u22C1", t("planet.Vertex"), t("guide.vertexDesc")],
+                  ["\u263E", "Selena", t("guide.selenaDesc")],
                 ] as const).map(([glyph, name, desc]) => (
                   <div key={name} className="ref-item">
                     <span className="ref-glyph">{glyph}</span>
@@ -321,32 +320,32 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
           </section>
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Zodiac Signs &mdash; 12 archetypes of energy</h4>
+            <h4 className="guide-section__title">{t("guide.signsTitle")}</h4>
             <p className="guide-text guide-text--muted" style={{ marginBottom: 10 }}>
-              Each sign has an element (Fire/Earth/Air/Water) and quality (Cardinal/Fixed/Mutable).
+              {t("guide.signsSubtitle")}
             </p>
-            <Collapsible title="All 12 signs">
+            <Collapsible title={t("guide.allSigns")}>
               <div className="ref-list">
                 {([
-                  ["\u2648", "Aries", "Fire", "Cardinal", "Initiator. Bold, direct, competitive.", "I act."],
-                  ["\u2649", "Taurus", "Earth", "Fixed", "Builder. Patient, sensual, stubborn.", "I have."],
-                  ["\u264A", "Gemini", "Air", "Mutable", "Communicator. Curious, adaptable, restless.", "I think."],
-                  ["\u264B", "Cancer", "Water", "Cardinal", "Nurturer. Emotional, protective, intuitive.", "I feel."],
-                  ["\u264C", "Leo", "Fire", "Fixed", "Creator. Confident, dramatic, generous.", "I shine."],
-                  ["\u264D", "Virgo", "Earth", "Mutable", "Analyst. Practical, precise, helpful.", "I improve."],
-                  ["\u264E", "Libra", "Air", "Cardinal", "Diplomat. Harmonious, fair, indecisive.", "I balance."],
-                  ["\u264F", "Scorpio", "Water", "Fixed", "Transformer. Intense, deep, secretive.", "I transform."],
-                  ["\u2650", "Sagittarius", "Fire", "Mutable", "Explorer. Optimistic, free, philosophical.", "I seek."],
-                  ["\u2651", "Capricorn", "Earth", "Cardinal", "Achiever. Ambitious, disciplined, strategic.", "I build."],
-                  ["\u2652", "Aquarius", "Air", "Fixed", "Innovator. Independent, humanitarian, eccentric.", "I change."],
-                  ["\u2653", "Pisces", "Water", "Mutable", "Dreamer. Compassionate, imaginative, boundless.", "I believe."],
-                ] as const).map(([glyph, name, element, quality, desc, motto]) => (
+                  ["\u2648", t("sign.Aries"), "fire", t("guide.fire"), t("guide.cardinal"), t("guide.ariesDesc"), t("guide.ariesMotto")],
+                  ["\u2649", t("sign.Taurus"), "earth", t("guide.earth"), t("guide.fixed"), t("guide.taurusDesc"), t("guide.taurusMotto")],
+                  ["\u264A", t("sign.Gemini"), "air", t("guide.air"), t("guide.mutable"), t("guide.geminiDesc"), t("guide.geminiMotto")],
+                  ["\u264B", t("sign.Cancer"), "water", t("guide.water"), t("guide.cardinal"), t("guide.cancerDesc"), t("guide.cancerMotto")],
+                  ["\u264C", t("sign.Leo"), "fire", t("guide.fire"), t("guide.fixed"), t("guide.leoDesc"), t("guide.leoMotto")],
+                  ["\u264D", t("sign.Virgo"), "earth", t("guide.earth"), t("guide.mutable"), t("guide.virgoDesc"), t("guide.virgoMotto")],
+                  ["\u264E", t("sign.Libra"), "air", t("guide.air"), t("guide.cardinal"), t("guide.libraDesc"), t("guide.libraMotto")],
+                  ["\u264F", t("sign.Scorpio"), "water", t("guide.water"), t("guide.fixed"), t("guide.scorpioDesc"), t("guide.scorpioMotto")],
+                  ["\u2650", t("sign.Sagittarius"), "fire", t("guide.fire"), t("guide.mutable"), t("guide.sagittariusDesc"), t("guide.sagittariusMotto")],
+                  ["\u2651", t("sign.Capricorn"), "earth", t("guide.earth"), t("guide.cardinal"), t("guide.capricornDesc"), t("guide.capricornMotto")],
+                  ["\u2652", t("sign.Aquarius"), "air", t("guide.air"), t("guide.fixed"), t("guide.aquariusDesc"), t("guide.aquariusMotto")],
+                  ["\u2653", t("sign.Pisces"), "water", t("guide.water"), t("guide.mutable"), t("guide.piscesDesc"), t("guide.piscesMotto")],
+                ] as const).map(([glyph, name, elKey, element, quality, desc, motto]) => (
                   <div key={name} className="ref-item">
                     <span className="ref-glyph">{glyph}</span>
                     <div className="ref-body">
                       <div className="ref-sign-head">
                         <strong>{name}</strong>
-                        <span className={`ref-element ref-element--${element.toLowerCase()}`}>{element}</span>
+                        <span className={`ref-element ref-element--${elKey}`}>{element}</span>
                         <span className="ref-quality">{quality}</span>
                       </div>
                       <span className="ref-desc">{desc} <em>&ldquo;{motto}&rdquo;</em></span>
@@ -358,76 +357,74 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
           </section>
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Aspects &mdash; how planets talk to each other</h4>
+            <h4 className="guide-section__title">{t("guide.aspectsTitle")}</h4>
             <p className="guide-text guide-text--muted" style={{ marginBottom: 10 }}>
-              Aspects are geometric angles between planets. They define the nature of planetary interaction.
+              {t("guide.aspectsSubtitle")}
             </p>
-            <Collapsible title="All 5 major aspects">
+            <Collapsible title={t("guide.allAspects")}>
               <div className="ref-list">
                 <div className="ref-item">
                   <span className="ref-glyph">{"\u260C"}</span>
                   <div className="ref-body">
-                    <strong>Conjunction (0&deg;)</strong>
-                    <span className="ref-desc">Fusion. Two planets merge energy. Powerful amplification. Neither easy nor hard &mdash; depends on the planets involved.</span>
+                    <strong>{t("guide.conjunctionName")}</strong>
+                    <span className="ref-desc">{t("guide.conjunctionDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
                   <span className="ref-glyph">{"\u26B9"}</span>
                   <div className="ref-body">
-                    <strong>Sextile (60&deg;)</strong>
-                    <span className="ref-desc">Opportunity. Gentle support between planets. Talent that activates with small effort. Easy but requires initiative.</span>
+                    <strong>{t("guide.sextileName")}</strong>
+                    <span className="ref-desc">{t("guide.sextileDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
                   <span className="ref-glyph">{"\u25A1"}</span>
                   <div className="ref-body">
-                    <strong>Square (90&deg;)</strong>
-                    <span className="ref-desc">Tension. Friction that forces action. Challenging but productive. The engine of growth. Creates results through pressure.</span>
+                    <strong>{t("guide.squareName")}</strong>
+                    <span className="ref-desc">{t("guide.squareDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
                   <span className="ref-glyph">{"\u25B3"}</span>
                   <div className="ref-body">
-                    <strong>Trine (120&deg;)</strong>
-                    <span className="ref-desc">Flow. Natural harmony between planets. Effortless talent. Can be so easy you take it for granted.</span>
+                    <strong>{t("guide.trineName")}</strong>
+                    <span className="ref-desc">{t("guide.trineDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
                   <span className="ref-glyph">{"\u260D"}</span>
                   <div className="ref-body">
-                    <strong>Opposition (180&deg;)</strong>
-                    <span className="ref-desc">Polarity. Two planets face each other. Awareness through contrast. Relationships, projection, finding balance.</span>
+                    <strong>{t("guide.oppositionName")}</strong>
+                    <span className="ref-desc">{t("guide.oppositionDesc")}</span>
                   </div>
                 </div>
               </div>
               <p className="guide-text guide-text--muted" style={{ marginTop: 12, fontStyle: "italic" }}>
-                Squares and oppositions are not &ldquo;bad.&rdquo; They create the tension that drives achievement.
-                Trines and sextiles are not &ldquo;good.&rdquo; Without challenge, talent stays dormant.
+                {t("guide.aspectsNote")}
               </p>
             </Collapsible>
           </section>
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Houses &mdash; 12 areas of life</h4>
+            <h4 className="guide-section__title">{t("guide.housesTitle")}</h4>
             <p className="guide-text guide-text--muted" style={{ marginBottom: 10 }}>
-              Houses are sections of the sky at the moment of birth. Each governs a specific life area.
-              When a transit activates a house, that area of life becomes active.
+              {t("guide.housesSubtitle")}
             </p>
-            <Collapsible title="All 12 houses">
+            <Collapsible title={t("guide.allHouses")}>
               <div className="ref-list">
                 {([
-                  ["1", "Self, appearance, identity. How the world sees you. Your mask."],
-                  ["2", "Money, possessions, values. What you own and what you value."],
-                  ["3", "Communication, siblings, short trips. Daily interactions and learning."],
-                  ["4", "Home, family, roots, privacy. Your foundation and inner sanctuary."],
-                  ["5", "Creativity, romance, children, fun. What you create and enjoy."],
-                  ["6", "Health, daily routines, work, service. How you maintain yourself."],
-                  ["7", "Relationships, partnerships, marriage. The people who mirror you."],
-                  ["8", "Transformation, shared resources, intimacy, death/rebirth. Deep merging."],
-                  ["9", "Travel, philosophy, higher education, beliefs. Expanding your world."],
-                  ["10", "Career, reputation, public image, ambition. Your legacy."],
-                  ["11", "Friends, community, hopes, humanitarian goals. Your tribe."],
-                  ["12", "Subconscious, spirituality, hidden enemies, isolation. What\u2019s invisible."],
+                  ["1", t("guide.house1")],
+                  ["2", t("guide.house2")],
+                  ["3", t("guide.house3")],
+                  ["4", t("guide.house4")],
+                  ["5", t("guide.house5")],
+                  ["6", t("guide.house6")],
+                  ["7", t("guide.house7")],
+                  ["8", t("guide.house8")],
+                  ["9", t("guide.house9")],
+                  ["10", t("guide.house10")],
+                  ["11", t("guide.house11")],
+                  ["12", t("guide.house12")],
                 ] as const).map(([num, desc]) => (
                   <div key={num} className="ref-item">
                     <span className="ref-glyph ref-house-num">{num}</span>
@@ -441,58 +438,56 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
           </section>
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Aspect Strength &mdash; how close is the alignment</h4>
+            <h4 className="guide-section__title">{t("guide.strengthTitle")}</h4>
             <p className="guide-text guide-text--muted" style={{ marginBottom: 10 }}>
-              Orb is the distance from perfect alignment. Smaller orb = stronger effect.
+              {t("guide.strengthSubtitle")}
             </p>
-            <Collapsible title="Strength levels">
+            <Collapsible title={t("guide.strengthLevels")}>
               <div className="ref-list">
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--exact">EXACT</span>
+                  <span className="natal-asp__str natal-asp__str--exact">{t("strength.exact")}</span>
                   <div className="ref-body">
-                    <strong>Orb &lt; 0.3&deg;</strong>
-                    <span className="ref-desc">Planets are almost perfectly aligned. Maximum intensity. Like standing directly under the spotlight.</span>
+                    <strong>{t("guide.exactOrb")}</strong>
+                    <span className="ref-desc">{t("guide.exactDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--strong">STRONG</span>
+                  <span className="natal-asp__str natal-asp__str--strong">{t("strength.strong")}</span>
                   <div className="ref-body">
-                    <strong>Orb 0.3&deg;&ndash;1.0&deg;</strong>
-                    <span className="ref-desc">Very close alignment. Clearly felt influence. The effect is strong and unmistakable.</span>
+                    <strong>{t("guide.strongOrb")}</strong>
+                    <span className="ref-desc">{t("guide.strongDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--moderate">MODERATE</span>
+                  <span className="natal-asp__str natal-asp__str--moderate">{t("strength.moderate")}</span>
                   <div className="ref-body">
-                    <strong>Orb 1.0&deg;&ndash;2.0&deg;</strong>
-                    <span className="ref-desc">Noticeable influence but softer. Background effect that colors the day without dominating it.</span>
+                    <strong>{t("guide.moderateOrb")}</strong>
+                    <span className="ref-desc">{t("guide.moderateDesc")}</span>
                   </div>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--wide">WIDE</span>
+                  <span className="natal-asp__str natal-asp__str--wide">{t("strength.wide")}</span>
                   <div className="ref-body">
-                    <strong>Orb &gt; 2.0&deg;</strong>
-                    <span className="ref-desc">Faint influence. The aspect is entering or leaving range. Subtle background energy.</span>
+                    <strong>{t("guide.wideOrb")}</strong>
+                    <span className="ref-desc">{t("guide.wideDesc")}</span>
                   </div>
                 </div>
               </div>
               <p className="guide-text guide-text--muted" style={{ marginTop: 12, fontStyle: "italic" }}>
-                APPLYING means the aspect is getting tighter &mdash; building toward peak.
-                SEPARATING means the aspect already peaked and is fading.
-                Applying aspects are generally felt more strongly.
+                {t("guide.applyingSep")}
               </p>
             </Collapsible>
           </section>
 
           <section className="guide-section">
-            <h4 className="guide-section__title">Symbols</h4>
+            <h4 className="guide-section__title">{t("guide.symbolsTitle")}</h4>
             <div className="ref-list">
-              <div className="ref-item"><span className="ref-glyph">{"\u24C7"}</span><div className="ref-body"><strong>Retrograde</strong><span className="ref-desc">Planet appears to move backward. Energy turns inward, delays and revisions.</span></div></div>
-              <div className="ref-item"><span className="ref-glyph">{"\u25B3"}</span><div className="ref-body"><strong>House number</strong><span className="ref-desc">e.g. {"\u25B3"}4 means the transit activates your 4th house (home, family).</span></div></div>
-              <div className="ref-item"><span className="ref-glyph">AC</span><div className="ref-body"><strong>Ascendant</strong><span className="ref-desc">Your rising sign. The mask you wear. How others first perceive you.</span></div></div>
-              <div className="ref-item"><span className="ref-glyph">DC</span><div className="ref-body"><strong>Descendant</strong><span className="ref-desc">Opposite your Ascendant. What you seek in partners and relationships.</span></div></div>
-              <div className="ref-item"><span className="ref-glyph">MC</span><div className="ref-body"><strong>Midheaven</strong><span className="ref-desc">Top of the chart. Your career, public reputation, and life direction.</span></div></div>
-              <div className="ref-item"><span className="ref-glyph">IC</span><div className="ref-body"><strong>Imum Coeli</strong><span className="ref-desc">Bottom of the chart. Your roots, home, private inner world.</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">{"\u24C7"}</span><div className="ref-body"><strong>{t("guide.retrograde")}</strong><span className="ref-desc">{t("guide.retrogradeDesc")}</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">{"\u25B3"}</span><div className="ref-body"><strong>{t("guide.houseNumber")}</strong><span className="ref-desc">{t("guide.houseNumberDesc")}</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">AC</span><div className="ref-body"><strong>{t("guide.ascendant")}</strong><span className="ref-desc">{t("guide.ascendantDesc")}</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">DC</span><div className="ref-body"><strong>{t("guide.descendant")}</strong><span className="ref-desc">{t("guide.descendantDesc")}</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">MC</span><div className="ref-body"><strong>{t("guide.midheaven")}</strong><span className="ref-desc">{t("guide.midheavenDesc")}</span></div></div>
+              <div className="ref-item"><span className="ref-glyph">IC</span><div className="ref-body"><strong>{t("guide.imumCoeli")}</strong><span className="ref-desc">{t("guide.imumCoeliDesc")}</span></div></div>
             </div>
           </section>
 

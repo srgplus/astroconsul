@@ -228,6 +228,7 @@ def build_transit_report(
     include_timing: bool = False,
     transit_latitude: float | None = None,
     transit_longitude: float | None = None,
+    lang: str = "en",
 ) -> dict[str, object]:
     chart_path, natal_chart = load_saved_chart(chart_id)
     parsed_date = parse_iso_date(transit_date)
@@ -248,6 +249,7 @@ def build_transit_report(
         transit_positions,
         natal_chart["planets"],
         natal_chart["angles"],
+        lang=lang,
     )
     active_aspects = [
         aspect

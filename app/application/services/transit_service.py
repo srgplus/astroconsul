@@ -9,6 +9,7 @@ from app.application.services.input_resolution import (
     format_datetime,
 )
 from app.domain.astrology.charts import swiss_ephemeris_version
+from app.domain.astrology.cosmic_climate import get_cosmic_climate
 from app.domain.astrology.tii import (
     compute_tension_ratio,
     compute_tii,
@@ -73,6 +74,7 @@ class TransitService:
             local_dt = utc_dt
             transit_timezone = "UTC"
 
+        lang = getattr(payload, "lang", "ru")
         report = build_transit_report(
             chart_id,
             utc_dt.date().isoformat(),
@@ -80,6 +82,7 @@ class TransitService:
             include_timing=payload.include_timing,
             transit_latitude=transit_latitude,
             transit_longitude=transit_longitude,
+            lang=lang,
         )
 
         snapshot = dict(report.get("snapshot", {}))
@@ -127,6 +130,7 @@ class TransitService:
         report["tension_ratio"] = tension_ratio
         report["feels_like"] = feels_like(tii, tension_ratio)
         report["top_transits"] = top_active_transits(active_aspects)
+        report["cosmic_climate"] = get_cosmic_climate(active_aspects, lang=lang)
 
         report["snapshot"] = snapshot
         return report

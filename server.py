@@ -299,6 +299,7 @@ def transit_report(payload: TransitReportRequest) -> dict[str, object]:
             include_timing=payload.include_timing,
             transit_latitude=transit_latitude,
             transit_longitude=transit_longitude,
+            lang=getattr(payload, "lang", "ru"),
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { createProfile, type PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type ProfileCreateFormProps = {
   onClose: () => void
@@ -8,6 +9,7 @@ type ProfileCreateFormProps = {
 }
 
 export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps) {
+  const { t } = useLanguage()
   const [profileName, setProfileName] = useState("")
   const [username, setUsername] = useState("")
   const [birthDate, setBirthDate] = useState("")
@@ -48,39 +50,39 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <div className="eyebrow">New Profile</div>
-            <h2>Create Natal Profile</h2>
+            <div className="eyebrow">{t("form.newProfile")}</div>
+            <h2>{t("form.createNatal")}</h2>
           </div>
-          <button type="button" className="edit-btn" onClick={onClose}>Close</button>
+          <button type="button" className="edit-btn" onClick={onClose}>{t("form.close")}</button>
         </div>
 
         <form className="edit-form" onSubmit={handleSave}>
           <div className="edit-section">
-            <h3>Profile &amp; Birth Details</h3>
-            <p className="edit-section-desc">Enter the birth data to generate a natal chart.</p>
+            <h3>{t("form.profileBirth")}</h3>
+            <p className="edit-section-desc">{t("form.createDesc")}</p>
             <div className="edit-form-grid">
               <div className="edit-form-field">
-                <label>Profile name</label>
-                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="e.g. John" required />
+                <label>{t("form.profileName")}</label>
+                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder={t("form.placeholderName")} required />
               </div>
               <div className="edit-form-field">
-                <label>Username</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. johndoe" required />
+                <label>{t("form.username")}</label>
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t("form.placeholderUsername")} required />
               </div>
               <div className="edit-form-field">
-                <label>Birth date</label>
+                <label>{t("form.birthDate")}</label>
                 <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
               </div>
               <div className="edit-form-field">
-                <label>Birth time</label>
+                <label>{t("form.birthTime")}</label>
                 <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>Timezone</label>
-                <input type="text" value={timezone} readOnly placeholder="Auto-filled from location" />
+                <label>{t("form.timezone")}</label>
+                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>Birth location</label>
+                <label>{t("form.birthLocation")}</label>
                 <LocationAutocomplete
                   value={locationName}
                   onChange={setLocationName}
@@ -90,22 +92,22 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
                     setLongitude(place.longitude)
                     if (place.timezone) setTimezone(place.timezone)
                   }}
-                  placeholder="e.g. Moscow, Russia"
+                  placeholder={t("form.placeholderLocation")}
                 />
               </div>
             </div>
           </div>
 
           <div className="edit-section">
-            <h3>Coordinates</h3>
-            <p className="edit-section-desc">Auto-filled from location. Fine-tune if needed.</p>
+            <h3>{t("form.coordinates")}</h3>
+            <p className="edit-section-desc">{t("form.coordDesc")}</p>
             <div className="edit-form-grid">
               <div className="edit-form-field">
-                <label>Latitude</label>
+                <label>{t("form.latitude")}</label>
                 <input type="number" step="any" value={latitude} onChange={(e) => setLatitude(Number(e.target.value))} required />
               </div>
               <div className="edit-form-field">
-                <label>Longitude</label>
+                <label>{t("form.longitude")}</label>
                 <input type="number" step="any" value={longitude} onChange={(e) => setLongitude(Number(e.target.value))} required />
               </div>
             </div>
@@ -114,7 +116,7 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
           {error ? <div className="edit-error">{error}</div> : null}
 
           <button type="submit" className="save-btn" disabled={saving}>
-            {saving ? "Creating..." : "Create Profile"}
+            {saving ? t("form.creating") : t("form.createProfile")}
           </button>
         </form>
       </div>
