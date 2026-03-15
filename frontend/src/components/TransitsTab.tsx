@@ -8,6 +8,8 @@ import type {
   TransitPosition,
   TransitReportResponse,
 } from "../types"
+import { TransitProgressBar } from "./DailyWeather"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type TransitsTabProps = {
   activeProfileId: string | null
@@ -46,15 +48,6 @@ const OBJECT_GLYPHS: Record<string, string> = {
   MC: "MC",
 }
 
-/** Display names that differ from backend IDs */
-const DISPLAY_NAMES: Record<string, string> = {
-  Selena: "Selena",
-}
-
-function displayName(id: string): string {
-  return DISPLAY_NAMES[id] ?? id
-}
-
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648",
   Taurus: "\u2649",
@@ -70,14 +63,20 @@ const SIGN_GLYPHS: Record<string, string> = {
   Pisces: "\u2653",
 }
 
-/** Groups for categorizing aspects */
+/** Groups for categorizing aspects by transit planet */
 const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars"])
 const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
 function categorizeAspect(a: ActiveAspect): string {
-  if (PERSONAL_IDS.has(a.transit_object)) return "Personal Planets"
-  if (OUTER_IDS.has(a.transit_object)) return "Outer Planets"
-  return "Special Points"
+  if (PERSONAL_IDS.has(a.transit_object)) return "personal"
+  if (OUTER_IDS.has(a.transit_object)) return "outer"
+  return "special"
+}
+
+const GROUP_LABEL_KEYS: Record<string, string> = {
+  personal: "transits.personalPlanets",
+  outer: "transits.outerPlanets",
+  special: "transits.specialPoints",
 }
 
 const STRENGTH_ORDER = ["exact", "strong", "moderate", "wide"]
@@ -112,12 +111,12 @@ function offsetDate(base: string, days: number): string {
   return `${y}-${m}-${day}`
 }
 
-function formatUtc(iso: string | null): string {
+function formatUtc(iso: string | null, t?: (key: string) => string): string {
   if (!iso) return "—"
   try {
     const d = new Date(iso)
     const day = d.getDate()
-    const mon = d.toLocaleString("en", { month: "short" })
+    const mon = t ? t(`month.${d.getMonth()}`) : d.toLocaleString("en", { month: "short" })
     const hh = String(d.getHours()).padStart(2, "0")
     const mm = String(d.getMinutes()).padStart(2, "0")
     return `${day} ${mon}, ${hh}:${mm}`
@@ -126,7 +125,7 @@ function formatUtc(iso: string | null): string {
   }
 }
 
-function formatDuration(hours: number | null | undefined): string {
+function formatDuration(hours: number | null | undefined, t?: (key: string) => string): string {
   if (hours == null) return ""
   if (hours < 1) return `${Math.round(hours * 60)} min`
   if (hours < 48) return `${Math.round(hours)} h`
@@ -134,6 +133,7 @@ function formatDuration(hours: number | null | undefined): string {
 }
 
 export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, initialReport }: TransitsTabProps) {
+  const { t } = useLanguage()
   const [transitDate, setTransitDate] = useState(todayDate)
   const [transitTime, setTransitTime] = useState(nowTime)
   const [timezone, setTimezone] = useState(browserTimezone)
@@ -148,6 +148,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
   const [resolving, setResolving] = useState(false)
   const [resolvedLabel, setResolvedLabel] = useState<string | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
 
   const controllerRef = useRef<AbortController | null>(null)
 
@@ -204,7 +205,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
       setLocationName(result.resolved_name)
       setResolvedLabel(`${result.resolved_name} → ${result.timezone}`)
     } catch {
-      setResolvedLabel("Could not resolve location")
+      setResolvedLabel(t("tt.couldNotResolve"))
     } finally {
       setResolving(false)
     }
@@ -296,7 +297,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
 
   // Group sorted aspects by category
   const groupedAspects: { label: string; aspects: ActiveAspect[] }[] = []
-  const groupOrder = ["Personal Planets", "Outer Planets", "Special Points"]
+  const groupOrder = ["personal", "outer", "special"]
   const groups: Record<string, ActiveAspect[]> = {}
   for (const a of sortedAspects) {
     const cat = categorizeAspect(a)
@@ -311,9 +312,9 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
     return (
       <section className="card">
         <div className="card-head">
-          <div className="eyebrow">Transits</div>
-          <h2>Select a profile first</h2>
-          <p>Choose a natal profile on the Profile tab to generate transit reports.</p>
+          <div className="eyebrow">{t("tt.title")}</div>
+          <h2>{t("tt.selectFirst")}</h2>
+          <p>{t("tt.selectFirstDesc")}</p>
         </div>
       </section>
     )
@@ -324,8 +325,8 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
       <div className="card-head">
         <div className="transit-head-row">
           <div>
-            <div className="eyebrow">Transits</div>
-            <h2>Transit report{activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}</h2>
+            <div className="eyebrow">{t("tt.title")}</div>
+            <h2>{t("tt.transitReport")}{activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}</h2>
           </div>
         </div>
       </div>
@@ -334,13 +335,13 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
         <div className="settings-overlay" onClick={() => setSettingsOpen(false)}>
           <div className="settings-popup" onClick={(e) => e.stopPropagation()}>
             <div className="settings-popup-head">
-              <h3>Transit Settings</h3>
+              <h3>{t("tt.transitSettings")}</h3>
               <button type="button" className="settings-close" onClick={() => setSettingsOpen(false)}>×</button>
             </div>
             <form className="transit-form" onSubmit={(e) => { handleSubmit(e); setSettingsOpen(false) }}>
               <div className="transit-fields">
                 <label className="transit-field">
-                  <span className="transit-field-label">Date</span>
+                  <span className="transit-field-label">{t("tt.date")}</span>
                   <input
                     type="date"
                     value={transitDate}
@@ -349,7 +350,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                   />
                 </label>
                 <label className="transit-field">
-                  <span className="transit-field-label">Time</span>
+                  <span className="transit-field-label">{t("tt.time")}</span>
                   <input
                     type="time"
                     step="1"
@@ -359,22 +360,22 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                   />
                 </label>
                 <label className="transit-field">
-                  <span className="transit-field-label">Timezone</span>
+                  <span className="transit-field-label">{t("tt.timezone")}</span>
                   <input
                     type="text"
                     value={timezone}
                     onChange={(e) => setTimezone(e.target.value)}
-                    placeholder="America/New_York"
+                    placeholder={t("tt.placeholderTz")}
                   />
                 </label>
                 <label className="transit-field">
-                  <span className="transit-field-label">Location (optional)</span>
+                  <span className="transit-field-label">{t("tt.location")}</span>
                   <input
                     type="text"
                     value={locationName}
                     onChange={(e) => { setLocationName(e.target.value); setResolvedLabel(null) }}
                     onBlur={() => { if (locationName.trim()) handleResolveLocation() }}
-                    placeholder="e.g. Moscow"
+                    placeholder={t("tt.placeholderLoc")}
                   />
                 </label>
               </div>
@@ -383,7 +384,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
               ) : null}
               <div className="transit-actions">
                 <button type="submit" className="status" disabled={loading}>
-                  {loading ? "Computing…" : "Generate Transit Report"}
+                  {loading ? t("tt.computing") : t("tt.generate")}
                 </button>
               </div>
             </form>
@@ -426,91 +427,108 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                 className={`filter-chip ${filter === "all" ? "active" : ""}`}
                 onClick={() => setFilter("all")}
               >
-                All (&lt; 2°)
+                {t("tt.filterAll")}
               </button>
               <button
                 type="button"
                 className={`filter-chip ${filter === "strong" ? "active" : ""}`}
                 onClick={() => setFilter("strong")}
               >
-                Exact + Strong (&lt; 1°)
+                {t("tt.filterStrong")}
               </button>
             </div>
           </div>
 
           {sortedAspects.length ? (
             <div className="aspect-cards-wrapper">
-              <div className="aspect-cards-header">
-                <span>Transit</span>
-                <span className="aspect-cards-header-center">Aspect</span>
-                <span className="aspect-cards-header-right">Natal</span>
-              </div>
               {groupedAspects.map((group) => (
                 <div key={group.label} className="aspect-group">
-                  <div className="aspect-group-label">{group.label.toUpperCase()}</div>
+                  <div className="aspect-group-label">{t(GROUP_LABEL_KEYS[group.label] ?? group.label).toUpperCase()} <span className="aspect-group-count">{group.aspects.length}</span></div>
                   {group.aspects.map((a, i) => {
                     const tp = transitMap[a.transit_object]
                     const np = natalMap[a.natal_object]
+                    const cardKey = `${a.transit_object}-${a.aspect}-${a.natal_object}-${i}`
+                    const isExpanded = expandedCards.has(cardKey)
+                    const toggleExpand = () => {
+                      setExpandedCards((prev) => {
+                        const next = new Set(prev)
+                        if (next.has(cardKey)) next.delete(cardKey)
+                        else next.add(cardKey)
+                        return next
+                      })
+                    }
                     return (
                       <div
-                        key={`${a.transit_object}-${a.aspect}-${a.natal_object}-${i}`}
-                        className="aspect-card"
+                        key={cardKey}
+                        className={`aspect-card${isExpanded ? " aspect-card--expanded" : ""}`}
+                        onClick={toggleExpand}
+                        style={{ cursor: "pointer" }}
                       >
-                        {/* Row 1: transit — aspect+orb — natal */}
                         <div className="aspect-card-row1">
-                          <div className="aspect-card-planet transit-side">
-                            <span className="planet-glyph">{OBJECT_GLYPHS[a.transit_object] ?? ""}</span>
-                            <span className="planet-name">
-                              {displayName(a.transit_object)}
-                              {tp?.retrograde ? <span className="retro-badge">Ⓡ</span> : null}
-                            </span>
-                            <span className="planet-meta">
-                              {tp ? `${SIGN_GLYPHS[tp.sign] ?? ""} ${tp.sign} · △${tp.natal_house}` : ""}
-                            </span>
-                          </div>
-                          <div className="aspect-card-center">
-                            <div className="aspect-card-center-row">
+                          <div className="aspect-card-left">
+                            <span className="aspect-card-glyphs">
+                              <span className="planet-glyph">{OBJECT_GLYPHS[a.transit_object] ?? ""}</span>
                               <span className="aspect-glyph-symbol">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                              <span className="aspect-name">{a.aspect}</span>
-                            </div>
-                            <span className="aspect-orb">{a.orb.toFixed(2)}°</span>
-                          </div>
-                          <div className="aspect-card-planet natal-side">
-                            <span className="planet-glyph">{OBJECT_GLYPHS[a.natal_object] ?? ""}</span>
-                            <span className="planet-name">
-                              {displayName(a.natal_object)}
+                              <span className="planet-glyph">{OBJECT_GLYPHS[a.natal_object] ?? ""}</span>
+                            </span>
+                            <span className="aspect-card-label">
+                              {t("planet." + a.transit_object)}
+                              {tp?.retrograde ? <span className="retro-badge">Ⓡ</span> : null}
+                              {" "}{t("aspect." + a.aspect)}{" "}
+                              {t("planet." + a.natal_object)}
                               {np?.retrograde ? <span className="retro-badge">Ⓡ</span> : null}
                             </span>
-                            <span className="planet-meta">
-                              {np ? `${SIGN_GLYPHS[np.sign] ?? ""} ${np.sign}${np.house ? ` · △${np.house}` : ""}` : ""}
+                          </div>
+                          <div className="aspect-card-right">
+                            <span className="aspect-orb">{a.orb.toFixed(2)}°</span>
+                            <span className={`strength-badge strength-${a.strength}`}>
+                              {t("strength." + a.strength)}
                             </span>
                           </div>
                         </div>
 
-                        {/* Row 3: strength, status, duration + timeline on same line */}
-                        <div className="aspect-card-row3">
-                          <span className={`strength-badge strength-${a.strength}`}>
-                            {a.strength}
-                          </span>
-                          {a.timing?.status ? (
-                            <span className={`timing-status timing-status--${a.timing.status}`}>
-                              <span className="timing-dot">●</span> {a.timing.status}
-                            </span>
-                          ) : null}
-                          {a.timing?.duration_hours ? (
-                            <span className="timing-duration">
-                              {formatDuration(a.timing.duration_hours)}
-                            </span>
-                          ) : null}
-                          {a.timing ? (
-                            <>
-                              <span className="timing-sep">|</span>
-                              <span className="timeline-marker timeline-start">▶ {formatUtc(a.timing.start_utc)}</span>
-                              <span className="timeline-marker timeline-exact">◎ {formatUtc(a.timing.exact_utc)}</span>
-                              <span className="timeline-marker timeline-end">✓ {formatUtc(a.timing.end_utc)}</span>
-                            </>
-                          ) : null}
-                        </div>
+                        {isExpanded ? (
+                          <div className="aspect-card-description">
+                            {a.meaning ? <p className="aspect-meaning">{a.meaning}</p> : null}
+                            {a.action ? (
+                              <p className="aspect-action">→ {a.action}</p>
+                            ) : null}
+                            {a.keywords?.length ? (
+                              <div className="aspect-keywords">
+                                {a.keywords.map((kw) => (
+                                  <span key={kw} className="aspect-keyword-tag">{kw}</span>
+                                ))}
+                              </div>
+                            ) : null}
+                            <TransitProgressBar
+                              timing={a.timing}
+                              nowDate={report.snapshot?.transit_date ?? transitDate}
+                              transitObject={a.transit_object}
+                            />
+                            <div className="cw-transit-positions">
+                              {tp ? (
+                                <div className="cw-pos-line">
+                                  <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.transit_object]}</span>
+                                  <span className="cw-pos-name">{t("planet." + a.transit_object)}</span>
+                                  <span className="cw-pos-deg">{tp.degree}°{String(tp.minute).padStart(2, "0")}′</span>
+                                  <span className="cw-pos-sign">{SIGN_GLYPHS[tp.sign]} {t("sign." + tp.sign)}</span>
+                                  {tp.natal_house ? <span className="cw-pos-house">△{tp.natal_house}</span> : null}
+                                  {tp.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                                </div>
+                              ) : null}
+                              {np ? (
+                                <div className="cw-pos-line">
+                                  <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.natal_object]}</span>
+                                  <span className="cw-pos-name">{t("planet." + a.natal_object)}</span>
+                                  <span className="cw-pos-deg">{np.degree}°{String(np.minute).padStart(2, "0")}′</span>
+                                  <span className="cw-pos-sign">{SIGN_GLYPHS[np.sign]} {t("sign." + np.sign)}</span>
+                                  {np.house ? <span className="cw-pos-house">△{np.house}</span> : null}
+                                  {np.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     )
                   })}
@@ -519,7 +537,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
             </div>
           ) : (
             <div className="transit-empty">
-              <span>No active aspects found for this moment.</span>
+              <span>{t("tt.noAspects")}</span>
             </div>
           )}
 
@@ -531,31 +549,31 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                 onClick={() => setTimelineOpen((v) => !v)}
               >
                 <span className="timeline-toggle-arrow">{timelineOpen ? "▾" : "▸"}</span>
-                Upcoming transits (±7 days)
+                {t("tt.upcoming")}
               </button>
               {timelineOpen ? (
               <table className="aspect-table timeline-table">
                 <thead>
                   <tr>
-                    <th>Transit</th>
-                    <th>Aspect</th>
-                    <th>Natal</th>
-                    <th>When</th>
-                    <th>Strength</th>
+                    <th>{t("tt.thTransit")}</th>
+                    <th>{t("tt.thAspect")}</th>
+                    <th>{t("tt.thNatal")}</th>
+                    <th>{t("tt.thWhen")}</th>
+                    <th>{t("tt.thStrength")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {timeline.slice(0, 20).map((t, i) => (
-                    <tr key={`tl-${t.transit}-${t.aspect}-${t.natal}-${i}`}>
-                      <td>{t.transit}</td>
+                  {timeline.slice(0, 20).map((tl, i) => (
+                    <tr key={`tl-${tl.transit}-${tl.aspect}-${tl.natal}-${i}`}>
+                      <td>{t("planet." + tl.transit)}</td>
                       <td className="aspect-glyph">
-                        {ASPECT_GLYPHS[t.aspect] ?? t.aspect}
+                        {ASPECT_GLYPHS[tl.aspect] ?? tl.aspect}
                       </td>
-                      <td>{t.natal}</td>
-                      <td>{formatUtc(t.display_utc)}</td>
+                      <td>{t("planet." + tl.natal)}</td>
+                      <td>{formatUtc(tl.display_utc, t)}</td>
                       <td>
-                        <span className={`strength-badge strength-${t.strength}`}>
-                          {t.strength}
+                        <span className={`strength-badge strength-${tl.strength}`}>
+                          {t("strength." + tl.strength)}
                         </span>
                       </td>
                     </tr>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { updateProfile, resolveLocation, type PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import type { ProfileDetailResponse } from "../types"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type ProfileEditFormProps = {
   profileId: string
@@ -11,6 +12,7 @@ type ProfileEditFormProps = {
 }
 
 export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: ProfileEditFormProps) {
+  const { t } = useLanguage()
   const profile = activeDetail.profile
   const chart = activeDetail.chart
 
@@ -89,39 +91,39 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
-            <div className="eyebrow">Profile</div>
-            <h2>Edit Profile</h2>
+            <div className="eyebrow">{t("form.profile")}</div>
+            <h2>{t("form.editProfile")}</h2>
           </div>
-          <button type="button" className="edit-btn" onClick={onClose}>Close</button>
+          <button type="button" className="edit-btn" onClick={onClose}>{t("form.close")}</button>
         </div>
 
         <form className="edit-form" onSubmit={handleSave}>
           <div className="edit-section">
-            <h3>Profile &amp; Birth Details</h3>
-            <p className="edit-section-desc">Each natal profile stores a public handle plus the birth data used to build its natal chart.</p>
+            <h3>{t("form.profileBirth")}</h3>
+            <p className="edit-section-desc">{t("form.editDesc")}</p>
             <div className="edit-form-grid">
               <div className="edit-form-field">
-                <label>Profile name</label>
+                <label>{t("form.profileName")}</label>
                 <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required />
               </div>
               <div className="edit-form-field">
-                <label>Username</label>
+                <label>{t("form.username")}</label>
                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
               </div>
               <div className="edit-form-field">
-                <label>Birth date</label>
+                <label>{t("form.birthDate")}</label>
                 <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
               </div>
               <div className="edit-form-field">
-                <label>Birth time</label>
+                <label>{t("form.birthTime")}</label>
                 <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>Timezone</label>
-                <input type="text" value={timezone} readOnly placeholder="Auto-filled from location" />
+                <label>{t("form.timezone")}</label>
+                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>Location name</label>
+                <label>{t("form.locationName")}</label>
                 <LocationAutocomplete
                   value={locationName}
                   onChange={setLocationName}
@@ -131,28 +133,28 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
                     setLongitude(place.longitude)
                     if (place.timezone) setTimezone(place.timezone)
                   }}
-                  placeholder="e.g. Moscow, Russia"
+                  placeholder={t("form.placeholderLocation")}
                 />
               </div>
             </div>
           </div>
 
           <div className="edit-section">
-            <h3>Natal Location Controls</h3>
-            <p className="edit-section-desc">Resolve and fine-tune saved birth coordinates for the active natal profile.</p>
+            <h3>{t("form.natalLocation")}</h3>
+            <p className="edit-section-desc">{t("form.natalLocationDesc")}</p>
             <div className="edit-resolve-row">
               <button type="button" className="resolve-btn" onClick={handleResolve} disabled={resolving || !locationName.trim()}>
-                {resolving ? "Resolving…" : "Resolve Natal Location"}
+                {resolving ? t("form.resolving") : t("form.resolve")}
               </button>
-              <span className="edit-resolve-hint">Timezone and coordinates will autofill from the natal place name.</span>
+              <span className="edit-resolve-hint">{t("form.resolveHint")}</span>
             </div>
             <div className="edit-form-grid">
               <div className="edit-form-field">
-                <label>Latitude</label>
+                <label>{t("form.latitude")}</label>
                 <input type="number" step="any" value={latitude} onChange={(e) => setLatitude(Number(e.target.value))} required />
               </div>
               <div className="edit-form-field">
-                <label>Longitude</label>
+                <label>{t("form.longitude")}</label>
                 <input type="number" step="any" value={longitude} onChange={(e) => setLongitude(Number(e.target.value))} required />
               </div>
             </div>
@@ -161,7 +163,7 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
           {error ? <div className="edit-error">{error}</div> : null}
 
           <button type="submit" className="save-btn" disabled={saving}>
-            {saving ? "Saving…" : "Save Natal Profile"}
+            {saving ? t("form.saving") : t("form.saveProfile")}
           </button>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import { Fragment } from "react"
 import type { NatalAspect, NatalPosition, ProfileDetailResponse, TopTransit, TransitReportResponse } from "../types"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type ProfileDetailProps = {
   activeDetail: ProfileDetailResponse | null
@@ -56,28 +57,20 @@ const SIGN_GLYPHS: Record<string, string> = {
   Pisces: "\u2653",
 }
 
-type ObjectGroup = { label: string; ids: string[] }
+type ObjectGroup = { labelKey: string; ids: string[] }
 
 const GROUPS: ObjectGroup[] = [
-  { label: "Personal Planets", ids: ["Sun", "ASC", "MC", "Moon", "Mercury", "Venus", "Mars"] },
-  { label: "Outer Planets", ids: ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"] },
-  { label: "Special Points", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
+  { labelKey: "transits.personalPlanets", ids: ["Sun", "ASC", "MC", "Moon", "Mercury", "Venus", "Mars"] },
+  { labelKey: "transits.outerPlanets", ids: ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"] },
+  { labelKey: "transits.specialPoints", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
-
-const DISPLAY_NAMES: Record<string, string> = {}
-function dn(id: string): string { return DISPLAY_NAMES[id] ?? id }
 
 function formatPosition(p: NatalPosition): string {
   return `${p.sign} ${p.degree}\u00B0${String(p.minute).padStart(2, "0")}'${String(Math.round(p.second)).padStart(2, "0")}"`
 }
 
-function retroLabel(r: boolean | null): string {
-  if (r === true) return "Yes"
-  if (r === false) return "No"
-  return "\u2014"
-}
-
 export function NatalPositionsTable({ positions }: { positions: NatalPosition[] }) {
+  const { t } = useLanguage()
   const byId = new Map(positions.map((p) => [p.id, p]))
 
   return (
@@ -86,15 +79,15 @@ export function NatalPositionsTable({ positions }: { positions: NatalPosition[] 
         const rows = group.ids.map((id) => byId.get(id)).filter(Boolean) as NatalPosition[]
         if (!rows.length) return null
         return (
-          <Fragment key={group.label}>
-            <div className="natal-pos__group">{group.label}</div>
+          <Fragment key={group.labelKey}>
+            <div className="natal-pos__group">{t(group.labelKey)}</div>
             {rows.map((p) => (
               <div key={p.id} className="natal-pos__row">
                 <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
-                <span className="natal-pos__name">{dn(p.id)}</span>
+                <span className="natal-pos__name">{t(`planet.${p.id}`)}</span>
                 <span className="natal-pos__house">△{p.house || "—"}</span>
                 <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
-                <span className="natal-pos__sign-name">{p.sign}</span>
+                <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
                 <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
                 {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
               </div>
@@ -125,15 +118,22 @@ const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", 
 const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
 function categorizeNatalAspect(a: NatalAspect): string {
-  if (PERSONAL_IDS.has(a.p1)) return "Personal Planets"
-  if (OUTER_IDS.has(a.p1)) return "Outer Planets"
-  return "Special Points"
+  if (PERSONAL_IDS.has(a.p1)) return "personal"
+  if (OUTER_IDS.has(a.p1)) return "outer"
+  return "special"
+}
+
+const GROUP_LABEL_KEYS: Record<string, string> = {
+  personal: "transits.personalPlanets",
+  outer: "transits.outerPlanets",
+  special: "transits.specialPoints",
 }
 
 export function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
+  const { t } = useLanguage()
   const sorted = [...aspects].sort((a, b) => a.orb - b.orb)
 
-  const groupOrder = ["Personal Planets", "Outer Planets", "Special Points"]
+  const groupOrder = ["personal", "outer", "special"]
   const groups: Record<string, NatalAspect[]> = {}
   for (const a of sorted) {
     const cat = categorizeNatalAspect(a)
@@ -141,39 +141,32 @@ export function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
     groups[cat].push(a)
   }
   const groupedAspects = groupOrder
-    .filter((label) => groups[label]?.length)
-    .map((label) => ({ label, aspects: groups[label]! }))
+    .filter((key) => groups[key]?.length)
+    .map((key) => ({ key, aspects: groups[key]! }))
 
   return (
     <div className="natal-asp">
-      <div className="natal-asp__header">
-        <span>Planet 1</span>
-        <span className="natal-asp__header-center">Aspect</span>
-        <span>Planet 2</span>
-        <span style={{ textAlign: "right" }}>Orb</span>
-        <span style={{ textAlign: "right" }}>Str</span>
-      </div>
       {groupedAspects.map((group) => (
-        <Fragment key={group.label}>
-          <div className="natal-asp__group">{group.label}</div>
+        <Fragment key={group.key}>
+          <div className="natal-asp__group">{t(GROUP_LABEL_KEYS[group.key])}</div>
           {group.aspects.map((a, i) => {
             const strength = aspectStrength(a.orb)
             return (
               <div key={`${a.p1}-${a.p2}-${a.aspect}-${i}`} className="natal-asp__row">
                 <span className="natal-asp__planet">
                   <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
-                  <strong>{dn(a.p1)}</strong>
+                  <strong>{t(`planet.${a.p1}`)}</strong>
                 </span>
                 <span className="natal-asp__aspect">
                   <span className="natal-asp__glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                  <span className="natal-asp__aspect-name">{a.aspect}</span>
+                  <span className="natal-asp__aspect-name">{t(`aspect.${a.aspect}`)}</span>
                 </span>
                 <span className="natal-asp__planet">
                   <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
-                  <strong>{dn(a.p2)}</strong>
+                  <strong>{t(`planet.${a.p2}`)}</strong>
                 </span>
                 <span className="natal-asp__orb">{a.orb.toFixed(2)}°</span>
-                <span className={`natal-asp__str natal-asp__str--${strength}`}>{strength.toUpperCase()}</span>
+                <span className={`natal-asp__str natal-asp__str--${strength}`}>{t(`strength.${strength}`)}</span>
               </div>
             )
           })}
@@ -194,6 +187,7 @@ function computeAge(birthDate: string): number | null {
 }
 
 export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }) {
+  const { t } = useLanguage()
   const positions = detail.chart.natal_positions ?? []
   const byId = new Map(positions.map((p) => [p.id, p]))
   const sun = byId.get("Sun")
@@ -218,7 +212,6 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
     return d
   }
 
-  // Extract GMT offset from ISO datetime like "1994-03-27T00:30:00+03:00"
   const gmtOffset = (() => {
     if (!localDt) return null
     const m = localDt.match(/([+-])(\d{2}):(\d{2})$/)
@@ -230,74 +223,41 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
     return label.replace("+0", "+").replace("-0", "-").replace("GMT+", "UTC+").replace("GMT-", "UTC-")
   })()
 
+  const signItems: { id: string; pos: NatalPosition | undefined }[] = [
+    { id: "Sun", pos: sun },
+    { id: "Moon", pos: moon },
+    { id: "ASC", pos: asc },
+  ]
+  const secondaryItems: { id: string; pos: NatalPosition | undefined }[] = [
+    { id: "MC", pos: mc },
+    { id: "Mercury", pos: mercury },
+    { id: "Venus", pos: venus },
+    { id: "Mars", pos: mars },
+  ]
+
   return (
     <div className="profile-summary">
       <div className="profile-summary__signs">
-        {sun ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[sun.sign] ?? ""}</span>
+        {signItems.map(({ id, pos }) => pos ? (
+          <div key={id} className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[pos.sign] ?? ""}</span>
             <div>
-              <div className="profile-summary__sign-label">Sun</div>
-              <div className="profile-summary__sign-value">{sun.sign}</div>
+              <div className="profile-summary__sign-label">{t(`planet.${id}`)}</div>
+              <div className="profile-summary__sign-value">{t(`sign.${pos.sign}`)}</div>
             </div>
           </div>
-        ) : null}
-        {moon ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[moon.sign] ?? ""}</span>
-            <div>
-              <div className="profile-summary__sign-label">Moon</div>
-              <div className="profile-summary__sign-value">{moon.sign}</div>
-            </div>
-          </div>
-        ) : null}
-        {asc ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[asc.sign] ?? ""}</span>
-            <div>
-              <div className="profile-summary__sign-label">ASC</div>
-              <div className="profile-summary__sign-value">{asc.sign}</div>
-            </div>
-          </div>
-        ) : null}
+        ) : null)}
       </div>
       <div className="profile-summary__signs profile-summary__signs--secondary">
-        {mc ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mc.sign] ?? ""}</span>
+        {secondaryItems.map(({ id, pos }) => pos ? (
+          <div key={id} className="profile-summary__sign-item">
+            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[pos.sign] ?? ""}</span>
             <div>
-              <div className="profile-summary__sign-label">MC</div>
-              <div className="profile-summary__sign-value">{mc.sign}</div>
+              <div className="profile-summary__sign-label">{t(`planet.${id}`)}</div>
+              <div className="profile-summary__sign-value">{t(`sign.${pos.sign}`)}</div>
             </div>
           </div>
-        ) : null}
-        {mercury ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mercury.sign] ?? ""}</span>
-            <div>
-              <div className="profile-summary__sign-label">Mercury</div>
-              <div className="profile-summary__sign-value">{mercury.sign}</div>
-            </div>
-          </div>
-        ) : null}
-        {venus ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[venus.sign] ?? ""}</span>
-            <div>
-              <div className="profile-summary__sign-label">Venus</div>
-              <div className="profile-summary__sign-value">{venus.sign}</div>
-            </div>
-          </div>
-        ) : null}
-        {mars ? (
-          <div className="profile-summary__sign-item">
-            <span className="profile-summary__sign-icon">{SIGN_GLYPHS[mars.sign] ?? ""}</span>
-            <div>
-              <div className="profile-summary__sign-label">Mars</div>
-              <div className="profile-summary__sign-value">{mars.sign}</div>
-            </div>
-          </div>
-        ) : null}
+        ) : null)}
       </div>
       <div className="profile-summary__meta">
         {age !== null ? (
@@ -340,7 +300,7 @@ function tiiArcColor(tii: number): string {
 function TiiGauge({ tii }: { tii: number }) {
   const r = 40
   const stroke = 8
-  const circumference = Math.PI * r // half-circle
+  const circumference = Math.PI * r
   const progress = Math.min(tii / 100, 1)
   const dashOffset = circumference * (1 - progress)
 
@@ -370,6 +330,7 @@ function TiiGauge({ tii }: { tii: number }) {
 }
 
 export function TiiBanner({ transitReport }: { transitReport: TransitReportResponse }) {
+  const { t } = useLanguage()
   const tii = transitReport.tii
   const feelsLike = transitReport.feels_like
   const tensionRatio = transitReport.tension_ratio
@@ -387,20 +348,20 @@ export function TiiBanner({ transitReport }: { transitReport: TransitReportRespo
       </div>
       <div className="tii-banner__info">
         <div className="tii-banner__feels" style={{ color: feelsColor }}>
-          {feelsLike ?? "—"}
+          {feelsLike ? t(`feels.${feelsLike}`) : "—"}
         </div>
         {tensionRatio != null ? (
           <div className="tii-banner__tension">
-            Tension {Math.round(tensionRatio * 100)}%
+            {t("weather.tension")} {Math.round(tensionRatio * 100)}%
           </div>
         ) : null}
         {topTransits.length > 0 ? (
           <div className="tii-banner__top">
-            {topTransits.map((t: TopTransit, i: number) => (
+            {topTransits.map((tr: TopTransit, i: number) => (
               <span key={i} className="tii-banner__transit">
-                {OBJECT_GLYPHS[t.transit_object] ?? t.transit_object}{" "}
-                {ASPECT_GLYPHS[t.aspect] ?? t.aspect}{" "}
-                {OBJECT_GLYPHS[t.natal_object] ?? t.natal_object}
+                {OBJECT_GLYPHS[tr.transit_object] ?? tr.transit_object}{" "}
+                {ASPECT_GLYPHS[tr.aspect] ?? tr.aspect}{" "}
+                {OBJECT_GLYPHS[tr.natal_object] ?? tr.natal_object}
               </span>
             ))}
           </div>
@@ -418,12 +379,13 @@ export function ProfileDetail({
   transitReport,
   onEditClick,
 }: ProfileDetailProps) {
+  const { t } = useLanguage()
   return (
     <>
       {!detailLoading && !detailError && activeDetail ? (
         <div className="profile-summary-row">
           <ProfileSummaryCard detail={activeDetail} />
-          <button type="button" className="edit-btn" onClick={onEditClick}>Edit</button>
+          <button type="button" className="edit-btn" onClick={onEditClick}>{t("widget.editProfile")}</button>
         </div>
       ) : null}
 
@@ -433,21 +395,21 @@ export function ProfileDetail({
 
       {detailLoading ? (
         <div className="ring-stage loading-state">
-          <p>Loading natal chart context…</p>
+          <p>Loading…</p>
         </div>
       ) : null}
 
       {!detailLoading && detailError ? (
         <div className="ring-stage error-state">
-          <strong>Unable to load profile detail</strong>
+          <strong>Error</strong>
           <span>{detailError}</span>
         </div>
       ) : null}
 
       {!detailLoading && !detailError && !activeProfileId ? (
         <div className="ring-stage empty-state">
-          <strong>Select a profile</strong>
-          <span>Choose a natal profile to view chart details.</span>
+          <strong>{t("widget.selectProfile")}</strong>
+          <span>{t("profileList.emptyDesc")}</span>
         </div>
       ) : null}
 

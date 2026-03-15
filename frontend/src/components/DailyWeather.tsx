@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react"
-import type { TransitReportResponse, ProfileDetailResponse, ActiveAspect, AspectTiming } from "../types"
+import type { TransitReportResponse, ProfileDetailResponse, ActiveAspect, AspectTiming, TransitPosition, NatalPosition } from "../types"
 import type { PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
+import { useLanguage } from "../contexts/LanguageContext"
 
 const STRENGTH_COLORS: Record<string, string> = {
   exact: "#FF2D55",
@@ -68,6 +69,12 @@ const OBJECT_GLYPHS: Record<string, string> = {
   ASC: "AC", MC: "MC",
 }
 
+const SIGN_GLYPHS: Record<string, string> = {
+  Aries: "♈", Taurus: "♉", Gemini: "♊", Cancer: "♋",
+  Leo: "♌", Virgo: "♍", Libra: "♎", Scorpio: "♏",
+  Sagittarius: "♐", Capricorn: "♑", Aquarius: "♒", Pisces: "♓",
+}
+
 const ASPECT_GLYPHS: Record<string, string> = {
   conjunction: "\u260C",
   opposition: "\u260D",
@@ -84,6 +91,7 @@ type Props = {
 }
 
 export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTransitSettings }: Props) {
+  const { t } = useLanguage()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [editDate, setEditDate] = useState("")
   const [editTime, setEditTime] = useState("")
@@ -108,7 +116,8 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
   const tensionRatio = transitReport.tension_ratio ?? 0
   const accent = zoneColor(tii)
   const emoji = FEELS_EMOJI[feelsLike] ?? "\u2728"
-  const mood = FEELS_MOOD[feelsLike] ?? ""
+  const mood = t(`mood.${feelsLike}`)
+  const feelsLabel = t(`feels.${feelsLike}`)
 
   const tz = transitReport.snapshot?.transit_timezone ?? ""
   const tzLabel = tz ? tz.replace(/\//g, " / ").replace(/_/g, " ").toUpperCase() : ""
@@ -119,9 +128,8 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
       const utcIso = snap?.transit_utc_datetime ?? ""
       const snapTz = snap?.transit_timezone || undefined
       const d = new Date(utcIso.endsWith("Z") ? utcIso : utcIso + "Z")
-      // Compute local date (YYYY-MM-DD) from UTC datetime + timezone
       const localParts = d.toLocaleString("en-CA", { timeZone: snapTz, year: "numeric", month: "2-digit", day: "2-digit" })
-      setEditDate(localParts) // en-CA gives YYYY-MM-DD format
+      setEditDate(localParts)
       const timeParts = d.toLocaleString("en-GB", { timeZone: snapTz, hour: "2-digit", minute: "2-digit", hour12: false })
       setEditTime(timeParts.replace(/[^0-9:]/g, ""))
     } catch {
@@ -168,7 +176,7 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
         <span className="cw-compact__name">{activeDetail.profile.profile_name}</span>
         <span className="cw-compact__emoji">{emoji}</span>
         <span className="cw-compact__tii">{Math.round(tii)}&deg;</span>
-        <span className="cw-compact__feels" style={{ color: accent }}>{feelsLike}</span>
+        <span className="cw-compact__feels" style={{ color: accent }}>{feelsLabel}</span>
         <span className="cw-compact__tension">T {Math.round(tensionRatio * 100)}%</span>
         {heroTimeLabel ? <span className="cw-compact__date" onClick={openSettings}>{heroTimeLabel}</span> : null}
       </div>
@@ -186,9 +194,9 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
         <div className="cw-emoji">{emoji}</div>
 
         <div className="cw-tii">{Math.round(tii)}&deg;</div>
-        <div className="cw-tii-label">INTENSITY</div>
+        <div className="cw-tii-label">{t("weather.intensity")}</div>
 
-        <div className="cw-feels" style={{ color: accent }}>{feelsLike}</div>
+        <div className="cw-feels" style={{ color: accent }}>{feelsLabel}</div>
         <div className="cw-mood">{mood}</div>
 
         <div className="cw-tension-bar">
@@ -198,7 +206,7 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
               style={{ width: `${Math.round(tensionRatio * 100)}%`, background: accent }}
             />
           </div>
-          <span className="cw-tension-bar__label">Tension {Math.round(tensionRatio * 100)}%</span>
+          <span className="cw-tension-bar__label">{t("weather.tension")} {Math.round(tensionRatio * 100)}%</span>
         </div>
       </div>
 
@@ -206,22 +214,22 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
         <div className="settings-overlay" onClick={() => setSettingsOpen(false)}>
           <div className="settings-popup" onClick={(e) => e.stopPropagation()}>
             <div className="settings-popup-head">
-              <h3>Transit Settings</h3>
+              <h3>{t("weather.transitSettings")}</h3>
               <button type="button" className="settings-close" onClick={() => setSettingsOpen(false)}>&times;</button>
             </div>
             <form className="transit-form" onSubmit={handleSubmit}>
               <div className="transit-fields">
                 <label className="transit-field">
-                  <span className="transit-field-label">Date</span>
+                  <span className="transit-field-label">{t("weather.date")}</span>
                   <input type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} required />
                 </label>
                 <label className="transit-field">
-                  <span className="transit-field-label">Time</span>
+                  <span className="transit-field-label">{t("weather.time")}</span>
                   <input type="time" step="1" value={editTime} onChange={(e) => setEditTime(e.target.value)} required />
                 </label>
               </div>
               <div className="transit-field transit-field--full">
-                <span className="transit-field-label">Location</span>
+                <span className="transit-field-label">{t("weather.location")}</span>
                 <LocationAutocomplete
                   value={editLoc}
                   onChange={setEditLoc}
@@ -229,15 +237,15 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
                     setEditLoc(place.display_name)
                     if (place.timezone) setEditTz(place.timezone)
                   }}
-                  placeholder="Search city..."
+                  placeholder={t("weather.searchCity")}
                 />
               </div>
               <label className="transit-field transit-field--full">
-                <span className="transit-field-label">Timezone</span>
-                <input type="text" value={editTz} readOnly placeholder="Auto-filled from location" />
+                <span className="transit-field-label">{t("weather.timezone")}</span>
+                <input type="text" value={editTz} readOnly placeholder={t("weather.autoTimezone")} />
               </label>
               <div className="transit-actions">
-                <button type="submit" className="status">Generate Transit Report</button>
+                <button type="submit" className="status">{t("weather.generate")}</button>
               </div>
             </form>
           </div>
@@ -265,31 +273,32 @@ function formatTransitDateTime(snapshot: TransitReportResponse["snapshot"]): str
     const tzShort = tz.split("/").pop()?.replace(/_/g, " ") ?? tz
     return `${localStr} \u00B7 ${tzShort}`
   } catch {
-    // Fallback: show UT time
     const d = snapshot.transit_date ?? ""
     const t = (snapshot.transit_time_ut ?? "").slice(0, 5)
     return `${d}, ${t} UT`
   }
 }
 
-/** Format ISO date string to "14 Mar" */
-function shortDate(iso: string | null | undefined): string {
+/** Format ISO date string to "14 Mar" using translated month */
+function shortDate(iso: string | null | undefined, t?: (key: string) => string): string {
   if (!iso) return ""
   try {
     const d = new Date(iso)
     if (isNaN(d.getTime())) return ""
-    return `${d.getUTCDate()} ${d.toLocaleString("en", { month: "short", timeZone: "UTC" })}`
+    const month = t ? t(`month.${d.getUTCMonth()}`) : d.toLocaleString("en", { month: "short", timeZone: "UTC" })
+    return `${d.getUTCDate()} ${month}`
   } catch {
     return ""
   }
 }
 
 /** Progress bar for a single transit aspect with influence gradient */
-function TransitProgressBar({ timing, nowDate, transitObject }: {
+export function TransitProgressBar({ timing, nowDate, transitObject }: {
   timing: AspectTiming | null
   nowDate: string
   transitObject: string
 }) {
+  const { t } = useLanguage()
   if (!timing?.start_utc || !timing?.end_utc) return null
 
   const start = new Date(timing.start_utc).getTime()
@@ -313,9 +322,9 @@ function TransitProgressBar({ timing, nowDate, transitObject }: {
   const dotColor = peakColor(pFactor)
   const isOuter = pFactor > 1.0
 
-  const startLabel = shortDate(timing.start_utc)
-  const exactLabel = shortDate(timing.exact_utc)
-  const endLabel = shortDate(timing.end_utc)
+  const startLabel = shortDate(timing.start_utc, t)
+  const exactLabel = shortDate(timing.exact_utc, t)
+  const endLabel = shortDate(timing.end_utc, t)
 
   return (
     <div className="transit-bar">
@@ -352,45 +361,257 @@ function TransitProgressBar({ timing, nowDate, transitObject }: {
   )
 }
 
+const OUTER_PLANETS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
+
+const PLANET_EMOJI: Record<string, string> = {
+  Jupiter: "🌊", Saturn: "🏗", Uranus: "⚡", Neptune: "🌊", Pluto: "🌀",
+}
+
+const PLANET_BAR_COLOR: Record<string, string> = {
+  Pluto: "#FF2D55",
+  Neptune: "#5AC8FA",
+  Uranus: "#FFB800",
+  Saturn: "#30D158",
+  Jupiter: "#5E5CE6",
+}
+
+function formatMonthRange(startUtc: string | null, endUtc: string | null, t?: (key: string) => string): string {
+  if (!startUtc || !endUtc) return ""
+  const s = new Date(startUtc)
+  const e = new Date(endUtc)
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return ""
+  const sMonth = t ? t(`month.${s.getMonth()}`) : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][s.getMonth()]
+  const eMonth = t ? t(`month.${e.getMonth()}`) : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][e.getMonth()]
+  const sYear = s.getFullYear()
+  const eYear = e.getFullYear()
+  if (sYear === eYear) return `${sMonth} — ${eMonth} ${eYear}`
+  return `${sMonth} ${sYear} — ${eMonth} ${eYear}`
+}
+
+/** Simple single-color progress bar for Cosmic Climate cards — no dates */
+function ClimateProgressBar({ timing, nowDate, transitObject }: {
+  timing: AspectTiming | null
+  nowDate: string
+  transitObject: string
+}) {
+  if (!timing?.start_utc || !timing?.end_utc) return null
+  const start = new Date(timing.start_utc).getTime()
+  const end = new Date(timing.end_utc).getTime()
+  const now = new Date(nowDate + "T12:00:00Z").getTime()
+  const total = end - start
+  if (total <= 0) return null
+  const pct = Math.max(0, Math.min(100, ((now - start) / total) * 100))
+  const color = PLANET_BAR_COLOR[transitObject] ?? "#5AC8FA"
+
+  return (
+    <div className="cc-bar">
+      <div className="cc-bar__track">
+        <div className="cc-bar__fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+    </div>
+  )
+}
+
+export function CosmicClimateWidget({ transitReport }: {
+  transitReport: TransitReportResponse
+}) {
+  const { t } = useLanguage()
+  const climateAspects = transitReport.cosmic_climate ?? []
+  const nowDate = transitReport.snapshot?.transit_date ?? ""
+
+  if (!climateAspects.length) return null
+
+  return (
+    <div className="cc-widget">
+      <div className="cc-title">{t("climate.title")}</div>
+      {climateAspects.map((a, i) => {
+        const tGlyph = OBJECT_GLYPHS[a.transit_object] ?? a.transit_object
+        const nGlyph = OBJECT_GLYPHS[a.natal_object] ?? a.natal_object
+        const aGlyph = ASPECT_GLYPHS[a.aspect] ?? a.aspect
+        const emoji = PLANET_EMOJI[a.transit_object] ?? "✨"
+        const dateRange = formatMonthRange(a.timing?.start_utc ?? null, a.timing?.end_utc ?? null, t)
+
+        return (
+          <div key={`${a.transit_object}-${a.natal_object}-${i}`} className="cc-card">
+            <div className="cc-card-header">
+              <div className="cc-card-left">
+                <span className="cc-card-emoji">{emoji}</span>
+                <span className="cc-card-name">
+                  {t(`planet.${a.transit_object}`)} {aGlyph} {t(`planet.${a.natal_object}`)}
+                </span>
+              </div>
+              {dateRange ? <span className="cc-card-date">{dateRange}</span> : null}
+            </div>
+            {a.meaning ? <p className="cc-card-desc">{a.meaning}</p> : null}
+            {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
+            <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars"])
+const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
+
+function categorizeWidgetAspect(a: ActiveAspect): string {
+  if (PERSONAL_IDS.has(a.transit_object)) return "personal"
+  if (OUTER_IDS.has(a.transit_object)) return "outer"
+  return "special"
+}
+
+const GROUP_LABEL_KEYS: Record<string, string> = {
+  personal: "transits.personalPlanets",
+  outer: "transits.outerPlanets",
+  special: "transits.specialPoints",
+}
+
 export function ActiveTransitsWidget({ transitReport }: {
   transitReport: TransitReportResponse
 }) {
-  const aspects = transitReport.active_aspects ?? []
-  if (!aspects.length) return null
+  const { t } = useLanguage()
+  const allAspects = transitReport.active_aspects ?? []
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set())
+  const [mostImpact, setMostImpact] = useState(true)
+  if (!allAspects.length) return null
+
+  const aspects = mostImpact
+    ? allAspects.filter((a) => a.strength === "exact" || a.strength === "strong")
+    : allAspects
 
   const dateLabel = formatTransitDateTime(transitReport.snapshot)
   const nowDate = transitReport.snapshot?.transit_date ?? ""
 
+  // Build position lookup maps
+  const transitMap: Record<string, TransitPosition> = {}
+  for (const tp of transitReport.transit_positions ?? []) transitMap[tp.id] = tp
+  const natalMap: Record<string, NatalPosition> = {}
+  for (const np of transitReport.natal_positions ?? []) natalMap[np.id] = np
+  for (const ap of transitReport.angle_positions ?? [])
+    natalMap[ap.id] = { ...ap, house: 0, retrograde: null, speed: null } as NatalPosition
+
+  // Group aspects
+  const groupOrder = ["personal", "outer", "special"]
+  const groups: Record<string, ActiveAspect[]> = {}
+  for (const a of aspects) {
+    const cat = categorizeWidgetAspect(a)
+    if (!groups[cat]) groups[cat] = []
+    groups[cat].push(a)
+  }
+  const groupedAspects = groupOrder
+    .filter((key) => groups[key]?.length)
+    .map((key) => ({ key, aspects: groups[key] }))
+
+  const toggleCard = (e: React.MouseEvent, idx: number) => {
+    e.stopPropagation()
+    setExpandedCards((prev) => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx)
+      else next.add(idx)
+      return next
+    })
+  }
+
+  // Global index for expand tracking across groups
+  let globalIdx = 0
+
   return (
     <div className="cw-transits">
       <div className="cw-transits-header">
-        <span className="cw-transits-title">Transits</span>
-        {dateLabel ? <span className="cw-transits-date">{dateLabel}</span> : null}
+        <span className="cw-transits-title">{t("transits.title")}</span>
+        <label className="cw-toggle-wrap">
+          <span className="cw-toggle-label">{t("transits.mostImpact")}</span>
+          <div
+            className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}
+            onClick={() => setMostImpact(!mostImpact)}
+          >
+            <div className="cw-toggle-thumb" />
+          </div>
+        </label>
       </div>
-      <div className="cw-transit-list">
-        {aspects.slice(0, 8).map((a: ActiveAspect, i: number) => {
-          const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"
-          return (
-            <div key={`${a.transit_object}-${a.natal_object}-${i}`} className="cw-transit-item">
-              <div className="cw-transit-row">
-                <span className="cw-transit-glyphs">
-                  <span className="cw-glyph-transit">{OBJECT_GLYPHS[a.transit_object] ?? a.transit_object}</span>
-                  <span className="cw-glyph-aspect">{ASPECT_GLYPHS[a.aspect] ?? a.aspect}</span>
-                  <span className="cw-glyph-natal">{OBJECT_GLYPHS[a.natal_object] ?? a.natal_object}</span>
-                </span>
-                <span className="cw-transit-orb">{a.orb.toFixed(2)}&deg;</span>
-                <span
-                  className="cw-transit-strength"
-                  style={{ background: `${strengthColor}18`, color: strengthColor }}
+      {groupedAspects.map((group) => (
+        <div key={group.key} className="cw-transit-group">
+          <div className="cw-transit-group-label">{t(GROUP_LABEL_KEYS[group.key]).toUpperCase()}</div>
+          <div className="cw-transit-list">
+            {group.aspects.map((a) => {
+              const idx = globalIdx++
+              const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"
+              const isExpanded = expandedCards.has(idx)
+              const tp = transitMap[a.transit_object]
+              const np = natalMap[a.natal_object]
+              return (
+                <div
+                  key={`${a.transit_object}-${a.natal_object}-${idx}`}
+                  className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}`}
+                  onClick={(e) => toggleCard(e, idx)}
+                  style={{ cursor: "pointer" }}
                 >
-                  {a.strength.toUpperCase()}
-                </span>
-              </div>
-              <TransitProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
-            </div>
-          )
-        })}
-      </div>
+                  <div className="cw-transit-row">
+                    <span className="cw-transit-left">
+                      <span className="cw-transit-glyphs">
+                        <span className="cw-glyph-transit">{OBJECT_GLYPHS[a.transit_object] ?? a.transit_object}</span>
+                        <span className="cw-glyph-aspect">{ASPECT_GLYPHS[a.aspect] ?? a.aspect}</span>
+                        <span className="cw-glyph-natal">{OBJECT_GLYPHS[a.natal_object] ?? a.natal_object}</span>
+                      </span>
+                      <span className="cw-transit-label">
+                        {t(`planet.${a.transit_object}`)} {t(`aspect.${a.aspect}`)} {t(`planet.${a.natal_object}`)}
+                      </span>
+                    </span>
+                    <span className="cw-transit-right">
+                      <span className="cw-transit-orb">{a.orb.toFixed(2)}&deg;</span>
+                      <span
+                        className="cw-transit-strength"
+                        style={{ background: `${strengthColor}18`, color: strengthColor }}
+                      >
+                        {t(`strength.${a.strength}`)}
+                      </span>
+                    </span>
+                  </div>
+                  {isExpanded ? (
+                    <div className="cw-transit-description">
+                      {a.meaning ? <p className="cw-transit-meaning">{a.meaning}</p> : null}
+                      {a.action ? (
+                        <p className="cw-transit-action">→ {a.action}</p>
+                      ) : null}
+                      {a.keywords?.length ? (
+                        <div className="cw-transit-keywords">
+                          {a.keywords.map((kw) => (
+                            <span key={kw} className="cw-transit-keyword-tag">{kw}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                      <TransitProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
+                      <div className="cw-transit-positions">
+                        {tp ? (
+                          <div className="cw-pos-line">
+                            <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.transit_object]}</span>
+                            <span className="cw-pos-name">{t(`planet.${a.transit_object}`)}</span>
+                            <span className="cw-pos-deg">{tp.degree}°{String(tp.minute).padStart(2, "0")}′</span>
+                            <span className="cw-pos-sign">{SIGN_GLYPHS[tp.sign]} {t(`sign.${tp.sign}`)}</span>
+                            {tp.natal_house ? <span className="cw-pos-house">△{tp.natal_house}</span> : null}
+                            {tp.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                          </div>
+                        ) : null}
+                        {np ? (
+                          <div className="cw-pos-line">
+                            <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.natal_object]}</span>
+                            <span className="cw-pos-name">{t(`planet.${a.natal_object}`)}</span>
+                            <span className="cw-pos-deg">{np.degree}°{String(np.minute).padStart(2, "0")}′</span>
+                            <span className="cw-pos-sign">{SIGN_GLYPHS[np.sign]} {t(`sign.${np.sign}`)}</span>
+                            {np.house ? <span className="cw-pos-house">△{np.house}</span> : null}
+                            {np.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

@@ -26,6 +26,7 @@ class TransitReportRequest(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     include_timing: bool = False
+    lang: str = "ru"
 
 
 class TransitTimelineRequest(BaseModel):
@@ -62,6 +63,7 @@ class ProfileTransitReportRequest(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     include_timing: bool = False
+    lang: str = "ru"
 
 
 class ProfileTransitTimelineRequest(BaseModel):
