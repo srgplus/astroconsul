@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env from project root (two levels up from this file)
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
 
 def _parse_csv(value: str | None) -> list[str]:
     if value is None:

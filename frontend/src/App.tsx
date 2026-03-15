@@ -7,6 +7,7 @@ import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./co
 import { DailyWeather, ActiveTransitsWidget } from "./components/DailyWeather"
 import { TiiGuide } from "./components/TiiGuide"
 import { ProfileEditForm } from "./components/ProfileEditForm"
+import { ProfileCreateForm } from "./components/ProfileCreateForm"
 import { TransitsTab } from "./components/TransitsTab"
 import { NatalZodiacRing } from "./components/NatalZodiacRing"
 import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition } from "./types"
@@ -135,6 +136,8 @@ export function App() {
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
   const [guideOpen, setGuideOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
@@ -142,9 +145,11 @@ export function App() {
   const contentLoading = detailLoading || transitLoading
 
   useEffect(() => {
+    if (!user) return
     let cancelled = false
 
-    async function bootstrap() {
+    async function bootstrap(attempt = 0) {
+      setBootError(null)
       try {
         const [healthPayload, profilesPayload] = await Promise.all([
           fetchHealth(),
@@ -157,15 +162,20 @@ export function App() {
         setProfiles(profilesPayload.profiles)
         setActiveProfileId((current) => current || profilesPayload.profiles[0]?.profile_id || null)
       } catch (err) {
-        if (!cancelled) {
-          setBootError(err instanceof Error ? err.message : "Unknown error")
+        if (cancelled) return
+        const msg = err instanceof Error ? err.message : "Unknown error"
+        // Retry up to 2 times on server errors (500/502/503)
+        if (attempt < 2 && /^5\d\d\s/.test(msg)) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)))
+          if (!cancelled) return bootstrap(attempt + 1)
         }
+        setBootError(msg)
       }
     }
 
     bootstrap()
     return () => { cancelled = true }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     if (!activeProfileId) {
@@ -207,10 +217,14 @@ export function App() {
 
     Promise.all(
       profiles.map((p) => {
+        const lt = p.latest_transit
         return fetchTransitReport(p.profile_id, {
-          transit_date: defaultDate,
-          transit_time: defaultTime,
-          timezone: browserTz,
+          transit_date: lt?.transit_date ?? defaultDate,
+          transit_time: lt?.transit_time ?? defaultTime,
+          timezone: lt?.timezone ?? browserTz,
+          location_name: lt?.location_name ?? null,
+          latitude: lt?.latitude ?? null,
+          longitude: lt?.longitude ?? null,
           include_timing: false,
         }, controller.signal)
           .then((r) => ({ id: p.profile_id, r }))
@@ -250,13 +264,20 @@ export function App() {
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
     // Preserve profile's saved timezone & location, only update date/time to "now"
-    let savedTz = browserTz
-    let savedLoc: string | null = null
+    // Priority: localStorage > latest_transit from profile > browser timezone
+    const activeProfile = profiles.find((p) => p.profile_id === activeProfileId)
+    const lt = activeProfile?.latest_transit
+    let savedTz = lt?.timezone ?? browserTz
+    let savedLoc: string | null = lt?.location_name ?? null
+    let savedLat: number | null = lt?.latitude ?? null
+    let savedLon: number | null = lt?.longitude ?? null
     try {
       const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
       const p = saved[activeProfileId]
       if (p?.timezone) savedTz = p.timezone
       if (p?.locationName) savedLoc = p.locationName
+      if (p?.latitude != null) savedLat = p.latitude
+      if (p?.longitude != null) savedLon = p.longitude
     } catch { /* ignore */ }
 
     const now = new Date()
@@ -268,6 +289,8 @@ export function App() {
       transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
       timezone: savedTz,
       location_name: savedLoc,
+      latitude: savedLat,
+      longitude: savedLon,
       include_timing: true,
     }
 
@@ -351,73 +374,97 @@ export function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""}`}>
       <div className="main-layout">
-        <aside className="sidebar">
-          <div className="sidebar-search">
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="sidebar-scroll">
-            <ProfileList
-              profiles={searchQuery.trim()
-                ? profiles.filter((p) => {
-                    const q = searchQuery.toLowerCase()
-                    return p.profile_name.toLowerCase().includes(q)
-                      || p.username.toLowerCase().includes(q)
-                      || (p.location_name ?? "").toLowerCase().includes(q)
-                  })
-                : profiles}
-              activeProfileId={activeProfileId}
-              onSelect={(id) => {
-                if (id === activeProfileId) {
-                  setFetchTrigger((n) => n + 1)
-                } else {
-                  setActiveProfileId(id)
-                }
-              }}
-              tiiMap={tiiMap}
-            />
-          </div>
-          <div className="sidebar-footer">
-            <span className="sidebar-user-email" title={user.email ?? ""}>
-              {user.email ?? ""}
-            </span>
+        <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
+          <div className="sidebar-toolbar">
             <button
               type="button"
-              className="sidebar-icon-btn"
-              onClick={() => {
-                signOut()
-                setProfiles([])
-                setActiveProfileId(null)
-                setActiveDetail(null)
-                setTransitReport(null)
-              }}
-              title="Sign out"
+              className="sidebar-toolbar-btn"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
             >
-              {"\u23FB"}
+              {sidebarCollapsed ? "\u25C1" : "\u2630"}
             </button>
-            <button
-              type="button"
-              className="sidebar-icon-btn"
-              onClick={() => setGuideOpen(true)}
-              title="How It Works"
-            >
-              {"\u2139"}
-            </button>
-            <button
-              type="button"
-              className="sidebar-icon-btn"
-              onClick={() => setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark")}
-              title={`Theme: ${theme}`}
-            >
-              {theme === "dark" ? "\u263D" : theme === "light" ? "\u2600" : "\u25D0"}
-            </button>
+            {!sidebarCollapsed && (
+              <button
+                type="button"
+                className="sidebar-toolbar-btn sidebar-toolbar-btn--add"
+                onClick={() => setIsCreating(true)}
+                title="New profile"
+              >
+                +
+              </button>
+            )}
           </div>
+          {!sidebarCollapsed && (
+            <>
+              <div className="sidebar-search">
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="sidebar-scroll">
+                <ProfileList
+                  profiles={searchQuery.trim()
+                    ? profiles.filter((p) => {
+                        const q = searchQuery.toLowerCase()
+                        return p.profile_name.toLowerCase().includes(q)
+                          || p.username.toLowerCase().includes(q)
+                          || (p.location_name ?? "").toLowerCase().includes(q)
+                      })
+                    : profiles}
+                  activeProfileId={activeProfileId}
+                  onSelect={(id) => {
+                    if (id === activeProfileId) {
+                      setFetchTrigger((n) => n + 1)
+                    } else {
+                      setActiveProfileId(id)
+                    }
+                  }}
+                  tiiMap={tiiMap}
+                />
+              </div>
+              <div className="sidebar-footer">
+                <span className="sidebar-user-email" title={user.email ?? ""}>
+                  {user.email ?? ""}
+                </span>
+                <button
+                  type="button"
+                  className="sidebar-icon-btn"
+                  onClick={() => {
+                    signOut()
+                    setProfiles([])
+                    setActiveProfileId(null)
+                    setActiveDetail(null)
+                    setTransitReport(null)
+                  }}
+                  title="Sign out"
+                >
+                  {"\u23FB"}
+                </button>
+                <button
+                  type="button"
+                  className="sidebar-icon-btn"
+                  onClick={() => setGuideOpen(true)}
+                  title="How It Works"
+                >
+                  {"\u2139"}
+                </button>
+                <button
+                  type="button"
+                  className="sidebar-icon-btn"
+                  onClick={() => setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark")}
+                  title={`Theme: ${theme}`}
+                >
+                  {theme === "dark" ? "\u263D" : theme === "light" ? "\u2600" : "\u25D0"}
+                </button>
+              </div>
+            </>
+          )}
         </aside>
 
         <div className="content-pane">
@@ -545,6 +592,18 @@ export function App() {
           activeDetail={activeDetail}
           onClose={() => setIsEditing(false)}
           onSaved={refreshProfile}
+        />
+      ) : null}
+
+      {isCreating ? (
+        <ProfileCreateForm
+          onClose={() => setIsCreating(false)}
+          onCreated={async (profileId) => {
+            setIsCreating(false)
+            const profilesPayload = await fetchProfiles()
+            setProfiles(profilesPayload.profiles)
+            setActiveProfileId(profileId)
+          }}
         />
       ) : null}
 

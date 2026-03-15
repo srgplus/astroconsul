@@ -11,15 +11,29 @@ import { supabase } from "./lib/supabase"
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession()
-  const token = data.session?.access_token
+  let token = data.session?.access_token
+
+  // If token is expiring within 60s, proactively refresh
+  if (data.session) {
+    const expiresAt = data.session.expires_at ?? 0
+    const nowSec = Math.floor(Date.now() / 1000)
+    if (expiresAt - nowSec < 60) {
+      const { data: refreshed } = await supabase.auth.refreshSession()
+      token = refreshed.session?.access_token ?? token
+    }
+  }
+
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
     if (response.status === 401) {
-      // Token expired or invalid — sign out
-      await supabase.auth.signOut()
+      // Try refreshing the session before signing out
+      const { data } = await supabase.auth.refreshSession()
+      if (!data.session) {
+        await supabase.auth.signOut()
+      }
     }
     throw new Error(`${response.status} ${response.statusText}`)
   }
@@ -82,6 +96,19 @@ export async function fetchTransitTimeline(
     `/api/v1/profiles/${encodeURIComponent(profileId)}/transits/timeline?${query}`,
     { headers: auth, signal },
   ).then(json<TransitTimelineResponse>)
+}
+
+export async function createProfile(
+  data: ProfileUpsertRequest,
+  signal?: AbortSignal,
+): Promise<ProfileDetailResponse> {
+  const auth = await getAuthHeaders()
+  return fetch("/api/v1/profiles", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify(data),
+    signal,
+  }).then(json<ProfileDetailResponse>)
 }
 
 export async function updateProfile(

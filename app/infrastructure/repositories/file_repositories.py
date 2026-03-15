@@ -57,10 +57,16 @@ class FileProfileRepository:
             created_at=created_at,
             updated_at=updated_at,
         )
+        dirty = False
         if profile_id is not None:
             payload["profile_id"] = profile_id
+            dirty = True
         if user_id is not None:
             payload["user_id"] = user_id
+            dirty = True
+        if dirty:
+            from natal_profiles import write_json, profile_path
+            write_json(profile_path(payload["profile_id"]), payload)
         return payload
 
     def update_profile(

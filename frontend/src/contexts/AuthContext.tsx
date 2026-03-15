@@ -27,16 +27,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
+    // Listen for all auth changes — this handles:
+    // - PKCE code exchange after OAuth redirect
+    // - Session restore from localStorage
+    // - Sign in / sign out
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, s) => {
+    } = supabase.auth.onAuthStateChange((event, s) => {
+      console.log("[Auth] event:", event, "session:", !!s);
       setSession(s);
       setLoading(false);
     });
@@ -55,11 +53,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
   }, []);
 
   const signInWithApple = useCallback(async () => {
-    await supabase.auth.signInWithOAuth({ provider: "apple" });
+    await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo: window.location.origin },
+    });
   }, []);
 
   const signOut = useCallback(async () => {
