@@ -10,8 +10,8 @@ class ProfileService:
     def __init__(self, chart_service: ChartService):
         self.chart_service = chart_service
 
-    def list_profiles(self, profile_repository) -> dict[str, object]:
-        return {"profiles": profile_repository.list_summaries()}
+    def list_profiles(self, profile_repository, *, user_id: str | None = None) -> dict[str, object]:
+        return {"profiles": profile_repository.list_summaries(user_id=user_id)}
 
     def profile_detail(self, profile_id: str, *, profile_repository, chart_repository) -> dict[str, object]:
         profile = profile_repository.load_profile(profile_id)
@@ -29,11 +29,13 @@ class ProfileService:
         chart_reference: str,
         chart: dict[str, Any],
         profile_repository,
+        user_id: str | None = None,
     ) -> dict[str, object]:
         profile = profile_repository.create_profile(
             payload.profile_name,
             payload.username,
             chart_id,
+            user_id=user_id,
             profile_input=payload.model_dump(),
         )
         return {

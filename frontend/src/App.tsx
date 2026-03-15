@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback, useRef, Fragment } from "react"
+import { useAuth } from "./contexts/AuthContext"
+import AuthScreen from "./components/AuthScreen"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
@@ -116,6 +118,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 }
 
 export function App() {
+  const { user, loading: authLoading, signOut } = useAuth()
   const [theme, setTheme] = useTheme()
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [profiles, setProfiles] = useState<ProfileSummary[]>([])
@@ -332,6 +335,21 @@ export function App() {
     (a) => a.strength === "exact" || a.strength === "strong"
   ).length
 
+  // Auth gate: show login screen if not authenticated
+  if (authLoading) {
+    return (
+      <main className="app-shell">
+        <div className="content-loader" style={{ position: "fixed", inset: 0 }}>
+          <div className="content-loader__spinner" />
+        </div>
+      </main>
+    )
+  }
+
+  if (!user) {
+    return <AuthScreen />
+  }
+
   return (
     <main className="app-shell">
       <div className="main-layout">
@@ -366,6 +384,23 @@ export function App() {
             />
           </div>
           <div className="sidebar-footer">
+            <span className="sidebar-user-email" title={user.email ?? ""}>
+              {user.email ?? ""}
+            </span>
+            <button
+              type="button"
+              className="sidebar-icon-btn"
+              onClick={() => {
+                signOut()
+                setProfiles([])
+                setActiveProfileId(null)
+                setActiveDetail(null)
+                setTransitReport(null)
+              }}
+              title="Sign out"
+            >
+              {"\u23FB"}
+            </button>
             <button
               type="button"
               className="sidebar-icon-btn"
