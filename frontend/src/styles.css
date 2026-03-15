@@ -3419,36 +3419,119 @@ select {
   }
 }
 
+/* ---- Back button (hidden on desktop, visible on mobile) ---- */
+.mobile-back-btn {
+  display: none;
+}
+
 @media (max-width: 720px) {
+
+  /* ===== Apple Weather pattern: list ↔ detail ===== */
   .app-shell {
     width: 100%;
-    padding: 12px 0 20px;
+    padding: 0;
     margin-left: 0 !important;
   }
 
+  .main-layout {
+    display: block;
+  }
+
+  /* Home screen = profile list (sidebar) */
   .sidebar {
     position: static;
     width: 100%;
-    height: auto;
+    height: 100vh;
     max-height: none;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
-    padding: 10px 0;
+    border: none;
+    padding: 0;
+    background: var(--bg);
+    box-shadow: none;
+    overflow-y: auto;
   }
 
   .sidebar--collapsed {
     display: none;
   }
 
+  .sidebar-toolbar {
+    padding: 12px 16px 4px;
+  }
+
+  .sidebar-toolbar-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .sidebar-search {
+    padding: 0 12px;
+  }
+
+  .sidebar-scroll {
+    padding-bottom: 80px;
+  }
+
+  .sidebar-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    padding: 8px 16px;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  /* Detail screen = content pane */
+  .content-pane {
+    max-width: 100%;
+    padding: 0 12px 20px;
+  }
+
+  /* View switching: list visible, detail hidden */
+  .mobile-view--list .content-pane {
+    display: none;
+  }
+
+  .mobile-view--list .sidebar {
+    display: flex;
+  }
+
+  /* View switching: detail visible, list hidden */
+  .mobile-view--detail .sidebar {
+    display: none !important;
+  }
+
+  .mobile-view--detail .content-pane {
+    display: block;
+  }
+
+  /* Back button: visible on mobile detail view */
+  .mobile-view--detail .mobile-back-btn {
+    display: block;
+    all: unset;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--accent);
+    padding: 12px 16px 4px;
+  }
+
+  /* Hide compact sticky header on mobile */
+  .cw-compact {
+    display: none !important;
+  }
+
+  /* ===== Layout tweaks ===== */
   .card {
     padding: 16px;
     border-radius: 16px;
-  }
-
-  .content-pane {
-    max-width: 100%;
-    padding: 0 12px;
   }
 
   .widget-grid {
@@ -3488,12 +3571,6 @@ select {
     grid-template-columns: 1fr;
   }
 
-  /* Compact sticky header: full width on mobile */
-  .cw-compact {
-    left: 0;
-    padding: 8px 16px;
-  }
-
   /* Widget popup: nearly full screen on mobile */
   .widget-popup {
     width: calc(100vw - 16px);
@@ -3510,18 +3587,9 @@ select {
     flex-wrap: wrap;
   }
 
-  .natal-pos__name {
-    min-width: 50px;
-  }
-
-  .natal-pos__sign-name {
-    min-width: 40px;
-  }
-
-  .natal-pos__deg {
-    min-width: 40px;
-    font-size: 0.72rem;
-  }
+  .natal-pos__name { min-width: 50px; }
+  .natal-pos__sign-name { min-width: 40px; }
+  .natal-pos__deg { min-width: 40px; font-size: 0.72rem; }
 
   /* Transit cards: allow label to wrap */
   .cw-transit-label {
@@ -3529,38 +3597,13 @@ select {
     font-size: 0.78rem;
   }
 
-  .cw-transit-glyphs {
-    min-width: 52px;
-    font-size: 13px;
-  }
-
-  .cw-transit-strength {
-    min-width: 42px;
-    font-size: 8px;
-    padding: 2px 5px;
-  }
-
-  .cw-transit-orb {
-    min-width: 32px;
-    font-size: 10px;
-  }
+  .cw-transit-glyphs { min-width: 52px; font-size: 13px; }
+  .cw-transit-strength { min-width: 42px; font-size: 8px; padding: 2px 5px; }
+  .cw-transit-orb { min-width: 32px; font-size: 10px; }
 
   /* Position detail lines: tighter on mobile */
-  .cw-pos-line {
-    gap: 4px;
-    font-size: 0.72rem;
-  }
-
-  .cw-pos-name {
-    min-width: 50px;
-    font-size: 0.72rem;
-  }
-
-  /* Sidebar toolbar buttons: 44px touch targets */
-  .sidebar-toolbar-btn {
-    width: 44px;
-    height: 44px;
-  }
+  .cw-pos-line { gap: 4px; font-size: 0.72rem; }
+  .cw-pos-name { min-width: 50px; font-size: 0.72rem; }
 
   /* Fullscreen wheel */
   .wheel-fullscreen__ring {
@@ -3569,10 +3612,8 @@ select {
     max-height: calc(100vh - 80px);
   }
 
-  /* Profile list items: tighter */
-  .pli-tii {
-    font-size: 1.8rem;
-  }
+  /* Profile list items */
+  .pli-tii { font-size: 1.8rem; }
 
   /* Content tabs: scrollable on mobile */
   .content-tabs {
@@ -3589,11 +3630,7 @@ select {
     padding: 6px 12px;
   }
 
-  /* Top bar: tighter */
-  .top-bar {
-    padding: 0 12px;
-    gap: 8px;
-  }
+  .top-bar { padding: 0 12px; gap: 8px; }
 }
 
 /* Extra small phones */

@@ -136,6 +136,8 @@ export function App() {
   const [wheelExpanded, setWheelExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
+  const [mobileView, setMobileView] = useState<"list" | "detail">("list")
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 720
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
   const [guideOpen, setGuideOpen] = useState(false)
@@ -382,7 +384,7 @@ export function App() {
   }
 
   return (
-    <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""}`}>
+    <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
       <div className="main-layout">
         <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
           <div className="sidebar-toolbar">
@@ -445,6 +447,7 @@ export function App() {
                     } else {
                       setActiveProfileId(id)
                     }
+                    if (isMobile) setMobileView("detail")
                   }}
                   tiiMap={tiiMap}
                   primaryProfileId={primaryProfileId}
@@ -485,6 +488,13 @@ export function App() {
         </aside>
 
         <div className="content-pane">
+          <button
+            type="button"
+            className="mobile-back-btn"
+            onClick={() => setMobileView("list")}
+          >
+            ‹ {t("sidebar.back")}
+          </button>
           {contentLoading && activeProfileId ? (
             <div className="content-loader">
               <div className="content-loader__spinner" />

@@ -25,6 +25,7 @@ export const ru: Record<string, string> = {
   "sidebar.howItWorks": "Как это работает",
   "sidebar.showSidebar": "Показать панель",
   "sidebar.hideSidebar": "Скрыть панель",
+  "sidebar.back": "Все профили",
 
   // Profile list
   "profileList.empty": "Профилей пока нет",

@@ -25,6 +25,7 @@ export const en: Record<string, string> = {
   "sidebar.howItWorks": "How It Works",
   "sidebar.showSidebar": "Show sidebar",
   "sidebar.hideSidebar": "Hide sidebar",
+  "sidebar.back": "All Profiles",
 
   // Profile list
   "profileList.empty": "No profiles yet",
