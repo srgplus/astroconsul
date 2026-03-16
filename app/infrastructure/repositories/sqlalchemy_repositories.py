@@ -289,6 +289,7 @@ class SqlAlchemyProfileRepository:
         username: str,
         chart_id: str,
         *,
+        user_id: str | None = None,
         profile_input: dict[str, object] | None = None,
         profile_id: str | None = None,
         created_at: str | None = None,
@@ -305,10 +306,11 @@ class SqlAlchemyProfileRepository:
             updated_timestamp = (
                 datetime.fromisoformat(updated_at.replace("Z", "+00:00")) if updated_at is not None else timestamp
             )
+            resolved_user_id = user_id or self.settings.default_user_id
             profile = ProfileModel(
                 id=profile_id
                 or f"profile_{hashlib.sha256(f'{normalized_username}:{timestamp}'.encode()).hexdigest()[:32]}",
-                user_id=self.settings.default_user_id,
+                user_id=resolved_user_id,
                 handle=normalized_username,
                 display_name=profile_name.strip(),
                 birth_date=_coerce_date(payload.get("birth_date")),
@@ -361,6 +363,17 @@ class SqlAlchemyProfileRepository:
             session.commit()
             session.refresh(model)
             return _profile_payload(model)
+
+    def delete_profile(self, profile_id: str) -> None:
+        with self.session_factory() as session:
+            model = session.get(ProfileModel, profile_id)
+            if model is None:
+                raise FileNotFoundError(f"Natal profile not found: {profile_id}")
+            # Delete related latest_transit first
+            if model.latest_transit is not None:
+                session.delete(model.latest_transit)
+            session.delete(model)
+            session.commit()
 
     def resolve_profile_chart_id(self, profile_id: str) -> str:
         with self.session_factory() as session:

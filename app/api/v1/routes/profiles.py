@@ -141,6 +141,21 @@ def profile_detail(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+@router.delete("/{profile_id}")
+def delete_profile(
+    profile_id: str,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    try:
+        existing = repos.profiles.load_profile(profile_id)
+        _verify_ownership(existing, user["user_id"])
+        repos.profiles.delete_profile(profile_id)
+        return {"status": "deleted"}
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @router.patch("/{profile_id}", response_model=ProfileDetailResponse)
 def update_profile(
     profile_id: str,

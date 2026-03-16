@@ -100,6 +100,14 @@ class FileProfileRepository:
         del profile_input
         return update_profile(profile_id, profile_name, username, chart_id)
 
+    def delete_profile(self, profile_id: str) -> None:
+        import os
+        path = profile_path(profile_id)
+        if os.path.exists(path):
+            os.remove(path)
+        else:
+            raise FileNotFoundError(f"Natal profile not found: {profile_id}")
+
     def resolve_profile_chart_id(self, profile_id: str) -> str:
         return resolve_profile_chart_id(profile_id)
 
