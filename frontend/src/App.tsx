@@ -257,9 +257,6 @@ export function App() {
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
-  // Only block content on detail loading (fast DB read). Transit loads progressively.
-  const contentLoading = detailLoading
-
   useEffect(() => {
     if (!user) return
     let cancelled = false
@@ -339,9 +336,11 @@ export function App() {
         setActiveDetail(JSON.parse(cached))
         setDetailLoading(false)
       } else {
+        setActiveDetail(null)
         setDetailLoading(true)
       }
     } catch {
+      setActiveDetail(null)
       setDetailLoading(true)
     }
 
@@ -376,7 +375,9 @@ export function App() {
     autoFetchRef.current = controller
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    // Load cached transit report instantly
+    // Clear previous profile's transit data, then check cache
+    setTransitReport(null)
+
     const transitCacheKey = "cachedTransit_" + activeProfileId
     try {
       const cached = localStorage.getItem(transitCacheKey)
