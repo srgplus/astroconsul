@@ -5,7 +5,7 @@ import json
 from datetime import UTC, date, datetime, time
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings
@@ -369,7 +369,11 @@ class SqlAlchemyProfileRepository:
             model = session.get(ProfileModel, profile_id)
             if model is None:
                 raise FileNotFoundError(f"Natal profile not found: {profile_id}")
-            # Delete related latest_transit first
+            # Delete related follows
+            session.execute(
+                delete(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id)
+            )
+            # Delete related latest_transit
             if model.latest_transit is not None:
                 session.delete(model.latest_transit)
             session.delete(model)
