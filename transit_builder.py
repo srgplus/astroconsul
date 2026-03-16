@@ -50,9 +50,49 @@ def resolve_chart_path(chart_id: str) -> Path:
     return path
 
 
+def _load_chart_from_db(chart_id: str) -> dict[str, object] | None:
+    """Fallback: load chart payload from natal_charts table when file not on disk."""
+    try:
+        from app.core.config import get_settings
+        settings = get_settings()
+        if not settings.use_database:
+            return None
+        db_url = settings.effective_database_url
+        if not db_url:
+            return None
+        from app.infrastructure.persistence.session import get_engine, normalize_database_url
+        from sqlalchemy import text
+        engine = get_engine(normalize_database_url(db_url))
+        with engine.connect() as conn:
+            row = conn.execute(
+                text("SELECT chart_payload_json FROM natal_charts WHERE id = :cid"),
+                {"cid": chart_id},
+            ).fetchone()
+            if row and row[0]:
+                payload = row[0] if isinstance(row[0], dict) else json.loads(row[0])
+                # Also save to disk for future use
+                filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
+                path = CHARTS_DIR / filename
+                CHARTS_DIR.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+                return payload
+    except Exception:
+        pass
+    return None
+
+
 def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, object]]:
-    chart_path = resolve_chart_path(chart_id)
-    chart = json.loads(chart_path.read_text(encoding='utf-8'))
+    try:
+        chart_path = resolve_chart_path(chart_id)
+        chart = json.loads(chart_path.read_text(encoding='utf-8'))
+    except FileNotFoundError:
+        # Fallback to DB when chart file not on disk (e.g. Railway deployment)
+        db_chart = _load_chart_from_db(chart_id)
+        if db_chart is None:
+            raise FileNotFoundError(f"Natal chart not found: {chart_id}")
+        filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
+        chart_path = CHARTS_DIR / filename
+        chart = db_chart
 
     if chart_needs_upgrade(chart):
         birth_data = chart.get("birth_data") or {}

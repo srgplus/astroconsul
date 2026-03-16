@@ -1,0 +1,662 @@
+{
+  "angle_positions": [
+    {
+      "degree": 13,
+      "formatted_position": "13 Sagittarius 44' 13\"",
+      "id": "ASC",
+      "longitude": 253.737035,
+      "minute": 44,
+      "second": 13,
+      "sign": "Sagittarius"
+    },
+    {
+      "degree": 28,
+      "formatted_position": "28 Virgo 26' 59\"",
+      "id": "MC",
+      "longitude": 178.449744,
+      "minute": 26,
+      "second": 59,
+      "sign": "Virgo"
+    }
+  ],
+  "angles": {
+    "asc": 253.737035,
+    "mc": 178.449744,
+    "vertex": 119.507968
+  },
+  "birth_data": {
+    "day": 21,
+    "hour": 17.766667,
+    "latitude": 34.0536909,
+    "longitude": -118.242766,
+    "month": 10,
+    "time_basis": "UT",
+    "year": 1980
+  },
+  "birth_input": {
+    "birth_date": "1980-10-21",
+    "birth_time": "10:46:00",
+    "latitude": 34.0536909,
+    "local_birth_datetime": "1980-10-21T10:46:00-07:00",
+    "location_name": "Los Angeles, Los Angeles County, California, United States",
+    "longitude": -118.242766,
+    "name": null,
+    "time_basis": "local",
+    "timezone": "America/Los_Angeles",
+    "utc_birth_datetime": "1980-10-21T17:46:00Z"
+  },
+  "ephemeris_path": "/Users/sergecreator/astro-consul/ephe",
+  "ephemeris_sources": [
+    "Swiss Ephemeris files"
+  ],
+  "house_system": "Placidus",
+  "houses": [
+    253.737035,
+    286.39043,
+    323.043344,
+    358.449744,
+    28.108681,
+    52.347601,
+    73.737035,
+    106.39043,
+    143.043344,
+    178.449744,
+    208.108681,
+    232.347601
+  ],
+  "julian_day": 2444534.24027778,
+  "natal_aspects": [
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.517986,
+      "orb": 6.517986,
+      "p1": "Sun",
+      "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.245548,
+      "orb": 6.245548,
+      "p1": "Sun",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.977506,
+      "orb": 1.022494,
+      "p1": "Sun",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 179.286194,
+      "orb": 0.713806,
+      "p1": "Moon",
+      "p2": "Jupiter"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 174.466642,
+      "orb": 5.533358,
+      "p1": "Moon",
+      "p2": "Saturn"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 123.948797,
+      "orb": 3.948797,
+      "p1": "Moon",
+      "p2": "Uranus"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 179.705746,
+      "orb": 0.294254,
+      "p1": "Moon",
+      "p2": "MC"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 121.352478,
+      "orb": 1.352478,
+      "p1": "Moon",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 60.20406,
+      "orb": 0.20406,
+      "p1": "Mercury",
+      "p2": "Venus"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.398434,
+      "orb": 4.398434,
+      "p1": "Mercury",
+      "p2": "Uranus"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 176.871979,
+      "orb": 3.128021,
+      "p1": "Mercury",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 92.261555,
+      "orb": 2.261555,
+      "p1": "Mercury",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 87.738445,
+      "orb": 2.261555,
+      "p1": "Mercury",
+      "p2": "South Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 173.598792,
+      "orb": 6.401208,
+      "p1": "Mercury",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 90.982523,
+      "orb": 0.982523,
+      "p1": "Venus",
+      "p2": "Neptune"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 84.132836,
+      "orb": 5.867164,
+      "p1": "Venus",
+      "p2": "ASC"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 122.923961,
+      "orb": 2.923961,
+      "p1": "Venus",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 63.106534,
+      "orb": 3.106534,
+      "p1": "Mars",
+      "p2": "Saturn"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.941653,
+      "orb": 6.941653,
+      "p1": "Mars",
+      "p2": "ASC"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 88.148787,
+      "orb": 1.851213,
+      "p1": "Mars",
+      "p2": "Selena"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 4.819552,
+      "orb": 4.819552,
+      "p1": "Jupiter",
+      "p2": "Saturn"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 0.419552,
+      "orb": 0.419552,
+      "p1": "Jupiter",
+      "p2": "MC"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 59.361328,
+      "orb": 0.638672,
+      "p1": "Jupiter",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 5.239104,
+      "orb": 5.239104,
+      "p1": "Saturn",
+      "p2": "MC"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 172.473545,
+      "orb": 7.526455,
+      "p1": "Uranus",
+      "p2": "Chiron"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 114.698725,
+      "orb": 5.301275,
+      "p1": "Uranus",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.619234,
+      "orb": 1.380766,
+      "p1": "Neptune",
+      "p2": "Pluto"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 6.849687,
+      "orb": 6.849687,
+      "p1": "Neptune",
+      "p2": "ASC"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.346796,
+      "orb": 1.653204,
+      "p1": "Neptune",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 123.040018,
+      "orb": 3.040018,
+      "p1": "Neptune",
+      "p2": "North Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 56.959982,
+      "orb": 3.040018,
+      "p1": "Neptune",
+      "p2": "South Node"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 0.272438,
+      "orb": 0.272438,
+      "p1": "Pluto",
+      "p2": "Lilith"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.579216,
+      "orb": 4.420784,
+      "p1": "Pluto",
+      "p2": "South Node"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 116.190331,
+      "orb": 3.809669,
+      "p1": "ASC",
+      "p2": "North Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 63.809669,
+      "orb": 3.809669,
+      "p1": "ASC",
+      "p2": "South Node"
+    },
+    {
+      "angle": 60,
+      "aspect": "sextile",
+      "delta": 58.941776,
+      "orb": 1.058224,
+      "p1": "MC",
+      "p2": "Vertex"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 90.866466,
+      "orb": 0.866466,
+      "p1": "Chiron",
+      "p2": "North Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 89.133534,
+      "orb": 0.866466,
+      "p1": "Chiron",
+      "p2": "South Node"
+    },
+    {
+      "angle": 0,
+      "aspect": "conjunction",
+      "delta": 3.273187,
+      "orb": 3.273187,
+      "p1": "Chiron",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 120,
+      "aspect": "trine",
+      "delta": 115.306778,
+      "orb": 4.693222,
+      "p1": "Lilith",
+      "p2": "South Node"
+    },
+    {
+      "angle": 180,
+      "aspect": "opposition",
+      "delta": 180.0,
+      "orb": 0.0,
+      "p1": "North Node",
+      "p2": "South Node"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 94.139653,
+      "orb": 4.139653,
+      "p1": "North Node",
+      "p2": "Part of Fortune"
+    },
+    {
+      "angle": 90,
+      "aspect": "square",
+      "delta": 85.860347,
+      "orb": 4.139653,
+      "p1": "South Node",
+      "p2": "Part of Fortune"
+    }
+  ],
+  "natal_positions": [
+    {
+      "degree": 28,
+      "formatted_position": "28 Libra 29' 08\"",
+      "house": 11,
+      "id": "Sun",
+      "longitude": 208.485474,
+      "minute": 29,
+      "retrograde": false,
+      "second": 8,
+      "sign": "Libra",
+      "speed": 0.994774
+    },
+    {
+      "degree": 13,
+      "formatted_position": "13 Sagittarius 44' 13\"",
+      "house": 1,
+      "id": "ASC",
+      "longitude": 253.737035,
+      "minute": 44,
+      "retrograde": null,
+      "second": 13,
+      "sign": "Sagittarius",
+      "speed": null
+    },
+    {
+      "degree": 28,
+      "formatted_position": "28 Virgo 26' 59\"",
+      "house": 10,
+      "id": "MC",
+      "longitude": 178.449744,
+      "minute": 26,
+      "retrograde": null,
+      "second": 59,
+      "sign": "Virgo",
+      "speed": null
+    },
+    {
+      "degree": 28,
+      "formatted_position": "28 Pisces 09' 20\"",
+      "house": 3,
+      "id": "Moon",
+      "longitude": 358.15549,
+      "minute": 9,
+      "retrograde": false,
+      "second": 20,
+      "sign": "Pisces",
+      "speed": 14.996953
+    },
+    {
+      "degree": 19,
+      "formatted_position": "19 Scorpio 48' 30\"",
+      "house": 11,
+      "id": "Mercury",
+      "longitude": 229.808259,
+      "minute": 48,
+      "retrograde": false,
+      "second": 30,
+      "sign": "Scorpio",
+      "speed": 0.168865
+    },
+    {
+      "degree": 19,
+      "formatted_position": "19 Virgo 36' 15\"",
+      "house": 9,
+      "id": "Venus",
+      "longitude": 169.604199,
+      "minute": 36,
+      "retrograde": false,
+      "second": 15,
+      "sign": "Virgo",
+      "speed": 1.186391
+    },
+    {
+      "degree": 6,
+      "formatted_position": "6 Sagittarius 47' 43\"",
+      "house": 12,
+      "id": "Mars",
+      "longitude": 246.795382,
+      "minute": 47,
+      "retrograde": false,
+      "second": 43,
+      "sign": "Sagittarius",
+      "speed": 0.723023
+    },
+    {
+      "degree": 28,
+      "formatted_position": "28 Virgo 52' 09\"",
+      "house": 10,
+      "id": "Jupiter",
+      "longitude": 178.869296,
+      "minute": 52,
+      "retrograde": false,
+      "second": 9,
+      "sign": "Virgo",
+      "speed": 0.201376
+    },
+    {
+      "degree": 3,
+      "formatted_position": "3 Libra 41' 20\"",
+      "house": 10,
+      "id": "Saturn",
+      "longitude": 183.688848,
+      "minute": 41,
+      "retrograde": false,
+      "second": 20,
+      "sign": "Libra",
+      "speed": 0.116545
+    },
+    {
+      "degree": 24,
+      "formatted_position": "24 Scorpio 12' 24\"",
+      "house": 12,
+      "id": "Uranus",
+      "longitude": 234.206693,
+      "minute": 12,
+      "retrograde": false,
+      "second": 24,
+      "sign": "Scorpio",
+      "speed": 0.057369
+    },
+    {
+      "degree": 20,
+      "formatted_position": "20 Sagittarius 35' 12\"",
+      "house": 1,
+      "id": "Neptune",
+      "longitude": 260.586722,
+      "minute": 35,
+      "retrograde": false,
+      "second": 12,
+      "sign": "Sagittarius",
+      "speed": 0.025818
+    },
+    {
+      "degree": 21,
+      "formatted_position": "21 Libra 58' 03\"",
+      "house": 10,
+      "id": "Pluto",
+      "longitude": 201.967488,
+      "minute": 58,
+      "retrograde": false,
+      "second": 3,
+      "sign": "Libra",
+      "speed": 0.039718
+    },
+    {
+      "degree": 16,
+      "formatted_position": "16 Taurus 40' 49\"",
+      "house": 5,
+      "id": "Chiron",
+      "longitude": 46.680238,
+      "minute": 40,
+      "retrograde": true,
+      "second": 49,
+      "sign": "Taurus",
+      "speed": -0.047088
+    },
+    {
+      "degree": 22,
+      "formatted_position": "22 Libra 14' 24\"",
+      "house": 10,
+      "id": "Lilith",
+      "longitude": 202.239926,
+      "minute": 14,
+      "retrograde": false,
+      "second": 24,
+      "sign": "Libra",
+      "speed": 0.111812
+    },
+    {
+      "degree": 4,
+      "formatted_position": "4 Pisces 56' 39\"",
+      "house": 3,
+      "id": "Selena",
+      "longitude": 334.944169,
+      "minute": 56,
+      "retrograde": false,
+      "second": 39,
+      "sign": "Pisces",
+      "speed": 0.140787
+    },
+    {
+      "degree": 17,
+      "formatted_position": "17 Leo 32' 48\"",
+      "house": 8,
+      "id": "North Node",
+      "longitude": 137.546704,
+      "minute": 32,
+      "retrograde": true,
+      "second": 48,
+      "sign": "Leo",
+      "speed": -0.104326
+    },
+    {
+      "degree": 17,
+      "formatted_position": "17 Aquarius 32' 48\"",
+      "house": 2,
+      "id": "South Node",
+      "longitude": 317.546704,
+      "minute": 32,
+      "retrograde": true,
+      "second": 48,
+      "sign": "Aquarius",
+      "speed": -0.104326
+    },
+    {
+      "degree": 13,
+      "formatted_position": "13 Taurus 24' 25\"",
+      "house": 5,
+      "id": "Part of Fortune",
+      "longitude": 43.407051,
+      "minute": 24,
+      "retrograde": null,
+      "second": 25,
+      "sign": "Taurus",
+      "speed": null
+    },
+    {
+      "degree": 29,
+      "formatted_position": "29 Cancer 30' 29\"",
+      "house": 8,
+      "id": "Vertex",
+      "longitude": 119.507968,
+      "minute": 30,
+      "retrograde": null,
+      "second": 29,
+      "sign": "Cancer",
+      "speed": null
+    }
+  ],
+  "natal_summary": {
+    "asc": "Sagittarius 13\u00b044'13\"",
+    "moon": "Pisces 28\u00b009'20\"",
+    "sun": "Libra 28\u00b029'08\""
+  },
+  "planets": {
+    "Jupiter": 178.869296,
+    "Mars": 246.795382,
+    "Mercury": 229.808259,
+    "Moon": 358.15549,
+    "Neptune": 260.586722,
+    "Pluto": 201.967488,
+    "Saturn": 183.688848,
+    "Sun": 208.485474,
+    "Uranus": 234.206693,
+    "Venus": 169.604199
+  },
+  "swiss_ephemeris_version": "2.10.03"
+}
