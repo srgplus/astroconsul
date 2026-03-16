@@ -18,12 +18,15 @@ except ImportError:  # pragma: no cover - optional integration
 
 def _ensure_tables(settings) -> None:
     """Create any missing tables (e.g. after adding new models)."""
-    if settings.persistence_backend != "supabase":
+    if not settings.use_database:
+        return
+    database_url = settings.effective_database_url
+    if database_url is None:
         return
     try:
-        from app.infrastructure.persistence.models import Base
-        from app.infrastructure.persistence.session import get_engine
-        engine = get_engine(settings.database_url)
+        from app.infrastructure.persistence.models import Base  # noqa: F811
+        from app.infrastructure.persistence.session import get_engine, normalize_database_url
+        engine = get_engine(normalize_database_url(database_url))
         Base.metadata.create_all(engine, checkfirst=True)
     except Exception:
         pass  # non-fatal — tables may already exist

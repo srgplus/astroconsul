@@ -11,12 +11,32 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import Settings, get_settings
 
 
-def normalize_database_url(database_url: str) -> str:
-    if database_url.startswith("postgres://"):
-        return database_url.replace("postgres://", "postgresql+psycopg://", 1)
-    if database_url.startswith("postgresql://"):
-        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+def _convert_pooler_to_direct(database_url: str) -> str:
+    """Convert Supabase pooler URL to direct connection URL.
+
+    Pooler URLs (port 6543) can fail with 'Tenant or user not found'.
+    Direct URLs (port 5432) are more reliable for long-lived server processes.
+    """
+    import re
+
+    # Match: postgres[ql]://postgres.PROJECTREF:PASSWORD@*.pooler.supabase.com:6543/postgres
+    match = re.match(
+        r"postgres(?:ql)?://postgres\.([^:]+):([^@]+)@[^/]+\.pooler\.supabase\.com:\d+/(.+)",
+        database_url,
+    )
+    if match:
+        project_ref, password, dbname = match.groups()
+        return f"postgresql://postgres:{password}@db.{project_ref}.supabase.co:5432/{dbname}"
     return database_url
+
+
+def normalize_database_url(database_url: str) -> str:
+    url = _convert_pooler_to_direct(database_url)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return url
 
 
 @lru_cache(maxsize=8)
