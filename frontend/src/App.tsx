@@ -224,6 +224,10 @@ export function App() {
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
     try {
+      // Try dedicated TII cache first (survives even when server has no latest_transit)
+      const tiiCache = localStorage.getItem("cachedTiiMap")
+      if (tiiCache) return JSON.parse(tiiCache)
+      // Fallback: extract from cached profiles
       const cached: ProfileSummary[] = JSON.parse(localStorage.getItem("cachedProfiles") || "[]")
       const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
       const map: Record<string, ProfileTiiData> = {}
@@ -241,6 +245,12 @@ export function App() {
       return map
     } catch { return {} }
   })
+  // Persist tiiMap to localStorage so sidebar TII survives page reload
+  useEffect(() => {
+    if (Object.keys(tiiMap).length > 0) {
+      try { localStorage.setItem("cachedTiiMap", JSON.stringify(tiiMap)) } catch {}
+    }
+  }, [tiiMap])
   const [guideOpen, setGuideOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
@@ -286,21 +296,23 @@ export function App() {
 
         setActiveProfileId((current) => current || effectivePrimary || profilesPayload.profiles[0]?.profile_id || null)
 
-        // Populate sidebar TII from pre-cached values in latest_transit
+        // Merge server-side TII into existing tiiMap (preserve client-cached values)
         const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
-        const initialTii: Record<string, ProfileTiiData> = {}
-        for (const p of profilesPayload.profiles) {
-          const lt = p.latest_transit
-          if (lt?.tii != null) {
-            initialTii[p.profile_id] = {
-              tii: lt.tii,
-              tension_ratio: lt.tension_ratio ?? 0,
-              feels_like: lt.feels_like ?? "Calm",
-              location: lt.location_name || lt.timezone || browserTz,
+        setTiiMap((prev) => {
+          const merged = { ...prev }
+          for (const p of profilesPayload.profiles) {
+            const lt = p.latest_transit
+            if (lt?.tii != null) {
+              merged[p.profile_id] = {
+                tii: lt.tii,
+                tension_ratio: lt.tension_ratio ?? 0,
+                feels_like: lt.feels_like ?? "Calm",
+                location: lt.location_name || lt.timezone || browserTz,
+              }
             }
           }
-        }
-        setTiiMap(initialTii)
+          return merged
+        })
       } catch (err) {
         if (cancelled) return
         const msg = err instanceof Error ? err.message : "Unknown error"
@@ -1105,7 +1117,7 @@ export function App() {
         onResetCache={() => {
           // Clear all cached data from localStorage
           const keysToRemove = Object.keys(localStorage).filter((k) =>
-            k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "transitParams"
+            k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "cachedTiiMap" || k === "transitParams"
           )
           keysToRemove.forEach((k) => localStorage.removeItem(k))
           setSettingsOpen(false)

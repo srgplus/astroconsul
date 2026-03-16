@@ -192,6 +192,13 @@ export function SettingsModal({
             {page === "system" && (
               <>
                 <div className="stg-card">
+                  <div className="stg-card-title">{t("settings.cache")}</div>
+                  <p className="stg-card-desc">{t("settings.cacheDesc")}</p>
+                  <button type="button" className="stg-signout-btn" onClick={onResetCache}>
+                    {t("settings.resetCache")}
+                  </button>
+                </div>
+                <div className="stg-card">
                   <div className="stg-card-title">{t("settings.calcEngine")}</div>
                   <div className="stg-row">
                     <span className="stg-label">{t("settings.ephemeris")}</span>
@@ -231,13 +238,6 @@ export function SettingsModal({
                     <span className="stg-label">{t("settings.points")}</span>
                     <span className="stg-val">AC MC ☊ ☋ ⚷ ⚸ ☽ Vtx PoF</span>
                   </div>
-                </div>
-                <div className="stg-card">
-                  <div className="stg-card-title">{t("settings.cache")}</div>
-                  <p className="stg-card-desc">{t("settings.cacheDesc")}</p>
-                  <button type="button" className="stg-signout-btn" onClick={onResetCache}>
-                    {t("settings.resetCache")}
-                  </button>
                 </div>
               </>
             )}
