@@ -174,7 +174,17 @@ export function App() {
 
         setHealth(healthPayload)
         setProfiles(profilesPayload.profiles)
-        setActiveProfileId((current) => current || primaryProfileId || profilesPayload.profiles[0]?.profile_id || null)
+
+        // Clear stale primaryProfileId if it points to a deleted profile
+        const validIds = new Set(profilesPayload.profiles.map((p: ProfileSummary) => p.profile_id))
+        let effectivePrimary = primaryProfileId
+        if (effectivePrimary && !validIds.has(effectivePrimary)) {
+          localStorage.removeItem("primaryProfileId")
+          setPrimaryProfileId(null)
+          effectivePrimary = null
+        }
+
+        setActiveProfileId((current) => current || effectivePrimary || profilesPayload.profiles[0]?.profile_id || null)
       } catch (err) {
         if (cancelled) return
         const msg = err instanceof Error ? err.message : "Unknown error"
@@ -229,35 +239,44 @@ export function App() {
     const defaultDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
     const defaultTime = `${String(now.getHours()).padStart(2, "0")}:00`
 
-    Promise.all(
-      profiles.map((p) => {
-        const lt = p.latest_transit
-        return fetchTransitReport(p.profile_id, {
-          transit_date: defaultDate,
-          transit_time: defaultTime,
-          timezone: browserTz,
-          location_name: lt?.location_name ?? null,
-          latitude: lt?.latitude ?? null,
-          longitude: lt?.longitude ?? null,
-          include_timing: false,
-        }, controller.signal)
-          .then((r) => ({ id: p.profile_id, r }))
-          .catch(() => null)
-      })
-    ).then((results) => {
-      if (controller.signal.aborted) return
-      const map: Record<string, ProfileTiiData> = {}
-      for (const item of results) {
-        if (!item || item.r.tii == null) continue
-        map[item.id] = {
-          tii: item.r.tii,
-          tension_ratio: item.r.tension_ratio ?? 0,
-          feels_like: item.r.feels_like ?? "Calm",
-          location: item.r.snapshot?.transit_location_name || item.r.snapshot?.transit_timezone || browserTz,
+    // Process profiles in batches of 2 to avoid overwhelming slow servers
+    const BATCH_SIZE = 2
+    ;(async () => {
+      for (let i = 0; i < profiles.length; i += BATCH_SIZE) {
+        if (controller.signal.aborted) return
+        const batch = profiles.slice(i, i + BATCH_SIZE)
+        const results = await Promise.all(
+          batch.map((p) => {
+            const lt = p.latest_transit
+            return fetchTransitReport(p.profile_id, {
+              transit_date: defaultDate,
+              transit_time: defaultTime,
+              timezone: browserTz,
+              location_name: lt?.location_name ?? null,
+              latitude: lt?.latitude ?? null,
+              longitude: lt?.longitude ?? null,
+              include_timing: false,
+            }, controller.signal)
+              .then((r) => ({ id: p.profile_id, r }))
+              .catch(() => null)
+          })
+        )
+        if (controller.signal.aborted) return
+        const batchMap: Record<string, ProfileTiiData> = {}
+        for (const item of results) {
+          if (!item || item.r.tii == null) continue
+          batchMap[item.id] = {
+            tii: item.r.tii,
+            tension_ratio: item.r.tension_ratio ?? 0,
+            feels_like: item.r.feels_like ?? "Calm",
+            location: item.r.snapshot?.transit_location_name || item.r.snapshot?.transit_timezone || browserTz,
+          }
+        }
+        if (Object.keys(batchMap).length > 0) {
+          setTiiMap((prev) => ({ ...prev, ...batchMap }))
         }
       }
-      setTiiMap(map)
-    })
+    })()
 
     return () => controller.abort()
   }, [profiles])
