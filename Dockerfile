@@ -14,7 +14,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- Stage 2: Python runtime ----
-FROM python:3.11-slim AS runtime
+FROM python:3.11-slim-bookworm AS runtime
 WORKDIR /app
 
 # System deps for pyswisseph (needs C compiler for build)
@@ -39,7 +39,7 @@ COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 # Data files (writable volume in production)
 COPY profiles/ ./profiles/
-COPY charts/ ./charts/
+RUN mkdir -p ./charts
 
 # Runtime config
 ENV ASTRO_CONSUL_ENV=production
