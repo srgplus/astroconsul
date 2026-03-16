@@ -93,6 +93,7 @@ def _profile_payload(model: ProfileModel) -> dict[str, Any]:
         "profile_id": model.id,
         "profile_name": model.display_name,
         "username": model.handle,
+        "user_id": model.user_id,
         "chart_id": model.chart_id,
         "created_at": _isoformat_z(model.created_at),
         "updated_at": _isoformat_z(model.updated_at),
