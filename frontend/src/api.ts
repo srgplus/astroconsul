@@ -19,9 +19,26 @@ supabase.auth.onAuthStateChange((_event, session) => {
   _cachedToken = session?.access_token ?? null
 })
 
+// Wait for the cached token to appear (set by onAuthStateChange listener).
+// On page reload the listener fires asynchronously, so bootstrap may call
+// getAuthHeaders() before the token is cached.  Poll briefly instead of
+// sending an unauthenticated request that returns empty data.
+function waitForToken(timeoutMs = 3000): Promise<string | null> {
+  if (_cachedToken) return Promise.resolve(_cachedToken)
+  return new Promise((resolve) => {
+    const start = Date.now()
+    const id = setInterval(() => {
+      if (_cachedToken || Date.now() - start > timeoutMs) {
+        clearInterval(id)
+        resolve(_cachedToken)
+      }
+    }, 50)
+  })
+}
+
 async function getAuthHeaders(): Promise<Record<string, string>> {
-  // Prefer the synchronously-cached token (always up-to-date from listener)
-  let token = _cachedToken
+  // Wait for the auth listener to populate the cached token
+  let token = await waitForToken()
 
   // Fallback to getSession for edge cases
   if (!token) {
