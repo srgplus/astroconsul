@@ -317,6 +317,48 @@ export function App() {
     return () => { cancelled = true }
   }, [user])
 
+  // Background TII: compute transit for profiles missing TII so sidebar populates automatically
+  useEffect(() => {
+    if (profiles.length === 0) return
+    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const now = new Date()
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
+    const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
+
+    const missing = profiles.filter((p) => {
+      const lt = p.latest_transit
+      return lt?.tii == null
+    })
+    if (missing.length === 0) return
+
+    let cancelled = false
+    // Stagger requests to avoid hammering the server
+    missing.forEach((p, i) => {
+      setTimeout(() => {
+        if (cancelled) return
+        fetchTransitReport(p.profile_id, {
+          transit_date: date,
+          transit_time: time,
+          timezone: p.latest_transit?.timezone ?? browserTz,
+          include_timing: false,
+        }).then((report) => {
+          if (cancelled || report.tii == null) return
+          setTiiMap((prev) => ({
+            ...prev,
+            [p.profile_id]: {
+              tii: report.tii!,
+              tension_ratio: report.tension_ratio ?? 0,
+              feels_like: report.feels_like ?? "Calm",
+              location: report.snapshot?.transit_location_name || report.snapshot?.transit_timezone || browserTz,
+            },
+          }))
+        }).catch(() => { /* silent — TII will populate when user clicks profile */ })
+      }, i * 500)
+    })
+
+    return () => { cancelled = true }
+  }, [profiles])
+
   useEffect(() => {
     if (!activeProfileId) {
       setActiveDetail(null)
