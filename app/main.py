@@ -16,9 +16,24 @@ except ImportError:  # pragma: no cover - optional integration
     sentry_sdk = None
 
 
+def _ensure_tables(settings) -> None:
+    """Create any missing tables (e.g. after adding new models)."""
+    if settings.persistence_backend != "supabase":
+        return
+    try:
+        from app.infrastructure.persistence.models import Base
+        from app.infrastructure.persistence.session import get_engine
+        engine = get_engine(settings.database_url)
+        Base.metadata.create_all(engine, checkfirst=True)
+    except Exception:
+        pass  # non-fatal — tables may already exist
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(environment=settings.environment)
+
+    _ensure_tables(settings)
 
     if settings.sentry_dsn and sentry_sdk is not None:
         sentry_sdk.init(dsn=settings.sentry_dsn, traces_sample_rate=0.0)
