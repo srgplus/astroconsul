@@ -12,5 +12,6 @@ astro_consul.db
 !.env.example
 profiles/*.json
 !profiles/.gitkeep
+charts/*.json
 
 *.egg-info/

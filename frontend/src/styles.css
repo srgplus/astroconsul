@@ -275,6 +275,153 @@ select {
   to { transform: rotate(360deg); }
 }
 
+/* ===== Skeleton loaders ===== */
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-soft) 25%, var(--line) 37%, var(--surface-soft) 63%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Skeleton: Hero section */
+.skeleton-hero {
+  padding: 32px 20px 24px;
+  text-align: center;
+}
+
+.skeleton-hero__location {
+  width: 120px;
+  height: 12px;
+  margin: 0 auto 12px;
+}
+
+.skeleton-hero__name {
+  width: 200px;
+  height: 28px;
+  margin: 0 auto 16px;
+}
+
+.skeleton-hero__tii {
+  width: 80px;
+  height: 52px;
+  margin: 0 auto 10px;
+  border-radius: 12px;
+}
+
+.skeleton-hero__mood {
+  width: 140px;
+  height: 18px;
+  margin: 0 auto 8px;
+}
+
+.skeleton-hero__date {
+  width: 170px;
+  height: 14px;
+  margin: 0 auto;
+}
+
+/* Skeleton: Widget card */
+.skeleton-widget {
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: 20px;
+  padding: 16px;
+  min-height: 140px;
+}
+
+.skeleton-widget__title {
+  width: 100px;
+  height: 14px;
+  margin-bottom: 14px;
+}
+
+.skeleton-widget__row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.skeleton-widget__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.skeleton-widget__bar {
+  height: 12px;
+  flex: 1;
+}
+
+.skeleton-widget__bar--short {
+  flex: 0.5;
+}
+
+/* Skeleton: Zodiac wheel */
+.skeleton-wheel {
+  background: var(--bg-deep);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+
+.skeleton-wheel__circle {
+  width: 85%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+/* Skeleton: Sidebar profile items */
+.skeleton-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.skeleton-sidebar-item__avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.skeleton-sidebar-item__lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-sidebar-item__line1 {
+  width: 70%;
+  height: 13px;
+}
+
+.skeleton-sidebar-item__line2 {
+  width: 45%;
+  height: 10px;
+}
+
+.skeleton-sidebar-item__tii {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .sticky-header {
   position: sticky;
   top: 0;

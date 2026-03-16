@@ -58,6 +58,59 @@ function useTheme() {
   return [theme, setTheme] as const
 }
 
+/* ===== Skeleton components ===== */
+
+function SkeletonSidebarItems({ count = 5 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="skeleton-sidebar-item">
+          <div className="skeleton skeleton-sidebar-item__avatar" />
+          <div className="skeleton-sidebar-item__lines">
+            <div className="skeleton skeleton-sidebar-item__line1" />
+            <div className="skeleton skeleton-sidebar-item__line2" />
+          </div>
+          <div className="skeleton skeleton-sidebar-item__tii" />
+        </div>
+      ))}
+    </>
+  )
+}
+
+function SkeletonHero() {
+  return (
+    <div className="skeleton-hero">
+      <div className="skeleton skeleton-hero__location" />
+      <div className="skeleton skeleton-hero__name" />
+      <div className="skeleton skeleton-hero__tii" />
+      <div className="skeleton skeleton-hero__mood" />
+      <div className="skeleton skeleton-hero__date" />
+    </div>
+  )
+}
+
+function SkeletonWidget({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="skeleton-widget">
+      <div className="skeleton skeleton-widget__title" />
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="skeleton-widget__row">
+          <div className="skeleton skeleton-widget__icon" />
+          <div className="skeleton skeleton-widget__bar" style={{ flex: i % 2 === 0 ? 1 : 0.6 }} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function SkeletonWheel() {
+  return (
+    <div className="skeleton-wheel">
+      <div className="skeleton skeleton-wheel__circle" />
+    </div>
+  )
+}
+
 /** Compact preview of natal planet positions for a widget card */
 function PlanetsPreview({ positions }: { positions: NatalPosition[] }) {
   const preview = positions.filter((p) =>
@@ -160,7 +213,14 @@ export function App() {
   const [wheelExpanded, setWheelExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
-  const [mobileView, setMobileView] = useState<"list" | "detail">("list")
+  const [mobileView, setMobileView] = useState<"list" | "detail">(() => {
+    // On mobile, auto-open detail if we have cached profiles (skip list screen)
+    try {
+      const cached = JSON.parse(localStorage.getItem("cachedProfiles") || "[]")
+      if (cached.length > 0) return "detail"
+    } catch {}
+    return "list"
+  })
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
     try {
@@ -597,6 +657,8 @@ export function App() {
                       ))
                     )}
                   </div>
+                ) : profiles.length === 0 && !bootError ? (
+                  <SkeletonSidebarItems count={6} />
                 ) : (
                   <ProfileList
                     profiles={(() => {
@@ -701,12 +763,7 @@ export function App() {
               {"\u2630"}
             </button>
           </div>
-          {contentLoading && activeProfileId ? (
-            <div className="content-loader">
-              <div className="content-loader__spinner" />
-            </div>
-          ) : null}
-          <div style={{ opacity: contentLoading ? 0 : 1, transition: "opacity 0.2s ease" }}>
+          {/* Hero section: DailyWeather or skeleton */}
           {transitReport && activeDetail ? (
             <DailyWeather
               transitReport={transitReport}
@@ -742,10 +799,16 @@ export function App() {
                 }).catch(() => {})
               }}
             />
+          ) : activeDetail ? (
+            <header className="sticky-header">
+              <h1 className="content-profile-name">{activeDetail.profile.profile_name}</h1>
+              <span className="content-profile-username">@{activeDetail.profile.username}</span>
+            </header>
+          ) : activeProfileId ? (
+            <SkeletonHero />
           ) : (
             <header className="sticky-header">
-              <h1 className="content-profile-name">{activeDetail?.profile.profile_name || t("widget.selectProfile")}</h1>
-              {activeDetail ? <span className="content-profile-username">@{activeDetail.profile.username}</span> : null}
+              <h1 className="content-profile-name">{t("widget.selectProfile")}</h1>
             </header>
           )}
 
@@ -753,14 +816,12 @@ export function App() {
             {/* Left column: Transits + Climate */}
             <div className="widget-col-left">
               {/* Active Transits widget */}
-              {transitLoading && !transitReport ? (
-                <div className="widget widget--summary" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 120 }}>
-                  <div className="content-loader__spinner" />
-                </div>
-              ) : transitReport ? (
+              {transitReport ? (
                 <div className="widget widget--summary">
                   <ActiveTransitsWidget transitReport={transitReport} />
                 </div>
+              ) : (transitLoading || activeProfileId) && !transitReport ? (
+                <SkeletonWidget rows={4} />
               ) : null}
 
               {/* Cosmic Climate widget */}
@@ -768,6 +829,8 @@ export function App() {
                 <div className="widget widget--summary">
                   <CosmicClimateWidget transitReport={transitReport} />
                 </div>
+              ) : (transitLoading || activeProfileId) && !transitReport ? (
+                <SkeletonWidget rows={3} />
               ) : null}
             </div>
 
@@ -779,54 +842,57 @@ export function App() {
                   <div className="widget-title">{t("widget.natal")}</div>
                   <ProfileSummaryCard detail={activeDetail} />
                 </div>
+              ) : activeProfileId ? (
+                <SkeletonWidget rows={5} />
               ) : null}
-            <div className="widget widget--chart widget--wheel-right" onClick={() => activeDetail && setWheelExpanded(true)}>
-              <div className="wheel-mode-toggle" onClick={(e) => e.stopPropagation()}>
-                <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("widget.natal")}</button>
-                <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
-              </div>
               {activeDetail ? (
-                <NatalZodiacRing
-                  asc={coerceNumber(activeDetail.chart.asc)}
-                  mc={coerceNumber(activeDetail.chart.mc)}
-                  houses={activeDetail.chart.houses ?? null}
-                  planets={(natalPositions)
-                    .filter((p) => Number.isFinite(p.longitude))
-                    .map((p) => ({
-                      id: p.id,
-                      longitude: p.longitude,
-                      glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-                    }))}
-                  transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
-                    .filter((p) => Number.isFinite(p.longitude))
-                    .map((p) => ({
-                      id: p.id,
-                      longitude: p.longitude,
-                      glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-                    })) : []}
-                  transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
-                    .filter((a) => a.is_within_orb)
-                    .map((a) => ({
-                      transit_object: a.transit_object,
-                      natal_object: a.natal_object,
+                <div className="widget widget--chart widget--wheel-right" onClick={() => setWheelExpanded(true)}>
+                  <div className="wheel-mode-toggle" onClick={(e) => e.stopPropagation()}>
+                    <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("widget.natal")}</button>
+                    <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
+                  </div>
+                  <NatalZodiacRing
+                    asc={coerceNumber(activeDetail.chart.asc)}
+                    mc={coerceNumber(activeDetail.chart.mc)}
+                    houses={activeDetail.chart.houses ?? null}
+                    planets={(natalPositions)
+                      .filter((p) => Number.isFinite(p.longitude))
+                      .map((p) => ({
+                        id: p.id,
+                        longitude: p.longitude,
+                        glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                      }))}
+                    transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
+                      .filter((p) => Number.isFinite(p.longitude))
+                      .map((p) => ({
+                        id: p.id,
+                        longitude: p.longitude,
+                        glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                      })) : []}
+                    transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
+                      .filter((a) => a.is_within_orb)
+                      .map((a) => ({
+                        transit_object: a.transit_object,
+                        natal_object: a.natal_object,
+                        aspect: a.aspect,
+                        orb: a.orb,
+                        strength: a.strength,
+                      })) : []}
+                    natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
+                      p1: a.p1,
+                      p2: a.p2,
                       aspect: a.aspect,
                       orb: a.orb,
-                      strength: a.strength,
                     })) : []}
-                  natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
-                    p1: a.p1,
-                    p2: a.p2,
-                    aspect: a.aspect,
-                    orb: a.orb,
-                  })) : []}
-                  size={700}
-                  theme="light"
-                />
+                    size={700}
+                    theme="light"
+                  />
+                </div>
+              ) : activeProfileId ? (
+                <SkeletonWheel />
               ) : null}
-            </div>
             </div>{/* end widget-col-right */}
           </div>{/* end widget-grid */}
-          </div>{/* end opacity wrapper */}
         </div>
       </div>
 

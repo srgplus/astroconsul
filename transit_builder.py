@@ -51,7 +51,7 @@ def resolve_chart_path(chart_id: str) -> Path:
 
 
 def _load_chart_from_db(chart_id: str) -> dict[str, object] | None:
-    """Fallback: load chart payload from natal_charts table when file not on disk."""
+    """Load chart payload from natal_charts table (primary source)."""
     try:
         from app.core.config import get_settings
         settings = get_settings()
@@ -69,30 +69,24 @@ def _load_chart_from_db(chart_id: str) -> dict[str, object] | None:
                 {"cid": chart_id},
             ).fetchone()
             if row and row[0]:
-                payload = row[0] if isinstance(row[0], dict) else json.loads(row[0])
-                # Also save to disk for future use
-                filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
-                path = CHARTS_DIR / filename
-                CHARTS_DIR.mkdir(parents=True, exist_ok=True)
-                path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-                return payload
+                return row[0] if isinstance(row[0], dict) else json.loads(row[0])
     except Exception:
         pass
     return None
 
 
 def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, object]]:
-    try:
+    filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
+    chart_path = CHARTS_DIR / filename
+
+    # Try DB first (production — charts are runtime data in Supabase)
+    db_chart = _load_chart_from_db(chart_id)
+    if db_chart is not None:
+        chart = db_chart
+    else:
+        # Fallback to file (local dev without DB)
         chart_path = resolve_chart_path(chart_id)
         chart = json.loads(chart_path.read_text(encoding='utf-8'))
-    except FileNotFoundError:
-        # Fallback to DB when chart file not on disk (e.g. Railway deployment)
-        db_chart = _load_chart_from_db(chart_id)
-        if db_chart is None:
-            raise FileNotFoundError(f"Natal chart not found: {chart_id}")
-        filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
-        chart_path = CHARTS_DIR / filename
-        chart = db_chart
 
     if chart_needs_upgrade(chart):
         birth_data = chart.get("birth_data") or {}
@@ -107,7 +101,6 @@ def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, object]]:
                 float(birth_data["longitude"]),
                 birth_input=chart.get("birth_input"),
             )
-            chart_path.write_text(json.dumps(chart, indent=2, sort_keys=True), encoding="utf-8")
 
     return chart_path, chart
 
