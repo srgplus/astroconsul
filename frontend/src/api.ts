@@ -14,6 +14,22 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession()
   let token = data.session?.access_token
 
+  // Fallback: read token from localStorage if getSession() returns null
+  // (race condition on page reload before Supabase restores session)
+  if (!token) {
+    try {
+      const raw = localStorage.getItem(
+        `sb-${new URL(import.meta.env.VITE_SUPABASE_URL ?? "").hostname.split(".")[0]}-auth-token`,
+      )
+      if (raw) {
+        const stored = JSON.parse(raw)
+        token = stored.access_token
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
+
   // If token is expiring within 60s, proactively refresh
   if (data.session) {
     const expiresAt = data.session.expires_at ?? 0
