@@ -125,9 +125,33 @@ export function App() {
   const { t, lang } = useLanguage()
   const [theme, setTheme] = useTheme()
   const [health, setHealth] = useState<HealthResponse | null>(null)
-  const [profiles, setProfiles] = useState<ProfileSummary[]>([])
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
-  const [activeDetail, setActiveDetail] = useState<ProfileDetailResponse | null>(null)
+  const [profiles, setProfiles] = useState<ProfileSummary[]>(() => {
+    try { return JSON.parse(localStorage.getItem("cachedProfiles") || "[]") } catch { return [] }
+  })
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(() => {
+    const primary = localStorage.getItem("primaryProfileId")
+    try {
+      const cached: ProfileSummary[] = JSON.parse(localStorage.getItem("cachedProfiles") || "[]")
+      if (cached.length) return primary || cached[0]?.profile_id || null
+    } catch {}
+    return null
+  })
+  const [activeDetail, setActiveDetail] = useState<ProfileDetailResponse | null>(() => {
+    try {
+      const pid = localStorage.getItem("primaryProfileId")
+      if (!pid) {
+        const cached: ProfileSummary[] = JSON.parse(localStorage.getItem("cachedProfiles") || "[]")
+        if (cached.length) {
+          const detail = localStorage.getItem("cachedDetail_" + cached[0]?.profile_id)
+          if (detail) return JSON.parse(detail)
+        }
+        return null
+      }
+      const detail = localStorage.getItem("cachedDetail_" + pid)
+      if (detail) return JSON.parse(detail)
+    } catch {}
+    return null
+  })
   const [bootError, setBootError] = useState<string | null>(null)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -138,7 +162,25 @@ export function App() {
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
   const [mobileView, setMobileView] = useState<"list" | "detail">("list")
   const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
-  const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>({})
+  const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
+    try {
+      const cached: ProfileSummary[] = JSON.parse(localStorage.getItem("cachedProfiles") || "[]")
+      const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const map: Record<string, ProfileTiiData> = {}
+      for (const p of cached) {
+        const lt = p.latest_transit
+        if (lt?.tii != null) {
+          map[p.profile_id] = {
+            tii: lt.tii,
+            tension_ratio: lt.tension_ratio ?? 0,
+            feels_like: lt.feels_like ?? "Calm",
+            location: lt.location_name || lt.timezone || browserTz,
+          }
+        }
+      }
+      return map
+    } catch { return {} }
+  })
   const [guideOpen, setGuideOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
@@ -174,6 +216,7 @@ export function App() {
 
         setHealth(healthPayload)
         setProfiles(profilesPayload.profiles)
+        try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
 
         // Clear stale primaryProfileId if it points to a deleted profile
         const validIds = new Set(profilesPayload.profiles.map((p: ProfileSummary) => p.profile_id))
@@ -226,16 +269,31 @@ export function App() {
     }
 
     const controller = new AbortController()
-    setDetailLoading(true)
     setDetailError(null)
+
+    // Load cached detail instantly, then refresh from API
+    const cachedKey = "cachedDetail_" + activeProfileId
+    try {
+      const cached = localStorage.getItem(cachedKey)
+      if (cached) {
+        setActiveDetail(JSON.parse(cached))
+        setDetailLoading(false)
+      } else {
+        setDetailLoading(true)
+      }
+    } catch {
+      setDetailLoading(true)
+    }
 
     fetchProfileDetail(activeProfileId, controller.signal)
       .then((payload) => {
         setActiveDetail(payload)
+        try { localStorage.setItem(cachedKey, JSON.stringify(payload)) } catch {}
       })
       .catch((err) => {
         if (controller.signal.aborted) return
-        setActiveDetail(null)
+        // Only clear detail if we don't have cached data
+        if (!localStorage.getItem(cachedKey)) setActiveDetail(null)
         setDetailError(err instanceof Error ? err.message : "Unknown error")
       })
       .finally(() => {
@@ -256,8 +314,21 @@ export function App() {
     autoFetchRef.current?.abort()
     const controller = new AbortController()
     autoFetchRef.current = controller
-    setTransitLoading(true)
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    // Load cached transit report instantly
+    const transitCacheKey = "cachedTransit_" + activeProfileId
+    try {
+      const cached = localStorage.getItem(transitCacheKey)
+      if (cached) {
+        setTransitReport(JSON.parse(cached))
+        setTransitLoading(false)
+      } else {
+        setTransitLoading(true)
+      }
+    } catch {
+      setTransitLoading(true)
+    }
 
     // Preserve profile's saved timezone & location, only update date/time to "now"
     // Priority: localStorage > latest_transit from profile > browser timezone
@@ -294,6 +365,7 @@ export function App() {
       if (controller.signal.aborted) return
       setTransitReport(report)
       setTransitLoading(false)
+      try { localStorage.setItem(transitCacheKey, JSON.stringify(report)) } catch {}
       if (report.tii != null) {
         setTiiMap((prev) => ({
           ...prev,
