@@ -584,8 +584,8 @@ export function App() {
       setSearchQuery("")
       setPublicResults([])
       setMobileView("detail")
-    } catch {
-      // silent
+    } catch (err) {
+      console.error("Follow failed:", err)
     } finally {
       setPublicAddingId(null)
     }
