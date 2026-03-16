@@ -80,6 +80,9 @@ export const ru: Record<string, string> = {
   "settings.celestialBodies": "Небесные тела",
   "settings.planets": "Планеты",
   "settings.points": "Точки",
+  "settings.cache": "Кэш",
+  "settings.cacheDesc": "Очистить локальный кэш профилей, карт и транзитов. Данные будут загружены заново с сервера.",
+  "settings.resetCache": "Сбросить кэш",
 
   // Settings: About
   "settings.appName": "Astro Consul",

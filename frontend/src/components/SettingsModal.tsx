@@ -11,6 +11,7 @@ type SettingsModalProps = {
   theme: Theme
   onThemeChange: (t: Theme) => void
   onSignOut: () => void
+  onResetCache: () => void
   transitReport: TransitReportResponse | null
   profiles: ProfileSummary[]
   primaryProfileId: string | null
@@ -38,6 +39,7 @@ export function SettingsModal({
   theme,
   onThemeChange,
   onSignOut,
+  onResetCache,
   transitReport,
   profiles,
   primaryProfileId,
@@ -229,6 +231,13 @@ export function SettingsModal({
                     <span className="stg-label">{t("settings.points")}</span>
                     <span className="stg-val">AC MC ☊ ☋ ⚷ ⚸ ☽ Vtx PoF</span>
                   </div>
+                </div>
+                <div className="stg-card">
+                  <div className="stg-card-title">{t("settings.cache")}</div>
+                  <p className="stg-card-desc">{t("settings.cacheDesc")}</p>
+                  <button type="button" className="stg-signout-btn" onClick={onResetCache}>
+                    {t("settings.resetCache")}
+                  </button>
                 </div>
               </>
             )}

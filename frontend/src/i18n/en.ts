@@ -80,6 +80,9 @@ export const en: Record<string, string> = {
   "settings.celestialBodies": "Celestial Bodies",
   "settings.planets": "Planets",
   "settings.points": "Points",
+  "settings.cache": "Cache",
+  "settings.cacheDesc": "Clear locally cached profiles, charts, and transit data. Data will be reloaded from the server.",
+  "settings.resetCache": "Reset Cache",
 
   // Settings: About
   "settings.appName": "Astro Consul",

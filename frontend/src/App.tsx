@@ -1060,6 +1060,16 @@ export function App() {
           setActiveDetail(null)
           setTransitReport(null)
         }}
+        onResetCache={() => {
+          // Clear all cached data from localStorage
+          const keysToRemove = Object.keys(localStorage).filter((k) =>
+            k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "transitParams"
+          )
+          keysToRemove.forEach((k) => localStorage.removeItem(k))
+          setSettingsOpen(false)
+          // Force full reload from server
+          window.location.reload()
+        }}
         transitReport={transitReport}
         profiles={profiles}
         primaryProfileId={primaryProfileId}
