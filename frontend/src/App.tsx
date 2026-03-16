@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, Fragment } from "react"
 import { useAuth } from "./contexts/AuthContext"
 import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
-import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport } from "./api"
+import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, createProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
 import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
@@ -12,7 +12,7 @@ import { ProfileCreateForm } from "./components/ProfileCreateForm"
 import { TransitsTab } from "./components/TransitsTab"
 import { NatalZodiacRing } from "./components/NatalZodiacRing"
 import { SettingsModal } from "./components/SettingsModal"
-import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition } from "./types"
+import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition, PublicSearchResult } from "./types"
 
 const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
@@ -147,6 +147,11 @@ export function App() {
   })
   const [isCreating, setIsCreating] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [publicResults, setPublicResults] = useState<PublicSearchResult[]>([])
+  const [publicSearching, setPublicSearching] = useState(false)
+  const [publicAddingId, setPublicAddingId] = useState<string | null>(null)
+  const publicSearchRef = useRef<AbortController | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
@@ -360,6 +365,94 @@ export function App() {
     }
   }, [activeProfileId])
 
+  // Public profile search: triggered when searchQuery starts with "@"
+  const isPublicSearch = searchQuery.startsWith("@")
+  const publicQuery = searchQuery.slice(1).trim()
+
+  useEffect(() => {
+    if (!isPublicSearch || publicQuery.length < 2) {
+      setPublicResults([])
+      setPublicSearching(false)
+      publicSearchRef.current?.abort()
+      return
+    }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      publicSearchRef.current?.abort()
+      const controller = new AbortController()
+      publicSearchRef.current = controller
+      setPublicSearching(true)
+      searchPublicProfiles(publicQuery, controller.signal)
+        .then((results) => {
+          if (!controller.signal.aborted) {
+            setPublicResults(results)
+            setPublicSearching(false)
+          }
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) {
+            setPublicResults([])
+            setPublicSearching(false)
+          }
+        })
+    }, 300)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      publicSearchRef.current?.abort()
+    }
+  }, [isPublicSearch, publicQuery])
+
+  const handleAddPublicProfile = useCallback(async (result: PublicSearchResult) => {
+    setPublicAddingId(result.profile_id)
+    try {
+      const newDetail = await createProfile({
+        profile_name: result.profile_name,
+        username: result.username + "_copy",
+        birth_date: result.birth_date,
+        birth_time: result.birth_time,
+        timezone: result.timezone,
+        location_name: result.location_name,
+        latitude: result.latitude,
+        longitude: result.longitude,
+      })
+      const profilesPayload = await fetchProfiles()
+      setProfiles(profilesPayload.profiles)
+      setActiveProfileId(newDetail.profile.profile_id)
+      setSearchQuery("")
+      setPublicResults([])
+      setMobileView("detail")
+    } catch (err) {
+      // If username conflict, try with a random suffix
+      if (err instanceof Error && err.message.includes("409")) {
+        try {
+          const suffix = Math.random().toString(36).slice(2, 6)
+          const newDetail = await createProfile({
+            profile_name: result.profile_name,
+            username: result.username + "_" + suffix,
+            birth_date: result.birth_date,
+            birth_time: result.birth_time,
+            timezone: result.timezone,
+            location_name: result.location_name,
+            latitude: result.latitude,
+            longitude: result.longitude,
+          })
+          const profilesPayload = await fetchProfiles()
+          setProfiles(profilesPayload.profiles)
+          setActiveProfileId(newDetail.profile.profile_id)
+          setSearchQuery("")
+          setPublicResults([])
+          setMobileView("detail")
+        } catch {
+          // silent
+        }
+      }
+    } finally {
+      setPublicAddingId(null)
+    }
+  }, [])
+
   const natalPositions = activeDetail?.chart.natal_positions ?? []
   const natalAspects = activeDetail?.chart.natal_aspects ?? []
   const totalTransitAspects = transitReport?.active_aspects?.length ?? 0
@@ -429,44 +522,85 @@ export function App() {
                 />
               </div>
               <div className="sidebar-scroll">
-                <ProfileList
-                  profiles={(() => {
-                    // Sort: primary first, then by saved manual order, then rest
-                    const order = profileOrder
-                    const sorted = [...profiles].sort((a, b) => {
-                      if (a.profile_id === primaryProfileId) return -1
-                      if (b.profile_id === primaryProfileId) return 1
-                      const ai = order.indexOf(a.profile_id)
-                      const bi = order.indexOf(b.profile_id)
-                      if (ai !== -1 && bi !== -1) return ai - bi
-                      if (ai !== -1) return -1
-                      if (bi !== -1) return 1
-                      return 0
-                    })
-                    if (!searchQuery.trim()) return sorted
-                    const q = searchQuery.toLowerCase()
-                    return sorted.filter((p) =>
-                      p.profile_name.toLowerCase().includes(q)
-                      || p.username.toLowerCase().includes(q)
-                      || (p.location_name ?? "").toLowerCase().includes(q)
-                    )
-                  })()}
-                  activeProfileId={activeProfileId}
-                  onSelect={(id) => {
-                    if (id === activeProfileId) {
-                      setFetchTrigger((n) => n + 1)
-                    } else {
-                      setActiveProfileId(id)
-                    }
-                    setMobileView("detail")
-                  }}
-                  tiiMap={tiiMap}
-                  primaryProfileId={primaryProfileId}
-                  onReorder={(ids) => {
-                    setProfileOrder(ids)
-                    localStorage.setItem("profileOrder", JSON.stringify(ids))
-                  }}
-                />
+                {isPublicSearch ? (
+                  <div className="public-search-results">
+                    {publicSearching ? (
+                      <div className="public-search-status">
+                        <div className="content-loader__spinner" />
+                        <span>{t("sidebar.publicSearching")}</span>
+                      </div>
+                    ) : publicQuery.length < 2 ? (
+                      <div className="public-search-status">
+                        <span className="public-search-hint">{t("sidebar.searchPublic")}</span>
+                      </div>
+                    ) : publicResults.length === 0 ? (
+                      <div className="public-search-status">
+                        <span>{t("sidebar.publicNoResults")}</span>
+                      </div>
+                    ) : (
+                      publicResults.map((r) => (
+                        <div key={r.profile_id} className="public-search-card">
+                          <div className="public-search-card__info">
+                            <div className="public-search-card__name">{r.profile_name}</div>
+                            <div className="public-search-card__username">@{r.username}</div>
+                            <div className="public-search-card__meta">
+                              {r.location_name && <span className="public-search-card__location">{r.location_name}</span>}
+                              {r.natal_summary && <span className="public-search-card__summary">{r.natal_summary}</span>}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="public-search-card__add"
+                            onClick={() => handleAddPublicProfile(r)}
+                            disabled={publicAddingId === r.profile_id}
+                            title={t("sidebar.newProfile")}
+                          >
+                            {publicAddingId === r.profile_id ? "..." : "+"}
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : (
+                  <ProfileList
+                    profiles={(() => {
+                      // Sort: primary first, then by saved manual order, then rest
+                      const order = profileOrder
+                      const sorted = [...profiles].sort((a, b) => {
+                        if (a.profile_id === primaryProfileId) return -1
+                        if (b.profile_id === primaryProfileId) return 1
+                        const ai = order.indexOf(a.profile_id)
+                        const bi = order.indexOf(b.profile_id)
+                        if (ai !== -1 && bi !== -1) return ai - bi
+                        if (ai !== -1) return -1
+                        if (bi !== -1) return 1
+                        return 0
+                      })
+                      if (!searchQuery.trim()) return sorted
+                      const q = searchQuery.toLowerCase()
+                      return sorted.filter((p) =>
+                        p.profile_name.toLowerCase().includes(q)
+                        || p.username.toLowerCase().includes(q)
+                        || (p.location_name ?? "").toLowerCase().includes(q)
+                      )
+                    })()}
+                    activeProfileId={activeProfileId}
+                    onSelect={(id) => {
+                      if (id === activeProfileId) {
+                        setFetchTrigger((n) => n + 1)
+                      } else {
+                        setActiveProfileId(id)
+                      }
+                      setMobileView("detail")
+                    }}
+                    tiiMap={tiiMap}
+                    primaryProfileId={primaryProfileId}
+                    onReorder={(ids) => {
+                      setProfileOrder(ids)
+                      localStorage.setItem("profileOrder", JSON.stringify(ids))
+                    }}
+                  />
+                )}
               </div>
               {/* Desktop footer */}
               <div className="sidebar-footer sidebar-footer--desktop">

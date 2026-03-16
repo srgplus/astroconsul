@@ -379,6 +379,30 @@ class SqlAlchemyProfileRepository:
 
         self.chart_repository.delete_chart(resolved_chart_id)
 
+    def search_public(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
+        with self.session_factory() as session:
+            statement = (
+                select(ProfileModel)
+                .where(ProfileModel.handle.ilike(f"%{query}%"))
+                .order_by(ProfileModel.updated_at.desc())
+                .limit(limit)
+            )
+            rows = session.execute(statement).scalars()
+
+            results: list[dict[str, Any]] = []
+            for model in rows:
+                chart_payload = dict(model.chart.chart_payload_json)
+                summary = profile_summary(_profile_payload(model), chart_payload)
+                summary["user_id"] = model.user_id
+                summary["birth_date"] = model.birth_date.isoformat()
+                summary["birth_time"] = model.birth_time.replace(microsecond=0).isoformat()
+                summary["timezone"] = model.timezone
+                summary["location_name"] = model.location_name
+                summary["latitude"] = model.latitude
+                summary["longitude"] = model.longitude
+                results.append(summary)
+            return results
+
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         normalized = normalize_latest_transit(latest_transit)
         if normalized is None:

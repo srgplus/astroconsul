@@ -6,6 +6,7 @@ import type {
   LocationResponse,
   TransitReportResponse,
   TransitTimelineResponse,
+  PublicSearchResult,
 } from "./types"
 import { supabase } from "./lib/supabase"
 
@@ -144,6 +145,16 @@ export type PlaceCandidate = {
   latitude: number
   longitude: number
   timezone: string | null
+}
+
+export async function searchPublicProfiles(
+  query: string,
+  signal?: AbortSignal,
+): Promise<PublicSearchResult[]> {
+  const auth = await getAuthHeaders()
+  return fetch(`/api/v1/profiles/search?q=${encodeURIComponent(query)}`, { headers: auth, signal })
+    .then(json<{ results: PublicSearchResult[] }>)
+    .then((data) => data.results)
 }
 
 export async function searchLocations(

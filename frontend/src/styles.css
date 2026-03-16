@@ -1802,6 +1802,113 @@ select {
   white-space: nowrap;
 }
 
+/* ---- Public search results ---- */
+
+.public-search-results {
+  padding: 4px 0;
+}
+
+.public-search-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 12px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.public-search-status .content-loader__spinner {
+  width: 22px;
+  height: 22px;
+}
+
+.public-search-hint {
+  opacity: 0.7;
+}
+
+.public-search-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.15s;
+}
+
+.public-search-card:hover {
+  background: var(--surface-soft);
+}
+
+.public-search-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.public-search-card__name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.public-search-card__username {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.public-search-card__meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 3px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.public-search-card__location {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.public-search-card__summary {
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.public-search-card__add {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ok);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.public-search-card__add:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
+}
+
+.public-search-card__add:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
 .empty-card {
   position: relative;
   z-index: 1;

@@ -26,6 +26,11 @@ export const ru: Record<string, string> = {
   "sidebar.showSidebar": "Показать панель",
   "sidebar.hideSidebar": "Скрыть панель",
   "sidebar.back": "Все профили",
+  "sidebar.searchPublic": "Поиск публичных профилей через @",
+  "sidebar.publicSearching": "Поиск...",
+  "sidebar.publicNoResults": "Профили не найдены",
+  "sidebar.publicAddSuccess": "Профиль добавлен!",
+  "sidebar.publicAddError": "Не удалось добавить профиль",
 
   // Profile list
   "profileList.empty": "Профилей пока нет",

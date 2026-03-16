@@ -92,6 +92,16 @@ class FileProfileRepository:
     ) -> None:
         delete_chart_if_unreferenced(chart_id, exclude_profile_id=exclude_profile_id)
 
+    def search_public(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
+        bootstrap_profiles()
+        all_summaries = list_profile_summaries()
+        query_lower = query.lower()
+        results = [
+            s for s in all_summaries
+            if query_lower in s.get("username", "").lower()
+        ]
+        return results[:limit]
+
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         return save_profile_latest_transit(profile_id, latest_transit)
 

@@ -55,6 +55,24 @@ class ProfileSummary(BaseModel):
     local_birth_datetime: str | None = None
 
 
+class PublicProfileSearchResult(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    profile_id: str
+    profile_name: str
+    username: str
+    birth_date: str | None = None
+    birth_time: str | None = None
+    timezone: str | None = None
+    location_name: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    natal_summary: Any = None
+
+
+class PublicProfileSearchResponse(BaseModel):
+    results: list[PublicProfileSearchResult]
+
+
 class ProfileListResponse(BaseModel):
     profiles: list[ProfileSummary]
 

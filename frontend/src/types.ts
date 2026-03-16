@@ -196,6 +196,21 @@ export type ProfileUpsertRequest = {
   name?: string | null
 }
 
+// --- Public Profile Search ---
+
+export type PublicSearchResult = {
+  profile_id: string
+  profile_name: string
+  username: string
+  birth_date: string
+  birth_time: string
+  timezone: string
+  location_name: string
+  latitude: number
+  longitude: number
+  natal_summary: string
+}
+
 export type LocationResponse = {
   location_name: string
   resolved_name: string

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.auth import get_current_user
 from app.api.dependencies import (
@@ -28,6 +28,7 @@ from app.schemas.requests import (
 from app.schemas.responses import (
     ProfileDetailResponse,
     ProfileListResponse,
+    PublicProfileSearchResponse,
     TransitReportResponse,
     TransitTimelineResponse,
 )
@@ -49,6 +50,21 @@ def list_profiles(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     return profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
+
+
+@router.get("/search", response_model=PublicProfileSearchResponse)
+def search_public_profiles(
+    q: str = Query(..., min_length=1),
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, object]:
+    results = repos.profiles.search_public(q)
+    current_user_id = user["user_id"]
+    filtered = [r for r in results if r.get("user_id") != current_user_id]
+    # Strip user_id from response — callers don't need it
+    for r in filtered:
+        r.pop("user_id", None)
+    return {"results": filtered}
 
 
 @router.post("", response_model=ProfileDetailResponse)

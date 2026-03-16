@@ -26,6 +26,11 @@ export const en: Record<string, string> = {
   "sidebar.showSidebar": "Show sidebar",
   "sidebar.hideSidebar": "Hide sidebar",
   "sidebar.back": "All Profiles",
+  "sidebar.searchPublic": "Search public profiles with @",
+  "sidebar.publicSearching": "Searching...",
+  "sidebar.publicNoResults": "No profiles found",
+  "sidebar.publicAddSuccess": "Profile added!",
+  "sidebar.publicAddError": "Could not add profile",
 
   // Profile list
   "profileList.empty": "No profiles yet",
