@@ -213,7 +213,7 @@ export type PublicSearchResult = {
   location_name: string
   latitude: number
   longitude: number
-  natal_summary: string
+  natal_summary: Record<string, string> | string | null
 }
 
 export type LocationResponse = {

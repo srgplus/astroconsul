@@ -696,7 +696,13 @@ export function App() {
                             <div className="public-search-card__username">@{r.username}</div>
                             <div className="public-search-card__meta">
                               {r.location_name && <span className="public-search-card__location">{r.location_name}</span>}
-                              {r.natal_summary && <span className="public-search-card__summary">{r.natal_summary}</span>}
+                              {r.natal_summary && (
+                                <span className="public-search-card__summary">
+                                  {typeof r.natal_summary === "string"
+                                    ? r.natal_summary
+                                    : `☉ ${r.natal_summary.sun} · ☽ ${r.natal_summary.moon} · AC ${r.natal_summary.asc}`}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <button

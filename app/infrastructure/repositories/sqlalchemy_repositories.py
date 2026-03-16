@@ -421,6 +421,8 @@ class SqlAlchemyProfileRepository:
 
             results: list[dict[str, Any]] = []
             for model in rows:
+                if model.chart is None:
+                    continue
                 chart_payload = dict(model.chart.chart_payload_json)
                 summary = profile_summary(_profile_payload(model), chart_payload)
                 summary["user_id"] = model.user_id
