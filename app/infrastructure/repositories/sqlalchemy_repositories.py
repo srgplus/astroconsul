@@ -105,6 +105,23 @@ def _profile_payload(model: ProfileModel) -> dict[str, Any]:
     }
 
 
+def ensure_user(session: Session, user_id: str, email: str = "") -> UserModel:
+    """Create user record if it doesn't exist (for Supabase Auth users on first action)."""
+    existing = session.get(UserModel, user_id)
+    if existing is not None:
+        return existing
+    user = UserModel(
+        id=user_id,
+        auth_subject=user_id,
+        email=email,
+        status="active",
+        created_at=_now_utc(),
+    )
+    session.add(user)
+    session.flush()
+    return user
+
+
 def ensure_default_user(session: Session, settings: Settings) -> UserModel:
     existing = session.get(UserModel, settings.default_user_id)
     if existing is not None:
@@ -437,6 +454,7 @@ class SqlAlchemyProfileRepository:
 
     def follow_profile(self, user_id: str, profile_id: str) -> None:
         with self.session_factory() as session:
+            ensure_user(session, user_id)
             existing = session.execute(
                 select(ProfileFollowModel).where(
                     ProfileFollowModel.user_id == user_id,
