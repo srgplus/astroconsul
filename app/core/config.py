@@ -42,7 +42,7 @@ class Settings:
 
     @property
     def use_database(self) -> bool:
-        return self.persistence_backend.lower() == "database"
+        return self.persistence_backend.lower() in ("database", "supabase")
 
     @property
     def effective_database_url(self) -> str | None:
