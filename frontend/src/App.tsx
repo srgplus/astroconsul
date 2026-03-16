@@ -185,6 +185,22 @@ export function App() {
         }
 
         setActiveProfileId((current) => current || effectivePrimary || profilesPayload.profiles[0]?.profile_id || null)
+
+        // Populate sidebar TII from pre-cached values in latest_transit
+        const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const initialTii: Record<string, ProfileTiiData> = {}
+        for (const p of profilesPayload.profiles) {
+          const lt = p.latest_transit
+          if (lt?.tii != null) {
+            initialTii[p.profile_id] = {
+              tii: lt.tii,
+              tension_ratio: lt.tension_ratio ?? 0,
+              feels_like: lt.feels_like ?? "Calm",
+              location: lt.location_name || lt.timezone || browserTz,
+            }
+          }
+        }
+        setTiiMap(initialTii)
       } catch (err) {
         if (cancelled) return
         const msg = err instanceof Error ? err.message : "Unknown error"
@@ -229,57 +245,23 @@ export function App() {
     return () => controller.abort()
   }, [activeProfileId])
 
-  // Fetch TII for all profiles (lightweight — no timing)
-  // Uses saved per-profile params from localStorage so sidebar matches hero values
+  // TII sidebar data is now loaded from DB via profiles list (see bootstrap above).
+  // When a user views a transit report, the TII gets refreshed in DB automatically.
+  // Update tiiMap when a transit report is fetched for the active profile.
   useEffect(() => {
-    if (!profiles.length) return
-    const controller = new AbortController()
-    const now = new Date()
+    if (!activeProfileId || !transitReport) return
+    if (transitReport.tii == null) return
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const defaultDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
-    const defaultTime = `${String(now.getHours()).padStart(2, "0")}:00`
-
-    // Process profiles in batches of 2 to avoid overwhelming slow servers
-    const BATCH_SIZE = 2
-    ;(async () => {
-      for (let i = 0; i < profiles.length; i += BATCH_SIZE) {
-        if (controller.signal.aborted) return
-        const batch = profiles.slice(i, i + BATCH_SIZE)
-        const results = await Promise.all(
-          batch.map((p) => {
-            const lt = p.latest_transit
-            return fetchTransitReport(p.profile_id, {
-              transit_date: defaultDate,
-              transit_time: defaultTime,
-              timezone: browserTz,
-              location_name: lt?.location_name ?? null,
-              latitude: lt?.latitude ?? null,
-              longitude: lt?.longitude ?? null,
-              include_timing: false,
-            }, controller.signal)
-              .then((r) => ({ id: p.profile_id, r }))
-              .catch(() => null)
-          })
-        )
-        if (controller.signal.aborted) return
-        const batchMap: Record<string, ProfileTiiData> = {}
-        for (const item of results) {
-          if (!item || item.r.tii == null) continue
-          batchMap[item.id] = {
-            tii: item.r.tii,
-            tension_ratio: item.r.tension_ratio ?? 0,
-            feels_like: item.r.feels_like ?? "Calm",
-            location: item.r.snapshot?.transit_location_name || item.r.snapshot?.transit_timezone || browserTz,
-          }
-        }
-        if (Object.keys(batchMap).length > 0) {
-          setTiiMap((prev) => ({ ...prev, ...batchMap }))
-        }
-      }
-    })()
-
-    return () => controller.abort()
-  }, [profiles])
+    setTiiMap((prev) => ({
+      ...prev,
+      [activeProfileId]: {
+        tii: transitReport.tii!,
+        tension_ratio: transitReport.tension_ratio ?? 0,
+        feels_like: transitReport.feels_like ?? "Calm",
+        location: transitReport.snapshot?.transit_location_name || transitReport.snapshot?.transit_timezone || browserTz,
+      },
+    }))
+  }, [activeProfileId, transitReport])
 
 
 

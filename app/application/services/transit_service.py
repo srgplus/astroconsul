@@ -109,6 +109,14 @@ class TransitService:
             }
         )
 
+        # --- TII scoring ---
+        active_aspects = report.get("active_aspects", [])
+        tii = compute_tii(active_aspects)
+        tension_ratio = compute_tension_ratio(active_aspects)
+        report["tii"] = tii
+        report["tension_ratio"] = tension_ratio
+        report["feels_like"] = feels_like(tii, tension_ratio)
+
         if payload.profile_id:
             profile_repository.save_latest_transit(
                 payload.profile_id,
@@ -119,16 +127,11 @@ class TransitService:
                     "location_name": transit_location_name,
                     "latitude": transit_latitude,
                     "longitude": transit_longitude,
+                    "tii": tii,
+                    "tension_ratio": tension_ratio,
+                    "feels_like": report["feels_like"],
                 },
             )
-
-        # --- TII scoring ---
-        active_aspects = report.get("active_aspects", [])
-        tii = compute_tii(active_aspects)
-        tension_ratio = compute_tension_ratio(active_aspects)
-        report["tii"] = tii
-        report["tension_ratio"] = tension_ratio
-        report["feels_like"] = feels_like(tii, tension_ratio)
         report["top_transits"] = top_active_transits(active_aspects)
         report["cosmic_climate"] = get_cosmic_climate(active_aspects, lang=lang)
 

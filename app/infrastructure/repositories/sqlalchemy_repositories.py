@@ -88,6 +88,10 @@ def _profile_payload(model: ProfileModel) -> dict[str, Any]:
                 "updated_at": _isoformat_z(model.latest_transit.updated_at),
             }
         )
+        if latest_transit is not None:
+            latest_transit["tii"] = model.latest_transit.tii
+            latest_transit["tension_ratio"] = model.latest_transit.tension_ratio
+            latest_transit["feels_like"] = model.latest_transit.feels_like
 
     return {
         "profile_id": model.id,
@@ -506,6 +510,9 @@ class SqlAlchemyProfileRepository:
                     location_name=normalized.get("location_name"),
                     latitude=normalized.get("latitude"),
                     longitude=normalized.get("longitude"),
+                    tii=latest_transit.get("tii"),
+                    tension_ratio=latest_transit.get("tension_ratio"),
+                    feels_like=latest_transit.get("feels_like"),
                     updated_at=datetime.fromisoformat(str(normalized["updated_at"]).replace("Z", "+00:00")),
                 )
                 session.add(model)
@@ -516,6 +523,9 @@ class SqlAlchemyProfileRepository:
                 model.location_name = normalized.get("location_name")
                 model.latitude = normalized.get("latitude")
                 model.longitude = normalized.get("longitude")
+                model.tii = latest_transit.get("tii")
+                model.tension_ratio = latest_transit.get("tension_ratio")
+                model.feels_like = latest_transit.get("feels_like")
                 model.updated_at = datetime.fromisoformat(str(normalized["updated_at"]).replace("Z", "+00:00"))
 
             session.commit()

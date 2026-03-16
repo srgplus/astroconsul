@@ -26,8 +26,14 @@ def _ensure_tables(settings) -> None:
     try:
         from app.infrastructure.persistence.models import Base  # noqa: F811
         from app.infrastructure.persistence.session import get_engine, normalize_database_url
+        from sqlalchemy import text
         engine = get_engine(normalize_database_url(database_url))
         Base.metadata.create_all(engine, checkfirst=True)
+        # Migrate: add TII columns to latest_transits if missing
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE latest_transits ADD COLUMN IF NOT EXISTS tii FLOAT"))
+            conn.execute(text("ALTER TABLE latest_transits ADD COLUMN IF NOT EXISTS tension_ratio FLOAT"))
+            conn.execute(text("ALTER TABLE latest_transits ADD COLUMN IF NOT EXISTS feels_like VARCHAR(64)"))
     except Exception:
         pass  # non-fatal — tables may already exist
 

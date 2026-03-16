@@ -24,6 +24,9 @@ export type LatestTransit = {
   latitude: number | null
   longitude: number | null
   updated_at: string
+  tii: number | null
+  tension_ratio: number | null
+  feels_like: string | null
 }
 
 export type ProfileSummary = {

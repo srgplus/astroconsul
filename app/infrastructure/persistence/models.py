@@ -78,6 +78,9 @@ class LatestTransitModel(Base):
     location_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    tii: Mapped[float | None] = mapped_column(Float, nullable=True)
+    tension_ratio: Mapped[float | None] = mapped_column(Float, nullable=True)
+    feels_like: Mapped[str | None] = mapped_column(String(64), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profile: Mapped[ProfileModel] = relationship(back_populates="latest_transit")
