@@ -148,8 +148,6 @@ def delete_profile(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, str]:
     try:
-        existing = repos.profiles.load_profile(profile_id)
-        _verify_ownership(existing, user["user_id"])
         repos.profiles.delete_profile(profile_id)
         return {"status": "deleted"}
     except FileNotFoundError as exc:
