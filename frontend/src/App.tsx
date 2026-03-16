@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, useRef, Fragment } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useAuth } from "./contexts/AuthContext"
 import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
-import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, createProfile } from "./api"
+import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
 import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
@@ -404,54 +404,35 @@ export function App() {
     }
   }, [isPublicSearch, publicQuery])
 
-  const handleAddPublicProfile = useCallback(async (result: PublicSearchResult) => {
+  const handleFollowProfile = useCallback(async (result: PublicSearchResult) => {
     setPublicAddingId(result.profile_id)
     try {
-      const newDetail = await createProfile({
-        profile_name: result.profile_name,
-        username: result.username + "_copy",
-        birth_date: result.birth_date,
-        birth_time: result.birth_time,
-        timezone: result.timezone,
-        location_name: result.location_name,
-        latitude: result.latitude,
-        longitude: result.longitude,
-      })
+      await followProfile(result.profile_id)
       const profilesPayload = await fetchProfiles()
       setProfiles(profilesPayload.profiles)
-      setActiveProfileId(newDetail.profile.profile_id)
+      setActiveProfileId(result.profile_id)
       setSearchQuery("")
       setPublicResults([])
       setMobileView("detail")
-    } catch (err) {
-      // If username conflict, try with a random suffix
-      if (err instanceof Error && err.message.includes("409")) {
-        try {
-          const suffix = Math.random().toString(36).slice(2, 6)
-          const newDetail = await createProfile({
-            profile_name: result.profile_name,
-            username: result.username + "_" + suffix,
-            birth_date: result.birth_date,
-            birth_time: result.birth_time,
-            timezone: result.timezone,
-            location_name: result.location_name,
-            latitude: result.latitude,
-            longitude: result.longitude,
-          })
-          const profilesPayload = await fetchProfiles()
-          setProfiles(profilesPayload.profiles)
-          setActiveProfileId(newDetail.profile.profile_id)
-          setSearchQuery("")
-          setPublicResults([])
-          setMobileView("detail")
-        } catch {
-          // silent
-        }
-      }
+    } catch {
+      // silent
     } finally {
       setPublicAddingId(null)
     }
   }, [])
+
+  const handleUnfollowProfile = useCallback(async (profileId: string) => {
+    try {
+      await unfollowProfile(profileId)
+      const profilesPayload = await fetchProfiles()
+      setProfiles(profilesPayload.profiles)
+      if (activeProfileId === profileId) {
+        setActiveProfileId(profilesPayload.profiles[0]?.profile_id || null)
+      }
+    } catch {
+      // silent
+    }
+  }, [activeProfileId])
 
   const natalPositions = activeDetail?.chart.natal_positions ?? []
   const natalAspects = activeDetail?.chart.natal_aspects ?? []
@@ -551,9 +532,9 @@ export function App() {
                           <button
                             type="button"
                             className="public-search-card__add"
-                            onClick={() => handleAddPublicProfile(r)}
+                            onClick={() => handleFollowProfile(r)}
                             disabled={publicAddingId === r.profile_id}
-                            title={t("sidebar.newProfile")}
+                            title={t("sidebar.follow")}
                           >
                             {publicAddingId === r.profile_id ? "..." : "+"}
                           </button>
@@ -835,7 +816,21 @@ export function App() {
               {expandedWidget === "summary" && activeDetail ? (
                 <div>
                   <ProfileSummaryCard detail={activeDetail} />
-                  <button type="button" className="edit-btn" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.editProfile")}</button>
+                  {(() => {
+                    const activeP = profiles.find((p) => p.profile_id === activeProfileId)
+                    const isOwn = activeP?.is_own !== false
+                    const isFollowing = activeP?.is_following === true
+                    return (
+                      <>
+                        {isOwn ? (
+                          <button type="button" className="edit-btn" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.editProfile")}</button>
+                        ) : null}
+                        {isFollowing ? (
+                          <button type="button" className="edit-btn edit-btn--unfollow" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); if (activeProfileId) handleUnfollowProfile(activeProfileId) }}>{t("sidebar.unfollow")}</button>
+                        ) : null}
+                      </>
+                    )
+                  })()}
                   {natalPositions.length ? <NatalPositionsTable positions={natalPositions} /> : null}
                   {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} /> : null}
                 </div>

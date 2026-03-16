@@ -31,6 +31,9 @@ export const ru: Record<string, string> = {
   "sidebar.publicNoResults": "Профили не найдены",
   "sidebar.publicAddSuccess": "Профиль добавлен!",
   "sidebar.publicAddError": "Не удалось добавить профиль",
+  "sidebar.follow": "Подписаться",
+  "sidebar.unfollow": "Отписаться",
+  "sidebar.following": "Подписка",
 
   // Profile list
   "profileList.empty": "Профилей пока нет",

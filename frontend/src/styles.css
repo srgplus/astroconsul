@@ -863,6 +863,16 @@ select {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.edit-btn--unfollow {
+  color: var(--error);
+  border-color: var(--error);
+  opacity: 0.8;
+}
+
+.edit-btn--unfollow:hover {
+  opacity: 1;
+}
+
 .card-head {
   position: relative;
   z-index: 1;
@@ -1760,6 +1770,14 @@ select {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pli-follow-badge {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  vertical-align: middle;
 }
 
 .pli-location {

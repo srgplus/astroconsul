@@ -53,6 +53,8 @@ class ProfileSummary(BaseModel):
     username: str
     location_name: str | None = None
     local_birth_datetime: str | None = None
+    is_own: bool | None = None
+    is_following: bool | None = None
 
 
 class PublicProfileSearchResult(BaseModel):

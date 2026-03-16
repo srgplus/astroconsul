@@ -15,6 +15,7 @@ from app.infrastructure.persistence.models import (
     LatestTransitModel,
     LocationCacheModel,
     NatalChartModel,
+    ProfileFollowModel,
     ProfileModel,
     UserModel,
 )
@@ -261,9 +262,13 @@ class SqlAlchemyProfileRepository:
             raise UsernameConflictError("username is already taken.")
         return normalized
 
-    def list_summaries(self) -> list[dict[str, Any]]:
+    def list_summaries(self, *, user_id: str | None = None) -> list[dict[str, Any]]:
         with self.session_factory() as session:
-            rows = session.execute(select(ProfileModel).order_by(ProfileModel.updated_at.desc())).scalars()
+            statement = select(ProfileModel)
+            if user_id is not None:
+                statement = statement.where(ProfileModel.user_id == user_id)
+            statement = statement.order_by(ProfileModel.updated_at.desc())
+            rows = session.execute(statement).scalars()
 
             summaries: list[dict[str, Any]] = []
             for profile_model in rows:
@@ -402,6 +407,64 @@ class SqlAlchemyProfileRepository:
                 summary["longitude"] = model.longitude
                 results.append(summary)
             return results
+
+    def follow_profile(self, user_id: str, profile_id: str) -> None:
+        with self.session_factory() as session:
+            existing = session.execute(
+                select(ProfileFollowModel).where(
+                    ProfileFollowModel.user_id == user_id,
+                    ProfileFollowModel.profile_id == profile_id,
+                )
+            ).scalar_one_or_none()
+            if existing is not None:
+                return
+            follow = ProfileFollowModel(
+                user_id=user_id,
+                profile_id=profile_id,
+                created_at=_now_utc(),
+            )
+            session.add(follow)
+            session.commit()
+
+    def unfollow_profile(self, user_id: str, profile_id: str) -> None:
+        with self.session_factory() as session:
+            existing = session.execute(
+                select(ProfileFollowModel).where(
+                    ProfileFollowModel.user_id == user_id,
+                    ProfileFollowModel.profile_id == profile_id,
+                )
+            ).scalar_one_or_none()
+            if existing is not None:
+                session.delete(existing)
+                session.commit()
+
+    def list_followed(self, user_id: str) -> list[dict[str, Any]]:
+        with self.session_factory() as session:
+            statement = (
+                select(ProfileModel)
+                .join(ProfileFollowModel, ProfileFollowModel.profile_id == ProfileModel.id)
+                .where(ProfileFollowModel.user_id == user_id)
+                .order_by(ProfileModel.updated_at.desc())
+            )
+            rows = session.execute(statement).scalars()
+            summaries: list[dict[str, Any]] = []
+            for profile_model in rows:
+                chart_payload = dict(profile_model.chart.chart_payload_json)
+                summary = profile_summary(_profile_payload(profile_model), chart_payload)
+                summary["is_own"] = False
+                summary["is_following"] = True
+                summaries.append(summary)
+            return summaries
+
+    def is_following(self, user_id: str, profile_id: str) -> bool:
+        with self.session_factory() as session:
+            existing = session.execute(
+                select(ProfileFollowModel).where(
+                    ProfileFollowModel.user_id == user_id,
+                    ProfileFollowModel.profile_id == profile_id,
+                )
+            ).scalar_one_or_none()
+            return existing is not None
 
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         normalized = normalize_latest_transit(latest_transit)

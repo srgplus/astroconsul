@@ -67,6 +67,30 @@ def search_public_profiles(
     return {"results": filtered}
 
 
+@router.post("/{profile_id}/follow")
+def follow_profile(
+    profile_id: str,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    try:
+        repos.profiles.load_profile(profile_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    repos.profiles.follow_profile(user["user_id"], profile_id)
+    return {"status": "ok"}
+
+
+@router.delete("/{profile_id}/follow")
+def unfollow_profile(
+    profile_id: str,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    repos.profiles.unfollow_profile(user["user_id"], profile_id)
+    return {"status": "ok"}
+
+
 @router.post("", response_model=ProfileDetailResponse)
 def create_profile(
     payload: NatalProfileUpsertRequest,
@@ -103,7 +127,11 @@ def profile_detail(
 ) -> dict[str, object]:
     try:
         profile = repos.profiles.load_profile(profile_id)
-        _verify_ownership(profile, user["user_id"])
+        owner = profile.get("user_id", "user_local_dev")
+        user_id = user["user_id"]
+        # Allow access if user owns the profile OR follows it
+        if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
+            raise HTTPException(status_code=403, detail="Not your profile")
         return profile_service.profile_detail(
             profile_id,
             profile_repository=repos.profiles,
@@ -155,7 +183,10 @@ def profile_transit_report(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     profile = repos.profiles.load_profile(profile_id)
-    _verify_ownership(profile, user["user_id"])
+    owner = profile.get("user_id", "user_local_dev")
+    user_id = user["user_id"]
+    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
+        raise HTTPException(status_code=403, detail="Not your profile")
     request = TransitReportRequest(profile_id=profile_id, **payload.model_dump())
     try:
         return transit_service.build_report(
@@ -180,7 +211,10 @@ def profile_transit_timeline(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     profile = repos.profiles.load_profile(profile_id)
-    _verify_ownership(profile, user["user_id"])
+    owner = profile.get("user_id", "user_local_dev")
+    user_id = user["user_id"]
+    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
+        raise HTTPException(status_code=403, detail="Not your profile")
     request = TransitTimelineRequest(
         profile_id=profile_id,
         start_date=start_date,

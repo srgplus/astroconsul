@@ -157,6 +157,30 @@ export async function searchPublicProfiles(
     .then((data) => data.results)
 }
 
+export async function followProfile(
+  profileId: string,
+  signal?: AbortSignal,
+): Promise<{ status: string }> {
+  const auth = await getAuthHeaders()
+  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/follow`, {
+    method: "POST",
+    headers: auth,
+    signal,
+  }).then(json<{ status: string }>)
+}
+
+export async function unfollowProfile(
+  profileId: string,
+  signal?: AbortSignal,
+): Promise<{ status: string }> {
+  const auth = await getAuthHeaders()
+  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/follow`, {
+    method: "DELETE",
+    headers: auth,
+    signal,
+  }).then(json<{ status: string }>)
+}
+
 export async function searchLocations(
   query: string,
   signal?: AbortSignal,

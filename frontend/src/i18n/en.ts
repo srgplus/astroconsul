@@ -31,6 +31,9 @@ export const en: Record<string, string> = {
   "sidebar.publicNoResults": "No profiles found",
   "sidebar.publicAddSuccess": "Profile added!",
   "sidebar.publicAddError": "Could not add profile",
+  "sidebar.follow": "Follow",
+  "sidebar.unfollow": "Unfollow",
+  "sidebar.following": "Following",
 
   // Profile list
   "profileList.empty": "No profiles yet",

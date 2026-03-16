@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from app.domain.astrology.charts import load_saved_chart, save_chart
@@ -13,6 +15,23 @@ from natal_profiles import (
     save_profile_latest_transit,
     update_profile,
 )
+
+_FOLLOWS_FILE = Path("profiles/_follows.json")
+
+
+def _load_follows() -> dict[str, list[str]]:
+    """Load follows mapping: { user_id: [profile_id, ...] }"""
+    if _FOLLOWS_FILE.exists():
+        try:
+            return json.loads(_FOLLOWS_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_follows(data: dict[str, list[str]]) -> None:
+    _FOLLOWS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _FOLLOWS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 class FileChartRepository:
@@ -101,6 +120,41 @@ class FileProfileRepository:
             if query_lower in s.get("username", "").lower()
         ]
         return results[:limit]
+
+    def follow_profile(self, user_id: str, profile_id: str) -> None:
+        data = _load_follows()
+        user_follows = data.get(user_id, [])
+        if profile_id not in user_follows:
+            user_follows.append(profile_id)
+            data[user_id] = user_follows
+            _save_follows(data)
+
+    def unfollow_profile(self, user_id: str, profile_id: str) -> None:
+        data = _load_follows()
+        user_follows = data.get(user_id, [])
+        if profile_id in user_follows:
+            user_follows.remove(profile_id)
+            data[user_id] = user_follows
+            _save_follows(data)
+
+    def list_followed(self, user_id: str) -> list[dict[str, Any]]:
+        data = _load_follows()
+        followed_ids = data.get(user_id, [])
+        if not followed_ids:
+            return []
+        bootstrap_profiles()
+        all_summaries = list_profile_summaries()
+        results = []
+        for s in all_summaries:
+            if s.get("profile_id") in followed_ids:
+                s["is_own"] = False
+                s["is_following"] = True
+                results.append(s)
+        return results
+
+    def is_following(self, user_id: str, profile_id: str) -> bool:
+        data = _load_follows()
+        return profile_id in data.get(user_id, [])
 
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         return save_profile_latest_transit(profile_id, latest_transit)

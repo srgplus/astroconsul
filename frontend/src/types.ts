@@ -33,6 +33,8 @@ export type ProfileSummary = {
   location_name?: string | null
   local_birth_datetime?: string | null
   latest_transit?: LatestTransit | null
+  is_own?: boolean | null
+  is_following?: boolean | null
 }
 
 export type NatalPosition = {

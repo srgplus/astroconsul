@@ -11,7 +11,17 @@ class ProfileService:
         self.chart_service = chart_service
 
     def list_profiles(self, profile_repository, *, user_id: str | None = None) -> dict[str, object]:
-        return {"profiles": profile_repository.list_summaries(user_id=user_id)}
+        own = profile_repository.list_summaries(user_id=user_id)
+        for p in own:
+            p["is_own"] = True
+            p["is_following"] = False
+        followed: list[dict[str, object]] = []
+        if user_id is not None:
+            followed = profile_repository.list_followed(user_id)
+            # Deduplicate: don't include followed profiles that are already owned
+            own_ids = {p["profile_id"] for p in own}
+            followed = [f for f in followed if f["profile_id"] not in own_ids]
+        return {"profiles": own + followed}
 
     def profile_detail(self, profile_id: str, *, profile_repository, chart_repository) -> dict[str, object]:
         profile = profile_repository.load_profile(profile_id)

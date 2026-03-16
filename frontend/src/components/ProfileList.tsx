@@ -97,6 +97,7 @@ export function ProfileList({
           : rawLoc.replace(/\//g, " / ").replace(/_/g, " ")
 
         const isPrimary = p.profile_id === primaryProfileId
+        const isFollowed = p.is_following === true && p.is_own === false
         const isDragging = p.profile_id === dragId
         const isDragOver = p.profile_id === overId
 
@@ -119,7 +120,7 @@ export function ProfileList({
                 <>
                   <div className="pli-top">
                     <div className="pli-left">
-                      <div className="pli-name">{p.profile_name}</div>
+                      <div className="pli-name">{p.profile_name}{isFollowed ? <span className="pli-follow-badge">{"\u2197"}</span> : null}</div>
                       <div className="pli-location">{tzLabel}</div>
                     </div>
                     <div className="pli-tii" style={{ color: accent }}>{Math.round(tii.tii)}&deg;</div>
@@ -131,7 +132,7 @@ export function ProfileList({
                 </>
               ) : (
                 <>
-                  <strong>{p.profile_name}</strong>
+                  <strong>{p.profile_name}{isFollowed ? <span className="pli-follow-badge">{"\u2197"}</span> : null}</strong>
                   <span>@{p.username}</span>
                 </>
               )}
