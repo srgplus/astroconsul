@@ -155,8 +155,8 @@ export function App() {
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
-  // Content is ready when both detail and transit are loaded (no flicker)
-  const contentLoading = detailLoading || transitLoading
+  // Only block content on detail loading (fast DB read). Transit loads progressively.
+  const contentLoading = detailLoading
 
   useEffect(() => {
     if (!user) return
@@ -245,25 +245,6 @@ export function App() {
     return () => controller.abort()
   }, [activeProfileId])
 
-  // TII sidebar data is now loaded from DB via profiles list (see bootstrap above).
-  // When a user views a transit report, the TII gets refreshed in DB automatically.
-  // Update tiiMap when a transit report is fetched for the active profile.
-  useEffect(() => {
-    if (!activeProfileId || !transitReport) return
-    if (transitReport.tii == null) return
-    const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    setTiiMap((prev) => ({
-      ...prev,
-      [activeProfileId]: {
-        tii: transitReport.tii!,
-        tension_ratio: transitReport.tension_ratio ?? 0,
-        feels_like: transitReport.feels_like ?? "Calm",
-        location: transitReport.snapshot?.transit_location_name || transitReport.snapshot?.transit_timezone || browserTz,
-      },
-    }))
-  }, [activeProfileId, transitReport])
-
-
 
   // Fetch transit report for active profile — use saved params if available, else current time
   useEffect(() => {
@@ -348,6 +329,7 @@ export function App() {
       })
 
     return () => controller.abort()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- profiles read for location only, no re-fetch needed
   }, [activeProfileId, fetchTrigger])
 
   const refreshProfile = useCallback(async () => {
@@ -671,7 +653,7 @@ export function App() {
                   setTransitReport(report)
                   try {
                     const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
-                    saved[activeProfileId] = { transitDate: date, transitTime: time, timezone: tz, locationName: loc }
+                    saved[activeProfileId] = { timezone: tz, locationName: loc }
                     localStorage.setItem("transitParams", JSON.stringify(saved))
                   } catch { /* ignore */ }
                   if (report.tii != null) {
@@ -699,7 +681,11 @@ export function App() {
             {/* Left column: Transits + Climate */}
             <div className="widget-col-left">
               {/* Active Transits widget */}
-              {transitReport ? (
+              {transitLoading && !transitReport ? (
+                <div className="widget widget--summary" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 120 }}>
+                  <div className="content-loader__spinner" />
+                </div>
+              ) : transitReport ? (
                 <div className="widget widget--summary">
                   <ActiveTransitsWidget transitReport={transitReport} />
                 </div>

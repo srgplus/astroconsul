@@ -6,7 +6,7 @@ from datetime import UTC, date, datetime, time
 from typing import Any
 
 from sqlalchemy import delete, select
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings
 from app.domain.astrology.charts import build_chart, chart_needs_upgrade, make_chart_id
@@ -269,11 +269,14 @@ class SqlAlchemyProfileRepository:
 
     def list_summaries(self, *, user_id: str | None = None) -> list[dict[str, Any]]:
         with self.session_factory() as session:
-            statement = select(ProfileModel)
+            statement = select(ProfileModel).options(
+                joinedload(ProfileModel.latest_transit),
+                joinedload(ProfileModel.chart),
+            )
             if user_id is not None:
                 statement = statement.where(ProfileModel.user_id == user_id)
             statement = statement.order_by(ProfileModel.updated_at.desc())
-            rows = session.execute(statement).scalars()
+            rows = session.execute(statement).unique().scalars()
 
             summaries: list[dict[str, Any]] = []
             for profile_model in rows:
@@ -464,11 +467,15 @@ class SqlAlchemyProfileRepository:
         with self.session_factory() as session:
             statement = (
                 select(ProfileModel)
+                .options(
+                    joinedload(ProfileModel.latest_transit),
+                    joinedload(ProfileModel.chart),
+                )
                 .join(ProfileFollowModel, ProfileFollowModel.profile_id == ProfileModel.id)
                 .where(ProfileFollowModel.user_id == user_id)
                 .order_by(ProfileModel.updated_at.desc())
             )
-            rows = session.execute(statement).scalars()
+            rows = session.execute(statement).unique().scalars()
             summaries: list[dict[str, Any]] = []
             for profile_model in rows:
                 chart_payload = dict(profile_model.chart.chart_payload_json)
