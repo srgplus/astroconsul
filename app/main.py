@@ -69,42 +69,6 @@ def create_app() -> FastAPI:
             )
         return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
-    @app.get("/api/debug/db")
-    def debug_db() -> dict[str, object]:
-        """Temporary diagnostic endpoint for database connectivity."""
-        import traceback
-        from app.infrastructure.persistence.session import (
-            database_url_for_settings,
-            normalize_database_url,
-        )
-        info: dict[str, object] = {
-            "persistence_backend": settings.persistence_backend,
-            "use_database": settings.use_database,
-        }
-        raw_url = database_url_for_settings(settings)
-        if raw_url:
-            # Mask password in output
-            import re
-            masked = re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", raw_url)
-            info["raw_url"] = masked
-            normalized = normalize_database_url(raw_url)
-            masked_norm = re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", normalized)
-            info["normalized_url"] = masked_norm
-            try:
-                from app.infrastructure.persistence.session import get_engine
-                from sqlalchemy import text
-                engine = get_engine(normalized)
-                with engine.connect() as conn:
-                    conn.execute(text("SELECT 1"))
-                info["connection"] = "ok"
-            except Exception as exc:
-                info["connection"] = "error"
-                info["error"] = str(exc)
-                info["traceback"] = traceback.format_exc()
-        else:
-            info["raw_url"] = None
-        return info
-
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     app.include_router(legacy_router)
     return app
