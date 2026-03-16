@@ -10,33 +10,32 @@ import type {
 } from "./types"
 import { supabase } from "./lib/supabase"
 
+// Keep a synchronous cache of the current access token, updated by the
+// auth state listener.  This avoids the race condition where
+// supabase.auth.getSession() returns null during early page load.
+let _cachedToken: string | null = null
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  _cachedToken = session?.access_token ?? null
+})
+
 async function getAuthHeaders(): Promise<Record<string, string>> {
-  const { data } = await supabase.auth.getSession()
-  let token = data.session?.access_token
+  // Prefer the synchronously-cached token (always up-to-date from listener)
+  let token = _cachedToken
 
-  // Fallback: read token from localStorage if getSession() returns null
-  // (race condition on page reload before Supabase restores session)
+  // Fallback to getSession for edge cases
   if (!token) {
-    try {
-      const raw = localStorage.getItem(
-        `sb-${new URL(import.meta.env.VITE_SUPABASE_URL ?? "").hostname.split(".")[0]}-auth-token`,
-      )
-      if (raw) {
-        const stored = JSON.parse(raw)
-        token = stored.access_token
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }
+    const { data } = await supabase.auth.getSession()
+    token = data.session?.access_token ?? null
 
-  // If token is expiring within 60s, proactively refresh
-  if (data.session) {
-    const expiresAt = data.session.expires_at ?? 0
-    const nowSec = Math.floor(Date.now() / 1000)
-    if (expiresAt - nowSec < 60) {
-      const { data: refreshed } = await supabase.auth.refreshSession()
-      token = refreshed.session?.access_token ?? token
+    // If token is expiring within 60s, proactively refresh
+    if (data.session) {
+      const expiresAt = data.session.expires_at ?? 0
+      const nowSec = Math.floor(Date.now() / 1000)
+      if (expiresAt - nowSec < 60) {
+        const { data: refreshed } = await supabase.auth.refreshSession()
+        token = refreshed.session?.access_token ?? token
+      }
     }
   }
 
