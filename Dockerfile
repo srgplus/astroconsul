@@ -43,6 +43,9 @@ RUN chmod +x start.sh
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
+# Natal interpretation data
+COPY data/ ./data/
+
 # Data files (writable volume in production)
 COPY profiles/ ./profiles/
 RUN mkdir -p ./charts
