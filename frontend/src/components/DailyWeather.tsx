@@ -86,11 +86,12 @@ const ASPECT_GLYPHS: Record<string, string> = {
 type Props = {
   transitReport: TransitReportResponse
   activeDetail: ProfileDetailResponse
+  loading?: boolean
   onGuideOpen?: () => void
   onTransitSettings?: (date: string, time: string, tz: string, location: string) => void
 }
 
-export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTransitSettings }: Props) {
+export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen, onTransitSettings }: Props) {
   const { t } = useLanguage()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [editDate, setEditDate] = useState("")
@@ -201,6 +202,7 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
         {heroTimeLabel ? (
           <div className="cw-hero-date" onClick={openSettings}>
             {heroTimeLabel}
+            {loading ? <span className="cw-spinner" /> : null}
           </div>
         ) : null}
 

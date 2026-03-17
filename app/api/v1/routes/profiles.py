@@ -202,28 +202,22 @@ def profile_detail(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     try:
-        profile = repos.profiles.load_profile(profile_id)
-        owner = profile.get("user_id", "user_local_dev")
         user_id = user["user_id"]
-        # Any authenticated user can view profile details (natal chart)
-        # Transit endpoints still require ownership or follow
-        result = profile_service.profile_detail(
-            profile_id,
-            profile_repository=repos.profiles,
+        # Single-session load: profile + followers/following/is_following
+        profile_data = repos.profiles.load_profile_with_social(profile_id, user_id)
+        # Build chart response (1 more DB session for chart load)
+        result = profile_service.profile_detail_from_loaded(
+            profile_data,
             chart_repository=repos.charts,
         )
         result["chart"]["natal_interpretations"] = _build_natal_interpretations(
             result["chart"], lang,
         )
-        # Follower / following counts
-        followers_count = repos.profiles.count_followers(profile_id)
-        owner_user_id = repos.profiles.get_owner_user_id(profile_id)
-        following_count = repos.profiles.count_following(owner_user_id) if owner_user_id else 0
-        is_following = repos.profiles.is_following(user_id, profile_id)
-        result["profile"]["followers_count"] = followers_count
-        result["profile"]["following_count"] = following_count
-        result["profile"]["is_following"] = is_following
-        result["profile"]["is_own"] = (user_id == owner)
+        # Attach social metrics from the consolidated query
+        result["profile"]["followers_count"] = profile_data["followers_count"]
+        result["profile"]["following_count"] = profile_data["following_count"]
+        result["profile"]["is_following"] = profile_data["is_following"]
+        result["profile"]["is_own"] = profile_data["is_own"]
         return result
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

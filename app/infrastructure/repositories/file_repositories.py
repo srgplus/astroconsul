@@ -56,6 +56,14 @@ class FileProfileRepository:
         _, profile = load_profile(profile_id)
         return profile
 
+    def load_profile_with_social(self, profile_id: str, viewer_user_id: str) -> dict[str, Any]:
+        profile = self.load_profile(profile_id)
+        profile["followers_count"] = self.count_followers(profile_id)
+        profile["following_count"] = self.count_following(viewer_user_id)
+        profile["is_following"] = self.is_following(viewer_user_id, profile_id)
+        profile["is_own"] = (viewer_user_id == profile.get("user_id", "user_local_dev"))
+        return profile
+
     def create_profile(
         self,
         profile_name: str,

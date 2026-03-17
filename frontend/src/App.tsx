@@ -271,6 +271,7 @@ export function App() {
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
+  const [transitRefreshing, setTransitRefreshing] = useState(false)
   // Use user.id as dependency (not user object) to avoid re-running bootstrap on token refresh
   const userId = user?.id
   useEffect(() => {
@@ -462,6 +463,7 @@ export function App() {
     // Show cached transit instantly — don't clear previous data until we know there's nothing cached
     const transitCacheKey = "cachedTransit_" + activeProfileId
     let hasCached = false
+    setTransitRefreshing(true)
     try {
       const cached = localStorage.getItem(transitCacheKey)
       if (cached) {
@@ -528,6 +530,7 @@ export function App() {
       } else {
         setTransitReport(report)
         try { localStorage.setItem(transitCacheKey, JSON.stringify(report)) } catch {}
+        if (!controller.signal.aborted) setTransitRefreshing(false)
       }
       setTransitLoading(false)
       if (report.tii != null && activeProfileId) {
@@ -554,7 +557,7 @@ export function App() {
         if (!controller.signal.aborted) {
           fetchTransitReport(activeProfileId, params, controller.signal)
             .then(applyReport)
-            .catch(() => { /* timing upgrade failed — fast report is still shown */ })
+            .catch(() => { if (!controller.signal.aborted) setTransitRefreshing(false) })
         }
       })
       .catch(() => {
@@ -574,18 +577,19 @@ export function App() {
             if (!controller.signal.aborted) {
               fetchTransitReport(activeProfileId, { ...fallback, include_timing: true }, controller.signal)
                 .then(applyReport)
-                .catch(() => {})
+                .catch(() => { if (!controller.signal.aborted) setTransitRefreshing(false) })
             }
           })
           .catch(() => {
             if (!controller.signal.aborted) {
               setTransitReport(null)
               setTransitLoading(false)
+              setTransitRefreshing(false)
             }
           })
       })
 
-    return () => controller.abort()
+    return () => { controller.abort(); setTransitRefreshing(false) }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- profiles read for location only, no re-fetch needed
   }, [activeProfileId, fetchTrigger, lang])
 
@@ -906,6 +910,7 @@ export function App() {
             <DailyWeather
               transitReport={transitReport}
               activeDetail={activeDetail}
+              loading={transitRefreshing}
               onGuideOpen={() => setGuideOpen(true)}
               onTransitSettings={(date, time, tz, loc) => {
                 if (!activeProfileId) return
@@ -943,14 +948,15 @@ export function App() {
                   }
                 }
                 // Fast fetch without timing, then upgrade
+                setTransitRefreshing(true)
                 fetchTransitReport(pid, { ...settingsParams, include_timing: false })
                   .then((fast) => {
                     applySettingsReport(fast)
                     fetchTransitReport(pid, { ...settingsParams, include_timing: true })
-                      .then(applySettingsReport)
-                      .catch(() => {})
+                      .then((full) => { applySettingsReport(full); setTransitRefreshing(false) })
+                      .catch(() => { setTransitRefreshing(false) })
                   })
-                  .catch(() => {})
+                  .catch(() => { setTransitRefreshing(false) })
               }}
             />
           ) : activeDetail && activeProfileId && tiiMap[activeProfileId] ? (

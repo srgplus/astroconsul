@@ -308,6 +308,37 @@ class SqlAlchemyProfileRepository:
                 raise FileNotFoundError(f"Natal profile not found: {profile_id}")
             return _profile_payload(model)
 
+    def load_profile_with_social(self, profile_id: str, viewer_user_id: str) -> dict[str, Any]:
+        """Load profile + followers/following/is_following in a single DB session."""
+        with self.session_factory() as session:
+            model = session.get(ProfileModel, profile_id)
+            if model is None:
+                raise FileNotFoundError(f"Natal profile not found: {profile_id}")
+            profile = _profile_payload(model)
+
+            followers_count = session.execute(
+                select(func.count()).select_from(ProfileFollowModel)
+                .where(ProfileFollowModel.profile_id == profile_id)
+            ).scalar_one()
+
+            following_count = session.execute(
+                select(func.count()).select_from(ProfileFollowModel)
+                .where(ProfileFollowModel.user_id == model.user_id)
+            ).scalar_one()
+
+            is_following = session.execute(
+                select(ProfileFollowModel).where(
+                    ProfileFollowModel.user_id == viewer_user_id,
+                    ProfileFollowModel.profile_id == profile_id,
+                )
+            ).scalar_one_or_none() is not None
+
+            profile["followers_count"] = followers_count
+            profile["following_count"] = following_count
+            profile["is_following"] = is_following
+            profile["is_own"] = (viewer_user_id == model.user_id)
+            return profile
+
     def create_profile(
         self,
         profile_name: str,

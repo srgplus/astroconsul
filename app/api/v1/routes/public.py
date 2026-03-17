@@ -5,12 +5,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.dependencies import (
-    get_chart_service,
     get_profile_service,
     get_repositories,
 )
 from app.api.v1.routes.profiles import _build_natal_interpretations
-from app.application.services.chart_service import ChartService
 from app.application.services.profile_service import ProfileService
 from app.infrastructure.repositories.factory import RepositoryBundle
 
@@ -36,17 +34,17 @@ def get_public_profile_detail(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     try:
-        result = profile_service.profile_detail(
-            profile_id,
-            profile_repository=repos.profiles,
+        # Use load_profile_with_social to get profile + followers in one session
+        profile_data = repos.profiles.load_profile_with_social(profile_id, "")
+        result = profile_service.profile_detail_from_loaded(
+            profile_data,
             chart_repository=repos.charts,
         )
         result["chart"]["natal_interpretations"] = _build_natal_interpretations(
             result["chart"], lang,
         )
         # Public view: only followers_count, no user-specific fields
-        followers_count = repos.profiles.count_followers(profile_id)
-        result["profile"]["followers_count"] = followers_count
+        result["profile"]["followers_count"] = profile_data["followers_count"]
         return result
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

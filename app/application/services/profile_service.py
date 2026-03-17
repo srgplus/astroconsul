@@ -25,6 +25,10 @@ class ProfileService:
 
     def profile_detail(self, profile_id: str, *, profile_repository, chart_repository) -> dict[str, object]:
         profile = profile_repository.load_profile(profile_id)
+        return self.profile_detail_from_loaded(profile, chart_repository=chart_repository)
+
+    def profile_detail_from_loaded(self, profile: dict[str, object], *, chart_repository) -> dict[str, object]:
+        """Build profile detail response from an already-loaded profile dict."""
         chart_reference, chart = chart_repository.load_chart(str(profile["chart_id"]))
         return {
             "profile": profile_summary(profile, chart),
