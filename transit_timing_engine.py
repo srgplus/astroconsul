@@ -451,17 +451,23 @@ def compute_active_aspect_timing(
         duration_hours = round((end_utc - start_utc).total_seconds() / 3600, 6)
 
     # Find all exact passes (retrograde can produce 2-3)
+    # Only run for reasonably-sized windows to avoid timeouts on outer planets
     exact_passes: list[dict[str, object]] = []
     if start_utc is not None and end_utc is not None:
-        exact_passes = find_all_exact_passes(
-            start_utc=search_start,
-            end_utc=search_end,
-            coarse_step=step,
-            transit_object_id=transit_object_id,
-            natal_longitude=natal_longitude,
-            exact_angle=exact_angle,
-            longitude_cache=longitude_cache,
-        )
+        window_days = (search_end - search_start).total_seconds() / 86400
+        if window_days <= 730:  # skip for windows > 2 years (too expensive)
+            try:
+                exact_passes = find_all_exact_passes(
+                    start_utc=search_start,
+                    end_utc=search_end,
+                    coarse_step=step,
+                    transit_object_id=transit_object_id,
+                    natal_longitude=natal_longitude,
+                    exact_angle=exact_angle,
+                    longitude_cache=longitude_cache,
+                )
+            except Exception:
+                exact_passes = []
 
     return {
         "start_utc": format_utc_datetime(start_utc),
