@@ -4,6 +4,7 @@ import type { PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
 import { useLanguage } from "../contexts/LanguageContext"
+import { useMobileTap } from "../lib/useMobileTap"
 
 
 const STRENGTH_COLORS: Record<string, string> = {
@@ -487,6 +488,7 @@ export function ActiveTransitsWidget({ transitReport }: {
   transitReport: TransitReportResponse
 }) {
   const { t } = useLanguage()
+  const tap = useMobileTap()
   const allAspects = transitReport.active_aspects ?? []
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set())
   const [mostImpact, setMostImpact] = useState(true)
@@ -565,7 +567,7 @@ export function ActiveTransitsWidget({ transitReport }: {
                   className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}`}
                   style={{ cursor: "pointer" }}
                 >
-                  <button type="button" className="tap-target" onClick={() => toggleCardIdx(idx)} />
+                  <button type="button" className="tap-target" {...tap(() => toggleCardIdx(idx))} />
                   <div className="cw-transit-row">
                     <span className="cw-transit-left">
                       <span className="cw-transit-glyphs">

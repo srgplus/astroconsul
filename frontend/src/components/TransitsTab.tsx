@@ -10,6 +10,7 @@ import type {
 } from "../types"
 import { TransitProgressBar } from "./DailyWeather"
 import { useLanguage } from "../contexts/LanguageContext"
+import { useMobileTap } from "../lib/useMobileTap"
 
 
 type TransitsTabProps = {
@@ -135,6 +136,7 @@ function formatDuration(hours: number | null | undefined, t?: (key: string) => s
 
 export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, initialReport }: TransitsTabProps) {
   const { t } = useLanguage()
+  const tap = useMobileTap()
   const [transitDate, setTransitDate] = useState(todayDate)
   const [transitTime, setTransitTime] = useState(nowTime)
   const [timezone, setTimezone] = useState(browserTimezone)
@@ -464,7 +466,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                         className={`aspect-card${isExpanded ? " aspect-card--expanded" : ""}`}
                         style={{ cursor: "pointer", position: "relative" }}
                       >
-                        <button type="button" className="tap-target" onClick={toggleExpand} />
+                        <button type="button" className="tap-target" {...tap(toggleExpand)} />
                         <div className="aspect-card-row1">
                           <div className="aspect-card-left">
                             <span className="aspect-card-glyphs">

@@ -8,12 +8,7 @@ import type {
   TransitReportResponse,
 } from "../types"
 import { useLanguage } from "../contexts/LanguageContext"
-
-/**
- * iOS Safari often swallows onClick inside overflow-y:auto containers.
- * These handlers track touchstart→touchend and fire callback only when
- * the finger didn't move (tap, not scroll).
- */
+import { useMobileTap } from "../lib/useMobileTap"
 
 type ProfileDetailProps = {
   activeDetail: ProfileDetailResponse | null
@@ -90,6 +85,7 @@ export function NatalPositionsTable({
   interpretations?: NatalInterpretations | null
 }) {
   const { t } = useLanguage()
+  const tap = useMobileTap()
   const byId = new Map(positions.map((p) => [p.id, p]))
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
@@ -141,7 +137,7 @@ export function NatalPositionsTable({
                   <button
                     type="button"
                     className="natal-pos__row natal-pos__row--clickable"
-                    onClick={() => toggle(p.id)}
+                    {...tap(() => toggle(p.id))}
                   >
                     <span className="natal-pos__left">
                       <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
@@ -274,6 +270,7 @@ export function NatalAspectsTable({
   positions?: NatalPosition[]
 }) {
   const { t } = useLanguage()
+  const tap = useMobileTap()
   const [mostImpact, setMostImpact] = useState(true)
   const filtered = mostImpact
     ? aspects.filter((a) => aspectStrength(a.orb) === "exact" || aspectStrength(a.orb) === "strong")
@@ -337,7 +334,7 @@ export function NatalAspectsTable({
                   className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
-                  {clickable ? <button type="button" className="tap-target" onClick={() => toggle(aspKey)} /> : null}
+                  {clickable ? <button type="button" className="tap-target" {...tap(() => toggle(aspKey))} /> : null}
                   <div className="cw-transit-row">
                     <span className="cw-transit-left">
                       <span className="cw-transit-glyphs">

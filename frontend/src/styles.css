@@ -1064,9 +1064,6 @@ select {
   padding: 4px 0 12px;
   flex: 1;
   min-height: 0;
-  /* Separate compositing layer for scroll container on iOS */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 .widget-popup-body > div > .profile-summary { padding: 12px 16px; }
 .widget-popup-body > div > .edit-btn { margin-left: 16px; }
