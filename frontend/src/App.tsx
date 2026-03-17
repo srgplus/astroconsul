@@ -7,6 +7,7 @@ import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, sea
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
 import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
+import { zoneColor, FEELS_EMOJI } from "./tii-zones"
 import { TiiGuide } from "./components/TiiGuide"
 import { ProfileEditForm } from "./components/ProfileEditForm"
 import { ProfileCreateForm } from "./components/ProfileCreateForm"
@@ -348,25 +349,35 @@ export function App() {
   }, [userId])
 
   // Background TII: compute transit for profiles missing TII so sidebar populates automatically
+  // Wait until active profile's data is loaded first to avoid blocking the server queue
   useEffect(() => {
     if (profiles.length === 0) return
+    // Don't start background TII until the active profile has loaded its transit data
+    // This prevents background requests from blocking the critical path on single-worker servers
+    if (transitLoading) return
+
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
     const now = new Date()
     const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
     const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
 
     const missing = profiles.filter((p) => {
+      // Skip active profile (already loading/loaded) and profiles with TII data
+      if (p.profile_id === activeProfileId) return false
+      const existing = tiiMap[p.profile_id]
+      if (existing) return false
       const lt = p.latest_transit
       return lt?.tii == null
     })
     if (missing.length === 0) return
 
     let cancelled = false
-    // Stagger requests to avoid hammering the server
-    missing.forEach((p, i) => {
-      setTimeout(() => {
+    // Stagger requests — one at a time, sequential to avoid overloading single-worker server
+    let chain = Promise.resolve()
+    missing.forEach((p) => {
+      chain = chain.then(() => {
         if (cancelled) return
-        fetchTransitReport(p.profile_id, {
+        return fetchTransitReport(p.profile_id, {
           transit_date: date,
           transit_time: time,
           timezone: p.latest_transit?.timezone ?? browserTz,
@@ -382,12 +393,13 @@ export function App() {
               location: report.snapshot?.transit_location_name || report.snapshot?.transit_timezone || browserTz,
             },
           }))
-        }).catch(() => { /* silent — TII will populate when user clicks profile */ })
-      }, i * 200)
+        }).catch(() => { /* silent */ })
+      })
     })
 
     return () => { cancelled = true }
-  }, [profiles])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profiles, transitLoading])
 
   useEffect(() => {
     if (!activeProfileId) {
@@ -447,19 +459,21 @@ export function App() {
     autoFetchRef.current = controller
     const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-    // Clear previous profile's transit data, then check cache
-    setTransitReport(null)
-
+    // Show cached transit instantly — don't clear previous data until we know there's nothing cached
     const transitCacheKey = "cachedTransit_" + activeProfileId
+    let hasCached = false
     try {
       const cached = localStorage.getItem(transitCacheKey)
       if (cached) {
         setTransitReport(JSON.parse(cached))
         setTransitLoading(false)
+        hasCached = true
       } else {
+        setTransitReport(null)
         setTransitLoading(true)
       }
     } catch {
+      setTransitReport(null)
       setTransitLoading(true)
     }
 
@@ -495,15 +509,32 @@ export function App() {
       lang,
     }
 
-    function applyReport(report: TransitReportResponse) {
+    function applyReport(report: TransitReportResponse, preserveClimate = false) {
       if (controller.signal.aborted) return
-      setTransitReport(report)
+      if (preserveClimate) {
+        // Fast phase has no timing → no cosmic_climate. Preserve from current state.
+        setTransitReport((prev) => {
+          const merged = { ...report }
+          if ((!merged.cosmic_climate || merged.cosmic_climate.length === 0) && prev?.cosmic_climate?.length) {
+            merged.cosmic_climate = prev.cosmic_climate
+          }
+          // Also preserve timing data from cache if fast phase lacks it
+          if (prev?.active_aspects?.some((a: any) => a.timing) && !report.active_aspects?.some((a: any) => a.timing)) {
+            merged.active_aspects = prev.active_aspects
+          }
+          try { localStorage.setItem(transitCacheKey, JSON.stringify(merged)) } catch {}
+          return merged
+        })
+      } else {
+        setTransitReport(report)
+        try { localStorage.setItem(transitCacheKey, JSON.stringify(report)) } catch {}
+      }
       setTransitLoading(false)
-      try { localStorage.setItem(transitCacheKey, JSON.stringify(report)) } catch {}
-      if (report.tii != null) {
+      if (report.tii != null && activeProfileId) {
+        const pid = activeProfileId
         setTiiMap((prev) => ({
           ...prev,
-          [activeProfileId]: {
+          [pid]: {
             tii: report.tii!,
             tension_ratio: report.tension_ratio ?? 0,
             feels_like: report.feels_like ?? "Calm",
@@ -518,7 +549,7 @@ export function App() {
 
     fetchTransitReport(activeProfileId, fastParams, controller.signal)
       .then((fastReport) => {
-        applyReport(fastReport)
+        applyReport(fastReport, true)  // preserve cached climate data
         // Now upgrade with timing data in background
         if (!controller.signal.aborted) {
           fetchTransitReport(activeProfileId, params, controller.signal)
@@ -538,7 +569,7 @@ export function App() {
         }
         fetchTransitReport(activeProfileId, fallback, controller.signal)
           .then((fastReport) => {
-            applyReport(fastReport)
+            applyReport(fastReport, true)
             // Upgrade with timing
             if (!controller.signal.aborted) {
               fetchTransitReport(activeProfileId, { ...fallback, include_timing: true }, controller.signal)
@@ -922,10 +953,45 @@ export function App() {
                   .catch(() => {})
               }}
             />
-          ) : activeDetail && !profiles.some((p) => p.profile_id === activeProfileId) ? (
-            <header className="sticky-header">
-              <h1 className="content-profile-name">{activeDetail.profile.profile_name}</h1>
-            </header>
+          ) : activeDetail && activeProfileId && tiiMap[activeProfileId] ? (
+            /* Show partial hero with TII from sidebar data while transit report loads */
+            (() => {
+              const tiiData = tiiMap[activeProfileId]
+              const accent = zoneColor(tiiData.tii)
+              const feelsLabel = t(`feels.${tiiData.feels_like}`)
+              const emoji = FEELS_EMOJI[tiiData.feels_like] ?? "\u2728"
+              const mood = t(`mood.${tiiData.feels_like}`)
+              const tzRaw = tiiData.location || ""
+              const tzLabel = (() => {
+                if (!tzRaw) return ""
+                const city = tzRaw.split("/").pop()?.replace(/_/g, " ") ?? tzRaw
+                try {
+                  const offsetStr = new Intl.DateTimeFormat("en", { timeZone: tzRaw, timeZoneName: "shortOffset" })
+                    .formatToParts(new Date())
+                    .find((p) => p.type === "timeZoneName")?.value ?? ""
+                  return `${city} ${offsetStr}`.toUpperCase()
+                } catch { return city.toUpperCase() }
+              })()
+              return (
+                <div className="cw">
+                  <div className="cw-hero" style={{ textAlign: "center", padding: "2rem 0" }}>
+                    <div className="cw-hero__tz">{tzLabel}</div>
+                    <h1 className="cw-hero__name">{activeDetail.profile.profile_name}</h1>
+                    <div className="cw-hero__emoji">{emoji}</div>
+                    <div className="cw-hero__tii" style={{ color: accent }}>{Math.round(tiiData.tii)}°</div>
+                    <div className="cw-hero__sublabel">INTENSITY</div>
+                    <div className="cw-hero__feels" style={{ color: accent }}>{feelsLabel}</div>
+                    <div className="cw-hero__mood">{mood}</div>
+                    <div className="cw-hero__bar-row">
+                      <div className="cw-hero__bar">
+                        <div className="cw-hero__bar-fill" style={{ width: `${Math.round(tiiData.tension_ratio * 100)}%`, background: accent }} />
+                      </div>
+                      <span className="cw-hero__bar-label">Tension {Math.round(tiiData.tension_ratio * 100)}%</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()
           ) : activeDetail ? (
             <header className="sticky-header">
               <h1 className="content-profile-name">{activeDetail.profile.profile_name}</h1>
