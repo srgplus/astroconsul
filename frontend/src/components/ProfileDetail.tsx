@@ -245,6 +245,14 @@ const STRENGTH_COLORS: Record<string, string> = {
   wide: "#8E8E93",
 }
 
+/** Planet priority order — aspects are sorted by p1 in this order, then by orb */
+const PLANET_ORDER: string[] = [
+  "Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC",
+  "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+  "Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex",
+]
+const PLANET_RANK = new Map(PLANET_ORDER.map((id, i) => [id, i]))
+
 const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC"])
 const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
@@ -275,7 +283,12 @@ export function NatalAspectsTable({
   const filtered = mostImpact
     ? aspects.filter((a) => aspectStrength(a.orb) === "exact" || aspectStrength(a.orb) === "strong")
     : aspects
-  const sorted = [...filtered].sort((a, b) => a.orb - b.orb)
+  const sorted = [...filtered].sort((a, b) => {
+    const ra = PLANET_RANK.get(a.p1) ?? 99
+    const rb = PLANET_RANK.get(b.p1) ?? 99
+    if (ra !== rb) return ra - rb
+    return a.orb - b.orb
+  })
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   const aspInterps = interpretations?.aspects ?? []
