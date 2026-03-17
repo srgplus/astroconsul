@@ -9,12 +9,25 @@ COSMIC_NATAL_POINTS = {"Sun", "Moon", "Venus", "Mars", "ASC", "MC"}
 COSMIC_MIN_DURATION_DAYS = 45
 COSMIC_MAX_CARDS = 5
 
+# Default duration estimates (days) for outer planets when timing data is unavailable.
+# These are conservative lower bounds — actual durations are often much longer.
+_DEFAULT_DURATION_DAYS: dict[str, float] = {
+    "Pluto": 365,
+    "Neptune": 300,
+    "Uranus": 180,
+    "Jupiter": 60,
+}
+
 
 def _weight(aspect: dict) -> float:
     """Longer + tighter orb = more important."""
     timing = aspect.get("timing") or {}
     duration_hours = timing.get("duration_hours") or 0
     duration_days = duration_hours / 24
+    if duration_days == 0:
+        # Use default estimate when timing is unavailable
+        transit_obj = str(aspect.get("transit_object", ""))
+        duration_days = _DEFAULT_DURATION_DAYS.get(transit_obj, 0)
     orb = float(aspect.get("orb", 99))
     return duration_days / max(orb, 0.01)
 
@@ -35,11 +48,14 @@ def get_cosmic_climate(active_aspects: list[dict], lang: str = "ru") -> list[dic
             continue
         if natal_obj not in COSMIC_NATAL_POINTS:
             continue
-        if not timing:
-            continue
 
-        duration_hours = timing.get("duration_hours") or 0
-        duration_days = duration_hours / 24
+        if timing:
+            duration_hours = timing.get("duration_hours") or 0
+            duration_days = duration_hours / 24
+        else:
+            # No timing data (fast phase) — use planet's default duration estimate
+            duration_days = _DEFAULT_DURATION_DAYS.get(transit_obj, 0)
+
         if duration_days < COSMIC_MIN_DURATION_DAYS:
             continue
 
