@@ -11,6 +11,17 @@ import type {
 import { TransitProgressBar } from "./DailyWeather"
 import { useLanguage } from "../contexts/LanguageContext"
 
+/** iOS Safari tap fix */
+function tapProps(cb: () => void) {
+  let y0 = 0
+  return {
+    onTouchStart: (e: React.TouchEvent) => { y0 = e.touches[0].clientY },
+    onTouchEnd: (e: React.TouchEvent) => {
+      if (Math.abs(e.changedTouches[0].clientY - y0) < 10) { e.preventDefault(); cb() }
+    },
+  }
+}
+
 type TransitsTabProps = {
   activeProfileId: string | null
   activeDetail: ProfileDetailResponse | null
@@ -464,6 +475,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                         role="button"
                         tabIndex={0}
                         onClick={toggleExpand}
+                        {...tapProps(toggleExpand)}
                         style={{ cursor: "pointer" }}
                       >
                         <div className="aspect-card-row1">

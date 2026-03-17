@@ -9,6 +9,26 @@ import type {
 } from "../types"
 import { useLanguage } from "../contexts/LanguageContext"
 
+/**
+ * iOS Safari often swallows onClick inside overflow-y:auto containers.
+ * These handlers track touchstart→touchend and fire callback only when
+ * the finger didn't move (tap, not scroll).
+ */
+function tapHandlers(callback: (() => void) | undefined) {
+  if (!callback) return {}
+  let startY = 0
+  return {
+    onTouchStart: (e: React.TouchEvent) => { startY = e.touches[0].clientY },
+    onTouchEnd: (e: React.TouchEvent) => {
+      const dy = Math.abs(e.changedTouches[0].clientY - startY)
+      if (dy < 10) {
+        e.preventDefault()
+        callback()
+      }
+    },
+  }
+}
+
 type ProfileDetailProps = {
   activeDetail: ProfileDetailResponse | null
   detailLoading: boolean
@@ -136,6 +156,7 @@ export function NatalPositionsTable({
                     role={clickable ? "button" : undefined}
                     tabIndex={clickable ? 0 : undefined}
                     onClick={clickable ? () => toggle(p.id) : undefined}
+                    {...tapHandlers(clickable ? () => toggle(p.id) : undefined)}
                   >
                     <span className="natal-pos__left">
                       <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
@@ -315,6 +336,7 @@ export function NatalAspectsTable({
                   role={clickable ? "button" : undefined}
                   tabIndex={clickable ? 0 : undefined}
                   onClick={clickable ? () => toggle(aspKey) : undefined}
+                  {...tapHandlers(clickable ? () => toggle(aspKey) : undefined)}
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
                   <div className="cw-transit-row">

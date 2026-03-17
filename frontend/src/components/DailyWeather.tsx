@@ -5,6 +5,17 @@ import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
 import { useLanguage } from "../contexts/LanguageContext"
 
+/** iOS Safari tap fix — fire callback on touchEnd if finger didn't scroll */
+function tapProps(cb: () => void) {
+  let y0 = 0
+  return {
+    onTouchStart: (e: React.TouchEvent) => { y0 = e.touches[0].clientY },
+    onTouchEnd: (e: React.TouchEvent) => {
+      if (Math.abs(e.changedTouches[0].clientY - y0) < 10) { e.preventDefault(); cb() }
+    },
+  }
+}
+
 const STRENGTH_COLORS: Record<string, string> = {
   exact: "#FF2D55",
   strong: "#FF9500",
@@ -518,14 +529,17 @@ export function ActiveTransitsWidget({ transitReport }: {
     .filter((key) => groups[key]?.length)
     .map((key) => ({ key, aspects: groups[key] }))
 
-  const toggleCard = (e: React.MouseEvent, idx: number) => {
-    e.stopPropagation()
+  const toggleCardIdx = (idx: number) => {
     setExpandedCards((prev) => {
       const next = new Set(prev)
       if (next.has(idx)) next.delete(idx)
       else next.add(idx)
       return next
     })
+  }
+  const toggleCard = (e: React.MouseEvent, idx: number) => {
+    e.stopPropagation()
+    toggleCardIdx(idx)
   }
 
   // Global index for expand tracking across groups
@@ -562,6 +576,7 @@ export function ActiveTransitsWidget({ transitReport }: {
                   role="button"
                   tabIndex={0}
                   onClick={(e) => toggleCard(e, idx)}
+                  {...tapProps(() => toggleCardIdx(idx))}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="cw-transit-row">
