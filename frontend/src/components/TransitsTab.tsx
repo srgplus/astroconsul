@@ -11,17 +11,6 @@ import type {
 import { TransitProgressBar } from "./DailyWeather"
 import { useLanguage } from "../contexts/LanguageContext"
 
-/** iOS Safari tap fix — combined touch+click with double-fire prevention */
-function tapProps(cb: () => void): Record<string, any> {
-  let touchStartY = 0
-  let wasTap = false
-  return {
-    onTouchStart: (e: React.TouchEvent) => { touchStartY = e.touches[0].clientY; wasTap = true },
-    onTouchMove: (e: React.TouchEvent) => { if (Math.abs(e.touches[0].clientY - touchStartY) > 8) wasTap = false },
-    onTouchEnd: (e: React.TouchEvent) => { if (wasTap) { e.preventDefault(); cb() } },
-    onClick: () => { cb() },
-  }
-}
 
 type TransitsTabProps = {
   activeProfileId: string | null
@@ -473,11 +462,9 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                       <div
                         key={cardKey}
                         className={`aspect-card${isExpanded ? " aspect-card--expanded" : ""}`}
-                        role="button"
-                        tabIndex={0}
-                        {...tapProps(toggleExpand)}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", position: "relative" }}
                       >
+                        <button type="button" className="tap-target" onClick={toggleExpand} />
                         <div className="aspect-card-row1">
                           <div className="aspect-card-left">
                             <span className="aspect-card-glyphs">
