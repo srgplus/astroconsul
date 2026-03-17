@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 
-export default function AuthScreen() {
+export default function AuthScreen({ onBack }: { onBack?: () => void } = {}) {
   const { signIn, signUp, signInWithGoogle, signInWithApple } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -58,6 +58,11 @@ export default function AuthScreen() {
   return (
     <div className="auth-screen">
       <div className="auth-form">
+        {onBack ? (
+          <button type="button" className="landing-back-btn" onClick={onBack} style={{ marginBottom: 8 }}>
+            &larr; {t("landing.back")}
+          </button>
+        ) : null}
         <h1 className="auth-logo">{t("auth.logo")}</h1>
         <p className="auth-subtitle">
           {mode === "signin" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
