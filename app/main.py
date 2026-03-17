@@ -68,18 +68,22 @@ def create_app() -> FastAPI:
         )
 
     # Serve root-level static files (og-image.png, favicon.ico, robots.txt, etc.)
-    _static_root_files = [
-        "og-image.png", "favicon.ico", "favicon-32x32.png", "favicon-16x16.png",
-        "favicon.svg", "apple-touch-icon.png", "robots.txt", "sitemap.xml",
-    ]
-    for _fname in _static_root_files:
-        _fpath = settings.frontend_dist_dir / _fname
-        if _fpath.exists():
-            def _make_handler(_p: Path = _fpath):
-                @app.get(f"/{_p.name}", include_in_schema=False)
-                def _serve():
-                    return FileResponse(str(_p))
-            _make_handler(_fpath)
+    _root_static = settings.frontend_dist_dir
+
+    @app.get("/og-image.png", include_in_schema=False)
+    @app.get("/favicon.ico", include_in_schema=False)
+    @app.get("/favicon-32x32.png", include_in_schema=False)
+    @app.get("/favicon-16x16.png", include_in_schema=False)
+    @app.get("/favicon.svg", include_in_schema=False)
+    @app.get("/apple-touch-icon.png", include_in_schema=False)
+    @app.get("/robots.txt", include_in_schema=False)
+    @app.get("/sitemap.xml", include_in_schema=False)
+    def serve_root_static(request: Request):
+        fname = request.url.path.lstrip("/")
+        fpath = _root_static / fname
+        if fpath.exists():
+            return FileResponse(str(fpath))
+        raise HTTPException(status_code=404)
 
     canonical_host = settings.canonical_host.strip().lower() if settings.canonical_host else None
 
