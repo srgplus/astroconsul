@@ -14,17 +14,34 @@ import { useLanguage } from "../contexts/LanguageContext"
  * These handlers track touchstart→touchend and fire callback only when
  * the finger didn't move (tap, not scroll).
  */
-function tapHandlers(callback: (() => void) | undefined) {
+/**
+ * iOS Safari fix: Replace onClick with onPointerUp for reliable touch handling.
+ * onClick on <div> inside overflow:auto often fails on real iOS devices.
+ * Returns both onClick (for desktop/mouse) and touch handlers to avoid double-fire.
+ */
+function tapProps(callback: (() => void) | undefined): Record<string, any> {
   if (!callback) return {}
-  let startY = 0
+  let touchStartY = 0
+  let wasTap = false
   return {
-    onTouchStart: (e: React.TouchEvent) => { startY = e.touches[0].clientY },
+    onTouchStart: (e: React.TouchEvent) => {
+      touchStartY = e.touches[0].clientY
+      wasTap = true
+    },
+    onTouchMove: (e: React.TouchEvent) => {
+      if (Math.abs(e.touches[0].clientY - touchStartY) > 8) wasTap = false
+    },
     onTouchEnd: (e: React.TouchEvent) => {
-      const dy = Math.abs(e.changedTouches[0].clientY - startY)
-      if (dy < 10) {
-        e.preventDefault()
+      if (wasTap) {
+        e.preventDefault() // prevent subsequent synthetic click
         callback()
       }
+    },
+    onClick: (e: React.MouseEvent) => {
+      // Only fire for real mouse clicks (not synthetic from touch)
+      // On iOS, preventDefault in onTouchEnd should prevent this,
+      // but as fallback for desktop, keep onClick
+      callback()
     },
   }
 }
@@ -155,8 +172,7 @@ export function NatalPositionsTable({
                     className={`natal-pos__row${clickable ? " natal-pos__row--clickable" : ""}`}
                     role={clickable ? "button" : undefined}
                     tabIndex={clickable ? 0 : undefined}
-                    onClick={clickable ? () => toggle(p.id) : undefined}
-                    {...tapHandlers(clickable ? () => toggle(p.id) : undefined)}
+                    {...tapProps(clickable ? () => toggle(p.id) : undefined)}
                   >
                     <span className="natal-pos__left">
                       <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
@@ -335,8 +351,7 @@ export function NatalAspectsTable({
                   className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
                   role={clickable ? "button" : undefined}
                   tabIndex={clickable ? 0 : undefined}
-                  onClick={clickable ? () => toggle(aspKey) : undefined}
-                  {...tapHandlers(clickable ? () => toggle(aspKey) : undefined)}
+                  {...tapProps(clickable ? () => toggle(aspKey) : undefined)}
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
                   <div className="cw-transit-row">

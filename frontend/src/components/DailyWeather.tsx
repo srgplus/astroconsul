@@ -5,14 +5,15 @@ import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
 import { useLanguage } from "../contexts/LanguageContext"
 
-/** iOS Safari tap fix — fire callback on touchEnd if finger didn't scroll */
-function tapProps(cb: () => void) {
-  let y0 = 0
+/** iOS Safari tap fix — combined touch+click with double-fire prevention */
+function tapProps(cb: () => void): Record<string, any> {
+  let touchStartY = 0
+  let wasTap = false
   return {
-    onTouchStart: (e: React.TouchEvent) => { y0 = e.touches[0].clientY },
-    onTouchEnd: (e: React.TouchEvent) => {
-      if (Math.abs(e.changedTouches[0].clientY - y0) < 10) { e.preventDefault(); cb() }
-    },
+    onTouchStart: (e: React.TouchEvent) => { touchStartY = e.touches[0].clientY; wasTap = true },
+    onTouchMove: (e: React.TouchEvent) => { if (Math.abs(e.touches[0].clientY - touchStartY) > 8) wasTap = false },
+    onTouchEnd: (e: React.TouchEvent) => { if (wasTap) { e.preventDefault(); cb() } },
+    onClick: () => { cb() },
   }
 }
 
@@ -575,7 +576,6 @@ export function ActiveTransitsWidget({ transitReport }: {
                   className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}`}
                   role="button"
                   tabIndex={0}
-                  onClick={(e) => toggleCard(e, idx)}
                   {...tapProps(() => toggleCardIdx(idx))}
                   style={{ cursor: "pointer" }}
                 >
