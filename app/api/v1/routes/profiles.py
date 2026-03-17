@@ -6,6 +6,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.auth import get_current_user
+from app.data.natal_lookup import (
+    get_house_cusp_in_sign,
+    get_natal_aspect,
+    get_planet_in_house,
+    get_planet_in_sign,
+)
 from app.api.dependencies import (
     get_chart_service,
     get_location_lookup_service,
@@ -34,6 +40,75 @@ from app.schemas.responses import (
 )
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
+
+# Objects that have natal interpretation entries (matches JSON data files)
+_INTERP_OBJECTS = [
+    "Sun", "Moon", "Mercury", "Venus", "Mars",
+    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+    "Chiron", "Lilith", "North Node", "Selena",
+    "South Node", "Part of Fortune", "Vertex",
+]
+
+
+def _build_natal_interpretations(chart: dict[str, Any], lang: str) -> dict[str, Any]:
+    """Build natal interpretation data from chart positions and aspects."""
+    positions = chart.get("natal_positions") or []
+    aspects = chart.get("natal_aspects") or []
+    houses = chart.get("houses") or []
+
+    planets_in_signs: dict[str, Any] = {}
+    planets_in_houses: dict[str, Any] = {}
+    for pos in positions:
+        pid = pos.get("id", "")
+        if pid not in _INTERP_OBJECTS:
+            continue
+        sign = pos.get("sign", "")
+        house = pos.get("house")
+        if sign:
+            desc = get_planet_in_sign(pid, sign, lang)
+            if desc["meaning"]:
+                planets_in_signs[pid] = desc
+        if house:
+            desc = get_planet_in_house(pid, house, lang)
+            if desc["meaning"]:
+                planets_in_houses[pid] = desc
+
+    house_cusps: dict[str, Any] = {}
+    # houses is a list of longitudes for cusps 1-12
+    if houses:
+        signs_order = [
+            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+            "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+        ]
+        for i, cusp_lon in enumerate(houses):
+            house_num = i + 1
+            if isinstance(cusp_lon, (int, float)):
+                sign_idx = int(cusp_lon // 30) % 12
+                sign = signs_order[sign_idx]
+                desc = get_house_cusp_in_sign(house_num, sign, lang)
+                if desc["meaning"]:
+                    house_cusps[f"house_{house_num}"] = {**desc, "sign": sign}
+
+    aspect_interps: list[dict[str, Any]] = []
+    for asp in aspects:
+        p1 = asp.get("p1", "")
+        p2 = asp.get("p2", "")
+        aspect_type = asp.get("aspect", "")
+        if not (p1 and p2 and aspect_type):
+            continue
+        desc = get_natal_aspect(p1, aspect_type, p2, lang)
+        if desc["meaning"]:
+            aspect_interps.append({
+                "p1": p1, "p2": p2, "aspect": aspect_type,
+                **desc,
+            })
+
+    return {
+        "planets_in_signs": planets_in_signs,
+        "planets_in_houses": planets_in_houses,
+        "house_cusps_in_signs": house_cusps,
+        "aspects": aspect_interps,
+    }
 
 
 def _verify_ownership(profile: dict[str, Any], user_id: str) -> None:
@@ -121,6 +196,7 @@ def create_profile(
 @router.get("/{profile_id}", response_model=ProfileDetailResponse)
 def profile_detail(
     profile_id: str,
+    lang: str = Query("en"),
     user: dict[str, Any] = Depends(get_current_user),
     profile_service: ProfileService = Depends(get_profile_service),
     repos: RepositoryBundle = Depends(get_repositories),
@@ -132,11 +208,15 @@ def profile_detail(
         # Allow access if user owns the profile OR follows it
         if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
             raise HTTPException(status_code=403, detail="Not your profile")
-        return profile_service.profile_detail(
+        result = profile_service.profile_detail(
             profile_id,
             profile_repository=repos.profiles,
             chart_repository=repos.charts,
         )
+        result["chart"]["natal_interpretations"] = _build_natal_interpretations(
+            result["chart"], lang,
+        )
+        return result
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

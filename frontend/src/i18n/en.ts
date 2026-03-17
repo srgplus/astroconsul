@@ -206,6 +206,7 @@ export const en: Record<string, string> = {
   "planet.North Node": "North Node",
   "planet.South Node": "South Node",
   "planet.Part of Fortune": "Part of Fortune",
+  "planet.Selena": "Selena",
   "planet.Vertex": "Vertex",
   "planet.ASC": "ASC",
   "planet.MC": "MC",
@@ -470,4 +471,7 @@ export const en: Record<string, string> = {
   "month.9": "Oct",
   "month.10": "Nov",
   "month.11": "Dec",
+  // Natal interpretations
+  "natal.in": "in",
+  "natal.house": "House",
 }

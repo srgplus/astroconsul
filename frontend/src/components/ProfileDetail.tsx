@@ -1,5 +1,12 @@
-import { Fragment } from "react"
-import type { NatalAspect, NatalPosition, ProfileDetailResponse, TopTransit, TransitReportResponse } from "../types"
+import { Fragment, useState } from "react"
+import type {
+  NatalAspect,
+  NatalInterpretations,
+  NatalPosition,
+  ProfileDetailResponse,
+  TopTransit,
+  TransitReportResponse,
+} from "../types"
 import { useLanguage } from "../contexts/LanguageContext"
 
 type ProfileDetailProps = {
@@ -69,9 +76,43 @@ function formatPosition(p: NatalPosition): string {
   return `${p.sign} ${p.degree}\u00B0${String(p.minute).padStart(2, "0")}'${String(Math.round(p.second)).padStart(2, "0")}"`
 }
 
-export function NatalPositionsTable({ positions }: { positions: NatalPosition[] }) {
+export function NatalPositionsTable({
+  positions,
+  interpretations,
+}: {
+  positions: NatalPosition[]
+  interpretations?: NatalInterpretations | null
+}) {
   const { t } = useLanguage()
   const byId = new Map(positions.map((p) => [p.id, p]))
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+
+  const toggle = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  // ASC = house 1 cusp, MC = house 10 cusp
+  const ANGLE_HOUSE_MAP: Record<string, string> = { ASC: "house_1", MC: "house_10" }
+
+  const getInterps = (p: NatalPosition) => {
+    if (!interpretations) return { inSign: undefined, inHouse: undefined, cuspInterp: undefined }
+    const inSign = interpretations.planets_in_signs[p.id]
+    const inHouse = interpretations.planets_in_houses[p.id]
+    const cuspKey = ANGLE_HOUSE_MAP[p.id]
+    const cuspInterp = cuspKey ? interpretations.house_cusps_in_signs[cuspKey] : undefined
+    return { inSign, inHouse, cuspInterp }
+  }
+
+  const hasInterp = (id: string) => {
+    const pos = byId.get(id)
+    if (!pos || !interpretations) return false
+    const { inSign, inHouse, cuspInterp } = getInterps(pos)
+    return !!(inSign?.meaning || inHouse?.meaning || cuspInterp?.meaning)
+  }
 
   return (
     <div className="natal-pos">
@@ -81,17 +122,77 @@ export function NatalPositionsTable({ positions }: { positions: NatalPosition[] 
         return (
           <Fragment key={group.labelKey}>
             <div className="natal-pos__group">{t(group.labelKey)}</div>
-            {rows.map((p) => (
-              <div key={p.id} className="natal-pos__row">
-                <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
-                <span className="natal-pos__name">{t(`planet.${p.id}`)}</span>
-                <span className="natal-pos__house">△{p.house || "—"}</span>
-                <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
-                <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
-                {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
-              </div>
-            ))}
+            {rows.map((p) => {
+              const clickable = hasInterp(p.id)
+              const isOpen = expanded.has(p.id)
+              const { inSign, inHouse, cuspInterp } = getInterps(p)
+              return (
+                <Fragment key={p.id}>
+                  <div
+                    className={`natal-pos__row${clickable ? " natal-pos__row--clickable" : ""}`}
+                    onClick={clickable ? () => toggle(p.id) : undefined}
+                  >
+                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
+                    <span className="natal-pos__name">{t(`planet.${p.id}`)}</span>
+                    <span className="natal-pos__house">△{p.house || "—"}</span>
+                    <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                    <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
+                    <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                    {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
+                    {clickable ? <span className={`natal-pos__chevron${isOpen ? " natal-pos__chevron--open" : ""}`}>▾</span> : null}
+                  </div>
+                  {isOpen ? (
+                    <div className="natal-interp">
+                      {cuspInterp?.meaning ? (
+                        <div className="natal-interp__block">
+                          <div className="natal-interp__label">
+                            {t(`planet.${p.id}`)} {t("natal.in")} {t(`sign.${p.sign}`)}
+                          </div>
+                          <div className="natal-interp__text">{cuspInterp.meaning}</div>
+                          {cuspInterp.keywords?.length ? (
+                            <div className="natal-interp__keywords">
+                              {cuspInterp.keywords.map((kw, i) => (
+                                <span key={i} className="natal-interp__tag">{kw}</span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {inSign?.meaning ? (
+                        <div className="natal-interp__block">
+                          <div className="natal-interp__label">
+                            {t(`planet.${p.id}`)} {t("natal.in")} {t(`sign.${p.sign}`)}
+                          </div>
+                          <div className="natal-interp__text">{inSign.meaning}</div>
+                          {inSign.keywords?.length ? (
+                            <div className="natal-interp__keywords">
+                              {inSign.keywords.map((kw, i) => (
+                                <span key={i} className="natal-interp__tag">{kw}</span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {inHouse?.meaning ? (
+                        <div className="natal-interp__block">
+                          <div className="natal-interp__label">
+                            {t(`planet.${p.id}`)} {t("natal.in")} {t("natal.house")} {p.house}
+                          </div>
+                          <div className="natal-interp__text">{inHouse.meaning}</div>
+                          {inHouse.keywords?.length ? (
+                            <div className="natal-interp__keywords">
+                              {inHouse.keywords.map((kw, i) => (
+                                <span key={i} className="natal-interp__tag">{kw}</span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </Fragment>
+              )
+            })}
           </Fragment>
         )
       })}
@@ -129,9 +230,29 @@ const GROUP_LABEL_KEYS: Record<string, string> = {
   special: "transits.specialPoints",
 }
 
-export function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
+export function NatalAspectsTable({
+  aspects,
+  interpretations,
+}: {
+  aspects: NatalAspect[]
+  interpretations?: NatalInterpretations | null
+}) {
   const { t } = useLanguage()
   const sorted = [...aspects].sort((a, b) => a.orb - b.orb)
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+
+  const aspInterps = interpretations?.aspects ?? []
+  const interpMap = new Map(
+    aspInterps.map((ai) => [`${ai.p1}_${ai.aspect}_${ai.p2}`, ai]),
+  )
+
+  const toggle = (key: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   const groupOrder = ["personal", "outer", "special"]
   const groups: Record<string, NatalAspect[]> = {}
@@ -151,23 +272,47 @@ export function NatalAspectsTable({ aspects }: { aspects: NatalAspect[] }) {
           <div className="natal-asp__group">{t(GROUP_LABEL_KEYS[group.key])}</div>
           {group.aspects.map((a, i) => {
             const strength = aspectStrength(a.orb)
+            const aspKey = `${a.p1}_${a.aspect}_${a.p2}`
+            const interp = interpMap.get(aspKey)
+            const clickable = !!interp?.meaning
+            const isOpen = expanded.has(aspKey)
             return (
-              <div key={`${a.p1}-${a.p2}-${a.aspect}-${i}`} className="natal-asp__row">
-                <span className="natal-asp__planet">
-                  <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
-                  <strong>{t(`planet.${a.p1}`)}</strong>
-                </span>
-                <span className="natal-asp__aspect">
-                  <span className="natal-asp__glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                  <span className="natal-asp__aspect-name">{t(`aspect.${a.aspect}`)}</span>
-                </span>
-                <span className="natal-asp__planet">
-                  <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
-                  <strong>{t(`planet.${a.p2}`)}</strong>
-                </span>
-                <span className="natal-asp__orb">{a.orb.toFixed(2)}°</span>
-                <span className={`natal-asp__str natal-asp__str--${strength}`}>{t(`strength.${strength}`)}</span>
-              </div>
+              <Fragment key={`${aspKey}-${i}`}>
+                <div
+                  className={`natal-asp__row${clickable ? " natal-asp__row--clickable" : ""}`}
+                  onClick={clickable ? () => toggle(aspKey) : undefined}
+                >
+                  <span className="natal-asp__planet">
+                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
+                    <strong>{t(`planet.${a.p1}`)}</strong>
+                  </span>
+                  <span className="natal-asp__aspect">
+                    <span className="natal-asp__glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
+                    <span className="natal-asp__aspect-name">{t(`aspect.${a.aspect}`)}</span>
+                  </span>
+                  <span className="natal-asp__planet">
+                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
+                    <strong>{t(`planet.${a.p2}`)}</strong>
+                  </span>
+                  <span className="natal-asp__orb">{a.orb.toFixed(2)}°</span>
+                  <span className={`natal-asp__str natal-asp__str--${strength}`}>{t(`strength.${strength}`)}</span>
+                  {clickable ? <span className={`natal-pos__chevron${isOpen ? " natal-pos__chevron--open" : ""}`}>▾</span> : null}
+                </div>
+                {isOpen && interp?.meaning ? (
+                  <div className="natal-interp">
+                    <div className="natal-interp__block">
+                      <div className="natal-interp__text">{interp.meaning}</div>
+                      {interp.keywords?.length ? (
+                        <div className="natal-interp__keywords">
+                          {interp.keywords.map((kw, ki) => (
+                            <span key={ki} className="natal-interp__tag">{kw}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </Fragment>
             )
           })}
         </Fragment>
@@ -414,11 +559,11 @@ export function ProfileDetail({
       ) : null}
 
       {!detailLoading && !detailError && activeDetail?.chart.natal_positions?.length ? (
-        <NatalPositionsTable positions={activeDetail.chart.natal_positions} />
+        <NatalPositionsTable positions={activeDetail.chart.natal_positions} interpretations={activeDetail.chart.natal_interpretations} />
       ) : null}
 
       {!detailLoading && !detailError && activeDetail?.chart.natal_aspects?.length ? (
-        <NatalAspectsTable aspects={activeDetail.chart.natal_aspects} />
+        <NatalAspectsTable aspects={activeDetail.chart.natal_aspects} interpretations={activeDetail.chart.natal_interpretations} />
       ) : null}
     </>
   )

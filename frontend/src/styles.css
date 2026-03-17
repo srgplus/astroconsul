@@ -2361,6 +2361,80 @@ select {
 .natal-asp__str--moderate { background: rgba(200, 180, 100, 0.22); color: #d4c878; }
 .natal-asp__str--wide { background: rgba(160, 160, 160, 0.15); color: var(--muted); }
 
+/* --- Clickable rows + chevron --- */
+
+.natal-pos__row--clickable,
+.natal-asp__row--clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.natal-pos__row--clickable:hover,
+.natal-asp__row--clickable:hover {
+  background: rgba(138, 100, 220, 0.08);
+}
+
+.natal-pos__chevron {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.natal-pos__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* --- Natal interpretation blocks --- */
+
+.natal-interp {
+  padding: 8px 12px 10px 36px;
+  background: rgba(138, 100, 220, 0.06);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.natal-interp__block {
+  margin-bottom: 8px;
+}
+.natal-interp__block:last-child {
+  margin-bottom: 0;
+}
+
+.natal-interp__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-strong);
+  margin-bottom: 4px;
+}
+
+.natal-interp__text {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.natal-interp__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.natal-interp__tag {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(138, 100, 220, 0.15);
+  color: #c4a8f0;
+  white-space: nowrap;
+}
+
+/* Natal asp row needs extra column for chevron */
+.natal-asp__row--clickable {
+  grid-template-columns: 100px 90px 110px 48px 52px 16px;
+}
+
 .strength-badge {
   display: inline-block;
   padding: 2px 8px;

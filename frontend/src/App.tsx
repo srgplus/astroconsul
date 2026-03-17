@@ -398,7 +398,7 @@ export function App() {
       setDetailLoading(true)
     }
 
-    fetchProfileDetail(activeProfileId, controller.signal)
+    fetchProfileDetail(activeProfileId, controller.signal, lang)
       .then((payload) => {
         setActiveDetail(payload)
         try { localStorage.setItem(cachedKey, JSON.stringify(payload)) } catch {}
@@ -414,7 +414,7 @@ export function App() {
       })
 
     return () => controller.abort()
-  }, [activeProfileId])
+  }, [activeProfileId, lang])
 
 
   // Fetch transit report for active profile — use saved params if available, else current time
@@ -524,7 +524,7 @@ export function App() {
     if (activeProfileId) {
       try {
         const [detail, profilesPayload] = await Promise.all([
-          fetchProfileDetail(activeProfileId),
+          fetchProfileDetail(activeProfileId, undefined, lang),
           fetchProfiles(),
         ])
         setActiveDetail(detail)
@@ -1017,15 +1017,15 @@ export function App() {
                       </>
                     )
                   })()}
-                  {natalPositions.length ? <NatalPositionsTable positions={natalPositions} /> : null}
-                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} /> : null}
+                  {natalPositions.length ? <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
+                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
-                <NatalPositionsTable positions={natalPositions} />
+                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
-                <NatalAspectsTable aspects={natalAspects} />
+                <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} />
               ) : null}
               {expandedWidget === "transits" ? (
                 <TransitsTab

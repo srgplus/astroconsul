@@ -1,0 +1,3209 @@
+{
+  "_meta": {
+    "type": "natal_house_cusps_in_signs",
+    "version": "1.0",
+    "houses": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "signs": [
+      "Aries",
+      "Taurus",
+      "Gemini",
+      "Cancer",
+      "Leo",
+      "Virgo",
+      "Libra",
+      "Scorpio",
+      "Sagittarius",
+      "Capricorn",
+      "Aquarius",
+      "Pisces"
+    ],
+    "total_entries": 144,
+    "format": "house_{N}_in_{Sign}",
+    "languages": [
+      "en",
+      "ru"
+    ],
+    "target_path": "data/natal_house_cusps_in_signs.json"
+  },
+  "house_1_in_Aries": {
+    "en": {
+      "meaning": "You meet the world head-on. First impressions are bold, direct, and energetic. People see you as a doer — someone who initiates rather than waits. Physical presence is athletic or sharp. Independence is your default and you prefer leading to following in social situations.",
+      "keywords": [
+        "bold first impression",
+        "action-oriented",
+        "independent",
+        "direct",
+        "energetic"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир лоб в лоб. Первые впечатления смелые, прямые, энергичные. Люди видят тебя как деятеля. Физическое присутствие атлетичное или острое. Независимость — дефолт, и в социальных ситуациях предпочитаешь вести а не следовать.",
+      "keywords": [
+        "смелое первое впечатление",
+        "ориентация на действие",
+        "независимость",
+        "прямота",
+        "энергичность"
+      ]
+    }
+  },
+  "house_1_in_Taurus": {
+    "en": {
+      "meaning": "You meet the world with calm steadiness. First impressions are grounded, warm, and physically comfortable. People see you as reliable and perhaps sensual. Your pace is deliberate — rushing feels unnatural. Aesthetic presentation matters and you tend toward quality over flash.",
+      "keywords": [
+        "grounded presence",
+        "steady",
+        "sensual",
+        "reliable",
+        "aesthetic"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир со спокойной устойчивостью. Первые впечатления заземлённые, тёплые. Люди видят тебя надёжным и возможно чувственным. Темп обдуманный — спешка неестественна. Эстетическая подача важна, ты тяготеешь к качеству а не показухе.",
+      "keywords": [
+        "заземлённое присутствие",
+        "устойчивость",
+        "чувственность",
+        "надёжность",
+        "эстетика"
+      ]
+    }
+  },
+  "house_1_in_Gemini": {
+    "en": {
+      "meaning": "You meet the world with curiosity and verbal agility. First impressions are witty, youthful, and mentally quick. People see you as the communicator — always thinking, talking, connecting. Restlessness is visible. You adapt your persona to context, which makes you versatile and sometimes hard to pin down.",
+      "keywords": [
+        "curious presence",
+        "verbal",
+        "youthful",
+        "adaptable",
+        "mentally quick"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир любопытством и вербальной ловкостью. Первые впечатления остроумные, юные, ментально быстрые. Люди видят коммуникатора — всегда думаешь, говоришь, связываешь. Беспокойство заметно. Адаптируешь персону к контексту.",
+      "keywords": [
+        "любопытное присутствие",
+        "вербальность",
+        "юность",
+        "адаптивность",
+        "ментальная быстрота"
+      ]
+    }
+  },
+  "house_1_in_Cancer": {
+    "en": {
+      "meaning": "You meet the world with emotional sensitivity. First impressions are warm, nurturing, and protective. People sense your empathy immediately. Your mood shows on your face and your energy shifts with emotional tides. There's something soft and approachable about your presence, even when you're guarded.",
+      "keywords": [
+        "nurturing presence",
+        "emotionally transparent",
+        "protective",
+        "warm",
+        "mood-sensitive"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир эмоциональной чувствительностью. Первые впечатления тёплые, заботливые, защитные. Люди ощущают эмпатию сразу. Настроение видно на лице и энергия меняется с эмоциональными приливами. Нечто мягкое и доступное в присутствии, даже когда на страже.",
+      "keywords": [
+        "заботливое присутствие",
+        "эмоциональная прозрачность",
+        "защитность",
+        "тепло",
+        "чувствительность к настроению"
+      ]
+    }
+  },
+  "house_1_in_Leo": {
+    "en": {
+      "meaning": "You meet the world with warmth and natural confidence. First impressions are dramatic, generous, and magnetic. People see you as someone who commands attention without demanding it. Creative self-expression shapes your appearance. There's a radiance to your presence that's hard to ignore.",
+      "keywords": [
+        "radiant presence",
+        "confident",
+        "dramatic",
+        "warm",
+        "creative appearance"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир теплом и природной уверенностью. Первые впечатления драматичные, щедрые, магнетичные. Люди видят того кто командует вниманием не требуя его. Творческое самовыражение формирует внешность. Сияние в присутствии которое сложно игнорировать.",
+      "keywords": [
+        "сияющее присутствие",
+        "уверенность",
+        "драматичность",
+        "тепло",
+        "творческая внешность"
+      ]
+    }
+  },
+  "house_1_in_Virgo": {
+    "en": {
+      "meaning": "You meet the world with precision and quiet competence. First impressions are modest, observant, and put-together. People see you as someone who notices everything and wastes nothing. Your presence is clean and efficient. There's an intelligence in your demeanour that's understated but undeniable.",
+      "keywords": [
+        "precise presence",
+        "observant",
+        "modest",
+        "competent",
+        "analytical"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир точностью и тихой компетентностью. Первые впечатления скромные, наблюдательные, собранные. Люди видят того кто замечает всё и не тратит ничего впустую. Присутствие чистое и эффективное. Интеллект в поведении сдержанный но неотрицаемый.",
+      "keywords": [
+        "точное присутствие",
+        "наблюдательность",
+        "скромность",
+        "компетентность",
+        "аналитичность"
+      ]
+    }
+  },
+  "house_1_in_Libra": {
+    "en": {
+      "meaning": "You meet the world with grace and social awareness. First impressions are charming, balanced, and aesthetically considered. People see you as diplomatic and pleasant. Partnership-oriented from the first handshake. Your presentation is polished and you instinctively create harmony in social situations.",
+      "keywords": [
+        "graceful presence",
+        "charming",
+        "diplomatic",
+        "aesthetic",
+        "socially aware"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир грацией и социальной осознанностью. Первые впечатления обаятельные, сбалансированные, эстетически продуманные. Люди видят дипломата. Ориентация на партнёрство с первого рукопожатия. Подача отполирована и инстинктивно создаёшь гармонию.",
+      "keywords": [
+        "грациозное присутствие",
+        "обаяние",
+        "дипломатичность",
+        "эстетика",
+        "социальная осознанность"
+      ]
+    }
+  },
+  "house_1_in_Scorpio": {
+    "en": {
+      "meaning": "You meet the world with intensity. First impressions are magnetic, penetrating, and slightly mysterious. People sense depth immediately — there's always more beneath the surface. Your gaze is direct and your presence carries weight. You don't do small talk naturally and there's something about you that demands honesty.",
+      "keywords": [
+        "intense presence",
+        "magnetic",
+        "mysterious",
+        "penetrating",
+        "powerful"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир интенсивностью. Первые впечатления магнетичные, проницательные, слегка загадочные. Люди ощущают глубину сразу — всегда есть больше под поверхностью. Взгляд прямой и присутствие несёт вес. Смолтолк не даётся естественно и нечто в тебе требует честности.",
+      "keywords": [
+        "интенсивное присутствие",
+        "магнетизм",
+        "загадочность",
+        "проницательность",
+        "сила"
+      ]
+    }
+  },
+  "house_1_in_Sagittarius": {
+    "en": {
+      "meaning": "You meet the world with enthusiasm and openness. First impressions are optimistic, expansive, and sometimes larger than life. People see you as the adventurer — curious, restless, and perpetually aimed at the horizon. Your presence is warm and your energy naturally uplifting. Informality suits you.",
+      "keywords": [
+        "enthusiastic presence",
+        "optimistic",
+        "adventurous",
+        "open",
+        "expansive"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир энтузиазмом и открытостью. Первые впечатления оптимистичные, экспансивные, иногда больше жизни. Люди видят авантюриста — любопытного, беспокойного, нацеленного на горизонт. Присутствие тёплое и энергия естественно поднимающая. Неформальность подходит.",
+      "keywords": [
+        "энтузиастичное присутствие",
+        "оптимизм",
+        "авантюрность",
+        "открытость",
+        "экспансивность"
+      ]
+    }
+  },
+  "house_1_in_Capricorn": {
+    "en": {
+      "meaning": "You meet the world with seriousness and composure. First impressions are mature, controlled, and professional — even in casual settings. People see you as someone with authority and substance. You may appear older than your age early on and younger later. There's a quiet ambition in your presence that earns respect.",
+      "keywords": [
+        "composed presence",
+        "mature",
+        "professional",
+        "authoritative",
+        "serious"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир серьёзностью и выдержкой. Первые впечатления зрелые, контролированные, профессиональные — даже в неформальных ситуациях. Люди видят авторитет и содержание. Можешь выглядеть старше в молодости и моложе позже. Тихая амбиция в присутствии зарабатывающая уважение.",
+      "keywords": [
+        "выдержанное присутствие",
+        "зрелость",
+        "профессионализм",
+        "авторитетность",
+        "серьёзность"
+      ]
+    }
+  },
+  "house_1_in_Aquarius": {
+    "en": {
+      "meaning": "You meet the world as a unique individual. First impressions are unconventional, intellectual, and slightly detached. People see you as original — someone who doesn't follow the script. Your presence is friendly but independent, warm but not clingy. There's something futuristic about how you carry yourself.",
+      "keywords": [
+        "unique presence",
+        "unconventional",
+        "intellectual",
+        "independent",
+        "futuristic"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир как уникальная индивидуальность. Первые впечатления нестандартные, интеллектуальные, слегка отстранённые. Люди видят оригинала — того кто не следует сценарию. Присутствие дружелюбное но независимое, тёплое но не навязчивое. Нечто футуристичное в том как себя несёшь.",
+      "keywords": [
+        "уникальное присутствие",
+        "нестандартность",
+        "интеллектуальность",
+        "независимость",
+        "футуристичность"
+      ]
+    }
+  },
+  "house_1_in_Pisces": {
+    "en": {
+      "meaning": "You meet the world with softness and empathy. First impressions are gentle, dreamy, and emotionally absorbing. People sense your sensitivity immediately — you pick up on the mood of the room. Your presence is fluid and adaptable, sometimes making it hard for others to define you. There's something ethereal about you.",
+      "keywords": [
+        "soft presence",
+        "empathic",
+        "dreamy",
+        "fluid",
+        "ethereal"
+      ]
+    },
+    "ru": {
+      "meaning": "Ты встречаешь мир мягкостью и эмпатией. Первые впечатления нежные, мечтательные, эмоционально впитывающие. Люди ощущают чувствительность сразу — ты считываешь настроение комнаты. Присутствие текучее и адаптивное, иногда затрудняя для других тебя определить. Нечто эфемерное в тебе.",
+      "keywords": [
+        "мягкое присутствие",
+        "эмпатия",
+        "мечтательность",
+        "текучесть",
+        "эфемерность"
+      ]
+    }
+  },
+  "house_2_in_Aries": {
+    "en": {
+      "meaning": "You earn through initiative and bold action. Money comes from being first, taking risks, and independent ventures. Income may fluctuate with energy levels. You're an impulsive spender who values freedom more than savings. Your self-worth is tied to your ability to act decisively.",
+      "keywords": [
+        "bold earning",
+        "independent income",
+        "impulsive spending",
+        "action-based value",
+        "competitive finances"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через инициативу и смелое действие. Деньги от того что идёшь первым, рискуешь, независимые проекты. Доход может колебаться с уровнем энергии. Импульсивные траты, свобода ценнее сбережений. Самоценность привязана к способности действовать решительно.",
+      "keywords": [
+        "смелый заработок",
+        "независимый доход",
+        "импульсивные траты",
+        "ценность через действие",
+        "конкурентные финансы"
+      ]
+    }
+  },
+  "house_2_in_Taurus": {
+    "en": {
+      "meaning": "You earn naturally and steadily. Money comes through patience, quality, and building real value over time. Financial instincts are excellent — you know what's worth investing in. Comfort and quality are non-negotiable expenses. You prefer owning outright to leveraging. Security is built slowly but solidly.",
+      "keywords": [
+        "steady earning",
+        "quality investment",
+        "natural finances",
+        "comfort priority",
+        "long-term wealth"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь естественно и стабильно. Деньги через терпение, качество, строительство реальной ценности. Финансовые инстинкты отличные — знаешь во что стоит инвестировать. Комфорт и качество — неснижаемые расходы. Предпочитаешь владеть напрямую. Безопасность строится медленно но твёрдо.",
+      "keywords": [
+        "стабильный заработок",
+        "качественные инвестиции",
+        "природные финансы",
+        "приоритет комфорта",
+        "долгосрочное богатство"
+      ]
+    }
+  },
+  "house_2_in_Gemini": {
+    "en": {
+      "meaning": "You earn through communication and versatility. Multiple income streams are natural — freelancing, writing, teaching, selling ideas. Money is a mental game for you. Financial information matters more than financial discipline. You may talk yourself into and out of purchases with equal ease.",
+      "keywords": [
+        "multiple income",
+        "communication earning",
+        "mental money",
+        "versatile finances",
+        "idea commerce"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через коммуникацию и универсальность. Множественные потоки дохода естественны — фриланс, письмо, преподавание, продажа идей. Деньги — ментальная игра. Финансовая информация важнее финансовой дисциплины. Можешь уговорить себя и на покупку и против с равной лёгкостью.",
+      "keywords": [
+        "множественный доход",
+        "заработок коммуникацией",
+        "ментальные деньги",
+        "универсальные финансы",
+        "коммерция идей"
+      ]
+    }
+  },
+  "house_2_in_Cancer": {
+    "en": {
+      "meaning": "You earn through nurturing and creating emotional security. Money may come from food, real estate, caregiving, or domestic industries. Emotional state directly affects financial decisions. You save instinctively and value family financial security above personal luxury. Income may fluctuate with the Moon's cycles.",
+      "keywords": [
+        "nurturing income",
+        "emotional finances",
+        "real estate aptitude",
+        "security saving",
+        "family wealth"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через заботу и создание эмоциональной безопасности. Деньги через еду, недвижимость, заботу, домашние индустрии. Эмоциональное состояние напрямую влияет на финансовые решения. Копишь инстинктивно и ценишь семейную финансовую безопасность выше личной роскоши.",
+      "keywords": [
+        "заботливый доход",
+        "эмоциональные финансы",
+        "способность к недвижимости",
+        "сбережение безопасности",
+        "семейное богатство"
+      ]
+    }
+  },
+  "house_2_in_Leo": {
+    "en": {
+      "meaning": "You earn through creativity, leadership, and personal magnetism. Money comes from being seen — performance, management, entertainment, or any field where your personality is the product. Generous spending on quality and experience. Self-worth is high and you expect to be compensated accordingly.",
+      "keywords": [
+        "creative earning",
+        "generous spending",
+        "personality-driven income",
+        "luxury preference",
+        "confident self-worth"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через творчество, лидерство и личный магнетизм. Деньги от того что тебя видят — выступление, управление, развлечения. Щедрые траты на качество и впечатления. Самоценность высока и ожидаешь соответствующей компенсации.",
+      "keywords": [
+        "творческий заработок",
+        "щедрые траты",
+        "доход через личность",
+        "предпочтение роскоши",
+        "уверенная самоценность"
+      ]
+    }
+  },
+  "house_2_in_Virgo": {
+    "en": {
+      "meaning": "You earn through skill, precision, and practical service. Money comes from being useful and competent — analysis, healthcare, editing, systems work. Financial management is meticulous. You track every expense and may worry about money even when comfortable. Self-worth is tied to competence and usefulness.",
+      "keywords": [
+        "skill-based earning",
+        "meticulous finances",
+        "practical income",
+        "worry tendency",
+        "competence value"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через навык, точность и практическое служение. Деньги от полезности и компетентности — анализ, здравоохранение, редактирование, системы. Финансовое управление дотошное. Отслеживаешь каждый расход и можешь тревожиться о деньгах даже в комфорте. Самоценность привязана к компетентности.",
+      "keywords": [
+        "заработок навыками",
+        "дотошные финансы",
+        "практический доход",
+        "тенденция к тревоге",
+        "ценность компетентности"
+      ]
+    }
+  },
+  "house_2_in_Libra": {
+    "en": {
+      "meaning": "You earn through partnership, beauty, and social connections. Money comes from aesthetics, diplomacy, counselling, or collaborative ventures. Financial balance is important — you spend to create harmony and beauty. Income may be closely tied to a partner. Self-worth is connected to being valued by others.",
+      "keywords": [
+        "partnership income",
+        "aesthetic earning",
+        "balanced finances",
+        "social value",
+        "collaborative wealth"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через партнёрство, красоту и социальные связи. Деньги от эстетики, дипломатии, консультирования, коллаборативных проектов. Финансовый баланс важен — тратишь на гармонию и красоту. Доход может быть тесно связан с партнёром. Самоценность через то что тебя ценят другие.",
+      "keywords": [
+        "партнёрский доход",
+        "эстетический заработок",
+        "сбалансированные финансы",
+        "социальная ценность",
+        "коллаборативное богатство"
+      ]
+    }
+  },
+  "house_2_in_Scorpio": {
+    "en": {
+      "meaning": "You earn through depth, strategy, and managing what's hidden. Money may come through investment, psychology, research, or shared resources. Financial life involves transformation — periods of abundance and scarcity that teach resilience. You're skilled at generating value from what others discard. Self-worth is tested through crisis.",
+      "keywords": [
+        "strategic finances",
+        "transformative wealth",
+        "investment skill",
+        "resourcefulness",
+        "crisis-tested value"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через глубину, стратегию и управление скрытым. Деньги через инвестиции, психологию, исследования, общие ресурсы. Финансовая жизнь включает трансформацию — периоды изобилия и нехватки учащие устойчивости. Умеешь генерировать ценность из того что другие отбросили. Самоценность тестируется кризисом.",
+      "keywords": [
+        "стратегические финансы",
+        "трансформирующее богатство",
+        "инвестиционный навык",
+        "ресурсность",
+        "ценность проверенная кризисом"
+      ]
+    }
+  },
+  "house_2_in_Sagittarius": {
+    "en": {
+      "meaning": "You earn through expansion, teaching, and big-picture thinking. Money comes from education, travel, publishing, philosophy, or international commerce. Financial optimism is real — you trust that resources will arrive. Generous with money and value experiences over possessions. Self-worth is tied to meaning and freedom.",
+      "keywords": [
+        "expansive earning",
+        "teaching income",
+        "optimistic finances",
+        "experience value",
+        "freedom-based worth"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через расширение, преподавание и масштабное мышление. Деньги от образования, путешествий, издательства, философии, международной коммерции. Финансовый оптимизм реален — доверяешь что ресурсы придут. Щедр с деньгами и ценишь впечатления выше владений. Самоценность через смысл и свободу.",
+      "keywords": [
+        "экспансивный заработок",
+        "доход от преподавания",
+        "оптимистичные финансы",
+        "ценность впечатлений",
+        "самоценность через свободу"
+      ]
+    }
+  },
+  "house_2_in_Capricorn": {
+    "en": {
+      "meaning": "You earn through discipline, strategy, and long-term building. Money comes from career achievement, management, and fields requiring patience and authority. Financial discipline is exceptional — you budget, save, and invest with strategic precision. Wealth grows with age. Self-worth is tied to tangible achievement.",
+      "keywords": [
+        "disciplined finances",
+        "career earning",
+        "long-term building",
+        "strategic saving",
+        "achievement value"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через дисциплину, стратегию и долгосрочное строительство. Деньги от карьерных достижений, управления, сфер требующих терпения и авторитета. Финансовая дисциплина исключительна — бюджет, сбережения, инвестиции со стратегической точностью. Богатство растёт с возрастом. Самоценность через осязаемое достижение.",
+      "keywords": [
+        "дисциплинированные финансы",
+        "карьерный заработок",
+        "долгосрочное строительство",
+        "стратегические сбережения",
+        "ценность достижения"
+      ]
+    }
+  },
+  "house_2_in_Aquarius": {
+    "en": {
+      "meaning": "You earn through innovation, technology, and unconventional methods. Money comes from original ideas, networks, and fields that didn't exist a generation ago. Financial life is unpredictable — sudden gains and unconventional arrangements. You value freedom more than accumulation. Self-worth is tied to originality and contribution.",
+      "keywords": [
+        "innovative earning",
+        "tech income",
+        "unconventional finances",
+        "freedom over accumulation",
+        "originality value"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через инновацию, технологии и нестандартные методы. Деньги от оригинальных идей, сетей, сфер не существовавших поколение назад. Финансовая жизнь непредсказуема — внезапные приобретения и нестандартные ситуации. Ценишь свободу больше накопления. Самоценность через оригинальность и вклад.",
+      "keywords": [
+        "инновационный заработок",
+        "технологический доход",
+        "нестандартные финансы",
+        "свобода выше накопления",
+        "ценность оригинальности"
+      ]
+    }
+  },
+  "house_2_in_Pisces": {
+    "en": {
+      "meaning": "You earn through creativity, empathy, and spiritual gifts. Money comes from art, healing, music, or compassionate service — but financial boundaries are fuzzy. Income flows in mysterious ways and budgeting feels unnatural. Generosity is instinctive, sometimes to your detriment. Self-worth is spiritual rather than material.",
+      "keywords": [
+        "creative earning",
+        "empathic income",
+        "fluid finances",
+        "spiritual value",
+        "generous nature"
+      ]
+    },
+    "ru": {
+      "meaning": "Зарабатываешь через творчество, эмпатию и духовные дары. Деньги от искусства, исцеления, музыки, сострадательного служения — но финансовые границы размыты. Доход приходит загадочными путями и бюджетирование неестественно. Щедрость инстинктивна, иногда в ущерб. Самоценность духовная а не материальная.",
+      "keywords": [
+        "творческий заработок",
+        "эмпатический доход",
+        "текучие финансы",
+        "духовная ценность",
+        "щедрая натура"
+      ]
+    }
+  },
+  "house_3_in_Aries": {
+    "en": {
+      "meaning": "You think and communicate with speed and directness. Quick mind, sharp tongue, competitive in conversation. Sibling relationships may involve rivalry. Learning is action-based — you understand by doing. Short trips are spontaneous.",
+      "keywords": [
+        "direct communication",
+        "quick thinking",
+        "competitive learning",
+        "active mind",
+        "spontaneous trips"
+      ]
+    },
+    "ru": {
+      "meaning": "Думаешь и общаешься быстро и прямо. Быстрый ум, острый язык, конкурентность в разговоре. Отношения с сиблингами могут включать соперничество. Обучение через действие. Короткие поездки спонтанные.",
+      "keywords": [
+        "прямая коммуникация",
+        "быстрое мышление",
+        "конкурентное обучение",
+        "активный ум",
+        "спонтанные поездки"
+      ]
+    }
+  },
+  "house_3_in_Taurus": {
+    "en": {
+      "meaning": "You think and communicate with deliberation and practicality. Slow but thorough processor. Voice may be pleasant and calming. Learning works best through sensory experience. Sibling relationships tend to be stable. Neighbourhood connections are valued.",
+      "keywords": [
+        "deliberate thinking",
+        "practical communication",
+        "steady learning",
+        "pleasant voice",
+        "stable siblings"
+      ]
+    },
+    "ru": {
+      "meaning": "Думаешь и общаешься обдуманно и практично. Медленная но тщательная обработка. Голос может быть приятным и успокаивающим. Обучение лучше через сенсорный опыт. Отношения с сиблингами стабильны. Соседские связи ценятся.",
+      "keywords": [
+        "обдуманное мышление",
+        "практичная коммуникация",
+        "устойчивое обучение",
+        "приятный голос",
+        "стабильные сиблинги"
+      ]
+    }
+  },
+  "house_3_in_Gemini": {
+    "en": {
+      "meaning": "Communication is your superpower. Mind is restless, curious, and endlessly adaptable. You may have many sibling-like relationships. Learning comes from everywhere. Multitasking is natural. Your neighbourhood is your extended network.",
+      "keywords": [
+        "brilliant communication",
+        "restless mind",
+        "endless curiosity",
+        "multitasking",
+        "network-oriented"
+      ]
+    },
+    "ru": {
+      "meaning": "Коммуникация — суперсила. Ум беспокойный, любопытный, бесконечно адаптивный. Много отношений по типу сиблинговых. Обучение отовсюду. Мультитаскинг естественен. Район — расширенная сеть.",
+      "keywords": [
+        "блестящая коммуникация",
+        "беспокойный ум",
+        "бесконечное любопытство",
+        "мультитаскинг",
+        "сетевая ориентация"
+      ]
+    }
+  },
+  "house_3_in_Cancer": {
+    "en": {
+      "meaning": "You think and communicate through feeling. Memory is emotionally charged and photographic for personal experiences. Sibling bonds are deep and nurturing. Learning is best in safe environments. Your thoughts are shaped by mood.",
+      "keywords": [
+        "emotional thinking",
+        "memory-rich",
+        "nurturing siblings",
+        "mood-shaped thoughts",
+        "safe learning"
+      ]
+    },
+    "ru": {
+      "meaning": "Думаешь и общаешься через чувство. Память эмоционально заряжена и фотографична на личный опыт. Связи с сиблингами глубокие и заботливые. Обучение лучше в безопасных средах. Мысли формируются настроением.",
+      "keywords": [
+        "эмоциональное мышление",
+        "богатая память",
+        "заботливые сиблинги",
+        "мысли по настроению",
+        "безопасное обучение"
+      ]
+    }
+  },
+  "house_3_in_Leo": {
+    "en": {
+      "meaning": "You communicate with warmth and dramatic flair. Speaking and writing have a performative, engaging quality. Proud of your ideas and can be intellectually competitive. Sibling relationships may involve admiration or creative competition. Learning shines through creativity.",
+      "keywords": [
+        "dramatic communication",
+        "engaging speech",
+        "creative learning",
+        "proud intellect",
+        "performative mind"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с теплом и драматическим чутьём. Речь и письмо имеют перформативное, захватывающее качество. Горд идеями и может быть интеллектуально конкурентен. Обучение сияет через творчество.",
+      "keywords": [
+        "драматичная коммуникация",
+        "захватывающая речь",
+        "творческое обучение",
+        "гордый интеллект",
+        "перформативный ум"
+      ]
+    }
+  },
+  "house_3_in_Virgo": {
+    "en": {
+      "meaning": "You think and communicate with precision and analytical detail. Mind is oriented toward problem-solving and improvement. Writing is clear and well-organized. Critical thinking is your strength. Learning is methodical and thorough.",
+      "keywords": [
+        "precise communication",
+        "analytical mind",
+        "clear writing",
+        "critical thinking",
+        "methodical learning"
+      ]
+    },
+    "ru": {
+      "meaning": "Думаешь и общаешься с точностью и аналитической детальностью. Ум ориентирован на решение проблем и улучшение. Письмо ясное и хорошо организованное. Критическое мышление — сила. Обучение методичное и тщательное.",
+      "keywords": [
+        "точная коммуникация",
+        "аналитический ум",
+        "ясное письмо",
+        "критическое мышление",
+        "методичное обучение"
+      ]
+    }
+  },
+  "house_3_in_Libra": {
+    "en": {
+      "meaning": "You communicate with diplomacy and social grace. Both sides of every argument are visible. Writing and speaking have an aesthetic quality. Sibling relationships are harmonious. Learning happens best in partnership or dialogue.",
+      "keywords": [
+        "diplomatic speech",
+        "balanced thinking",
+        "aesthetic communication",
+        "harmonious siblings",
+        "dialogic learning"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с дипломатией и социальной грацией. Обе стороны любого аргумента видны. Письмо и речь имеют эстетическое качество. Отношения с сиблингами гармоничны. Обучение лучше в партнёрстве или диалоге.",
+      "keywords": [
+        "дипломатичная речь",
+        "сбалансированное мышление",
+        "эстетическая коммуникация",
+        "гармоничные сиблинги",
+        "диалогичное обучение"
+      ]
+    }
+  },
+  "house_3_in_Scorpio": {
+    "en": {
+      "meaning": "You communicate with penetrating depth. Mind goes beneath surfaces instinctively — you detect lies and read between lines. Research and investigation are natural. Sibling relationships are intense. Learning is deep rather than broad.",
+      "keywords": [
+        "penetrating communication",
+        "investigative mind",
+        "deep learning",
+        "intense siblings",
+        "truth detection"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с проницательной глубиной. Ум идёт под поверхность инстинктивно — детектируешь ложь, читаешь между строк. Исследование и расследование естественны. Отношения с сиблингами интенсивны. Обучение глубокое а не широкое.",
+      "keywords": [
+        "проницательная коммуникация",
+        "расследовательский ум",
+        "глубокое обучение",
+        "интенсивные сиблинги",
+        "детекция правды"
+      ]
+    }
+  },
+  "house_3_in_Sagittarius": {
+    "en": {
+      "meaning": "You communicate with enthusiasm and big-picture thinking. Mind is philosophical and reaches for meaning in every conversation. Learning through travel and cross-cultural exchange. Sibling relationships may involve shared adventures. Honesty in communication is non-negotiable.",
+      "keywords": [
+        "philosophical communication",
+        "enthusiastic speech",
+        "big-picture thinking",
+        "travel learning",
+        "honest mind"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с энтузиазмом и масштабным мышлением. Ум философский и тянется к смыслу в каждом разговоре. Обучение через путешествия и кросскультурный обмен. Отношения с сиблингами могут включать общие приключения. Честность в общении не обсуждается.",
+      "keywords": [
+        "философская коммуникация",
+        "энтузиастичная речь",
+        "масштабное мышление",
+        "обучение путешествиями",
+        "честный ум"
+      ]
+    }
+  },
+  "house_3_in_Capricorn": {
+    "en": {
+      "meaning": "You communicate with authority and structure. Mind is strategic, practical, and results-oriented. Words are chosen carefully and carry weight. Learning is disciplined and career-oriented. Sibling relationships may involve responsibility or formality.",
+      "keywords": [
+        "authoritative communication",
+        "strategic mind",
+        "careful speech",
+        "disciplined learning",
+        "responsible siblings"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с авторитетом и структурой. Ум стратегический, практичный, ориентированный на результат. Слова выбираются тщательно и несут вес. Обучение дисциплинированное и карьерно-ориентированное. Отношения с сиблингами могут включать ответственность.",
+      "keywords": [
+        "авторитетная коммуникация",
+        "стратегический ум",
+        "тщательная речь",
+        "дисциплинированное обучение",
+        "ответственные сиблинги"
+      ]
+    }
+  },
+  "house_3_in_Aquarius": {
+    "en": {
+      "meaning": "You communicate with originality and unconventional logic. Mind works in flashes and makes connections others miss. Technology and innovation are natural learning tools. Sibling relationships may be unusual or involve chosen-family dynamics. Thinking is future-oriented.",
+      "keywords": [
+        "original communication",
+        "flash thinking",
+        "tech-savvy learning",
+        "unconventional siblings",
+        "future-oriented mind"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься с оригинальностью и нестандартной логикой. Ум работает вспышками и строит связи которые другие пропускают. Технологии и инновации — естественные инструменты обучения. Отношения с сиблингами необычные. Мышление ориентировано на будущее.",
+      "keywords": [
+        "оригинальная коммуникация",
+        "мышление вспышками",
+        "технологичное обучение",
+        "нестандартные сиблинги",
+        "ум ориентированный на будущее"
+      ]
+    }
+  },
+  "house_3_in_Pisces": {
+    "en": {
+      "meaning": "You communicate through impression and feeling rather than logic. Mind is intuitive, poetic, and absorbs information through atmosphere. Writing and speaking have a dreamy, artistic quality. Sibling relationships may involve sacrifice or spiritual bonds. Learning happens through immersion.",
+      "keywords": [
+        "intuitive communication",
+        "poetic mind",
+        "atmospheric learning",
+        "spiritual siblings",
+        "impressionistic thinking"
+      ]
+    },
+    "ru": {
+      "meaning": "Общаешься через впечатление и чувство а не логику. Ум интуитивный, поэтический, впитывает информацию через атмосферу. Письмо и речь мечтательные, артистичные. Отношения с сиблингами могут включать жертву или духовные связи. Обучение через погружение.",
+      "keywords": [
+        "интуитивная коммуникация",
+        "поэтический ум",
+        "атмосферное обучение",
+        "духовные сиблинги",
+        "импрессионистичное мышление"
+      ]
+    }
+  },
+  "house_4_in_Aries": {
+    "en": {
+      "meaning": "Home is where you assert independence. Early home life may have been energetic, competitive, or involved an assertive parent. You need autonomy in your domestic space. Home renovation and building projects energize you. Family life is active rather than passive.",
+      "keywords": [
+        "independent home",
+        "active domestic life",
+        "assertive parent",
+        "home building",
+        "competitive family"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — где утверждаешь независимость. Ранняя домашняя жизнь могла быть энергичной, конкурентной, с ассертивным родителем. Нужна автономия в домашнем пространстве. Ремонт и строительные проекты заряжают. Семейная жизнь активная.",
+      "keywords": [
+        "независимый дом",
+        "активная домашняя жизнь",
+        "ассертивный родитель",
+        "домашнее строительство",
+        "конкурентная семья"
+      ]
+    }
+  },
+  "house_4_in_Taurus": {
+    "en": {
+      "meaning": "Home is your sanctuary of comfort. Domestic life needs beauty, stability, and sensory pleasure — good food, comfortable furniture, a garden. Early home was likely stable and grounded. You invest heavily in your living space. Roots run deep and you don't relocate easily.",
+      "keywords": [
+        "comfort sanctuary",
+        "stable roots",
+        "beautiful home",
+        "sensory domestic life",
+        "deep roots"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — святилище комфорта. Домашняя жизнь нуждается в красоте, стабильности, сенсорном удовольствии — хорошая еда, удобная мебель, сад. Ранний дом вероятно стабильный и заземлённый. Инвестируешь в жилое пространство. Корни глубоки и переезжаешь нелегко.",
+      "keywords": [
+        "святилище комфорта",
+        "стабильные корни",
+        "красивый дом",
+        "сенсорная домашняя жизнь",
+        "глубокие корни"
+      ]
+    }
+  },
+  "house_4_in_Gemini": {
+    "en": {
+      "meaning": "Home is intellectually stimulating. You may have moved frequently in childhood or had a household full of conversation and books. Domestic restlessness is real — you need mental stimulation at home. Working from home suits you. Family communication patterns define your emotional foundation.",
+      "keywords": [
+        "intellectually active home",
+        "frequent moves",
+        "communication-rich family",
+        "home office natural",
+        "restless domesticity"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом интеллектуально стимулирующий. Мог часто переезжать в детстве или дом был полон разговоров и книг. Домашнее беспокойство реально — нужна ментальная стимуляция дома. Работа из дома подходит. Коммуникативные паттерны семьи определяют эмоциональный фундамент.",
+      "keywords": [
+        "интеллектуально активный дом",
+        "частые переезды",
+        "семья с богатой коммуникацией",
+        "естественный домашний офис",
+        "беспокойная домашность"
+      ]
+    }
+  },
+  "house_4_in_Cancer": {
+    "en": {
+      "meaning": "Home is everything. The deepest need for emotional safety, family connection, and nurturing roots. Early home was likely emotionally rich, for better or worse. Creating a warm, protective home environment is a primal drive. Cooking, tradition, and memory define domestic life. This is one of the strongest placements for family orientation.",
+      "keywords": [
+        "deep family bonds",
+        "emotionally rich home",
+        "nurturing roots",
+        "tradition keeper",
+        "protective domestic life"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — это всё. Глубочайшая потребность в эмоциональной безопасности, семейной связи, заботливых корнях. Ранний дом вероятно эмоционально богатый, к лучшему или худшему. Создание тёплой защитной домашней среды — первобытный драйв. Готовка, традиции, память определяют домашнюю жизнь. Одна из сильнейших позиций для семейной ориентации.",
+      "keywords": [
+        "глубокие семейные связи",
+        "эмоционально богатый дом",
+        "заботливые корни",
+        "хранитель традиций",
+        "защитная домашняя жизнь"
+      ]
+    }
+  },
+  "house_4_in_Leo": {
+    "en": {
+      "meaning": "Home is a stage. Your domestic space is warm, dramatic, and expressive — a reflection of your creative identity. A parent may have been theatrical or demanding of attention. Home entertaining comes naturally. You want your family life to feel special and memorable.",
+      "keywords": [
+        "dramatic home",
+        "creative domestic space",
+        "expressive family",
+        "entertaining",
+        "warm household"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — сцена. Домашнее пространство тёплое, драматичное, выразительное — отражение творческой идентичности. Родитель мог быть театральным или требующим внимания. Домашние приёмы естественны. Хочешь чтобы семейная жизнь ощущалась особенной и запоминающейся.",
+      "keywords": [
+        "драматичный дом",
+        "творческое домашнее пространство",
+        "выразительная семья",
+        "развлечения",
+        "тёплый дом"
+      ]
+    }
+  },
+  "house_4_in_Virgo": {
+    "en": {
+      "meaning": "Home is ordered and functional. Domestic life requires cleanliness, organization, and practical efficiency. A parent may have been critical or service-oriented. Health-conscious home environment. You find emotional comfort in domestic routines and a well-run household.",
+      "keywords": [
+        "organized home",
+        "functional domestic life",
+        "health-conscious household",
+        "routine comfort",
+        "practical roots"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом упорядочен и функционален. Домашняя жизнь требует чистоты, организации, практической эффективности. Родитель мог быть критичным или ориентированным на служение. Среда дома осознанна к здоровью. Эмоциональный комфорт в домашних рутинах и хорошо управляемом хозяйстве.",
+      "keywords": [
+        "организованный дом",
+        "функциональная домашняя жизнь",
+        "дом осознанный к здоровью",
+        "комфорт рутин",
+        "практичные корни"
+      ]
+    }
+  },
+  "house_4_in_Libra": {
+    "en": {
+      "meaning": "Home is beautiful and harmonious. Domestic life requires aesthetic balance, pleasant relationships, and a peaceful atmosphere. A parent may have been diplomatic or beauty-oriented. Interior design matters. You can't feel settled in an ugly or conflict-filled space.",
+      "keywords": [
+        "beautiful home",
+        "harmonious family",
+        "aesthetic domestic life",
+        "peaceful atmosphere",
+        "balanced roots"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом красив и гармоничен. Домашняя жизнь требует эстетического баланса, приятных отношений, мирной атмосферы. Родитель мог быть дипломатичным или ориентированным на красоту. Интерьерный дизайн важен. Не можешь чувствовать себя устроенным в некрасивом или конфликтном пространстве.",
+      "keywords": [
+        "красивый дом",
+        "гармоничная семья",
+        "эстетическая домашняя жизнь",
+        "мирная атмосфера",
+        "сбалансированные корни"
+      ]
+    }
+  },
+  "house_4_in_Scorpio": {
+    "en": {
+      "meaning": "Home runs deep. Family secrets, intense emotional undercurrents, and transformative domestic experiences define your roots. A parent may have been powerful, controlling, or emotionally complex. Privacy at home is non-negotiable. Your domestic life contains hidden layers that outsiders never see.",
+      "keywords": [
+        "intense roots",
+        "family secrets",
+        "private home",
+        "transformative domestic life",
+        "powerful parent"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом идёт глубоко. Семейные тайны, интенсивные эмоциональные подводные течения и трансформирующий домашний опыт определяют корни. Родитель мог быть могущественным, контролирующим, эмоционально сложным. Приватность дома не обсуждается. Домашняя жизнь содержит скрытые слои которых внешние никогда не видят.",
+      "keywords": [
+        "интенсивные корни",
+        "семейные тайны",
+        "приватный дом",
+        "трансформирующая домашняя жизнь",
+        "могущественный родитель"
+      ]
+    }
+  },
+  "house_4_in_Sagittarius": {
+    "en": {
+      "meaning": "Home is a launchpad. Domestic life needs space, freedom, and philosophical meaning. You may have grown up in a multicultural household or moved internationally. Home might be abroad or feel like a base camp for adventures. A parent may have been a teacher or traveller.",
+      "keywords": [
+        "adventurous roots",
+        "multicultural home",
+        "freedom at home",
+        "philosophical family",
+        "home as base camp"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — стартовая площадка. Домашняя жизнь нуждается в пространстве, свободе, философском смысле. Мог расти в мультикультурном доме или переезжать международно. Дом может быть за рубежом или ощущаться как базовый лагерь для приключений. Родитель мог быть учителем или путешественником.",
+      "keywords": [
+        "авантюрные корни",
+        "мультикультурный дом",
+        "свобода дома",
+        "философская семья",
+        "дом как базовый лагерь"
+      ]
+    }
+  },
+  "house_4_in_Capricorn": {
+    "en": {
+      "meaning": "Home is structured and serious. Early domestic life may have been strict, responsibility-heavy, or focused on achievement. A parent may have been authoritative or emotionally reserved. You build a solid, long-lasting home. Domestic life becomes more comfortable and secure with age.",
+      "keywords": [
+        "structured home",
+        "serious upbringing",
+        "authoritative parent",
+        "long-lasting foundation",
+        "late domestic comfort"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом структурирован и серьёзен. Ранняя домашняя жизнь могла быть строгой, нагруженной ответственностью. Родитель мог быть авторитетным или эмоционально сдержанным. Ты строишь прочный долговечный дом. Домашняя жизнь становится комфортнее и безопаснее с возрастом.",
+      "keywords": [
+        "структурированный дом",
+        "серьёзное воспитание",
+        "авторитетный родитель",
+        "долговечный фундамент",
+        "поздний домашний комфорт"
+      ]
+    }
+  },
+  "house_4_in_Aquarius": {
+    "en": {
+      "meaning": "Home is unconventional. Domestic life may involve non-traditional arrangements, frequent changes, or a household that operates by its own rules. A parent may have been eccentric or emotionally detached. You need freedom within your home and resist domestic conformity.",
+      "keywords": [
+        "unconventional home",
+        "non-traditional family",
+        "eccentric roots",
+        "domestic freedom",
+        "unique household"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом нестандартный. Домашняя жизнь может включать нетрадиционные ситуации, частые перемены, хозяйство работающее по своим правилам. Родитель мог быть эксцентричным или эмоционально отстранённым. Нужна свобода внутри дома и сопротивление домашнему конформизму.",
+      "keywords": [
+        "нестандартный дом",
+        "нетрадиционная семья",
+        "эксцентричные корни",
+        "домашняя свобода",
+        "уникальное хозяйство"
+      ]
+    }
+  },
+  "house_4_in_Pisces": {
+    "en": {
+      "meaning": "Home is a dream space. Domestic life has a fluid, imaginative, or spiritual quality. A parent may have been artistic, compassionate, or emotionally elusive. Your home needs music, art, and an atmosphere of retreat. Boundaries within family may be porous. Nostalgia runs deep.",
+      "keywords": [
+        "dreamy home",
+        "spiritual roots",
+        "artistic domestic life",
+        "porous family boundaries",
+        "deep nostalgia"
+      ]
+    },
+    "ru": {
+      "meaning": "Дом — пространство мечты. Домашняя жизнь имеет текучее, воображаемое или духовное качество. Родитель мог быть артистичным, сострадательным или эмоционально ускользающим. Дом нуждается в музыке, искусстве, атмосфере ретрита. Границы в семье проницаемы. Ностальгия глубока.",
+      "keywords": [
+        "мечтательный дом",
+        "духовные корни",
+        "артистическая домашняя жизнь",
+        "проницаемые семейные границы",
+        "глубокая ностальгия"
+      ]
+    }
+  },
+  "house_5_in_Aries": {
+    "en": {
+      "meaning": "Creativity is bold and competitive. You pursue romance, play, and self-expression with aggressive enthusiasm. Love affairs start fast. Creative projects need action and initiative. Children may be independent and spirited.",
+      "keywords": [
+        "bold creativity",
+        "passionate romance",
+        "competitive play",
+        "action art",
+        "spirited children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество смелое и конкурентное. Романтику, игру и самовыражение преследуешь с агрессивным энтузиазмом. Романы начинаются быстро. Творческие проекты нуждаются в действии. Дети могут быть независимыми и бойкими.",
+      "keywords": [
+        "смелое творчество",
+        "страстная романтика",
+        "конкурентная игра",
+        "искусство действия",
+        "бойкие дети"
+      ]
+    }
+  },
+  "house_5_in_Taurus": {
+    "en": {
+      "meaning": "Creativity is sensual and steady. You enjoy beauty, physical pleasure, and arts that engage the senses. Romance is slow-building but deeply loyal. Creative output improves with patience. Children appreciate comfort and stability.",
+      "keywords": [
+        "sensual creativity",
+        "loyal romance",
+        "physical arts",
+        "patient creation",
+        "comfort-loving children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество чувственное и устойчивое. Наслаждаешься красотой, физическим удовольствием, искусством вовлекающим чувства. Романтика строится медленно но глубоко верна. Творческий выход улучшается с терпением.",
+      "keywords": [
+        "чувственное творчество",
+        "верная романтика",
+        "физические искусства",
+        "терпеливое создание",
+        "дети любящие комфорт"
+      ]
+    }
+  },
+  "house_5_in_Gemini": {
+    "en": {
+      "meaning": "Creativity is intellectual and versatile. You flirt with words, juggle multiple creative interests, and need variety in romance. Writing, comedy, and communication-based art suit you. Children may be talkative and curious.",
+      "keywords": [
+        "intellectual creativity",
+        "verbal flirtation",
+        "versatile interests",
+        "witty art",
+        "curious children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество интеллектуальное и универсальное. Флиртуешь словами, жонглируешь творческими интересами, нуждаешься в разнообразии романтики. Писательство, комедия, коммуникативное искусство подходят.",
+      "keywords": [
+        "интеллектуальное творчество",
+        "вербальный флирт",
+        "универсальные интересы",
+        "остроумное искусство",
+        "любопытные дети"
+      ]
+    }
+  },
+  "house_5_in_Cancer": {
+    "en": {
+      "meaning": "Creativity is emotionally driven. Art comes from a deeply personal place. Romance is nurturing and protective — you mother your lovers. Children are central to your emotional life. Creative expression and family are intertwined.",
+      "keywords": [
+        "emotional creativity",
+        "nurturing romance",
+        "personal art",
+        "children-focused",
+        "family creativity"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество эмоционально движимо. Искусство из глубоко личного места. Романтика заботливая и защитная. Дети центральны для эмоциональной жизни. Творческое выражение и семья переплетены.",
+      "keywords": [
+        "эмоциональное творчество",
+        "заботливая романтика",
+        "личное искусство",
+        "фокус на детях",
+        "семейное творчество"
+      ]
+    }
+  },
+  "house_5_in_Leo": {
+    "en": {
+      "meaning": "Creativity is at maximum power. This is one of the strongest placements for artistic expression, dramatic romance, and the joy of living. You need a stage — literal or metaphorical. Love affairs are grand. Children are a source of immense pride.",
+      "keywords": [
+        "powerful creativity",
+        "grand romance",
+        "dramatic expression",
+        "stage presence",
+        "proud children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество на максимальной мощности. Одна из сильнейших позиций для артистического выражения, драматичной романтики и радости жизни. Нужна сцена — буквальная или метафорическая. Романы грандиозны. Дети — источник огромной гордости.",
+      "keywords": [
+        "мощное творчество",
+        "грандиозная романтика",
+        "драматичное выражение",
+        "присутствие на сцене",
+        "гордость за детей"
+      ]
+    }
+  },
+  "house_5_in_Virgo": {
+    "en": {
+      "meaning": "Creativity is precise and crafted. Art comes through technique, refinement, and attention to detail. Romance is expressed through practical devotion. Creative perfectionism may slow output. Children benefit from structured, health-conscious environments.",
+      "keywords": [
+        "crafted creativity",
+        "precise art",
+        "practical romance",
+        "perfectionist creating",
+        "structured children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество точное и мастеровое. Искусство через технику, утончение, внимание к деталям. Романтика через практическую преданность. Творческий перфекционизм может замедлять. Дети выигрывают от структурных сред.",
+      "keywords": [
+        "мастеровое творчество",
+        "точное искусство",
+        "практичная романтика",
+        "перфекционистское создание",
+        "структурные дети"
+      ]
+    }
+  },
+  "house_5_in_Libra": {
+    "en": {
+      "meaning": "Creativity is aesthetic and collaborative. Art involves beauty, balance, and partnership. Romance is idealistic and elegant — you want the fairy tale. Creative work shines in partnership. Children have artistic sensibility.",
+      "keywords": [
+        "aesthetic creativity",
+        "elegant romance",
+        "collaborative art",
+        "beauty-driven play",
+        "artistic children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество эстетическое и коллаборативное. Искусство включает красоту, баланс, партнёрство. Романтика идеалистичная и элегантная — хочешь сказку. Творческая работа сияет в партнёрстве.",
+      "keywords": [
+        "эстетическое творчество",
+        "элегантная романтика",
+        "коллаборативное искусство",
+        "красота в игре",
+        "артистичные дети"
+      ]
+    }
+  },
+  "house_5_in_Scorpio": {
+    "en": {
+      "meaning": "Creativity is intense and transformative. Art comes from the depths — raw, honest, and sometimes confrontational. Romance is passionate, possessive, and all-consuming. Creative work has psychological power. Children trigger deep transformation.",
+      "keywords": [
+        "intense creativity",
+        "passionate romance",
+        "raw art",
+        "transformative play",
+        "powerful children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество интенсивное и трансформирующее. Искусство из глубин — сырое, честное, иногда конфронтационное. Романтика страстная, собственническая, всепоглощающая. Творческая работа несёт психологическую силу.",
+      "keywords": [
+        "интенсивное творчество",
+        "страстная романтика",
+        "сырое искусство",
+        "трансформирующая игра",
+        "могущественные дети"
+      ]
+    }
+  },
+  "house_5_in_Sagittarius": {
+    "en": {
+      "meaning": "Creativity is expansive and philosophical. Art comes through travel, teaching, and big ideas. Romance is adventurous and freedom-loving. You play with meaning and create through exploration. Children are independent and philosophical.",
+      "keywords": [
+        "expansive creativity",
+        "adventurous romance",
+        "philosophical art",
+        "freedom play",
+        "independent children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество экспансивное и философское. Искусство через путешествия, преподавание, большие идеи. Романтика авантюрная и свободолюбивая. Играешь со смыслом и создаёшь через исследование.",
+      "keywords": [
+        "экспансивное творчество",
+        "авантюрная романтика",
+        "философское искусство",
+        "свободная игра",
+        "независимые дети"
+      ]
+    }
+  },
+  "house_5_in_Capricorn": {
+    "en": {
+      "meaning": "Creativity is disciplined and serious. Art takes time and demands structure. Romance develops slowly and commitment comes first. You may be drawn to traditional art forms. Children arrive with a sense of responsibility. Joy is earned rather than spontaneous.",
+      "keywords": [
+        "disciplined creativity",
+        "serious romance",
+        "structured art",
+        "responsible play",
+        "late-blooming joy"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество дисциплинированное и серьёзное. Искусство требует времени и структуры. Романтика развивается медленно, обязательства первыми. Может тянуть к традиционным формам. Дети приходят с чувством ответственности. Радость заслуживается.",
+      "keywords": [
+        "дисциплинированное творчество",
+        "серьёзная романтика",
+        "структурное искусство",
+        "ответственная игра",
+        "поздно расцветающая радость"
+      ]
+    }
+  },
+  "house_5_in_Aquarius": {
+    "en": {
+      "meaning": "Creativity is unconventional and innovative. Art breaks rules and invents new forms. Romance needs intellectual stimulation and freedom. You play with ideas and technology. Children may be original thinkers.",
+      "keywords": [
+        "innovative creativity",
+        "unconventional romance",
+        "rule-breaking art",
+        "tech-driven play",
+        "original children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество нестандартное и инновационное. Искусство ломает правила и изобретает новые формы. Романтика нуждается в интеллектуальной стимуляции и свободе. Играешь с идеями и технологиями.",
+      "keywords": [
+        "инновационное творчество",
+        "нестандартная романтика",
+        "ломающее правила искусство",
+        "технологичная игра",
+        "оригинальные дети"
+      ]
+    }
+  },
+  "house_5_in_Pisces": {
+    "en": {
+      "meaning": "Creativity is transcendent and inspired. Art channels something beyond the personal — music, poetry, film, and dreamlike expression. Romance is idealistic, sacrificial, and deeply imaginative. Creative flow states come naturally. Children may be highly sensitive.",
+      "keywords": [
+        "transcendent creativity",
+        "inspired art",
+        "idealistic romance",
+        "flow states",
+        "sensitive children"
+      ]
+    },
+    "ru": {
+      "meaning": "Творчество трансцендентно и вдохновенно. Искусство канализирует что-то за пределами личного — музыка, поэзия, кино, сновидческое выражение. Романтика идеалистична, жертвенна, глубоко воображаемая. Состояния потока естественны.",
+      "keywords": [
+        "трансцендентное творчество",
+        "вдохновенное искусство",
+        "идеалистическая романтика",
+        "состояния потока",
+        "чувствительные дети"
+      ]
+    }
+  },
+  "house_6_in_Aries": {
+    "en": {
+      "meaning": "Work needs action and independence. You're best in fast-paced environments where initiative is rewarded. Health improves with vigorous exercise. Coworker dynamics may involve competition. Routine boredom is your biggest enemy at work.",
+      "keywords": [
+        "active work",
+        "independent work style",
+        "vigorous health",
+        "competitive coworkers",
+        "initiative-driven routine"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в действии и независимости. Лучше в быстрых средах где инициатива вознаграждается. Здоровье улучшается с интенсивными упражнениями. Динамики с коллегами могут включать конкуренцию.",
+      "keywords": [
+        "активная работа",
+        "независимый стиль работы",
+        "энергичное здоровье",
+        "конкурентные коллеги",
+        "рутина на инициативе"
+      ]
+    }
+  },
+  "house_6_in_Taurus": {
+    "en": {
+      "meaning": "Work needs stability and tangible results. You prefer a steady pace, pleasant environment, and work that produces something real. Health benefits from good food, nature, and consistent routines. Coworker relationships are harmonious.",
+      "keywords": [
+        "steady work pace",
+        "tangible results",
+        "health through food",
+        "pleasant environment",
+        "reliable routine"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в стабильности и осязаемых результатах. Предпочитаешь устойчивый темп, приятную среду, работу производящую что-то реальное. Здоровье от хорошей еды, природы, последовательных рутин.",
+      "keywords": [
+        "устойчивый рабочий темп",
+        "осязаемые результаты",
+        "здоровье через еду",
+        "приятная среда",
+        "надёжная рутина"
+      ]
+    }
+  },
+  "house_6_in_Gemini": {
+    "en": {
+      "meaning": "Work needs mental stimulation and variety. Multitasking, communication-heavy roles, and jobs involving information suit you. Health is connected to the nervous system. Coworkers are communication partners. Routine must change to stay engaging.",
+      "keywords": [
+        "mentally stimulating work",
+        "variety needed",
+        "communication roles",
+        "nervous health",
+        "changing routine"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в ментальной стимуляции и разнообразии. Мультитаскинг, роли с тяжёлой коммуникацией, работа с информацией подходят. Здоровье связано с нервной системой. Коллеги — партнёры по коммуникации.",
+      "keywords": [
+        "ментально стимулирующая работа",
+        "потребность в разнообразии",
+        "коммуникативные роли",
+        "нервное здоровье",
+        "меняющаяся рутина"
+      ]
+    }
+  },
+  "house_6_in_Cancer": {
+    "en": {
+      "meaning": "Work needs emotional meaning and nurturing environment. You thrive in caring professions or when work feels like family. Health is tied to emotions — stress goes to the stomach. Coworkers become like family. Cooking, food, or domestic service may be work themes.",
+      "keywords": [
+        "nurturing work",
+        "emotional workplace",
+        "stomach health",
+        "family-like coworkers",
+        "caring professions"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в эмоциональном смысле и заботливой среде. Процветаешь в заботливых профессиях или когда работа ощущается как семья. Здоровье привязано к эмоциям — стресс идёт в желудок. Коллеги становятся как семья.",
+      "keywords": [
+        "заботливая работа",
+        "эмоциональное рабочее место",
+        "здоровье желудка",
+        "коллеги как семья",
+        "заботливые профессии"
+      ]
+    }
+  },
+  "house_6_in_Leo": {
+    "en": {
+      "meaning": "Work needs creative expression and recognition. You shine in roles where your personality is visible and your contribution is acknowledged. Health benefits from joyful physical activity. Coworkers look to you for leadership. Work must feel meaningful and personal.",
+      "keywords": [
+        "creative work",
+        "recognition need",
+        "joyful health",
+        "workplace leadership",
+        "personal contribution"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в творческом выражении и признании. Сияешь в ролях где личность видна и вклад признаётся. Здоровье от радостной физической активности. Коллеги смотрят на тебя как лидера.",
+      "keywords": [
+        "творческая работа",
+        "потребность в признании",
+        "радостное здоровье",
+        "лидерство на рабочем месте",
+        "личный вклад"
+      ]
+    }
+  },
+  "house_6_in_Virgo": {
+    "en": {
+      "meaning": "Work is your element — precision, analysis, and optimization are natural. This is one of the strongest placements for work ethic and health consciousness. You excel at detail-oriented tasks and process improvement. Coworkers rely on your competence. Health routines are meticulous.",
+      "keywords": [
+        "precision work",
+        "analytical excellence",
+        "health mastery",
+        "detail orientation",
+        "process optimization"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа — твоя стихия: точность, анализ, оптимизация естественны. Одна из сильнейших позиций для рабочей этики и осознанности здоровья. Преуспеваешь в детально-ориентированных задачах. Коллеги полагаются на компетентность.",
+      "keywords": [
+        "точная работа",
+        "аналитическое превосходство",
+        "мастерство здоровья",
+        "ориентация на детали",
+        "оптимизация процессов"
+      ]
+    }
+  },
+  "house_6_in_Libra": {
+    "en": {
+      "meaning": "Work needs harmony and pleasant aesthetics. You function best in beautiful environments with diplomatic coworker relationships. Health benefits from balance — moderation in all things. Teamwork and partnership roles suit you. Conflict at work is deeply disruptive.",
+      "keywords": [
+        "harmonious work",
+        "aesthetic workplace",
+        "balanced health",
+        "diplomatic coworkers",
+        "partnership roles"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в гармонии и приятной эстетике. Функционируешь лучше в красивых средах с дипломатичными отношениями с коллегами. Здоровье от баланса — умеренность во всём. Командная работа подходит. Конфликт на работе глубоко разрушителен.",
+      "keywords": [
+        "гармоничная работа",
+        "эстетическое рабочее место",
+        "сбалансированное здоровье",
+        "дипломатичные коллеги",
+        "партнёрские роли"
+      ]
+    }
+  },
+  "house_6_in_Scorpio": {
+    "en": {
+      "meaning": "Work needs depth and intensity. You excel in roles involving research, investigation, crisis management, or psychology. Health crises may be transformative. Coworker dynamics involve hidden undercurrents. You transform every workplace you enter.",
+      "keywords": [
+        "intense work",
+        "research roles",
+        "crisis management",
+        "transformative health",
+        "deep coworker bonds"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в глубине и интенсивности. Преуспеваешь в ролях с исследованием, расследованием, кризис-менеджментом, психологией. Кризисы здоровья могут быть трансформирующими. Динамики с коллегами включают скрытые подводные течения.",
+      "keywords": [
+        "интенсивная работа",
+        "исследовательские роли",
+        "кризис-менеджмент",
+        "трансформирующее здоровье",
+        "глубокие связи с коллегами"
+      ]
+    }
+  },
+  "house_6_in_Sagittarius": {
+    "en": {
+      "meaning": "Work needs meaning and freedom. You can't do a job that doesn't connect to a bigger purpose. International, educational, or philosophical work environments suit you. Health improves through outdoor activity and travel. Routine must include variety.",
+      "keywords": [
+        "meaningful work",
+        "educational roles",
+        "outdoor health",
+        "philosophical service",
+        "freedom in routine"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в смысле и свободе. Не можешь делать работу не связанную с большей целью. Международные, образовательные, философские среды подходят. Здоровье улучшается активностью на воздухе и путешествиями.",
+      "keywords": [
+        "осмысленная работа",
+        "образовательные роли",
+        "здоровье на воздухе",
+        "философское служение",
+        "свобода в рутине"
+      ]
+    }
+  },
+  "house_6_in_Capricorn": {
+    "en": {
+      "meaning": "Work is serious and career-oriented even in daily tasks. You bring ambition to every assignment and hold yourself to high professional standards. Health improves with age and discipline. Structure and hierarchy at work feel natural. You're the most reliable team member.",
+      "keywords": [
+        "ambitious daily work",
+        "disciplined health",
+        "high standards",
+        "structural routine",
+        "career-grade effort"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа серьёзна и карьерно-ориентирована даже в ежедневных задачах. Привносишь амбицию в каждое задание и держишь себя по высоким профессиональным стандартам. Здоровье улучшается с возрастом и дисциплиной. Структура на работе естественна.",
+      "keywords": [
+        "амбициозная ежедневная работа",
+        "дисциплинированное здоровье",
+        "высокие стандарты",
+        "структурная рутина",
+        "карьерный уровень усилия"
+      ]
+    }
+  },
+  "house_6_in_Aquarius": {
+    "en": {
+      "meaning": "Work needs innovation and independence. You can't function in rigid, traditional work environments. Technology, alternative approaches, and team-based innovation suit you. Health practices may be unconventional. You revolutionize every workplace.",
+      "keywords": [
+        "innovative work",
+        "unconventional health",
+        "tech-driven routine",
+        "independent work style",
+        "workplace revolution"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в инновации и независимости. Не можешь функционировать в ригидных традиционных средах. Технологии, альтернативные подходы, командная инновация подходят. Практики здоровья нестандартные. Ты революционизируешь каждое рабочее место.",
+      "keywords": [
+        "инновационная работа",
+        "нестандартное здоровье",
+        "технологичная рутина",
+        "независимый стиль работы",
+        "революция рабочего места"
+      ]
+    }
+  },
+  "house_6_in_Pisces": {
+    "en": {
+      "meaning": "Work needs spiritual or creative meaning. Healing professions, artistic service, or compassionate care suit you. Health is sensitive to environment and emotion — psychosomatic patterns are real. Routine needs flexibility. You serve through empathy.",
+      "keywords": [
+        "compassionate work",
+        "healing service",
+        "sensitive health",
+        "flexible routine",
+        "empathic service"
+      ]
+    },
+    "ru": {
+      "meaning": "Работа нуждается в духовном или творческом смысле. Целительские профессии, артистическое служение, сострадательный уход подходят. Здоровье чувствительно к среде и эмоциям — психосоматические паттерны реальны. Рутина нуждается в гибкости.",
+      "keywords": [
+        "сострадательная работа",
+        "целительское служение",
+        "чувствительное здоровье",
+        "гибкая рутина",
+        "эмпатическое служение"
+      ]
+    }
+  },
+  "house_7_in_Aries": {
+    "en": {
+      "meaning": "You attract bold, independent, and sometimes combative partners. Relationships start fast with strong chemistry. You need challenge and spark in partnerships. Conflict may be a feature, not a bug. Business partners need to match your energy.",
+      "keywords": [
+        "bold partners",
+        "fast-starting relationships",
+        "challenging bonds",
+        "independent partnerships",
+        "fiery attraction"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь смелых, независимых, иногда боевых партнёров. Отношения начинаются быстро с сильной химией. Нужен вызов и искра в партнёрствах. Конфликт может быть фичей а не багом.",
+      "keywords": [
+        "смелые партнёры",
+        "быстро начинающиеся отношения",
+        "сложные связи",
+        "независимые партнёрства",
+        "огненное притяжение"
+      ]
+    }
+  },
+  "house_7_in_Taurus": {
+    "en": {
+      "meaning": "You attract stable, loyal, and sensual partners. Relationships build slowly but endure. You need comfort and reliability in partnerships. Financial compatibility matters. Once committed, bonds are nearly unbreakable.",
+      "keywords": [
+        "stable partners",
+        "loyal bonds",
+        "slow-building love",
+        "comfort in partnership",
+        "enduring commitment"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь стабильных, верных, чувственных партнёров. Отношения строятся медленно но длятся. Нужен комфорт и надёжность в партнёрствах. Финансовая совместимость важна. После обязательства связи почти нерушимы.",
+      "keywords": [
+        "стабильные партнёры",
+        "верные связи",
+        "медленно строящаяся любовь",
+        "комфорт в партнёрстве",
+        "длительное обязательство"
+      ]
+    }
+  },
+  "house_7_in_Gemini": {
+    "en": {
+      "meaning": "You attract intellectual, communicative, and versatile partners. Conversation is the foundation of every relationship. You may have multiple significant partnerships. Mental compatibility matters more than physical. Partners keep you mentally stimulated.",
+      "keywords": [
+        "intellectual partners",
+        "communication-based bonds",
+        "versatile relationships",
+        "mental compatibility",
+        "talkative partnerships"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь интеллектуальных, коммуникативных, универсальных партнёров. Разговор — фундамент каждых отношений. Может быть несколько значимых партнёрств. Ментальная совместимость важнее физической.",
+      "keywords": [
+        "интеллектуальные партнёры",
+        "связи на коммуникации",
+        "универсальные отношения",
+        "ментальная совместимость",
+        "разговорчивые партнёрства"
+      ]
+    }
+  },
+  "house_7_in_Cancer": {
+    "en": {
+      "meaning": "You attract nurturing, emotionally sensitive partners. Relationships need emotional safety above all else. You may take on a caretaking role or attract partners who nurture you. Home life within partnership is central. Family approval of partners matters.",
+      "keywords": [
+        "nurturing partners",
+        "emotional safety",
+        "home-centered bonds",
+        "caretaking dynamic",
+        "family-oriented partnerships"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь заботливых, эмоционально чувствительных партнёров. Отношения нуждаются в эмоциональной безопасности. Можешь брать роль заботящегося или притягивать тех кто заботится. Домашняя жизнь в партнёрстве центральна.",
+      "keywords": [
+        "заботливые партнёры",
+        "эмоциональная безопасность",
+        "связи центрированные на доме",
+        "динамика заботы",
+        "семейно-ориентированные партнёрства"
+      ]
+    }
+  },
+  "house_7_in_Leo": {
+    "en": {
+      "meaning": "You attract warm, confident, and creative partners. Relationships need drama, passion, and mutual admiration. Partners should be proud of who you are and vice versa. Romance never dies in committed partnerships. Generosity flows both ways.",
+      "keywords": [
+        "confident partners",
+        "dramatic relationships",
+        "mutual admiration",
+        "passionate commitment",
+        "generous bonds"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь тёплых, уверенных, творческих партнёров. Отношения нуждаются в драме, страсти, взаимном восхищении. Партнёры гордятся тобой и наоборот. Романтика не умирает в обязательных отношениях. Щедрость в обе стороны.",
+      "keywords": [
+        "уверенные партнёры",
+        "драматичные отношения",
+        "взаимное восхищение",
+        "страстное обязательство",
+        "щедрые связи"
+      ]
+    }
+  },
+  "house_7_in_Virgo": {
+    "en": {
+      "meaning": "You attract practical, competent, and detail-oriented partners. Relationships improve through daily acts of service. You need a partner who's reliable and health-conscious. Constructive criticism is part of the love language. Partnerships are built on mutual improvement.",
+      "keywords": [
+        "practical partners",
+        "service-based love",
+        "detail-oriented bonds",
+        "mutual improvement",
+        "reliable relationships"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь практичных, компетентных, детально-ориентированных партнёров. Отношения улучшаются через ежедневные акты служения. Нужен надёжный и осознанный к здоровью партнёр. Конструктивная критика часть языка любви.",
+      "keywords": [
+        "практичные партнёры",
+        "любовь через служение",
+        "детально-ориентированные связи",
+        "взаимное улучшение",
+        "надёжные отношения"
+      ]
+    }
+  },
+  "house_7_in_Libra": {
+    "en": {
+      "meaning": "Partnership is your natural state. You attract harmonious, aesthetically aware, and diplomatic partners. Relationships need balance, fairness, and beauty. Marriage or committed partnership is deeply important. You bloom in one-on-one connections.",
+      "keywords": [
+        "harmonious partners",
+        "balanced relationships",
+        "marriage-oriented",
+        "fair bonds",
+        "partnership bloom"
+      ]
+    },
+    "ru": {
+      "meaning": "Партнёрство — естественное состояние. Притягиваешь гармоничных, эстетически осознанных, дипломатичных партнёров. Отношения нуждаются в балансе, справедливости, красоте. Брак или обязательное партнёрство глубоко важны. Расцветаешь в связях один-на-один.",
+      "keywords": [
+        "гармоничные партнёры",
+        "сбалансированные отношения",
+        "ориентация на брак",
+        "справедливые связи",
+        "расцвет в партнёрстве"
+      ]
+    }
+  },
+  "house_7_in_Scorpio": {
+    "en": {
+      "meaning": "You attract intense, deep, and psychologically complex partners. Relationships involve power dynamics, transformation, and profound intimacy. Trust is built through crisis and honesty. Casual partnerships don't satisfy — you need depth.",
+      "keywords": [
+        "intense partners",
+        "transformative relationships",
+        "power dynamics",
+        "deep intimacy",
+        "crisis-bonded"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь интенсивных, глубоких, психологически сложных партнёров. Отношения включают динамики власти, трансформацию, глубокую близость. Доверие строится через кризис и честность. Лёгкие партнёрства не удовлетворяют — нужна глубина.",
+      "keywords": [
+        "интенсивные партнёры",
+        "трансформирующие отношения",
+        "динамики власти",
+        "глубокая близость",
+        "связь через кризис"
+      ]
+    }
+  },
+  "house_7_in_Sagittarius": {
+    "en": {
+      "meaning": "You attract adventurous, philosophical, and freedom-loving partners. Relationships need shared adventures, intellectual growth, and space. Partners may be from different cultures. Marriage should expand your world, not restrict it.",
+      "keywords": [
+        "adventurous partners",
+        "philosophical bonds",
+        "cross-cultural relationships",
+        "freedom in commitment",
+        "growth-oriented love"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь авантюрных, философских, свободолюбивых партнёров. Отношения нуждаются в совместных приключениях, интеллектуальном росте, пространстве. Партнёры могут быть из других культур. Брак должен расширять мир а не ограничивать.",
+      "keywords": [
+        "авантюрные партнёры",
+        "философские связи",
+        "кросскультурные отношения",
+        "свобода в обязательстве",
+        "любовь ориентированная на рост"
+      ]
+    }
+  },
+  "house_7_in_Capricorn": {
+    "en": {
+      "meaning": "You attract mature, ambitious, and responsible partners. Relationships are serious commitments built on shared goals. Age differences may feature. Partnerships improve with time. You need a partner who takes life seriously.",
+      "keywords": [
+        "mature partners",
+        "serious commitment",
+        "goal-oriented bonds",
+        "age-different relationships",
+        "improving with time"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь зрелых, амбициозных, ответственных партнёров. Отношения — серьёзные обязательства на общих целях. Разница в возрасте может быть. Партнёрства улучшаются со временем. Нужен партнёр который относится к жизни серьёзно.",
+      "keywords": [
+        "зрелые партнёры",
+        "серьёзное обязательство",
+        "связи на целях",
+        "отношения с разницей в возрасте",
+        "улучшение со временем"
+      ]
+    }
+  },
+  "house_7_in_Aquarius": {
+    "en": {
+      "meaning": "You attract unconventional, independent, and intellectually stimulating partners. Relationships need freedom, equality, and mental rapport. Traditional relationship structures may not apply. Friendship is the foundation of partnership.",
+      "keywords": [
+        "unconventional partners",
+        "intellectual bonds",
+        "freedom in partnership",
+        "friendship-based love",
+        "equal relationships"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь нестандартных, независимых, интеллектуально стимулирующих партнёров. Отношения нуждаются в свободе, равенстве, ментальном раппорте. Традиционные структуры могут не подходить. Дружба — фундамент партнёрства.",
+      "keywords": [
+        "нестандартные партнёры",
+        "интеллектуальные связи",
+        "свобода в партнёрстве",
+        "любовь на базе дружбы",
+        "равные отношения"
+      ]
+    }
+  },
+  "house_7_in_Pisces": {
+    "en": {
+      "meaning": "You attract sensitive, artistic, and compassionate partners. Relationships have a soulmate or spiritual quality. Boundaries in partnerships may be blurry. You idealize partners and need to balance fantasy with reality. The best relationships feel transcendent.",
+      "keywords": [
+        "sensitive partners",
+        "soulmate connections",
+        "spiritual bonds",
+        "idealized love",
+        "transcendent partnerships"
+      ]
+    },
+    "ru": {
+      "meaning": "Притягиваешь чувствительных, артистических, сострадательных партнёров. Отношения имеют качество соулмейта или духовности. Границы в партнёрствах размыты. Идеализируешь партнёров и нужно балансировать фантазию с реальностью. Лучшие отношения ощущаются трансцендентно.",
+      "keywords": [
+        "чувствительные партнёры",
+        "соулмейт-связи",
+        "духовные связи",
+        "идеализированная любовь",
+        "трансцендентные партнёрства"
+      ]
+    }
+  },
+  "house_8_in_Aries": {
+    "en": {
+      "meaning": "Transformation comes through bold action and confrontation. Crisis activates your courage. Shared finances need independent management. Sexuality is direct and passionate. You face taboo subjects head-on.",
+      "keywords": [
+        "bold transformation",
+        "courageous crisis",
+        "direct sexuality",
+        "independent shared finances",
+        "confrontational depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через смелое действие и конфронтацию. Кризис активирует смелость. Общие финансы нуждаются в независимом управлении. Сексуальность прямая и страстная. Встречаешь табуированные темы лоб в лоб.",
+      "keywords": [
+        "смелая трансформация",
+        "смелый кризис",
+        "прямая сексуальность",
+        "независимые общие финансы",
+        "конфронтационная глубина"
+      ]
+    }
+  },
+  "house_8_in_Taurus": {
+    "en": {
+      "meaning": "Transformation is slow and rooted in material reality. Shared finances build steadily. Inheritance may be significant. Sexuality is sensual and physically grounded. Change comes through body and resources rather than psychology.",
+      "keywords": [
+        "material transformation",
+        "steady shared finances",
+        "sensual intimacy",
+        "inheritance potential",
+        "grounded depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация медленная и укоренённая в материальной реальности. Общие финансы растут стабильно. Наследство может быть значительным. Сексуальность чувственная и физически заземлённая. Перемены через тело и ресурсы.",
+      "keywords": [
+        "материальная трансформация",
+        "стабильные общие финансы",
+        "чувственная близость",
+        "потенциал наследства",
+        "заземлённая глубина"
+      ]
+    }
+  },
+  "house_8_in_Gemini": {
+    "en": {
+      "meaning": "Transformation comes through information and communication. Crisis is processed mentally. Shared finances involve multiple streams. Research and investigation fascinate. Sexuality involves the mind as much as the body.",
+      "keywords": [
+        "mental transformation",
+        "information-driven depth",
+        "versatile shared finances",
+        "research fascination",
+        "intellectual intimacy"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через информацию и коммуникацию. Кризис обрабатывается ментально. Общие финансы включают множественные потоки. Исследование и расследование завораживают. Сексуальность включает ум наравне с телом.",
+      "keywords": [
+        "ментальная трансформация",
+        "глубина через информацию",
+        "универсальные общие финансы",
+        "завораживающее исследование",
+        "интеллектуальная близость"
+      ]
+    }
+  },
+  "house_8_in_Cancer": {
+    "en": {
+      "meaning": "Transformation comes through emotional depth and family patterns. Inheritance may involve family property or emotional legacy. Intimacy requires emotional safety. Shared finances are tied to family. Healing generational patterns is transformative work.",
+      "keywords": [
+        "emotional transformation",
+        "family inheritance",
+        "nurturing intimacy",
+        "family finances",
+        "generational healing"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через эмоциональную глубину и семейные паттерны. Наследство может включать семейную собственность или эмоциональное наследие. Близость требует эмоциональной безопасности. Общие финансы привязаны к семье. Исцеление поколенческих паттернов — трансформирующая работа.",
+      "keywords": [
+        "эмоциональная трансформация",
+        "семейное наследство",
+        "заботливая близость",
+        "семейные финансы",
+        "поколенческое исцеление"
+      ]
+    }
+  },
+  "house_8_in_Leo": {
+    "en": {
+      "meaning": "Transformation comes through creative power and personal will. Crisis reveals your leadership. Shared finances may involve creative ventures or entertainment. Sexuality is dramatic and generous. Ego death is a major life theme.",
+      "keywords": [
+        "creative transformation",
+        "powerful crisis response",
+        "dramatic intimacy",
+        "generous shared resources",
+        "ego transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через творческую силу и личную волю. Кризис раскрывает лидерство. Общие финансы могут включать творческие проекты. Сексуальность драматичная и щедрая. Смерть эго — главная жизненная тема.",
+      "keywords": [
+        "творческая трансформация",
+        "мощный ответ на кризис",
+        "драматичная близость",
+        "щедрые общие ресурсы",
+        "трансформация эго"
+      ]
+    }
+  },
+  "house_8_in_Virgo": {
+    "en": {
+      "meaning": "Transformation comes through analysis and practical healing. Crisis is managed methodically. Shared finances are carefully tracked. Health crises may be transformative. Sexuality involves service and attention to detail.",
+      "keywords": [
+        "analytical transformation",
+        "methodical crisis",
+        "careful shared finances",
+        "health-driven depth",
+        "service intimacy"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через анализ и практическое исцеление. Кризис управляется методично. Общие финансы тщательно отслеживаются. Кризисы здоровья могут быть трансформирующими. Сексуальность включает служение и внимание к деталям.",
+      "keywords": [
+        "аналитическая трансформация",
+        "методичный кризис",
+        "тщательные общие финансы",
+        "глубина через здоровье",
+        "близость служения"
+      ]
+    }
+  },
+  "house_8_in_Libra": {
+    "en": {
+      "meaning": "Transformation comes through partnership dynamics. Crisis reveals relationship truth. Shared finances require fairness and balance. Intimacy is aesthetic and harmonious. Power dynamics in partnerships are a central theme.",
+      "keywords": [
+        "partnership transformation",
+        "balanced shared finances",
+        "aesthetic intimacy",
+        "relational power",
+        "crisis through partnership"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через динамики партнёрства. Кризис раскрывает правду отношений. Общие финансы требуют справедливости. Близость эстетична и гармонична. Динамики власти в партнёрствах — центральная тема.",
+      "keywords": [
+        "партнёрская трансформация",
+        "сбалансированные общие финансы",
+        "эстетичная близость",
+        "реляционная власть",
+        "кризис через партнёрство"
+      ]
+    }
+  },
+  "house_8_in_Scorpio": {
+    "en": {
+      "meaning": "This is the most intense 8th house placement. Transformation is deep, relentless, and total. You have extraordinary resilience in crisis. Shared finances involve strategic power. Intimacy is all-or-nothing. Psychological insight is profound.",
+      "keywords": [
+        "total transformation",
+        "crisis resilience",
+        "strategic finances",
+        "all-or-nothing intimacy",
+        "profound insight"
+      ]
+    },
+    "ru": {
+      "meaning": "Самая интенсивная позиция 8-го дома. Трансформация глубокая, неумолимая, тотальная. Экстраординарная устойчивость в кризисе. Общие финансы включают стратегическую силу. Близость всё-или-ничего. Психологическое проникновение глубоко.",
+      "keywords": [
+        "тотальная трансформация",
+        "устойчивость в кризисе",
+        "стратегические финансы",
+        "близость всё-или-ничего",
+        "глубокое проникновение"
+      ]
+    }
+  },
+  "house_8_in_Sagittarius": {
+    "en": {
+      "meaning": "Transformation comes through expanding beliefs and cross-cultural experience. Crisis triggers philosophical growth. Shared finances may involve international elements. Intimacy needs freedom and honesty. Death and rebirth themes connect to meaning-making.",
+      "keywords": [
+        "philosophical transformation",
+        "international finances",
+        "honest intimacy",
+        "meaning through crisis",
+        "freedom in depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через расширение убеждений и кросскультурный опыт. Кризис запускает философский рост. Общие финансы могут включать международные элементы. Близость нуждается в свободе и честности.",
+      "keywords": [
+        "философская трансформация",
+        "международные финансы",
+        "честная близость",
+        "смысл через кризис",
+        "свобода в глубине"
+      ]
+    }
+  },
+  "house_8_in_Capricorn": {
+    "en": {
+      "meaning": "Transformation is structured and strategic. Crisis is managed with discipline. Shared finances are built through long-term planning. Intimacy involves responsibility and maturity. Power structures and inheritance carry weight.",
+      "keywords": [
+        "strategic transformation",
+        "disciplined crisis",
+        "long-term shared finances",
+        "mature intimacy",
+        "structural power"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация структурирована и стратегична. Кризис управляется дисциплиной. Общие финансы строятся через долгосрочное планирование. Близость включает ответственность и зрелость. Структуры власти и наследство несут вес.",
+      "keywords": [
+        "стратегическая трансформация",
+        "дисциплинированный кризис",
+        "долгосрочные общие финансы",
+        "зрелая близость",
+        "структурная власть"
+      ]
+    }
+  },
+  "house_8_in_Aquarius": {
+    "en": {
+      "meaning": "Transformation comes through unconventional means and sudden insights. Crisis triggers innovation. Shared finances involve technology or unusual arrangements. Intimacy needs freedom and intellectual depth. Group dynamics may involve power themes.",
+      "keywords": [
+        "unconventional transformation",
+        "sudden crisis insight",
+        "tech finances",
+        "intellectual intimacy",
+        "innovative depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через нестандартные средства и внезапные озарения. Кризис запускает инновацию. Общие финансы включают технологии или необычные ситуации. Близость нуждается в свободе и интеллектуальной глубине.",
+      "keywords": [
+        "нестандартная трансформация",
+        "внезапное кризисное озарение",
+        "технологические финансы",
+        "интеллектуальная близость",
+        "инновационная глубина"
+      ]
+    }
+  },
+  "house_8_in_Pisces": {
+    "en": {
+      "meaning": "Transformation comes through surrender and spiritual experience. Crisis dissolves ego boundaries. Shared finances may be confusing or involve sacrifice. Intimacy is transcendent and boundary-dissolving. Healing comes through letting go rather than holding on.",
+      "keywords": [
+        "spiritual transformation",
+        "surrender in crisis",
+        "transcendent intimacy",
+        "dissolving boundaries",
+        "healing through release"
+      ]
+    },
+    "ru": {
+      "meaning": "Трансформация через сдачу и духовный опыт. Кризис растворяет границы эго. Общие финансы могут быть запутанными или включать жертву. Близость трансцендентна и растворяющая границы. Исцеление через отпускание а не удержание.",
+      "keywords": [
+        "духовная трансформация",
+        "сдача в кризисе",
+        "трансцендентная близость",
+        "растворение границ",
+        "исцеление через отпускание"
+      ]
+    }
+  },
+  "house_9_in_Aries": {
+    "en": {
+      "meaning": "You pursue truth with fire and urgency. Beliefs are formed through direct experience and defended with passion. Travel is adventurous and impulsive. Higher education needs action and competition. Philosophy is personal and combative.",
+      "keywords": [
+        "passionate beliefs",
+        "adventurous travel",
+        "action-based learning",
+        "competitive philosophy",
+        "direct truth seeking"
+      ]
+    },
+    "ru": {
+      "meaning": "Преследуешь правду с огнём и срочностью. Убеждения формируются через прямой опыт и защищаются со страстью. Путешествия авантюрные и импульсивные. Высшее образование нуждается в действии. Философия личная и боевая.",
+      "keywords": [
+        "страстные убеждения",
+        "авантюрные путешествия",
+        "обучение через действие",
+        "конкурентная философия",
+        "прямой поиск правды"
+      ]
+    }
+  },
+  "house_9_in_Taurus": {
+    "en": {
+      "meaning": "Beliefs are grounded and practical. You build a worldview slowly through sensory experience, not theory. Travel should involve pleasure and beauty. Higher education connects to earning potential. Philosophy values what's real and tangible.",
+      "keywords": [
+        "grounded beliefs",
+        "sensory travel",
+        "practical education",
+        "tangible philosophy",
+        "value-based worldview"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения заземлённые и практичные. Мировоззрение строишь медленно через сенсорный опыт а не теорию. Путешествия включают удовольствие и красоту. Высшее образование связано с потенциалом заработка. Философия ценит реальное и осязаемое.",
+      "keywords": [
+        "заземлённые убеждения",
+        "сенсорные путешествия",
+        "практическое образование",
+        "осязаемая философия",
+        "мировоззрение на ценностях"
+      ]
+    }
+  },
+  "house_9_in_Gemini": {
+    "en": {
+      "meaning": "Beliefs are flexible and information-driven. You may hold multiple worldviews simultaneously. Travel is intellectually motivated. Higher education is eclectic. Teaching and writing about big ideas come naturally. Philosophy is conversational.",
+      "keywords": [
+        "flexible beliefs",
+        "intellectual travel",
+        "eclectic education",
+        "conversational philosophy",
+        "multiple worldviews"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения гибкие и информационно-движимые. Можешь удерживать несколько мировоззрений одновременно. Путешествия интеллектуально мотивированы. Высшее образование эклектично. Преподавание и письмо о больших идеях естественны.",
+      "keywords": [
+        "гибкие убеждения",
+        "интеллектуальные путешествия",
+        "эклектичное образование",
+        "разговорная философия",
+        "множественные мировоззрения"
+      ]
+    }
+  },
+  "house_9_in_Cancer": {
+    "en": {
+      "meaning": "Beliefs are emotionally rooted. Family traditions and cultural heritage shape your worldview. Travel feels like searching for a spiritual home. Higher education may connect to family expectations. Philosophy values nurture, belonging, and emotional wisdom.",
+      "keywords": [
+        "emotional beliefs",
+        "heritage-based worldview",
+        "home-seeking travel",
+        "family education",
+        "nurturing philosophy"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения эмоционально укоренены. Семейные традиции и культурное наследие формируют мировоззрение. Путешествия ощущаются как поиск духовного дома. Высшее образование связано с семейными ожиданиями. Философия ценит заботу и эмоциональную мудрость.",
+      "keywords": [
+        "эмоциональные убеждения",
+        "мировоззрение на наследии",
+        "путешествие-поиск дома",
+        "семейное образование",
+        "заботливая философия"
+      ]
+    }
+  },
+  "house_9_in_Leo": {
+    "en": {
+      "meaning": "Beliefs are bold and personally expressed. You build a worldview that reflects your creative identity. Travel is dramatic and memorable. Higher education involves creative or leadership studies. Teaching is performative and inspiring.",
+      "keywords": [
+        "bold beliefs",
+        "creative worldview",
+        "dramatic travel",
+        "leadership education",
+        "inspiring teaching"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения смелые и лично выраженные. Мировоззрение отражает творческую идентичность. Путешествия драматичные и запоминающиеся. Высшее образование включает творческие или лидерские направления. Преподавание перформативное и вдохновляющее.",
+      "keywords": [
+        "смелые убеждения",
+        "творческое мировоззрение",
+        "драматичные путешествия",
+        "лидерское образование",
+        "вдохновляющее преподавание"
+      ]
+    }
+  },
+  "house_9_in_Virgo": {
+    "en": {
+      "meaning": "Beliefs are analytical and practical. You need a worldview that works in daily life, not just in theory. Travel has a purpose — research, health, or service. Higher education is detail-oriented. Philosophy values what can be proven and applied.",
+      "keywords": [
+        "analytical beliefs",
+        "purposeful travel",
+        "practical education",
+        "applied philosophy",
+        "evidence-based worldview"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения аналитические и практичные. Нужно мировоззрение работающее в повседневности а не только в теории. Путешествия с целью — исследование, здоровье, служение. Высшее образование детально-ориентированное. Философия ценит доказуемое и применимое.",
+      "keywords": [
+        "аналитические убеждения",
+        "целевые путешествия",
+        "практическое образование",
+        "прикладная философия",
+        "мировоззрение на доказательствах"
+      ]
+    }
+  },
+  "house_9_in_Libra": {
+    "en": {
+      "meaning": "Beliefs centre on fairness, beauty, and partnership. Your worldview seeks balance between perspectives. Travel involves art, culture, and social connection. Higher education may involve law, diplomacy, or aesthetics. Philosophy values harmony and justice.",
+      "keywords": [
+        "balanced beliefs",
+        "cultural travel",
+        "diplomatic education",
+        "justice philosophy",
+        "aesthetic worldview"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения центрированы на справедливости, красоте, партнёрстве. Мировоззрение ищет баланс между перспективами. Путешествия включают искусство, культуру, социальную связь. Высшее образование может включать право, дипломатию, эстетику. Философия ценит гармонию и справедливость.",
+      "keywords": [
+        "сбалансированные убеждения",
+        "культурные путешествия",
+        "дипломатическое образование",
+        "философия справедливости",
+        "эстетическое мировоззрение"
+      ]
+    }
+  },
+  "house_9_in_Scorpio": {
+    "en": {
+      "meaning": "Beliefs run deep and transform over time. You seek truth beneath surfaces — psychology, power dynamics, and the hidden dimensions of meaning. Travel to intense or sacred places. Higher education involves research or depth psychology. Philosophy confronts darkness.",
+      "keywords": [
+        "deep beliefs",
+        "transformative travel",
+        "research education",
+        "psychology of meaning",
+        "truth beneath surface"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения глубоки и трансформируются со временем. Ищешь правду под поверхностями — психология, динамики власти, скрытые измерения смысла. Путешествия к интенсивным или священным местам. Высшее образование включает исследование. Философия конфронтирует с тьмой.",
+      "keywords": [
+        "глубокие убеждения",
+        "трансформирующие путешествия",
+        "исследовательское образование",
+        "психология смысла",
+        "правда под поверхностью"
+      ]
+    }
+  },
+  "house_9_in_Sagittarius": {
+    "en": {
+      "meaning": "This is the strongest placement for the 9th house. Beliefs are expansive, optimistic, and central to your identity. Travel is a life purpose. Higher education is natural and may be lifelong. Philosophy, teaching, and publishing are calling areas. Truth-seeking never ends.",
+      "keywords": [
+        "expansive beliefs",
+        "lifelong travel",
+        "natural education",
+        "truth as calling",
+        "philosophical mastery"
+      ]
+    },
+    "ru": {
+      "meaning": "Сильнейшая позиция для 9-го дома. Убеждения экспансивные, оптимистичные, центральные для идентичности. Путешествия — жизненное предназначение. Высшее образование естественно и может быть пожизненным. Философия, преподавание, издательство — сферы призвания.",
+      "keywords": [
+        "экспансивные убеждения",
+        "пожизненные путешествия",
+        "естественное образование",
+        "правда как призвание",
+        "философское мастерство"
+      ]
+    }
+  },
+  "house_9_in_Capricorn": {
+    "en": {
+      "meaning": "Beliefs are structured and earned through experience. Worldview is pragmatic and tested. Travel has career or strategic purpose. Higher education is a serious investment. Philosophy respects tradition and proven wisdom. Teaching carries authority.",
+      "keywords": [
+        "structured beliefs",
+        "strategic travel",
+        "serious education",
+        "traditional wisdom",
+        "authoritative teaching"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения структурированы и заслужены опытом. Мировоззрение прагматичное и проверенное. Путешествия с карьерной или стратегической целью. Высшее образование — серьёзная инвестиция. Философия уважает традицию и проверенную мудрость.",
+      "keywords": [
+        "структурированные убеждения",
+        "стратегические путешествия",
+        "серьёзное образование",
+        "традиционная мудрость",
+        "авторитетное преподавание"
+      ]
+    }
+  },
+  "house_9_in_Aquarius": {
+    "en": {
+      "meaning": "Beliefs are unconventional and future-oriented. You build your own worldview from eclectic sources. Travel connects to innovation and alternative communities. Higher education may be non-traditional. Philosophy values freedom and collective progress.",
+      "keywords": [
+        "unconventional beliefs",
+        "innovative travel",
+        "alternative education",
+        "freedom philosophy",
+        "eclectic worldview"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения нестандартные и ориентированные на будущее. Строишь мировоззрение из эклектичных источников. Путешествия связаны с инновацией и альтернативными сообществами. Высшее образование может быть нетрадиционным. Философия ценит свободу и коллективный прогресс.",
+      "keywords": [
+        "нестандартные убеждения",
+        "инновационные путешествия",
+        "альтернативное образование",
+        "философия свободы",
+        "эклектичное мировоззрение"
+      ]
+    }
+  },
+  "house_9_in_Pisces": {
+    "en": {
+      "meaning": "Beliefs are spiritual and boundless. Your worldview dissolves borders between traditions, seeking universal truth. Travel has a pilgrimage quality. Higher education may involve arts, spirituality, or healing. Philosophy values compassion and transcendence above logic.",
+      "keywords": [
+        "spiritual beliefs",
+        "pilgrimage travel",
+        "artistic education",
+        "compassion philosophy",
+        "boundless worldview"
+      ]
+    },
+    "ru": {
+      "meaning": "Убеждения духовные и безграничные. Мировоззрение растворяет границы между традициями, ищет универсальную истину. Путешествия имеют качество паломничества. Высшее образование включает искусство, духовность, исцеление. Философия ценит сострадание и трансценденцию выше логики.",
+      "keywords": [
+        "духовные убеждения",
+        "путешествие-паломничество",
+        "артистическое образование",
+        "философия сострадания",
+        "безграничное мировоззрение"
+      ]
+    }
+  },
+  "house_10_in_Aries": {
+    "en": {
+      "meaning": "Career demands initiative and independence. You're meant to lead, pioneer, and be first in your field. Public image is bold and action-oriented. Success comes through courage and starting new things. Authority figures may be competitive.",
+      "keywords": [
+        "pioneering career",
+        "bold reputation",
+        "independent authority",
+        "first-mover advantage",
+        "action-driven success"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера требует инициативы и независимости. Тебе предназначено вести, быть пионером, первым в поле. Публичный образ смелый и ориентированный на действие. Успех через смелость и начинание нового.",
+      "keywords": [
+        "пионерская карьера",
+        "смелая репутация",
+        "независимый авторитет",
+        "преимущество первопроходца",
+        "успех через действие"
+      ]
+    }
+  },
+  "house_10_in_Taurus": {
+    "en": {
+      "meaning": "Career builds steadily toward lasting value. You're meant for fields involving beauty, finance, real estate, or tangible production. Public image is stable and reliable. Success takes time but endures. Authority comes through competence and consistency.",
+      "keywords": [
+        "steady career",
+        "financial profession",
+        "reliable reputation",
+        "lasting achievement",
+        "quality-based success"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера строится стабильно к долговечной ценности. Тебе предназначены поля с красотой, финансами, недвижимостью, осязаемым производством. Публичный образ стабильный и надёжный. Успех требует времени но длится.",
+      "keywords": [
+        "стабильная карьера",
+        "финансовая профессия",
+        "надёжная репутация",
+        "длительное достижение",
+        "успех через качество"
+      ]
+    }
+  },
+  "house_10_in_Gemini": {
+    "en": {
+      "meaning": "Career involves communication, education, or information. You may have multiple professional identities or change careers several times. Public image is intellectual and versatile. Success comes through networking and sharing ideas.",
+      "keywords": [
+        "communication career",
+        "versatile profession",
+        "intellectual reputation",
+        "multiple careers",
+        "networking success"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает коммуникацию, образование или информацию. Может быть несколько профессиональных идентичностей или смен карьеры. Публичный образ интеллектуальный и универсальный. Успех через нетворкинг и обмен идеями.",
+      "keywords": [
+        "коммуникативная карьера",
+        "универсальная профессия",
+        "интеллектуальная репутация",
+        "множественные карьеры",
+        "успех через нетворкинг"
+      ]
+    }
+  },
+  "house_10_in_Cancer": {
+    "en": {
+      "meaning": "Career involves nurturing, care, or creating emotional safety. Food, real estate, family business, healthcare, or education may feature. Public image is warm and protective. Success connects to family legacy. Authority has a parental quality.",
+      "keywords": [
+        "nurturing career",
+        "protective reputation",
+        "family-connected success",
+        "caring authority",
+        "emotional public image"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает заботу или создание эмоциональной безопасности. Еда, недвижимость, семейный бизнес, здравоохранение, образование могут быть. Публичный образ тёплый и защитный. Успех связан с семейным наследием. Авторитет родительского качества.",
+      "keywords": [
+        "заботливая карьера",
+        "защитная репутация",
+        "успех связанный с семьёй",
+        "заботливый авторитет",
+        "эмоциональный публичный образ"
+      ]
+    }
+  },
+  "house_10_in_Leo": {
+    "en": {
+      "meaning": "Career demands creative expression and visibility. You're meant for leadership, performance, entertainment, or any field where your personal magnetism is the product. Public image is confident and radiant. Success comes through being authentically yourself in public.",
+      "keywords": [
+        "creative career",
+        "leadership destiny",
+        "radiant reputation",
+        "performance profession",
+        "authentic public presence"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера требует творческого выражения и видимости. Тебе предназначено лидерство, выступление, развлечение, любое поле где личный магнетизм — продукт. Публичный образ уверенный и сияющий. Успех через подлинность себя на публике.",
+      "keywords": [
+        "творческая карьера",
+        "лидерское предназначение",
+        "сияющая репутация",
+        "профессия выступления",
+        "подлинное публичное присутствие"
+      ]
+    }
+  },
+  "house_10_in_Virgo": {
+    "en": {
+      "meaning": "Career demands precision, competence, and practical service. You're meant for fields requiring analysis, health, editing, or systems improvement. Public image is competent and professional. Success comes through meticulous quality and being genuinely useful.",
+      "keywords": [
+        "precision career",
+        "competent reputation",
+        "analytical profession",
+        "service-based success",
+        "quality-driven authority"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера требует точности, компетентности, практического служения. Тебе предназначены поля с анализом, здоровьем, редактированием, улучшением систем. Публичный образ компетентный и профессиональный. Успех через дотошное качество и реальную полезность.",
+      "keywords": [
+        "точная карьера",
+        "компетентная репутация",
+        "аналитическая профессия",
+        "успех через служение",
+        "авторитет через качество"
+      ]
+    }
+  },
+  "house_10_in_Libra": {
+    "en": {
+      "meaning": "Career involves partnership, beauty, justice, or diplomacy. You're meant for fields requiring social grace and aesthetic sensibility. Public image is polished and fair. Success comes through collaboration and making things beautiful or just.",
+      "keywords": [
+        "partnership career",
+        "diplomatic reputation",
+        "aesthetic profession",
+        "collaborative success",
+        "graceful authority"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает партнёрство, красоту, справедливость, дипломатию. Тебе предназначены поля требующие социальной грации и эстетической чувствительности. Публичный образ отполированный и справедливый. Успех через коллаборацию и создание красивого или справедливого.",
+      "keywords": [
+        "партнёрская карьера",
+        "дипломатичная репутация",
+        "эстетическая профессия",
+        "коллаборативный успех",
+        "грациозный авторитет"
+      ]
+    }
+  },
+  "house_10_in_Scorpio": {
+    "en": {
+      "meaning": "Career involves power, transformation, and depth. You're meant for fields requiring psychological insight, crisis management, research, or working with hidden resources. Public image is intense and magnetic. Success comes through mastering what others fear to touch.",
+      "keywords": [
+        "powerful career",
+        "intense reputation",
+        "transformative profession",
+        "crisis authority",
+        "depth-based success"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает власть, трансформацию, глубину. Тебе предназначены поля требующие психологического проникновения, кризис-менеджмента, исследований. Публичный образ интенсивный и магнетичный. Успех через мастерство того чего другие боятся.",
+      "keywords": [
+        "могущественная карьера",
+        "интенсивная репутация",
+        "трансформирующая профессия",
+        "авторитет в кризисе",
+        "успех через глубину"
+      ]
+    }
+  },
+  "house_10_in_Sagittarius": {
+    "en": {
+      "meaning": "Career involves expansion, teaching, travel, or cross-cultural work. You're meant for fields requiring big-picture vision and philosophical depth. Public image is optimistic and inspiring. Success comes through sharing wisdom and expanding horizons.",
+      "keywords": [
+        "expansive career",
+        "inspiring reputation",
+        "teaching profession",
+        "cross-cultural success",
+        "vision-driven authority"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает расширение, преподавание, путешествия, кросскультурную работу. Тебе предназначены поля требующие масштабного видения и философской глубины. Публичный образ оптимистичный и вдохновляющий. Успех через обмен мудростью.",
+      "keywords": [
+        "экспансивная карьера",
+        "вдохновляющая репутация",
+        "профессия преподавания",
+        "кросскультурный успех",
+        "авторитет через видение"
+      ]
+    }
+  },
+  "house_10_in_Capricorn": {
+    "en": {
+      "meaning": "This is the strongest career placement. Professional ambition is central to your identity. You're meant for positions of institutional authority — management, government, corporate leadership. Public image is serious and accomplished. Success is built brick by brick over decades.",
+      "keywords": [
+        "institutional career",
+        "serious authority",
+        "long-term ambition",
+        "accomplished reputation",
+        "structural success"
+      ]
+    },
+    "ru": {
+      "meaning": "Сильнейшая карьерная позиция. Профессиональная амбиция центральна для идентичности. Тебе предназначены позиции институционального авторитета — управление, правительство, корпоративное лидерство. Публичный образ серьёзный и достигнутый. Успех строится кирпич за кирпичом на десятилетия.",
+      "keywords": [
+        "институциональная карьера",
+        "серьёзный авторитет",
+        "долгосрочная амбиция",
+        "достигнутая репутация",
+        "структурный успех"
+      ]
+    }
+  },
+  "house_10_in_Aquarius": {
+    "en": {
+      "meaning": "Career involves innovation, technology, or social change. You're meant for fields that don't exist yet or need reinventing. Public image is original and progressive. Success comes through breaking conventions and building new systems.",
+      "keywords": [
+        "innovative career",
+        "progressive reputation",
+        "tech profession",
+        "convention-breaking success",
+        "future-building authority"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает инновацию, технологии, социальные перемены. Тебе предназначены поля которые ещё не существуют или нуждаются в переизобретении. Публичный образ оригинальный и прогрессивный. Успех через ломание условностей и строительство новых систем.",
+      "keywords": [
+        "инновационная карьера",
+        "прогрессивная репутация",
+        "технологическая профессия",
+        "успех через ломание условностей",
+        "авторитет строительства будущего"
+      ]
+    }
+  },
+  "house_10_in_Pisces": {
+    "en": {
+      "meaning": "Career involves creativity, healing, spirituality, or compassionate service. You're meant for fields requiring imagination and empathy — arts, music, therapy, film. Public image is mysterious and inspirational. Success comes through following a calling rather than a plan.",
+      "keywords": [
+        "creative career",
+        "healing profession",
+        "mysterious reputation",
+        "calling-based success",
+        "compassionate authority"
+      ]
+    },
+    "ru": {
+      "meaning": "Карьера включает творчество, исцеление, духовность, сострадательное служение. Тебе предназначены поля требующие воображения и эмпатии — искусство, музыка, терапия, кино. Публичный образ загадочный и вдохновляющий. Успех через следование призванию а не плану.",
+      "keywords": [
+        "творческая карьера",
+        "целительская профессия",
+        "загадочная репутация",
+        "успех через призвание",
+        "сострадательный авторитет"
+      ]
+    }
+  },
+  "house_11_in_Aries": {
+    "en": {
+      "meaning": "Friendships are active and competitive. You lead in groups and initiate community projects. Future vision is bold. Friends are independent and energetic. Social circle is a place of action.",
+      "keywords": [
+        "active friendships",
+        "group leadership",
+        "bold future vision",
+        "independent friends",
+        "action community"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба активная и конкурентная. Ведёшь в группах и инициируешь общественные проекты. Видение будущего смелое. Друзья независимые и энергичные. Социальный круг — место действия.",
+      "keywords": [
+        "активные дружбы",
+        "групповое лидерство",
+        "смелое видение будущего",
+        "независимые друзья",
+        "сообщество действия"
+      ]
+    }
+  },
+  "house_11_in_Taurus": {
+    "en": {
+      "meaning": "Friendships are stable, loyal, and comfort-oriented. Social circle values quality over quantity. Future vision is practical and financially grounded. Friends share aesthetic or material values. Group activities involve pleasure.",
+      "keywords": [
+        "stable friendships",
+        "loyal circle",
+        "practical vision",
+        "comfort community",
+        "value-sharing friends"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба стабильная, верная, ориентированная на комфорт. Социальный круг ценит качество не количество. Видение будущего практичное и финансово заземлённое. Друзья разделяют эстетические или материальные ценности.",
+      "keywords": [
+        "стабильные дружбы",
+        "верный круг",
+        "практичное видение",
+        "сообщество комфорта",
+        "друзья разделяющие ценности"
+      ]
+    }
+  },
+  "house_11_in_Gemini": {
+    "en": {
+      "meaning": "Friendships are intellectual and diverse. Large, ever-changing social network. Future vision involves communication and information. Friends are curious and talkative. Group brainstorming energizes you.",
+      "keywords": [
+        "intellectual friendships",
+        "diverse network",
+        "information vision",
+        "curious friends",
+        "brainstorming community"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба интеллектуальная и разнообразная. Большая, постоянно меняющаяся социальная сеть. Видение будущего включает коммуникацию и информацию. Друзья любопытные и разговорчивые.",
+      "keywords": [
+        "интеллектуальные дружбы",
+        "разнообразная сеть",
+        "информационное видение",
+        "любопытные друзья",
+        "сообщество мозгового штурма"
+      ]
+    }
+  },
+  "house_11_in_Cancer": {
+    "en": {
+      "meaning": "Friendships feel like family. Small, close-knit social circle with deep emotional bonds. Future vision involves creating safe community. Friends nurture and protect each other. Group activities often involve food and home.",
+      "keywords": [
+        "family-like friends",
+        "emotional community",
+        "nurturing circle",
+        "safe vision",
+        "home-centered groups"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба ощущается как семья. Маленький сплочённый круг с глубокими эмоциональными связями. Видение будущего включает создание безопасного сообщества. Друзья заботятся и защищают друг друга.",
+      "keywords": [
+        "друзья как семья",
+        "эмоциональное сообщество",
+        "заботливый круг",
+        "безопасное видение",
+        "домашне-центрированные группы"
+      ]
+    }
+  },
+  "house_11_in_Leo": {
+    "en": {
+      "meaning": "Friendships are warm, dramatic, and creative. You attract generous, charismatic friends and may be the centre of your social circle. Future vision is inspiring and grand. Group activities involve creativity, performance, or celebration.",
+      "keywords": [
+        "warm friendships",
+        "creative circle",
+        "inspiring vision",
+        "charismatic friends",
+        "celebratory groups"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба тёплая, драматичная, творческая. Притягиваешь щедрых харизматичных друзей и можешь быть центром круга. Видение будущего вдохновляющее и грандиозное. Групповые активности включают творчество и празднование.",
+      "keywords": [
+        "тёплые дружбы",
+        "творческий круг",
+        "вдохновляющее видение",
+        "харизматичные друзья",
+        "праздничные группы"
+      ]
+    }
+  },
+  "house_11_in_Virgo": {
+    "en": {
+      "meaning": "Friendships are practical and service-oriented. Friends share competence and work ethic. Future vision involves improving systems. Group activities have a purposeful, helpful quality. You contribute to communities through practical skill.",
+      "keywords": [
+        "practical friendships",
+        "service community",
+        "improvement vision",
+        "competent friends",
+        "skill-based contribution"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба практичная и ориентированная на служение. Друзья разделяют компетентность и рабочую этику. Видение будущего включает улучшение систем. Групповые активности имеют целевое полезное качество.",
+      "keywords": [
+        "практичные дружбы",
+        "сообщество служения",
+        "видение улучшения",
+        "компетентные друзья",
+        "вклад через навыки"
+      ]
+    }
+  },
+  "house_11_in_Libra": {
+    "en": {
+      "meaning": "Friendships are harmonious and aesthetically aware. Social circle values beauty, fairness, and pleasant interaction. Future vision involves creating a more just and beautiful world. Friends are diplomatic and cultured.",
+      "keywords": [
+        "harmonious friendships",
+        "aesthetic community",
+        "justice vision",
+        "diplomatic friends",
+        "cultured circle"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба гармоничная и эстетически осознанная. Социальный круг ценит красоту, справедливость, приятное взаимодействие. Видение будущего — более справедливый и красивый мир. Друзья дипломатичные и культурные.",
+      "keywords": [
+        "гармоничные дружбы",
+        "эстетическое сообщество",
+        "видение справедливости",
+        "дипломатичные друзья",
+        "культурный круг"
+      ]
+    }
+  },
+  "house_11_in_Scorpio": {
+    "en": {
+      "meaning": "Friendships are intense and transformative. Small circle of deeply loyal bonds. Future vision involves fundamental change and power restructuring. Friends share psychological depth. Group dynamics involve hidden undercurrents.",
+      "keywords": [
+        "intense friendships",
+        "loyal bonds",
+        "transformative vision",
+        "deep friends",
+        "powerful groups"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба интенсивная и трансформирующая. Маленький круг глубоко верных связей. Видение будущего включает фундаментальные перемены и перестройку власти. Друзья разделяют психологическую глубину.",
+      "keywords": [
+        "интенсивные дружбы",
+        "верные связи",
+        "трансформирующее видение",
+        "глубокие друзья",
+        "могущественные группы"
+      ]
+    }
+  },
+  "house_11_in_Sagittarius": {
+    "en": {
+      "meaning": "Friendships are adventurous and international. Social circle includes people from diverse backgrounds and cultures. Future vision is optimistic and philosophical. Friends inspire growth and expand horizons. Group activities involve travel or learning.",
+      "keywords": [
+        "adventurous friendships",
+        "international circle",
+        "optimistic vision",
+        "growth-inspiring friends",
+        "learning groups"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба авантюрная и международная. Социальный круг включает людей из разных культур. Видение будущего оптимистичное и философское. Друзья вдохновляют рост и расширяют горизонты.",
+      "keywords": [
+        "авантюрные дружбы",
+        "международный круг",
+        "оптимистичное видение",
+        "друзья вдохновляющие рост",
+        "группы обучения"
+      ]
+    }
+  },
+  "house_11_in_Capricorn": {
+    "en": {
+      "meaning": "Friendships are selective and long-lasting. Social circle includes established, successful people. Future vision is structured and achievable. Friends share ambition and discipline. Group involvement carries responsibility.",
+      "keywords": [
+        "selective friendships",
+        "established circle",
+        "structured vision",
+        "ambitious friends",
+        "responsible groups"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба избирательная и долговечная. Социальный круг включает устоявшихся успешных людей. Видение будущего структурировано и достижимо. Друзья разделяют амбицию и дисциплину. Групповое участие несёт ответственность.",
+      "keywords": [
+        "избирательные дружбы",
+        "устоявшийся круг",
+        "структурированное видение",
+        "амбициозные друзья",
+        "ответственные группы"
+      ]
+    }
+  },
+  "house_11_in_Aquarius": {
+    "en": {
+      "meaning": "This is the strongest 11th house placement. Friendships are original, unconventional, and based on shared ideals. Future vision is progressive and humanitarian. Technology connects your community. You're a natural movement builder.",
+      "keywords": [
+        "original friendships",
+        "humanitarian vision",
+        "progressive community",
+        "tech-connected circle",
+        "movement builder"
+      ]
+    },
+    "ru": {
+      "meaning": "Сильнейшая позиция 11-го дома. Дружба оригинальная, нестандартная, на общих идеалах. Видение будущего прогрессивное и гуманитарное. Технологии связывают сообщество. Ты природный строитель движений.",
+      "keywords": [
+        "оригинальные дружбы",
+        "гуманитарное видение",
+        "прогрессивное сообщество",
+        "технологически связанный круг",
+        "строитель движений"
+      ]
+    }
+  },
+  "house_11_in_Pisces": {
+    "en": {
+      "meaning": "Friendships are spiritual and boundary-dissolving. Social circle includes artists, healers, and dreamers. Future vision is idealistic and compassionate. Friends connect on a soul level. Group activities involve creativity or spiritual practice.",
+      "keywords": [
+        "spiritual friendships",
+        "artist circle",
+        "compassionate vision",
+        "soul connections",
+        "creative community"
+      ]
+    },
+    "ru": {
+      "meaning": "Дружба духовная и растворяющая границы. Социальный круг включает артистов, целителей, мечтателей. Видение будущего идеалистическое и сострадательное. Друзья связываются на уровне души. Групповые активности включают творчество или духовную практику.",
+      "keywords": [
+        "духовные дружбы",
+        "круг артистов",
+        "сострадательное видение",
+        "связи на уровне души",
+        "творческое сообщество"
+      ]
+    }
+  },
+  "house_12_in_Aries": {
+    "en": {
+      "meaning": "Hidden drive and suppressed anger. Your assertiveness may operate unconsciously. Courage emerges in solitude or crisis. Spiritual growth through facing fears of independence. Behind-the-scenes initiative is your secret power.",
+      "keywords": [
+        "hidden courage",
+        "unconscious assertion",
+        "solitary initiative",
+        "anger work",
+        "secret drive"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытый драйв и подавленный гнев. Ассертивность может работать бессознательно. Смелость выходит в уединении или кризисе. Духовный рост через конфронтацию со страхами независимости. Закулисная инициатива — тайная сила.",
+      "keywords": [
+        "скрытая смелость",
+        "бессознательное утверждение",
+        "уединённая инициатива",
+        "работа с гневом",
+        "тайный драйв"
+      ]
+    }
+  },
+  "house_12_in_Taurus": {
+    "en": {
+      "meaning": "Hidden attachment to comfort and material security. Unconscious patterns around money and self-worth. Spiritual growth through releasing material dependency. Sensory pleasures are a private refuge. Secret talent for creating beauty.",
+      "keywords": [
+        "hidden comfort need",
+        "unconscious value",
+        "material release",
+        "private pleasure",
+        "secret beauty"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая привязанность к комфорту и материальной безопасности. Бессознательные паттерны вокруг денег и самоценности. Духовный рост через отпускание материальной зависимости. Сенсорные удовольствия — приватное убежище.",
+      "keywords": [
+        "скрытая потребность в комфорте",
+        "бессознательная ценность",
+        "отпускание материального",
+        "приватное удовольствие",
+        "тайная красота"
+      ]
+    }
+  },
+  "house_12_in_Gemini": {
+    "en": {
+      "meaning": "Hidden mental activity and suppressed communication. Unconscious mind is restless. Spiritual growth through quieting mental chatter. Private writing and journaling are powerful tools. Secret intellectual life is richer than anyone knows.",
+      "keywords": [
+        "hidden thoughts",
+        "unconscious mental restlessness",
+        "private writing",
+        "mental quiet",
+        "secret intellect"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая ментальная активность и подавленная коммуникация. Бессознательное беспокойно. Духовный рост через утихание ментального шума. Приватное письмо и дневник — мощные инструменты. Тайная интеллектуальная жизнь богаче чем кто-либо знает.",
+      "keywords": [
+        "скрытые мысли",
+        "бессознательное ментальное беспокойство",
+        "приватное письмо",
+        "ментальная тишина",
+        "тайный интеллект"
+      ]
+    }
+  },
+  "house_12_in_Cancer": {
+    "en": {
+      "meaning": "Hidden emotional depths and suppressed nurturing needs. Unconscious patterns from early home life. Spiritual growth through healing family wounds in solitude. Private emotional world is vast. Secret need to be mothered.",
+      "keywords": [
+        "hidden emotions",
+        "unconscious family patterns",
+        "private nurturing",
+        "solitary healing",
+        "secret emotional depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытые эмоциональные глубины и подавленные потребности в заботе. Бессознательные паттерны из ранней домашней жизни. Духовный рост через исцеление семейных ран в уединении. Приватный эмоциональный мир огромен. Тайная потребность в материнской заботе.",
+      "keywords": [
+        "скрытые эмоции",
+        "бессознательные семейные паттерны",
+        "приватная забота",
+        "уединённое исцеление",
+        "тайная эмоциональная глубина"
+      ]
+    }
+  },
+  "house_12_in_Leo": {
+    "en": {
+      "meaning": "Hidden creative power and suppressed self-expression. Unconscious need for recognition. Spiritual growth through releasing ego attachments. Private creativity may be extraordinary. Secret desire to shine that you don't show the world.",
+      "keywords": [
+        "hidden creativity",
+        "unconscious ego",
+        "private self-expression",
+        "ego release",
+        "secret radiance"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая творческая сила и подавленное самовыражение. Бессознательная потребность в признании. Духовный рост через отпускание привязанностей эго. Приватное творчество может быть экстраординарным. Тайное желание сиять которое не показываешь миру.",
+      "keywords": [
+        "скрытое творчество",
+        "бессознательное эго",
+        "приватное самовыражение",
+        "отпускание эго",
+        "тайное сияние"
+      ]
+    }
+  },
+  "house_12_in_Virgo": {
+    "en": {
+      "meaning": "Hidden perfectionism and suppressed anxiety. Unconscious patterns of self-criticism. Spiritual growth through releasing the need to control. Private service work is deeply meaningful. Secret worry that you're never good enough.",
+      "keywords": [
+        "hidden perfectionism",
+        "unconscious criticism",
+        "private service",
+        "control release",
+        "secret anxiety"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытый перфекционизм и подавленная тревога. Бессознательные паттерны самокритики. Духовный рост через отпускание потребности контролировать. Приватная служебная работа глубоко значима. Тайная тревога что ты никогда не достаточно хорош.",
+      "keywords": [
+        "скрытый перфекционизм",
+        "бессознательная критика",
+        "приватное служение",
+        "отпускание контроля",
+        "тайная тревога"
+      ]
+    }
+  },
+  "house_12_in_Libra": {
+    "en": {
+      "meaning": "Hidden relationship patterns and suppressed need for partnership. Unconscious people-pleasing. Spiritual growth through finding inner balance without external validation. Private relationships may be most meaningful. Secret codependency.",
+      "keywords": [
+        "hidden partnership patterns",
+        "unconscious people-pleasing",
+        "inner balance",
+        "private relationships",
+        "secret codependency"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытые паттерны отношений и подавленная потребность в партнёрстве. Бессознательное угождение. Духовный рост через нахождение внутреннего баланса без внешней валидации. Приватные отношения могут быть самыми значимыми.",
+      "keywords": [
+        "скрытые паттерны отношений",
+        "бессознательное угождение",
+        "внутренний баланс",
+        "приватные отношения",
+        "тайная созависимость"
+      ]
+    }
+  },
+  "house_12_in_Scorpio": {
+    "en": {
+      "meaning": "Hidden power and deeply suppressed intensity. Unconscious patterns around control and trust. Spiritual growth through surrendering power dynamics. Private psychological work is transformative. Secret inner world of enormous depth and intensity.",
+      "keywords": [
+        "hidden power",
+        "unconscious control",
+        "deep inner work",
+        "surrender lessons",
+        "secret intensity"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая сила и глубоко подавленная интенсивность. Бессознательные паттерны контроля и доверия. Духовный рост через сдачу динамик власти. Приватная психологическая работа трансформирующа. Тайный внутренний мир огромной глубины и интенсивности.",
+      "keywords": [
+        "скрытая сила",
+        "бессознательный контроль",
+        "глубокая внутренняя работа",
+        "уроки сдачи",
+        "тайная интенсивность"
+      ]
+    }
+  },
+  "house_12_in_Sagittarius": {
+    "en": {
+      "meaning": "Hidden faith and suppressed need for meaning. Unconscious patterns of over-optimism or belief avoidance. Spiritual growth through private philosophical inquiry. Solitary travel and retreat are healing. Secret search for truth that drives everything.",
+      "keywords": [
+        "hidden faith",
+        "unconscious optimism",
+        "private philosophy",
+        "solitary travel",
+        "secret truth seeking"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая вера и подавленная потребность в смысле. Бессознательные паттерны сверхоптимизма или избегания убеждений. Духовный рост через приватное философское исследование. Уединённые путешествия и ретриты исцеляют. Тайный поиск правды движущий всё.",
+      "keywords": [
+        "скрытая вера",
+        "бессознательный оптимизм",
+        "приватная философия",
+        "уединённые путешествия",
+        "тайный поиск правды"
+      ]
+    }
+  },
+  "house_12_in_Capricorn": {
+    "en": {
+      "meaning": "Hidden ambition and suppressed authority. Unconscious patterns around control and achievement. Spiritual growth through releasing the need to prove yourself. Private discipline produces invisible but powerful results. Secret fear of failure drives harder than anyone sees.",
+      "keywords": [
+        "hidden ambition",
+        "unconscious authority",
+        "private discipline",
+        "achievement release",
+        "secret fear of failure"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая амбиция и подавленный авторитет. Бессознательные паттерны контроля и достижения. Духовный рост через отпускание потребности себя доказать. Приватная дисциплина производит невидимые но мощные результаты. Тайный страх провала движет сильнее чем кто-либо видит.",
+      "keywords": [
+        "скрытая амбиция",
+        "бессознательный авторитет",
+        "приватная дисциплина",
+        "отпускание достижения",
+        "тайный страх провала"
+      ]
+    }
+  },
+  "house_12_in_Aquarius": {
+    "en": {
+      "meaning": "Hidden unconventionality and suppressed originality. Unconscious patterns of alienation or detachment. Spiritual growth through connecting with collective consciousness. Private innovation and solitary technology work suit you. Secret feeling of being different from everyone.",
+      "keywords": [
+        "hidden originality",
+        "unconscious detachment",
+        "collective consciousness",
+        "private innovation",
+        "secret alienation"
+      ]
+    },
+    "ru": {
+      "meaning": "Скрытая нестандартность и подавленная оригинальность. Бессознательные паттерны отчуждения или отстранённости. Духовный рост через связь с коллективным сознанием. Приватная инновация и уединённая работа с технологиями подходят. Тайное ощущение отличия от всех.",
+      "keywords": [
+        "скрытая оригинальность",
+        "бессознательная отстранённость",
+        "коллективное сознание",
+        "приватная инновация",
+        "тайное отчуждение"
+      ]
+    }
+  },
+  "house_12_in_Pisces": {
+    "en": {
+      "meaning": "This is the most powerful 12th house placement. Spiritual life is vast, unconscious sensitivity is maximal, and the boundary between self and everything else barely exists. Dreams are vivid and meaningful. Artistic and healing gifts emerge from the invisible. Solitude is sacred. The deepest compassion lives here.",
+      "keywords": [
+        "vast spirituality",
+        "maximal sensitivity",
+        "dream world",
+        "invisible gifts",
+        "sacred solitude"
+      ]
+    },
+    "ru": {
+      "meaning": "Сильнейшая позиция 12-го дома. Духовная жизнь огромна, бессознательная чувствительность максимальна, граница между собой и всем остальным едва существует. Сны яркие и значимые. Артистические и целительские дары выходят из невидимого. Уединение священно. Глубочайшее сострадание живёт здесь.",
+      "keywords": [
+        "огромная духовность",
+        "максимальная чувствительность",
+        "мир снов",
+        "невидимые дары",
+        "священное уединение"
+      ]
+    }
+  }
+}

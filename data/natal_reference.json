@@ -1,0 +1,374 @@
+{
+  "_meta": {
+    "type": "natal_reference",
+    "version": "1.0",
+    "sections": {
+      "houses": 12,
+      "planets": 10,
+      "signs": 12
+    },
+    "total_entries": 34,
+    "languages": ["en", "ru"],
+    "target_path": "data/natal_reference.json"
+  },
+
+  "houses": {
+    "house_1": {
+      "en": {
+        "name": "1st House",
+        "domain": "Self, identity, physical body, first impressions",
+        "meaning": "The house of \"I am.\" Your rising sign sits here, shaping how the world first encounters you. This is your physical appearance, personal style, instinctive behaviour, and the energy you project before you've said a word. It's the mask and the face beneath it simultaneously — how you initiate contact with reality. Planets here colour your entire personality and are visible to everyone.",
+        "keywords": ["identity", "appearance", "first impressions", "physical body", "self-image"]
+      },
+      "ru": {
+        "name": "1-й дом",
+        "domain": "Я, идентичность, физическое тело, первое впечатление",
+        "meaning": "Дом «Я есть». Здесь сидит восходящий знак, формирующий как мир впервые встречает тебя. Это физическая внешность, личный стиль, инстинктивное поведение и энергия которую проецируешь до того как скажешь слово. Это маска и лицо под ней одновременно — как ты инициируешь контакт с реальностью. Планеты здесь окрашивают всю личность и видны каждому.",
+        "keywords": ["идентичность", "внешность", "первое впечатление", "физическое тело", "самообраз"]
+      }
+    },
+    "house_2": {
+      "en": {
+        "name": "2nd House",
+        "domain": "Money, possessions, values, self-worth",
+        "meaning": "The house of \"I have.\" Everything you own, earn, and value lives here — money, possessions, talents, and the deeper question of what you think you're worth. This isn't just your bank account; it's your relationship with material reality and the resources you bring to the table. How you earn, spend, save, and what you consider valuable says everything about your inner value system.",
+        "keywords": ["finances", "possessions", "self-worth", "values", "earning power"]
+      },
+      "ru": {
+        "name": "2-й дом",
+        "domain": "Деньги, владения, ценности, самоценность",
+        "meaning": "Дом «Я имею». Всё чем владеешь, зарабатываешь и ценишь — деньги, собственность, таланты и глубинный вопрос чего ты стоишь. Это не просто банковский счёт — это отношение к материальной реальности и ресурсы которые приносишь. Как зарабатываешь, тратишь, копишь и что считаешь ценным — говорит всё о внутренней системе ценностей.",
+        "keywords": ["финансы", "владения", "самоценность", "ценности", "способность зарабатывать"]
+      }
+    },
+    "house_3": {
+      "en": {
+        "name": "3rd House",
+        "domain": "Communication, siblings, short trips, learning",
+        "meaning": "The house of \"I think and speak.\" Your daily mental life — how you communicate, learn, process information, and connect with your immediate environment. Siblings, neighbours, and local community live here. Short trips, daily commutes, and the information you consume shape this house. It's your intellectual operating system: the way your mind naturally works before education shapes it.",
+        "keywords": ["communication", "siblings", "learning", "short trips", "daily mind"]
+      },
+      "ru": {
+        "name": "3-й дом",
+        "domain": "Коммуникация, сиблинги, короткие поездки, обучение",
+        "meaning": "Дом «Я думаю и говорю». Ежедневная ментальная жизнь — как общаешься, учишься, обрабатываешь информацию и связываешься с ближайшим окружением. Братья-сёстры, соседи, локальное сообщество. Короткие поездки, ежедневные маршруты и информация которую потребляешь. Это интеллектуальная операционная система: как ум естественно работает до того как образование его сформирует.",
+        "keywords": ["коммуникация", "сиблинги", "обучение", "короткие поездки", "ежедневный ум"]
+      }
+    },
+    "house_4": {
+      "en": {
+        "name": "4th House",
+        "domain": "Home, family, roots, inner foundation",
+        "meaning": "The house of \"I belong.\" Your deepest roots — family of origin, ancestral patterns, the home you came from and the one you create. This is the most private part of the chart: your inner emotional foundation, what makes you feel safe, and the patterns you inherited from your family line. A parent (traditionally the mother or more nurturing parent) is represented here. It's also the end of life — how things conclude.",
+        "keywords": ["home", "family", "roots", "emotional foundation", "ancestry"]
+      },
+      "ru": {
+        "name": "4-й дом",
+        "domain": "Дом, семья, корни, внутренний фундамент",
+        "meaning": "Дом «Я принадлежу». Глубочайшие корни — семья происхождения, паттерны предков, дом из которого пришёл и который создаёшь. Самая приватная часть карты: внутренний эмоциональный фундамент, что создаёт ощущение безопасности и паттерны унаследованные от рода. Здесь представлен один из родителей (традиционно мать или более заботливый). Также конец жизни — как вещи завершаются.",
+        "keywords": ["дом", "семья", "корни", "эмоциональный фундамент", "предки"]
+      }
+    },
+    "house_5": {
+      "en": {
+        "name": "5th House",
+        "domain": "Creativity, romance, children, play, self-expression",
+        "meaning": "The house of \"I create.\" Everything that brings joy and lets your inner self shine — art, romance, children, games, performance, hobbies, and risk-taking. This is where you express yourself for the pure pleasure of it, without obligation or purpose beyond joy itself. Romantic affairs (before commitment), creative projects, and your relationship with your own inner child all live here. It's the playground of the chart.",
+        "keywords": ["creativity", "romance", "children", "play", "self-expression"]
+      },
+      "ru": {
+        "name": "5-й дом",
+        "domain": "Творчество, романтика, дети, игра, самовыражение",
+        "meaning": "Дом «Я создаю». Всё приносящее радость и дающее внутреннему я сиять — искусство, романтика, дети, игры, выступление, хобби, риск. Здесь ты выражаешь себя ради чистого удовольствия, без обязательств или цели кроме самой радости. Романтические связи (до обязательств), творческие проекты, отношения с внутренним ребёнком. Это игровая площадка карты.",
+        "keywords": ["творчество", "романтика", "дети", "игра", "самовыражение"]
+      }
+    },
+    "house_6": {
+      "en": {
+        "name": "6th House",
+        "domain": "Work, health, daily routines, service",
+        "meaning": "The house of \"I improve.\" Daily work (not career — that's the 10th), physical health, routines, habits, and the practice of being useful. This is where you show up every day and do the unglamorous work of maintaining life. Coworkers, employees, pets, and your relationship with your own body live here. It's the house of craftsmanship — doing something well because the work itself has value.",
+        "keywords": ["daily work", "health", "routines", "service", "craftsmanship"]
+      },
+      "ru": {
+        "name": "6-й дом",
+        "domain": "Работа, здоровье, ежедневные рутины, служение",
+        "meaning": "Дом «Я совершенствую». Ежедневная работа (не карьера — это 10-й), физическое здоровье, рутины, привычки и практика полезности. Здесь ты приходишь каждый день и делаешь негламурную работу поддержания жизни. Коллеги, сотрудники, питомцы и отношение к собственному телу. Дом мастерства — делать что-то хорошо потому что работа сама имеет ценность.",
+        "keywords": ["ежедневная работа", "здоровье", "рутины", "служение", "мастерство"]
+      }
+    },
+    "house_7": {
+      "en": {
+        "name": "7th House",
+        "domain": "Partnerships, marriage, open enemies, contracts",
+        "meaning": "The house of \"We.\" All committed one-on-one relationships — marriage, business partnerships, and even open adversaries. This is the mirror: who you attract reveals what you need to integrate in yourself. Contracts, legal agreements, and the formal bonds between two people are 7th house territory. It's not just about love — it's about the deal you make when you agree to share your life with another person.",
+        "keywords": ["partnerships", "marriage", "contracts", "open enemies", "one-on-one bonds"]
+      },
+      "ru": {
+        "name": "7-й дом",
+        "domain": "Партнёрства, брак, открытые враги, контракты",
+        "meaning": "Дом «Мы». Все обязательные отношения один-на-один — брак, бизнес-партнёрства и даже открытые противники. Это зеркало: кого притягиваешь — раскрывает что нужно интегрировать в себе. Контракты, юридические соглашения и формальные связи между двумя людьми. Не только о любви — о сделке которую заключаешь когда соглашаешься разделить жизнь с другим.",
+        "keywords": ["партнёрства", "брак", "контракты", "открытые враги", "связи один-на-один"]
+      }
+    },
+    "house_8": {
+      "en": {
+        "name": "8th House",
+        "domain": "Transformation, shared resources, intimacy, death and rebirth",
+        "meaning": "The house of \"I transform.\" The deepest, most intense house — death, rebirth, sexuality, shared finances, inheritance, debt, psychology, and everything that lives beneath the surface. This is where you merge with another person (emotionally, financially, sexually) and what happens when you do. Power dynamics, crisis, and the resources that belong to both parties in a partnership. Nothing here is comfortable, but everything here is real.",
+        "keywords": ["transformation", "shared resources", "intimacy", "death/rebirth", "psychological depth"]
+      },
+      "ru": {
+        "name": "8-й дом",
+        "domain": "Трансформация, общие ресурсы, близость, смерть и перерождение",
+        "meaning": "Дом «Я трансформируюсь». Глубочайший, самый интенсивный дом — смерть, перерождение, сексуальность, общие финансы, наследство, долги, психология и всё что под поверхностью. Здесь ты сливаешься с другим (эмоционально, финансово, сексуально) и что происходит когда сливаешься. Динамики власти, кризис, ресурсы принадлежащие обеим сторонам. Ничего комфортного, но всё настоящее.",
+        "keywords": ["трансформация", "общие ресурсы", "близость", "смерть/перерождение", "психологическая глубина"]
+      }
+    },
+    "house_9": {
+      "en": {
+        "name": "9th House",
+        "domain": "Philosophy, higher education, travel, beliefs",
+        "meaning": "The house of \"I believe.\" The big questions — meaning, truth, purpose, God, law, ethics, and the worldview you build to navigate existence. Long-distance travel, foreign cultures, higher education, publishing, and any experience that expands your understanding of what's possible. This is where the 3rd house's raw information becomes organised into wisdom. Teachers, mentors, and spiritual guides live here.",
+        "keywords": ["philosophy", "higher education", "travel", "beliefs", "meaning"]
+      },
+      "ru": {
+        "name": "9-й дом",
+        "domain": "Философия, высшее образование, путешествия, убеждения",
+        "meaning": "Дом «Я верю». Большие вопросы — смысл, правда, цель, Бог, закон, этика, мировоззрение которое строишь для навигации существования. Дальние путешествия, иностранные культуры, высшее образование, издательство и любой опыт расширяющий понимание возможного. Здесь сырая информация 3-го дома организуется в мудрость. Учителя, менторы, духовные проводники.",
+        "keywords": ["философия", "высшее образование", "путешествия", "убеждения", "смысл"]
+      }
+    },
+    "house_10": {
+      "en": {
+        "name": "10th House",
+        "domain": "Career, public reputation, authority, legacy",
+        "meaning": "The house of \"I achieve.\" Your public face, career, reputation, and the mark you leave on the world. This is the most visible part of your chart — what shows up on your LinkedIn, your Wikipedia page, your tombstone. Authority, ambition, and your relationship with power structures live here. A parent (traditionally the father or more authoritative parent) is represented. The midheaven (MC) sits at this house's cusp, pointing at your vocational destiny.",
+        "keywords": ["career", "reputation", "authority", "achievement", "public image"]
+      },
+      "ru": {
+        "name": "10-й дом",
+        "domain": "Карьера, публичная репутация, авторитет, наследие",
+        "meaning": "Дом «Я достигаю». Публичное лицо, карьера, репутация и след который оставляешь. Самая видимая часть карты — что на LinkedIn, на странице Wikipedia, на надгробии. Авторитет, амбиция, отношение к структурам власти. Представлен один из родителей (традиционно отец или более авторитетный). На куспиде сидит MC — указывающий на профессиональное предназначение.",
+        "keywords": ["карьера", "репутация", "авторитет", "достижение", "публичный образ"]
+      }
+    },
+    "house_11": {
+      "en": {
+        "name": "11th House",
+        "domain": "Community, friends, groups, hopes and wishes",
+        "meaning": "The house of \"I belong to something bigger.\" Friends, communities, groups, movements, networks, and your vision for the future. This is where individual identity (1st house) becomes collective purpose. Hopes, dreams, and long-term goals live here — not personal ambitions (that's the 10th) but the future you want to build for everyone. Technology, innovation, and humanitarian ideals are 11th house territories.",
+        "keywords": ["community", "friendships", "groups", "future vision", "collective purpose"]
+      },
+      "ru": {
+        "name": "11-й дом",
+        "domain": "Сообщество, друзья, группы, надежды и мечты",
+        "meaning": "Дом «Я принадлежу чему-то большему». Друзья, сообщества, группы, движения, сети и видение будущего. Здесь индивидуальная идентичность (1-й дом) становится коллективной целью. Надежды, мечты, долгосрочные цели — не личные амбиции (это 10-й) а будущее которое хочешь построить для всех. Технологии, инновации, гуманитарные идеалы.",
+        "keywords": ["сообщество", "дружба", "группы", "видение будущего", "коллективная цель"]
+      }
+    },
+    "house_12": {
+      "en": {
+        "name": "12th House",
+        "domain": "Unconscious, spirituality, solitude, hidden enemies, self-undoing",
+        "meaning": "The house of \"I dissolve.\" Everything hidden — the unconscious mind, dreams, fears, spiritual experiences, and the parts of yourself you can't see without deep work. Institutions (hospitals, prisons, monasteries), solitude, and sacrifice live here. This is where the ego ends and something larger begins. It's the most mystical and the most dangerous house: the source of both transcendence and self-sabotage. What you don't know about yourself lives in the 12th.",
+        "keywords": ["unconscious", "spirituality", "solitude", "hidden patterns", "transcendence"]
+      },
+      "ru": {
+        "name": "12-й дом",
+        "domain": "Бессознательное, духовность, уединение, тайные враги, саморазрушение",
+        "meaning": "Дом «Я растворяюсь». Всё скрытое — бессознательное, сны, страхи, духовный опыт и части тебя которые не видны без глубокой работы. Институции (больницы, тюрьмы, монастыри), уединение, жертва. Здесь эго заканчивается и начинается нечто большее. Самый мистический и самый опасный дом: источник и трансценденции и самосаботажа. То чего ты не знаешь о себе — живёт в 12-м.",
+        "keywords": ["бессознательное", "духовность", "уединение", "скрытые паттерны", "трансценденция"]
+      }
+    }
+  },
+
+  "planets": {
+    "Sun": {
+      "en": {
+        "name": "Sun",
+        "glyph": "☉",
+        "domain": "Identity, ego, vitality, purpose, father",
+        "meaning": "The core of who you are. The Sun represents your conscious identity — your sense of self, willpower, creative force, and the central purpose around which your life organises. It's not the whole picture (that's the full chart), but it's the brightest light. The Sun is where you shine, what gives you energy, and the role you're growing into throughout your life. It also represents the father or the dominant authority figure.",
+        "keywords": ["identity", "willpower", "vitality", "purpose", "ego"]
+      },
+      "ru": {
+        "name": "Солнце",
+        "glyph": "☉",
+        "domain": "Идентичность, эго, витальность, предназначение, отец",
+        "meaning": "Ядро того кто ты есть. Солнце представляет сознательную идентичность — чувство себя, силу воли, творческую силу и центральную цель вокруг которой организуется жизнь. Это не вся картина (это полная карта), но самый яркий свет. Солнце — где ты сияешь, что даёт энергию и роль в которую врастаешь на протяжении жизни. Также представляет отца или доминирующую авторитетную фигуру.",
+        "keywords": ["идентичность", "сила воли", "витальность", "предназначение", "эго"]
+      }
+    },
+    "Moon": {
+      "en": {
+        "name": "Moon",
+        "glyph": "☽",
+        "domain": "Emotions, instincts, comfort needs, mother, inner child",
+        "meaning": "How you feel. The Moon is your emotional operating system — instinctive reactions, comfort needs, memories, and the inner world you retreat to when the outer world is too much. It represents your relationship with nurture: how you were cared for, how you care for others, and what makes you feel safe. The Moon changes signs every 2.5 days, making birth time important. It represents the mother or primary caregiver.",
+        "keywords": ["emotions", "instincts", "comfort", "mother", "inner world"]
+      },
+      "ru": {
+        "name": "Луна",
+        "glyph": "☽",
+        "domain": "Эмоции, инстинкты, потребности в комфорте, мать, внутренний ребёнок",
+        "meaning": "Как ты чувствуешь. Луна — эмоциональная операционная система: инстинктивные реакции, потребности в комфорте, воспоминания и внутренний мир в который отступаешь когда внешний слишком. Отношение к заботе: как о тебе заботились, как заботишься о других и что создаёт ощущение безопасности. Луна меняет знак каждые 2.5 дня, делая время рождения важным. Представляет мать или основного заботящегося.",
+        "keywords": ["эмоции", "инстинкты", "комфорт", "мать", "внутренний мир"]
+      }
+    },
+    "Mercury": {
+      "en": {
+        "name": "Mercury",
+        "glyph": "☿",
+        "domain": "Communication, thinking, learning, commerce, transport",
+        "meaning": "How you think and communicate. Mercury governs the mind's mechanics — how you process information, form ideas, speak, write, learn, and exchange. It's not what you think about (that's shaped by sign and house) but how your mental machinery works. Quick or slow, verbal or written, analytical or intuitive — Mercury reveals your cognitive style. Also rules short trips, commerce, and technology.",
+        "keywords": ["communication", "thinking", "learning", "commerce", "mental style"]
+      },
+      "ru": {
+        "name": "Меркурий",
+        "glyph": "☿",
+        "domain": "Коммуникация, мышление, обучение, коммерция, транспорт",
+        "meaning": "Как ты думаешь и общаешься. Меркурий управляет механикой ума — как обрабатываешь информацию, формируешь идеи, говоришь, пишешь, учишься, обмениваешься. Не о чём думаешь (это знак и дом) а как работает ментальная машинерия. Быстро или медленно, вербально или письменно, аналитически или интуитивно — Меркурий раскрывает когнитивный стиль. Также управляет короткими поездками, коммерцией, технологиями.",
+        "keywords": ["коммуникация", "мышление", "обучение", "коммерция", "ментальный стиль"]
+      }
+    },
+    "Venus": {
+      "en": {
+        "name": "Venus",
+        "glyph": "♀",
+        "domain": "Love, beauty, values, pleasure, money, relationships",
+        "meaning": "What you love and how you love. Venus governs attraction — who and what you're drawn to, what you find beautiful, and how you express and receive affection. It rules romantic relationships (attraction and courtship phase), aesthetic preferences, money (earning and spending for pleasure), and the values that guide your choices. Venus is where you experience pleasure and where you compromise to maintain harmony.",
+        "keywords": ["love", "beauty", "values", "pleasure", "attraction"]
+      },
+      "ru": {
+        "name": "Венера",
+        "glyph": "♀",
+        "domain": "Любовь, красота, ценности, удовольствие, деньги, отношения",
+        "meaning": "Что любишь и как любишь. Венера управляет притяжением — к кому и чему тянет, что находишь красивым, как выражаешь и получаешь привязанность. Правит романтическими отношениями (фаза притяжения и ухаживания), эстетическими предпочтениями, деньгами (зарабатывание и трата ради удовольствия) и ценностями направляющими выбор. Венера — где переживаешь удовольствие и где идёшь на компромисс ради гармонии.",
+        "keywords": ["любовь", "красота", "ценности", "удовольствие", "притяжение"]
+      }
+    },
+    "Mars": {
+      "en": {
+        "name": "Mars",
+        "glyph": "♂",
+        "domain": "Drive, action, aggression, desire, physical energy",
+        "meaning": "How you act and fight. Mars is raw energy — the drive to pursue what you want, assert yourself, compete, and take action. It governs physical energy, sexual desire, anger, and the courage to face conflict. Mars shows how you go after goals: directly or strategically, aggressively or subtly, impulsively or deliberately. It's your relationship with your own power and the willingness to use it.",
+        "keywords": ["drive", "action", "anger", "desire", "physical energy"]
+      },
+      "ru": {
+        "name": "Марс",
+        "glyph": "♂",
+        "domain": "Драйв, действие, агрессия, желание, физическая энергия",
+        "meaning": "Как действуешь и борешься. Марс — сырая энергия: драйв преследовать желаемое, утверждать себя, конкурировать, действовать. Управляет физической энергией, сексуальным желанием, гневом и смелостью встречать конфликт. Марс показывает как преследуешь цели: прямо или стратегически, агрессивно или тонко, импульсивно или обдуманно. Отношение к собственной силе и готовность её использовать.",
+        "keywords": ["драйв", "действие", "гнев", "желание", "физическая энергия"]
+      }
+    },
+    "Jupiter": {
+      "en": {
+        "name": "Jupiter",
+        "glyph": "♃",
+        "domain": "Growth, luck, expansion, wisdom, abundance",
+        "meaning": "Where you grow and find luck. Jupiter is the principle of expansion — making things bigger, broader, more. It governs optimism, faith, generosity, higher education, philosophy, travel, and the experiences that expand your understanding. Where Jupiter sits is where you tend to be lucky, excessive, and growing. It's your relationship with abundance: what you attract easily, where you overdo it, and what makes you feel that life has meaning.",
+        "keywords": ["growth", "luck", "expansion", "wisdom", "abundance"]
+      },
+      "ru": {
+        "name": "Юпитер",
+        "glyph": "♃",
+        "domain": "Рост, удача, расширение, мудрость, изобилие",
+        "meaning": "Где ты растёшь и находишь удачу. Юпитер — принцип расширения: делать вещи больше, шире. Управляет оптимизмом, верой, щедростью, высшим образованием, философией, путешествиями и опытом расширяющим понимание. Где сидит Юпитер — там удача, избыточность и рост. Отношение к изобилию: что притягиваешь легко, где переборщиваешь и что даёт ощущение что жизнь имеет смысл.",
+        "keywords": ["рост", "удача", "расширение", "мудрость", "изобилие"]
+      }
+    },
+    "Saturn": {
+      "en": {
+        "name": "Saturn",
+        "glyph": "♄",
+        "domain": "Discipline, limitations, responsibility, time, structure",
+        "meaning": "Where you face your hardest lessons. Saturn is the principle of limitation — boundaries, rules, time, consequences, and the discipline required to build something that lasts. Where Saturn sits is where life demands maturity, where shortcuts don't work, and where your greatest mastery eventually develops. Saturn teaches through difficulty and rewards through persistence. It represents authority, age, and the structures that both support and restrict you.",
+        "keywords": ["discipline", "limitations", "responsibility", "time", "mastery"]
+      },
+      "ru": {
+        "name": "Сатурн",
+        "glyph": "♄",
+        "domain": "Дисциплина, ограничения, ответственность, время, структура",
+        "meaning": "Где встречаешь самые тяжёлые уроки. Сатурн — принцип ограничения: границы, правила, время, последствия и дисциплина необходимая чтобы построить что-то долговечное. Где сидит Сатурн — там жизнь требует зрелости, сокращения не работают и в итоге развивается величайшее мастерство. Учит через трудности и вознаграждает через настойчивость. Представляет авторитет, возраст и структуры которые и поддерживают и ограничивают.",
+        "keywords": ["дисциплина", "ограничения", "ответственность", "время", "мастерство"]
+      }
+    },
+    "Uranus": {
+      "en": {
+        "name": "Uranus",
+        "glyph": "♅",
+        "domain": "Revolution, innovation, freedom, disruption, awakening",
+        "meaning": "Where you break the rules. Uranus is the principle of disruption — sudden change, innovation, rebellion, and the urge to be free from whatever feels confining. Where Uranus sits is where your life is unpredictable, where you don't fit in, and where you're building the future others haven't imagined yet. It represents technology, originality, and the shock of awakening. As a slow-moving planet (~7 years per sign), it defines generational themes as much as personal ones.",
+        "keywords": ["revolution", "innovation", "freedom", "disruption", "originality"]
+      },
+      "ru": {
+        "name": "Уран",
+        "glyph": "♅",
+        "domain": "Революция, инновация, свобода, дезрупция, пробуждение",
+        "meaning": "Где ты ломаешь правила. Уран — принцип дезрупции: внезапные перемены, инновация, бунт и стремление к свободе от всего что ограничивает. Где сидит Уран — там жизнь непредсказуема, ты не вписываешься и строишь будущее которого другие ещё не вообразили. Представляет технологии, оригинальность и шок пробуждения. Как медленная планета (~7 лет в знаке), определяет поколенческие темы наравне с личными.",
+        "keywords": ["революция", "инновация", "свобода", "дезрупция", "оригинальность"]
+      }
+    },
+    "Neptune": {
+      "en": {
+        "name": "Neptune",
+        "glyph": "♆",
+        "domain": "Spirituality, dreams, illusion, compassion, imagination",
+        "meaning": "Where reality dissolves. Neptune is the principle of transcendence — imagination, spirituality, empathy, dreams, and the longing for something beyond the material. Where Neptune sits is where boundaries blur, where you see the divine and the delusional in equal measure, and where your capacity for both compassion and escapism lives. It represents art, music, film, healing, and addiction. As a very slow planet (~14 years per sign), it defines generational spiritual themes.",
+        "keywords": ["spirituality", "imagination", "illusion", "compassion", "transcendence"]
+      },
+      "ru": {
+        "name": "Нептун",
+        "glyph": "♆",
+        "domain": "Духовность, сны, иллюзия, сострадание, воображение",
+        "meaning": "Где реальность растворяется. Нептун — принцип трансценденции: воображение, духовность, эмпатия, сны и тоска по чему-то за пределами материального. Где сидит Нептун — там границы размываются, видишь божественное и иллюзорное в равной мере, и способность к состраданию и эскапизму живут рядом. Представляет искусство, музыку, кино, исцеление и зависимость. Очень медленная планета (~14 лет в знаке) — определяет поколенческие духовные темы.",
+        "keywords": ["духовность", "воображение", "иллюзия", "сострадание", "трансценденция"]
+      }
+    },
+    "Pluto": {
+      "en": {
+        "name": "Pluto",
+        "glyph": "♇",
+        "domain": "Transformation, power, death/rebirth, the unconscious, control",
+        "meaning": "Where you transform and are transformed. Pluto is the principle of death and rebirth — the force that destroys what no longer serves to make room for what must emerge. Where Pluto sits is where your deepest transformations happen, where power dynamics play out, and where you confront the shadow. It represents obsession, control, crisis, and the phoenix process of rising from ashes. The slowest planet (~12-30 years per sign), it defines entire generational transformations.",
+        "keywords": ["transformation", "power", "death/rebirth", "shadow", "regeneration"]
+      },
+      "ru": {
+        "name": "Плутон",
+        "glyph": "♇",
+        "domain": "Трансформация, власть, смерть/перерождение, бессознательное, контроль",
+        "meaning": "Где ты трансформируешь и трансформируешься. Плутон — принцип смерти и перерождения: сила разрушающая то что больше не служит чтобы освободить место тому что должно возникнуть. Где сидит Плутон — там глубочайшие трансформации, динамики власти и конфронтация с тенью. Представляет одержимость, контроль, кризис и процесс феникса — восстание из пепла. Самая медленная планета (~12-30 лет в знаке) — определяет целые поколенческие трансформации.",
+        "keywords": ["трансформация", "власть", "смерть/перерождение", "тень", "регенерация"]
+      }
+    }
+  },
+
+  "signs": {
+    "Aries": { "en": { "name": "Aries", "glyph": "♈", "element": "Fire", "modality": "Cardinal", "ruler": "Mars", "dates": "Mar 21 – Apr 19", "meaning": "The initiator. First sign, first energy — raw, direct, and unstoppable. Aries is the spark that starts the fire: courage, initiative, competition, and the drive to exist on your own terms. Cardinal fire means action that creates something new. The energy is fast, honest, and sometimes reckless. At its best: courageous leadership. At its shadow: aggression without direction.", "keywords": ["initiative", "courage", "independence", "directness", "competition"] }, "ru": { "name": "Овен", "glyph": "♈", "element": "Огонь", "modality": "Кардинальный", "ruler": "Марс", "dates": "21 Мар – 19 Апр", "meaning": "Инициатор. Первый знак, первая энергия — сырая, прямая, неостановимая. Овен — искра зажигающая огонь: смелость, инициатива, конкуренция, стремление существовать на своих условиях. Кардинальный огонь — действие создающее новое. Энергия быстрая, честная, иногда безрассудная. В лучшем: смелое лидерство. В тени: агрессия без направления.", "keywords": ["инициатива", "смелость", "независимость", "прямота", "конкуренция"] } },
+
+    "Taurus": { "en": { "name": "Taurus", "glyph": "♉", "element": "Earth", "modality": "Fixed", "ruler": "Venus", "dates": "Apr 20 – May 20", "meaning": "The builder. Fixed earth — the most grounded, persistent, and sensory energy in the zodiac. Taurus builds what lasts: wealth, comfort, beauty, and the physical foundations of a good life. Ruled by Venus, it values pleasure, quality, and loyalty above speed. The energy is slow, steady, and powerful. At its best: unshakeable reliability. At its shadow: stubbornness that resists necessary change.", "keywords": ["stability", "sensuality", "patience", "loyalty", "material value"] }, "ru": { "name": "Телец", "glyph": "♉", "element": "Земля", "modality": "Фиксированный", "ruler": "Венера", "dates": "20 Апр – 20 Мая", "meaning": "Строитель. Фиксированная земля — самая заземлённая, настойчивая и сенсорная энергия зодиака. Телец строит что простоит: богатство, комфорт, красоту, физический фундамент хорошей жизни. Управляется Венерой, ценит удовольствие, качество и верность выше скорости. Энергия медленная, устойчивая, мощная. В лучшем: несокрушимая надёжность. В тени: упрямство сопротивляющееся необходимым переменам.", "keywords": ["стабильность", "чувственность", "терпение", "верность", "материальная ценность"] } },
+
+    "Gemini": { "en": { "name": "Gemini", "glyph": "♊", "element": "Air", "modality": "Mutable", "ruler": "Mercury", "dates": "May 21 – Jun 20", "meaning": "The connector. Mutable air — the fastest, most versatile mental energy. Gemini connects ideas, people, and perspectives with effortless curiosity. Ruled by Mercury, it values communication, variety, and intellectual stimulation above all. The energy is quick, adaptable, and perpetually curious. At its best: brilliant communication and intellectual agility. At its shadow: superficiality and unreliability.", "keywords": ["communication", "curiosity", "versatility", "wit", "duality"] }, "ru": { "name": "Близнецы", "glyph": "♊", "element": "Воздух", "modality": "Мутабельный", "ruler": "Меркурий", "dates": "21 Мая – 20 Июн", "meaning": "Коннектор. Мутабельный воздух — быстрейшая, самая универсальная ментальная энергия. Близнецы соединяют идеи, людей, перспективы с лёгким любопытством. Управляются Меркурием, ценят коммуникацию, разнообразие и интеллектуальную стимуляцию. Энергия быстрая, адаптивная, вечно любопытная. В лучшем: блестящая коммуникация. В тени: поверхностность и ненадёжность.", "keywords": ["коммуникация", "любопытство", "универсальность", "остроумие", "двойственность"] } },
+
+    "Cancer": { "en": { "name": "Cancer", "glyph": "♋", "element": "Water", "modality": "Cardinal", "ruler": "Moon", "dates": "Jun 21 – Jul 22", "meaning": "The nurturer. Cardinal water — emotional initiative, the drive to protect, create safety, and nurture what matters. Cancer is the womb of the zodiac: where things are held, fed, and allowed to grow. Ruled by the Moon, it operates on feeling, instinct, and memory. The energy is protective, intuitive, and deeply tied to home and family. At its best: profound emotional intelligence. At its shadow: emotional manipulation and clinging to the past.", "keywords": ["nurturing", "emotional depth", "home", "protection", "intuition"] }, "ru": { "name": "Рак", "glyph": "♋", "element": "Вода", "modality": "Кардинальный", "ruler": "Луна", "dates": "21 Июн – 22 Июл", "meaning": "Кормилец. Кардинальная вода — эмоциональная инициатива, стремление защищать, создавать безопасность, питать важное. Рак — утроба зодиака: где вещи удерживаются, питаются, получают рост. Управляется Луной, работает на чувстве, инстинкте, памяти. Энергия защитная, интуитивная, глубоко привязанная к дому и семье. В лучшем: глубокий эмоциональный интеллект. В тени: эмоциональная манипуляция и цепляние за прошлое.", "keywords": ["забота", "эмоциональная глубина", "дом", "защита", "интуиция"] } },
+
+    "Leo": { "en": { "name": "Leo", "glyph": "♌", "element": "Fire", "modality": "Fixed", "ruler": "Sun", "dates": "Jul 23 – Aug 22", "meaning": "The performer. Fixed fire — sustained creative heat, the kind that warms everyone around it. Leo is the heart of the zodiac: self-expression, creativity, leadership, and the courage to be seen. Ruled by the Sun, it radiates warmth, confidence, and generosity. The energy is dramatic, loyal, and naturally commanding. At its best: inspiring creative leadership. At its shadow: ego that demands the spotlight and can't share it.", "keywords": ["creativity", "leadership", "warmth", "self-expression", "generosity"] }, "ru": { "name": "Лев", "glyph": "♌", "element": "Огонь", "modality": "Фиксированный", "ruler": "Солнце", "dates": "23 Июл – 22 Авг", "meaning": "Артист. Фиксированный огонь — устойчивый творческий жар, греющий всех вокруг. Лев — сердце зодиака: самовыражение, творчество, лидерство, смелость быть видимым. Управляется Солнцем, излучает тепло, уверенность, щедрость. Энергия драматичная, верная, естественно командующая. В лучшем: вдохновляющее творческое лидерство. В тени: эго требующее сцены и неспособное делиться.", "keywords": ["творчество", "лидерство", "тепло", "самовыражение", "щедрость"] } },
+
+    "Virgo": { "en": { "name": "Virgo", "glyph": "♍", "element": "Earth", "modality": "Mutable", "ruler": "Mercury", "dates": "Aug 23 – Sep 22", "meaning": "The craftsperson. Mutable earth — adaptable, analytical, and devoted to improvement. Virgo is the zodiac's quality control: the energy that notices what's broken and fixes it. Ruled by Mercury (analytical side), it values precision, health, and useful contribution. The energy is meticulous, humble, and genuinely helpful. At its best: mastery through service. At its shadow: critical perfectionism that destroys what it's trying to improve.", "keywords": ["precision", "service", "analysis", "health", "improvement"] }, "ru": { "name": "Дева", "glyph": "♍", "element": "Земля", "modality": "Мутабельный", "ruler": "Меркурий", "dates": "23 Авг – 22 Сен", "meaning": "Мастер. Мутабельная земля — адаптивная, аналитическая, преданная улучшению. Дева — контроль качества зодиака: энергия которая замечает что сломано и чинит. Управляется Меркурием (аналитическая сторона), ценит точность, здоровье, полезный вклад. Энергия дотошная, скромная, по-настоящему полезная. В лучшем: мастерство через служение. В тени: критический перфекционизм разрушающий то что пытается улучшить.", "keywords": ["точность", "служение", "анализ", "здоровье", "улучшение"] } },
+
+    "Libra": { "en": { "name": "Libra", "glyph": "♎", "element": "Air", "modality": "Cardinal", "ruler": "Venus", "dates": "Sep 23 – Oct 22", "meaning": "The balancer. Cardinal air — the initiative to create harmony, fairness, and beauty in the space between people. Libra is the zodiac's diplomat: relationships, aesthetics, justice, and the art of compromise. Ruled by Venus (social side), it values partnership, elegance, and equilibrium. The energy is graceful, relational, and deeply aware of others. At its best: genuine fairness and social genius. At its shadow: people-pleasing that sacrifices truth.", "keywords": ["harmony", "partnership", "beauty", "fairness", "diplomacy"] }, "ru": { "name": "Весы", "glyph": "♎", "element": "Воздух", "modality": "Кардинальный", "ruler": "Венера", "dates": "23 Сен – 22 Окт", "meaning": "Балансир. Кардинальный воздух — инициатива создать гармонию, справедливость и красоту в пространстве между людьми. Весы — дипломат зодиака: отношения, эстетика, справедливость, искусство компромисса. Управляются Венерой (социальная сторона), ценят партнёрство, элегантность, равновесие. Энергия грациозная, реляционная, глубоко осознающая других. В лучшем: настоящая справедливость и социальная гениальность. В тени: угождение жертвующее правдой.", "keywords": ["гармония", "партнёрство", "красота", "справедливость", "дипломатия"] } },
+
+    "Scorpio": { "en": { "name": "Scorpio", "glyph": "♏", "element": "Water", "modality": "Fixed", "ruler": "Pluto (traditional: Mars)", "dates": "Oct 23 – Nov 21", "meaning": "The transformer. Fixed water — the deepest, most intense emotional energy in the zodiac. Scorpio goes where others won't: death, sex, power, psychology, and the hidden truth beneath every surface. Ruled by Pluto, it values authenticity, loyalty, and emotional truth above comfort. The energy is magnetic, penetrating, and transformative. At its best: extraordinary psychological depth and loyalty. At its shadow: obsessive control and destructive intensity.", "keywords": ["intensity", "transformation", "depth", "power", "emotional truth"] }, "ru": { "name": "Скорпион", "glyph": "♏", "element": "Вода", "modality": "Фиксированный", "ruler": "Плутон (традиционный: Марс)", "dates": "23 Окт – 21 Ноя", "meaning": "Трансформатор. Фиксированная вода — глубочайшая, самая интенсивная эмоциональная энергия зодиака. Скорпион идёт куда другие не решаются: смерть, секс, власть, психология, скрытая правда под каждой поверхностью. Управляется Плутоном, ценит подлинность, верность, эмоциональную правду выше комфорта. Энергия магнетическая, проницающая, трансформирующая. В лучшем: экстраординарная психологическая глубина и верность. В тени: навязчивый контроль и деструктивная интенсивность.", "keywords": ["интенсивность", "трансформация", "глубина", "власть", "эмоциональная правда"] } },
+
+    "Sagittarius": { "en": { "name": "Sagittarius", "glyph": "♐", "element": "Fire", "modality": "Mutable", "ruler": "Jupiter", "dates": "Nov 22 – Dec 21", "meaning": "The explorer. Mutable fire — adaptable enthusiasm aimed at the horizon. Sagittarius is the zodiac's philosopher: truth-seeking, meaning-making, and the endless expansion of experience. Ruled by Jupiter, it values freedom, honesty, and growth above security. The energy is optimistic, restless, and genuinely inspiring. At its best: wisdom born from experience and the courage to tell the truth. At its shadow: irresponsibility and blunt honesty that wounds.", "keywords": ["freedom", "philosophy", "adventure", "optimism", "truth"] }, "ru": { "name": "Стрелец", "glyph": "♐", "element": "Огонь", "modality": "Мутабельный", "ruler": "Юпитер", "dates": "22 Ноя – 21 Дек", "meaning": "Исследователь. Мутабельный огонь — адаптивный энтузиазм нацеленный на горизонт. Стрелец — философ зодиака: поиск правды, создание смысла, бесконечное расширение опыта. Управляется Юпитером, ценит свободу, честность и рост выше безопасности. Энергия оптимистичная, беспокойная, по-настоящему вдохновляющая. В лучшем: мудрость рождённая опытом и смелость говорить правду. В тени: безответственность и резкая честность ранящая.", "keywords": ["свобода", "философия", "приключение", "оптимизм", "правда"] } },
+
+    "Capricorn": { "en": { "name": "Capricorn", "glyph": "♑", "element": "Earth", "modality": "Cardinal", "ruler": "Saturn", "dates": "Dec 22 – Jan 19", "meaning": "The architect. Cardinal earth — the initiative to build structures that last. Capricorn is the zodiac's CEO: ambition, discipline, strategy, and the patient climb toward mastery. Ruled by Saturn, it values competence, responsibility, and long-term results above instant gratification. The energy is serious, strategic, and quietly powerful. At its best: achievement that endures generations. At its shadow: cold ambition that sacrifices everything human for success.", "keywords": ["ambition", "discipline", "structure", "authority", "persistence"] }, "ru": { "name": "Козерог", "glyph": "♑", "element": "Земля", "modality": "Кардинальный", "ruler": "Сатурн", "dates": "22 Дек – 19 Янв", "meaning": "Архитектор. Кардинальная земля — инициатива строить структуры которые простоят. Козерог — CEO зодиака: амбиция, дисциплина, стратегия, терпеливое восхождение к мастерству. Управляется Сатурном, ценит компетентность, ответственность, долгосрочные результаты выше мгновенного удовлетворения. Энергия серьёзная, стратегичная, тихо могущественная. В лучшем: достижение живущее поколениями. В тени: холодная амбиция жертвующая всем человеческим ради успеха.", "keywords": ["амбиция", "дисциплина", "структура", "авторитет", "настойчивость"] } },
+
+    "Aquarius": { "en": { "name": "Aquarius", "glyph": "♒", "element": "Air", "modality": "Fixed", "ruler": "Uranus (traditional: Saturn)", "dates": "Jan 20 – Feb 18", "meaning": "The visionary. Fixed air — sustained intellectual commitment to ideas that change the world. Aquarius is the zodiac's innovator: community, technology, systems thinking, and the future that hasn't been built yet. Ruled by Uranus, it values freedom, originality, and collective progress above personal comfort. The energy is intellectual, independent, and genuinely humanitarian. At its best: visionary innovation that serves everyone. At its shadow: emotional detachment disguised as enlightenment.", "keywords": ["innovation", "community", "independence", "future thinking", "humanitarianism"] }, "ru": { "name": "Водолей", "glyph": "♒", "element": "Воздух", "modality": "Фиксированный", "ruler": "Уран (традиционный: Сатурн)", "dates": "20 Янв – 18 Фев", "meaning": "Визионер. Фиксированный воздух — устойчивая интеллектуальная приверженность идеям меняющим мир. Водолей — инноватор зодиака: сообщество, технологии, системное мышление, будущее которое ещё не построено. Управляется Ураном, ценит свободу, оригинальность, коллективный прогресс выше личного комфорта. Энергия интеллектуальная, независимая, по-настоящему гуманитарная. В лучшем: визионерская инновация служащая всем. В тени: эмоциональная отстранённость под маской просветления.", "keywords": ["инновация", "сообщество", "независимость", "мышление будущего", "гуманизм"] } },
+
+    "Pisces": { "en": { "name": "Pisces", "glyph": "♓", "element": "Water", "modality": "Mutable", "ruler": "Neptune (traditional: Jupiter)", "dates": "Feb 19 – Mar 20", "meaning": "The mystic. Mutable water — the most fluid, empathic, and boundary-dissolving energy in the zodiac. Pisces is where the individual dissolves into the collective: compassion, imagination, spirituality, and the longing to merge with something infinite. Ruled by Neptune, it values transcendence, creativity, and emotional connection above material certainty. The energy is gentle, intuitive, and deeply feeling. At its best: boundless compassion and artistic genius. At its shadow: escapism, victimhood, and reality avoidance.", "keywords": ["empathy", "imagination", "spirituality", "compassion", "transcendence"] }, "ru": { "name": "Рыбы", "glyph": "♓", "element": "Вода", "modality": "Мутабельный", "ruler": "Нептун (традиционный: Юпитер)", "dates": "19 Фев – 20 Мар", "meaning": "Мистик. Мутабельная вода — самая текучая, эмпатичная и растворяющая границы энергия зодиака. Рыбы — где индивидуальное растворяется в коллективном: сострадание, воображение, духовность, тоска по слиянию с бесконечным. Управляются Нептуном, ценят трансценденцию, творчество, эмоциональную связь выше материальной определённости. Энергия мягкая, интуитивная, глубоко чувствующая. В лучшем: безграничное сострадание и артистическая гениальность. В тени: эскапизм, жертвенность, избегание реальности.", "keywords": ["эмпатия", "воображение", "духовность", "сострадание", "трансценденция"] } }
+  }
+}

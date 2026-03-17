@@ -85,9 +85,11 @@ export async function fetchProfiles(): Promise<{ profiles: ProfileSummary[] }> {
 export async function fetchProfileDetail(
   profileId: string,
   signal?: AbortSignal,
+  lang?: string,
 ): Promise<ProfileDetailResponse> {
   const headers = await getAuthHeaders()
-  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}`, { headers, signal }).then(
+  const l = lang || localStorage.getItem("lang") || "en"
+  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}?lang=${l}`, { headers, signal }).then(
     json<ProfileDetailResponse>,
   )
 }

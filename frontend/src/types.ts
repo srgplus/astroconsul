@@ -72,6 +72,28 @@ export type NatalAspect = {
   orb: number
 }
 
+export type NatalInterpretation = {
+  meaning: string
+  keywords: string[]
+}
+
+export type NatalAspectInterpretation = {
+  p1: string
+  p2: string
+  aspect: string
+  meaning: string
+  keywords: string[]
+}
+
+export type HouseCuspInterpretation = NatalInterpretation & { sign: string }
+
+export type NatalInterpretations = {
+  planets_in_signs: Record<string, NatalInterpretation>
+  planets_in_houses: Record<string, NatalInterpretation>
+  house_cusps_in_signs: Record<string, HouseCuspInterpretation>
+  aspects: NatalAspectInterpretation[]
+}
+
 export type SavedChart = {
   chart_id?: string
   asc?: number | string | null
@@ -81,6 +103,7 @@ export type SavedChart = {
   natal_positions?: NatalPosition[] | null
   angle_positions?: AnglePosition[] | null
   natal_aspects?: NatalAspect[] | null
+  natal_interpretations?: NatalInterpretations | null
   location_name?: string | null
   local_birth_datetime?: string | null
   house_system?: string | null
