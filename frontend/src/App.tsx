@@ -1316,8 +1316,8 @@ export function App() {
 
       {/* ===== Expanded widget popup ===== */}
       {expandedWidget ? (
-        <div className="widget-popup-overlay" onClick={() => setExpandedWidget(null)}>
-          <div className="widget-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="widget-popup-overlay" onClick={(e) => { if (e.target === e.currentTarget) setExpandedWidget(null) }}>
+          <div className="widget-popup">
             <div className="widget-popup-head">
               <h3>
                 {expandedWidget === "summary" ? t("widget.natalProfile") : null}
