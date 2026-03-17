@@ -383,7 +383,7 @@ export function App() {
             },
           }))
         }).catch(() => { /* silent — TII will populate when user clicks profile */ })
-      }, i * 500)
+      }, i * 200)
     })
 
     return () => { cancelled = true }
@@ -513,8 +513,19 @@ export function App() {
       }
     }
 
-    fetchTransitReport(activeProfileId, params, controller.signal)
-      .then(applyReport)
+    // Two-phase loading: fast fetch WITHOUT timing first, then upgrade WITH timing in background
+    const fastParams = { ...params, include_timing: false }
+
+    fetchTransitReport(activeProfileId, fastParams, controller.signal)
+      .then((fastReport) => {
+        applyReport(fastReport)
+        // Now upgrade with timing data in background
+        if (!controller.signal.aborted) {
+          fetchTransitReport(activeProfileId, params, controller.signal)
+            .then(applyReport)
+            .catch(() => { /* timing upgrade failed — fast report is still shown */ })
+        }
+      })
       .catch(() => {
         if (controller.signal.aborted) return
         // Retry with plain browser timezone (saved params may be stale/invalid)
@@ -522,11 +533,19 @@ export function App() {
           transit_date: params.transit_date,
           transit_time: params.transit_time,
           timezone: browserTz,
-          include_timing: true,
+          include_timing: false,
           lang,
         }
         fetchTransitReport(activeProfileId, fallback, controller.signal)
-          .then(applyReport)
+          .then((fastReport) => {
+            applyReport(fastReport)
+            // Upgrade with timing
+            if (!controller.signal.aborted) {
+              fetchTransitReport(activeProfileId, { ...fallback, include_timing: true }, controller.signal)
+                .then(applyReport)
+                .catch(() => {})
+            }
+          })
           .catch(() => {
             if (!controller.signal.aborted) {
               setTransitReport(null)
@@ -860,18 +879,19 @@ export function App() {
               onTransitSettings={(date, time, tz, loc) => {
                 if (!activeProfileId) return
                 autoFetchRef.current?.abort()
-                fetchTransitReport(activeProfileId, {
+                const pid = activeProfileId
+                const settingsParams = {
                   transit_date: date,
                   transit_time: time,
                   timezone: tz || undefined,
                   location_name: loc || null,
-                  include_timing: true,
                   lang,
-                }).then((report) => {
+                }
+                function applySettingsReport(report: TransitReportResponse) {
                   setTransitReport(report)
                   try {
                     const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
-                    saved[activeProfileId] = {
+                    saved[pid] = {
                       timezone: tz,
                       locationName: loc,
                       latitude: report.snapshot?.transit_latitude ?? null,
@@ -882,7 +902,7 @@ export function App() {
                   if (report.tii != null) {
                     setTiiMap((prev) => ({
                       ...prev,
-                      [activeProfileId!]: {
+                      [pid]: {
                         tii: report.tii!,
                         tension_ratio: report.tension_ratio ?? 0,
                         feels_like: report.feels_like ?? "Calm",
@@ -890,7 +910,16 @@ export function App() {
                       },
                     }))
                   }
-                }).catch(() => {})
+                }
+                // Fast fetch without timing, then upgrade
+                fetchTransitReport(pid, { ...settingsParams, include_timing: false })
+                  .then((fast) => {
+                    applySettingsReport(fast)
+                    fetchTransitReport(pid, { ...settingsParams, include_timing: true })
+                      .then(applySettingsReport)
+                      .catch(() => {})
+                  })
+                  .catch(() => {})
               }}
             />
           ) : activeDetail && !profiles.some((p) => p.profile_id === activeProfileId) ? (
