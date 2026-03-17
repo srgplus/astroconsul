@@ -2814,7 +2814,10 @@ button.natal-pos__row--clickable {
   border: none;
   width: 100%;
   text-align: left;
-  font: inherit;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: inherit;
+  line-height: inherit;
   color: inherit;
   appearance: none;
   -webkit-appearance: none;
