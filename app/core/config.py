@@ -35,6 +35,7 @@ class Settings:
     default_user_id: str
     default_auth_subject: str
     default_user_email: str
+    canonical_host: str | None
     auth_enabled: bool
     supabase_url: str | None
     supabase_anon_key: str | None
@@ -79,6 +80,7 @@ def get_settings() -> Settings:
         default_user_id=os.getenv("ASTRO_CONSUL_DEFAULT_USER_ID", "user_local_dev"),
         default_auth_subject=os.getenv("ASTRO_CONSUL_DEFAULT_AUTH_SUBJECT", "local-dev"),
         default_user_email=os.getenv("ASTRO_CONSUL_DEFAULT_USER_EMAIL", "local@example.com"),
+        canonical_host=os.getenv("ASTRO_CONSUL_CANONICAL_HOST"),
         auth_enabled=os.getenv("ASTRO_CONSUL_AUTH_ENABLED", "false").lower() in ("true", "1", "yes"),
         supabase_url=os.getenv("ASTRO_CONSUL_SUPABASE_URL"),
         supabase_anon_key=os.getenv("ASTRO_CONSUL_SUPABASE_ANON_KEY"),
