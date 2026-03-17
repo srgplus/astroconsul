@@ -559,6 +559,8 @@ export function ActiveTransitsWidget({ transitReport }: {
                 <div
                   key={`${a.transit_object}-${a.natal_object}-${idx}`}
                   className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(e) => toggleCard(e, idx)}
                   style={{ cursor: "pointer" }}
                 >

@@ -133,6 +133,8 @@ export function NatalPositionsTable({
                 <Fragment key={p.id}>
                   <div
                     className={`natal-pos__row${clickable ? " natal-pos__row--clickable" : ""}`}
+                    role={clickable ? "button" : undefined}
+                    tabIndex={clickable ? 0 : undefined}
                     onClick={clickable ? () => toggle(p.id) : undefined}
                   >
                     <span className="natal-pos__left">
@@ -310,6 +312,8 @@ export function NatalAspectsTable({
                 <div
                   key={`${aspKey}-${i}`}
                   className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
+                  role={clickable ? "button" : undefined}
+                  tabIndex={clickable ? 0 : undefined}
                   onClick={clickable ? () => toggle(aspKey) : undefined}
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >

@@ -461,6 +461,8 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                       <div
                         key={cardKey}
                         className={`aspect-card${isExpanded ? " aspect-card--expanded" : ""}`}
+                        role="button"
+                        tabIndex={0}
                         onClick={toggleExpand}
                         style={{ cursor: "pointer" }}
                       >
