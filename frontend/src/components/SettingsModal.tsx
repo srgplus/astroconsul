@@ -166,24 +166,16 @@ export function SettingsModal({
                 </div>
                 <div className="stg-card">
                   <div className="stg-card-title">{t("settings.language")}</div>
-                  <div className="stg-theme-grid">
-                    {LANG_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        className={`stg-theme-card${lang === opt.id ? " stg-theme-card--active" : ""}`}
-                        onClick={() => setLang(opt.id)}
-                      >
-                        <div className={`stg-theme-preview stg-theme-preview--${opt.id === "en" ? "light" : "dark"}`}>
-                          <div className="stg-theme-preview-bar" />
-                          <div className="stg-theme-preview-content">
-                            <div className="stg-theme-preview-line" />
-                            <div className="stg-theme-preview-line short" />
-                          </div>
-                        </div>
-                        <span className="stg-theme-name">{opt.label}</span>
-                      </button>
-                    ))}
+                  <div className="stg-select-wrap">
+                    <select
+                      className="stg-select"
+                      value={lang}
+                      onChange={(e) => setLang(e.target.value as Lang)}
+                    >
+                      {LANG_OPTIONS.map((opt) => (
+                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </>

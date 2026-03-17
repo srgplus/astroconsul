@@ -445,32 +445,32 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
             <Collapsible title={t("guide.strengthLevels")}>
               <div className="ref-list">
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--exact">{t("strength.exact")}</span>
-                  <div className="ref-body">
+                  <div className="ref-item__head">
+                    <span className="natal-asp__str natal-asp__str--exact">{t("strength.exact")}</span>
                     <strong>{t("guide.exactOrb")}</strong>
-                    <span className="ref-desc">{t("guide.exactDesc")}</span>
                   </div>
+                  <span className="ref-desc">{t("guide.exactDesc")}</span>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--strong">{t("strength.strong")}</span>
-                  <div className="ref-body">
+                  <div className="ref-item__head">
+                    <span className="natal-asp__str natal-asp__str--strong">{t("strength.strong")}</span>
                     <strong>{t("guide.strongOrb")}</strong>
-                    <span className="ref-desc">{t("guide.strongDesc")}</span>
                   </div>
+                  <span className="ref-desc">{t("guide.strongDesc")}</span>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--moderate">{t("strength.moderate")}</span>
-                  <div className="ref-body">
+                  <div className="ref-item__head">
+                    <span className="natal-asp__str natal-asp__str--moderate">{t("strength.moderate")}</span>
                     <strong>{t("guide.moderateOrb")}</strong>
-                    <span className="ref-desc">{t("guide.moderateDesc")}</span>
                   </div>
+                  <span className="ref-desc">{t("guide.moderateDesc")}</span>
                 </div>
                 <div className="ref-item">
-                  <span className="natal-asp__str natal-asp__str--wide">{t("strength.wide")}</span>
-                  <div className="ref-body">
+                  <div className="ref-item__head">
+                    <span className="natal-asp__str natal-asp__str--wide">{t("strength.wide")}</span>
                     <strong>{t("guide.wideOrb")}</strong>
-                    <span className="ref-desc">{t("guide.wideDesc")}</span>
                   </div>
+                  <span className="ref-desc">{t("guide.wideDesc")}</span>
                 </div>
               </div>
               <p className="guide-text guide-text--muted" style={{ marginTop: 12, fontStyle: "italic" }}>

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import type { ProfileSummary } from "../types"
 import { zoneColor, FEELS_EMOJI } from "../tii-zones"
 import { useLanguage } from "../contexts/LanguageContext"
@@ -17,6 +17,7 @@ type ProfileListProps = {
   tiiMap: Record<string, ProfileTiiData>
   primaryProfileId: string | null
   onReorder: (orderedIds: string[]) => void
+  onUnfollow?: (id: string) => void
 }
 
 export function ProfileList({
@@ -26,10 +27,12 @@ export function ProfileList({
   tiiMap,
   primaryProfileId,
   onReorder,
+  onUnfollow,
 }: ProfileListProps) {
   const { t } = useLanguage()
   const [dragId, setDragId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
+  const [ctxMenu, setCtxMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const dragIdxRef = useRef<number>(-1)
 
   const handleDragStart = useCallback((e: React.DragEvent, id: string, idx: number) => {
@@ -75,6 +78,23 @@ export function ProfileList({
     setOverId(null)
   }, [])
 
+  const handleContextMenu = useCallback((e: React.MouseEvent, id: string) => {
+    e.preventDefault()
+    setCtxMenu({ id, x: e.clientX, y: e.clientY })
+  }, [])
+
+  const ctxRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ctxMenu) return
+    const handler = (e: MouseEvent) => {
+      if (ctxRef.current && ctxRef.current.contains(e.target as Node)) return
+      setCtxMenu(null)
+    }
+    window.addEventListener("mousedown", handler)
+    return () => window.removeEventListener("mousedown", handler)
+  }, [ctxMenu])
+
   if (!profiles.length) {
     return (
       <div className="empty-card">
@@ -92,9 +112,23 @@ export function ProfileList({
         const emoji = tii ? (FEELS_EMOJI[tii.feels_like] ?? "\u2728") : undefined
         const feelsLabel = tii ? t(`feels.${tii.feels_like}`) : undefined
         const rawLoc = tii?.location ?? ""
-        const tzLabel = rawLoc.includes(",")
-          ? rawLoc.split(",").slice(0, 2).join(",")
-          : rawLoc.replace(/\//g, " / ").replace(/_/g, " ")
+        const tzLabel = (() => {
+          // If it's a city name (contains comma), use first part
+          if (rawLoc.includes(",")) return rawLoc.split(",")[0].trim()
+          // If it's a timezone ID like "America/Los_Angeles", extract city + offset
+          if (rawLoc.includes("/")) {
+            const city = rawLoc.split("/").pop()?.replace(/_/g, " ") ?? rawLoc
+            try {
+              const offsetStr = new Intl.DateTimeFormat("en", { timeZone: rawLoc, timeZoneName: "shortOffset" })
+                .formatToParts(new Date())
+                .find((pt) => pt.type === "timeZoneName")?.value ?? ""
+              return `${city} ${offsetStr}`
+            } catch {
+              return city
+            }
+          }
+          return rawLoc.replace(/_/g, " ")
+        })()
 
         const isPrimary = p.profile_id === primaryProfileId
         const isFollowed = p.is_following === true && p.is_own === false
@@ -110,6 +144,7 @@ export function ProfileList({
             onDragOver={(e) => handleDragOver(e, p.profile_id)}
             onDrop={(e) => handleDrop(e, p.profile_id, idx)}
             onDragEnd={handleDragEnd}
+            onContextMenu={isFollowed ? (e) => handleContextMenu(e, p.profile_id) : undefined}
           >
             <button
               type="button"
@@ -118,28 +153,46 @@ export function ProfileList({
             >
               {tii ? (
                 <>
-                  <div className="pli-top">
-                    <div className="pli-left">
-                      <div className="pli-name">{p.profile_name}{isFollowed ? <span className="pli-follow-badge">{"\u2197"}</span> : null}</div>
-                      <div className="pli-location">{tzLabel}</div>
-                    </div>
+                  <div className="pli-name-row">
+                    <div className="pli-name">{p.profile_name}</div>
                     <div className="pli-tii" style={{ color: accent }}>{Math.round(tii.tii)}&deg;</div>
                   </div>
+                  <div className="pli-username">@{p.username}</div>
+                  <div className="pli-location">{tzLabel}</div>
                   <div className="pli-bottom">
-                    <span className="pli-feels" style={{ color: accent }}>{emoji} {feelsLabel}</span>
+                    <span className="pli-feels" style={{ color: accent }}>{feelsLabel}</span>
                     <span className="pli-tension">T {Math.round(tii.tension_ratio * 100)}%</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <strong>{p.profile_name}{isFollowed ? <span className="pli-follow-badge">{"\u2197"}</span> : null}</strong>
-                  <span>@{p.username}</span>
+                  <strong>{p.profile_name}</strong>
+                  <div className="pli-username">@{p.username}</div>
                 </>
               )}
             </button>
           </div>
         )
       })}
+
+      {ctxMenu && onUnfollow && (
+        <div
+          ref={ctxRef}
+          className="pli-ctx-menu"
+          style={{ top: ctxMenu.y, left: ctxMenu.x }}
+        >
+          <button
+            type="button"
+            className="pli-ctx-item"
+            onClick={() => {
+              onUnfollow(ctxMenu.id)
+              setCtxMenu(null)
+            }}
+          >
+            {t("sidebar.unfollow")}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

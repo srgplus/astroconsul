@@ -205,9 +205,8 @@ def profile_detail(
         profile = repos.profiles.load_profile(profile_id)
         owner = profile.get("user_id", "user_local_dev")
         user_id = user["user_id"]
-        # Allow access if user owns the profile OR follows it
-        if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
-            raise HTTPException(status_code=403, detail="Not your profile")
+        # Any authenticated user can view profile details (natal chart)
+        # Transit endpoints still require ownership or follow
         result = profile_service.profile_detail(
             profile_id,
             profile_repository=repos.profiles,
@@ -216,6 +215,15 @@ def profile_detail(
         result["chart"]["natal_interpretations"] = _build_natal_interpretations(
             result["chart"], lang,
         )
+        # Follower / following counts
+        followers_count = repos.profiles.count_followers(profile_id)
+        owner_user_id = repos.profiles.get_owner_user_id(profile_id)
+        following_count = repos.profiles.count_following(owner_user_id) if owner_user_id else 0
+        is_following = repos.profiles.is_following(user_id, profile_id)
+        result["profile"]["followers_count"] = followers_count
+        result["profile"]["following_count"] = following_count
+        result["profile"]["is_following"] = is_following
+        result["profile"]["is_own"] = (user_id == owner)
         return result
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

@@ -31,8 +31,9 @@ Launch in 2-3 weeks. Get first 100-250 users. Start monetization with Pro tier (
 | Styling | Vanilla CSS with custom properties (no UI library) |
 | Fonts | Noto Sans Symbols 2 (Unicode glyphs for planets/signs) |
 | AI | Claude API (Haiku for headlines) |
-| Auth | Clerk or Auth0 (planned) |
+| Auth | Supabase Auth (Google OAuth, Apple Sign-In, email/password) |
 | Payments | Stripe Checkout (planned) |
+| Mobile | Capacitor (iOS + Android wrapper), WidgetKit + WatchOS (Swift/SwiftUI) |
 
 ### Repo Structure
 ```
@@ -607,6 +608,144 @@ updated_at: DateTime(tz)
 
 ---
 
+## 11. Natal Chart Data Layer
+
+### Overview
+Static natal chart interpretations stored as JSON in `data/`. This is the content users read about their own birth chart — planets, houses, signs, aspects. All files bilingual EN + RU in single file.
+
+### Files & Structure
+
+| File | Content | Entries | Key Format |
+|------|---------|---------|------------|
+| `natal_planets_in_signs.json` | Planet in zodiac sign | 120 | `Sun_in_Aries` |
+| `natal_planets_in_houses.json` | Planet in house | 120 | `Sun_in_house_1` |
+| `natal_house_cusps_in_signs.json` | House cusp sign | 144 | `house_1_in_Aries` |
+| `natal_reference.json` | Houses, planets, signs definitions | 34 | Nested: `houses.house_1`, `planets.Sun`, `signs.Aries` |
+| `natal_aspects.json` | Planet-planet natal aspects | 216 | `Sun_conjunction_Moon` |
+
+**Total: 634 entries, ~950 KB**
+
+### Entry Format (planets_in_signs, planets_in_houses, house_cusps, aspects)
+```json
+"Sun_in_Aries": {
+  "en": { "meaning": "...", "keywords": ["...", "...", "..."] },
+  "ru": { "meaning": "...", "keywords": ["...", "...", "..."] }
+}
+```
+
+### Entry Format (natal_reference.json)
+```json
+{
+  "houses": {
+    "house_1": {
+      "en": { "name": "1st House", "domain": "...", "meaning": "...", "keywords": [...] },
+      "ru": { "name": "1-й дом", "domain": "...", "meaning": "...", "keywords": [...] }
+    }
+  },
+  "planets": {
+    "Sun": {
+      "en": { "name": "Sun", "glyph": "☉", "domain": "...", "meaning": "...", "keywords": [...] },
+      "ru": { ... }
+    }
+  },
+  "signs": {
+    "Aries": {
+      "en": { "name": "Aries", "glyph": "♈", "element": "Fire", "modality": "Cardinal", "ruler": "Mars", "dates": "Mar 21 – Apr 19", "meaning": "...", "keywords": [...] },
+      "ru": { ... }
+    }
+  }
+}
+```
+
+### Backend Lookup
+```python
+def get_natal_description(category, key, lang="en"):
+    """
+    category: "planets_in_signs" | "planets_in_houses" | "house_cusps" | "aspects" | "reference"
+    key: "Sun_in_Aries" | "Sun_in_house_1" | "house_1_in_Aries" | "Sun_conjunction_Moon"
+    """
+    db = load_json(f"data/natal_{category}.json")
+    entry = db.get(key)
+    if entry:
+        return entry[lang]
+    return None
+```
+
+### Astronomical Limits (aspects)
+Not all planet pairs can form all 5 aspects:
+- **Sun-Mercury**: max 28 apart -> conjunction + sextile only
+- **Sun-Venus**: max 48 apart -> conjunction + sextile only
+- **Mercury-Venus**: max 76 apart -> conjunction + sextile only
+- All other pairs: all 5 aspects (conjunction, opposition, square, trine, sextile)
+
+Total: 216 entries (not 225, because 9 are astronomically impossible)
+
+### Content Principles
+- Modern, warm tone. No fatalism, no gender stereotypes
+- Each entry: strength -> how it manifests -> shadow side -> growth challenge
+- Planets_in_signs: 4-6 sentences. Keywords: 5 per entry
+- Planets_in_houses: 4-6 sentences. Keywords: 5 per entry
+- House_cusps: 2-3 sentences (shorter, more focused). Keywords: 5 per entry
+- Aspects: 2-4 sentences. Keywords: 3 per entry
+- Reference: full paragraph per entry with domain, meaning, keywords
+
+### Difference from Transit Descriptions
+| | Transit (`transit_aspects.json`) | Natal (`natal_aspects.json`) |
+|---|---|---|
+| Duration | Temporary, passing | Permanent, lifelong |
+| Question | "What do I do now?" | "Who am I?" |
+| Tone | Advice, action, timing | Character, pattern, potential |
+| Example | "Period of pressure. Endure — passes in 2 months." | "Born with an inner critic. Authority and self-doubt are lifelong themes." |
+
+**DO NOT reuse transit descriptions for natal. They are fundamentally different content.**
+
+---
+
+## 12. Mobile App Strategy
+
+### Approach
+**Capacitor** (by Ionic) wraps the existing React web app in a native iOS/Android shell. No UI rewrite needed — the frontend already has responsive design with 5 breakpoints (1200px, 960px, 1024px, 600px, 400px).
+
+### Architecture
+```
+Xcode Workspace
+├── App/                          ← Capacitor (web app in WKWebView)
+│   └── frontend/dist/            ← Built React app
+├── TiiWidget/                    ← WidgetKit (Swift/SwiftUI, separate target)
+├── WatchApp/                     ← Apple Watch (SwiftUI, separate target)
+└── Shared/                       ← App Group for token/data sharing
+```
+
+### Key Decisions
+- **Capacitor over React Native/Swift** — web app already works on mobile, zero rewrite. Widgets and Watch require Swift regardless of main app technology.
+- **Mobile-first optimization before wrapping** — polish responsive UI in browser DevTools first, then `npx cap add ios/android`.
+- **Native extensions are separate targets** — WidgetKit and WatchOS are always Swift/SwiftUI, independent of main app tech. They communicate via App Groups (shared UserDefaults).
+
+### Capacitor Config
+```
+App ID:     com.astroconsul.app
+App Name:   Astro Consul
+Web Dir:    dist (Vite build output)
+Plugins:    @capacitor/splash-screen, @capacitor/status-bar, @capacitor/push-notifications
+```
+
+### Widget (WidgetKit)
+- Shows TII score + top transit for today
+- Calls `/api/v1/profiles/{id}/transits/report` via URLSession
+- Auth token shared from main app via App Groups
+- Updates hourly via TimelineProvider
+
+### Apple Watch
+- SwiftUI app showing TII + daily summary
+- WatchConnectivity syncs with iPhone
+- Complication shows TII on watch face
+
+### Platforms
+- iOS 16+ (WidgetKit requires iOS 14+, but interactive widgets need iOS 17)
+- Android (via `npx cap add android`, same web app)
+
+---
+
 ## Appendix: Aspect Engine Constants
 
 ### Natal Aspect Orbs (from `aspect_engine.py`)
@@ -661,3 +800,29 @@ NATAL_SPECIAL_OBJECT_IDS = {
 Placidus (swe flag: 'P')
 Houses numbered 1-12 from ASC
 ```
+
+---
+
+## Worklog
+
+### 2026-03-16 — UI/UX Polish & Bug Fixes
+
+**Locked preview redesign** — Replaced abstract shapes with real-looking blurred dummy content for Active Transits and Cosmic Climate widgets (non-followed profiles). Titles visible, content blurred with light overlay + lock icon.
+
+**Mobile footer** — Removed full-width bottom bar, added unified floating footer with burger menu, search bar (Apple Weather style, `border-radius: 50px`), and add button. Footer stays in same position across list/detail views.
+
+**Followers/Following widget** — Instagram-style follower counts + follow/unfollow button above Natal widget. Backend returns `followers_count`, `following_count`, `is_following`, `is_own`. Unfollow confirmation popup.
+
+**Column swap** — Followers+Natal+Wheel moved to left column (desktop), Transits+Climate to right. Mobile keeps natal first via `order: -1`.
+
+**Sidebar cards** — Username shown under profile name. Timezone format changed from `AMERICA / LOS ANGELES` to `Los Angeles GMT-7` (city + UTC offset). Removed emoji from feels label. Reduced card padding and font sizes.
+
+**Create/Edit form** — Timezone field moved into Coordinates section. Latitude/Longitude fields made read-only (auto-filled from location).
+
+**Bug fixes:**
+- Primary profile no longer resets on page reload (bootstrap now depends on `userId` string, not `user` object reference that changed on every Supabase token refresh)
+- Follow button loading fixed (manual re-fetch when following profile already being viewed)
+- Transit descriptions now match UI language (fixed default fallback from `"ru"` to `"en"` in `api.ts`, added `lang` dependency to transit useEffect)
+- Transit location params now persist latitude/longitude to localStorage (previously only saved timezone + locationName)
+
+**Public landing page (WIP)** — Backend: added `is_featured` flag to ProfileModel, `list_featured()` repository method, public API endpoints (`GET /public/featured`, `GET /public/profiles/{id}`) with no auth required. Frontend landing page component pending.

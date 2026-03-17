@@ -38,6 +38,8 @@ export type ProfileSummary = {
   latest_transit?: LatestTransit | null
   is_own?: boolean | null
   is_following?: boolean | null
+  followers_count?: number
+  following_count?: number
 }
 
 export type NatalPosition = {

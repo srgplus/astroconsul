@@ -119,6 +119,12 @@ class FileProfileRepository:
     ) -> None:
         delete_chart_if_unreferenced(chart_id, exclude_profile_id=exclude_profile_id)
 
+    def list_featured(self, limit: int = 20) -> list[dict[str, Any]]:
+        return []
+
+    def set_featured(self, profile_id: str, featured: bool) -> None:
+        pass
+
     def search_public(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
         bootstrap_profiles()
         all_summaries = list_profile_summaries()
@@ -126,6 +132,7 @@ class FileProfileRepository:
         results = [
             s for s in all_summaries
             if query_lower in s.get("username", "").lower()
+               or query_lower in s.get("profile_name", "").lower()
         ]
         return results[:limit]
 
@@ -163,6 +170,23 @@ class FileProfileRepository:
     def is_following(self, user_id: str, profile_id: str) -> bool:
         data = _load_follows()
         return profile_id in data.get(user_id, [])
+
+    def count_followers(self, profile_id: str) -> int:
+        data = _load_follows()
+        return sum(1 for follows in data.values() if profile_id in follows)
+
+    def count_following(self, user_id: str) -> int:
+        data = _load_follows()
+        return len(data.get(user_id, []))
+
+    def get_owner_user_id(self, profile_id: str) -> str | None:
+        bootstrap_profiles()
+        from natal_profiles import load_profile
+        try:
+            profile = load_profile(profile_id)
+            return profile.get("user_id")
+        except FileNotFoundError:
+            return None
 
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         return save_profile_latest_transit(profile_id, latest_transit)

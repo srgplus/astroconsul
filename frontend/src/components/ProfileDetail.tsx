@@ -45,8 +45,8 @@ const OBJECT_GLYPHS: Record<string, string> = {
   "South Node": "\u260B",
   "Part of Fortune": "\u2297",
   Vertex: "\u22C1",
-  ASC: "",
-  MC: "",
+  ASC: "AC",
+  MC: "MC",
 }
 
 const SIGN_GLYPHS: Record<string, string> = {
@@ -67,7 +67,7 @@ const SIGN_GLYPHS: Record<string, string> = {
 type ObjectGroup = { labelKey: string; ids: string[] }
 
 const GROUPS: ObjectGroup[] = [
-  { labelKey: "transits.personalPlanets", ids: ["Sun", "ASC", "MC", "Moon", "Mercury", "Venus", "Mars"] },
+  { labelKey: "transits.personalPlanets", ids: ["Sun", "Moon", "ASC", "MC", "Mercury", "Venus", "Mars"] },
   { labelKey: "transits.outerPlanets", ids: ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"] },
   { labelKey: "transits.specialPoints", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
@@ -116,6 +116,9 @@ export function NatalPositionsTable({
 
   return (
     <div className="natal-pos">
+      <div className="natal-pos__header">
+        <span className="natal-pos__title">{t("widget.planetsHouses")}</span>
+      </div>
       {GROUPS.map((group) => {
         const rows = group.ids.map((id) => byId.get(id)).filter(Boolean) as NatalPosition[]
         if (!rows.length) return null
@@ -132,22 +135,25 @@ export function NatalPositionsTable({
                     className={`natal-pos__row${clickable ? " natal-pos__row--clickable" : ""}`}
                     onClick={clickable ? () => toggle(p.id) : undefined}
                   >
-                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
-                    <span className="natal-pos__name">{t(`planet.${p.id}`)}</span>
-                    <span className="natal-pos__house">△{p.house || "—"}</span>
-                    <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
-                    <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                    <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
-                    {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
-                    {clickable ? <span className={`natal-pos__chevron${isOpen ? " natal-pos__chevron--open" : ""}`}>▾</span> : null}
+                    <span className="natal-pos__left">
+                      <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
+                      <span className="natal-pos__name">{t(`planet.${p.id}`)}</span>
+                      {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
+                    </span>
+                    <span className="natal-pos__center">
+                      <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
+                      <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                      <span className="natal-pos__house">△{p.house || "—"}</span>
+                    </span>
+                    <span className="natal-pos__right">
+                      <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                    </span>
                   </div>
                   {isOpen ? (
                     <div className="natal-interp">
                       {cuspInterp?.meaning ? (
                         <div className="natal-interp__block">
-                          <div className="natal-interp__label">
-                            {t(`planet.${p.id}`)} {t("natal.in")} {t(`sign.${p.sign}`)}
-                          </div>
+                          <div className="natal-interp__label">{SIGN_GLYPHS[p.sign] ?? ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {t(`sign.${p.sign}`)}</div>
                           <div className="natal-interp__text">{cuspInterp.meaning}</div>
                           {cuspInterp.keywords?.length ? (
                             <div className="natal-interp__keywords">
@@ -160,9 +166,7 @@ export function NatalPositionsTable({
                       ) : null}
                       {inSign?.meaning ? (
                         <div className="natal-interp__block">
-                          <div className="natal-interp__label">
-                            {t(`planet.${p.id}`)} {t("natal.in")} {t(`sign.${p.sign}`)}
-                          </div>
+                          <div className="natal-interp__label">{SIGN_GLYPHS[p.sign] ?? ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {t(`sign.${p.sign}`)}</div>
                           <div className="natal-interp__text">{inSign.meaning}</div>
                           {inSign.keywords?.length ? (
                             <div className="natal-interp__keywords">
@@ -175,9 +179,7 @@ export function NatalPositionsTable({
                       ) : null}
                       {inHouse?.meaning ? (
                         <div className="natal-interp__block">
-                          <div className="natal-interp__label">
-                            {t(`planet.${p.id}`)} {t("natal.in")} {t("natal.house")} {p.house}
-                          </div>
+                          <div className="natal-interp__label">△{p.house} {t(`planet.${p.id}`)} {t("interp.inHouse")} {p.house}</div>
                           <div className="natal-interp__text">{inHouse.meaning}</div>
                           {inHouse.keywords?.length ? (
                             <div className="natal-interp__keywords">
@@ -215,6 +217,13 @@ function aspectStrength(orb: number): string {
   return "wide"
 }
 
+const STRENGTH_COLORS: Record<string, string> = {
+  exact: "#FF2D55",
+  strong: "#FF9500",
+  moderate: "#5AC8FA",
+  wide: "#8E8E93",
+}
+
 const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC"])
 const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
@@ -233,18 +242,25 @@ const GROUP_LABEL_KEYS: Record<string, string> = {
 export function NatalAspectsTable({
   aspects,
   interpretations,
+  positions,
 }: {
   aspects: NatalAspect[]
   interpretations?: NatalInterpretations | null
+  positions?: NatalPosition[]
 }) {
   const { t } = useLanguage()
-  const sorted = [...aspects].sort((a, b) => a.orb - b.orb)
+  const [mostImpact, setMostImpact] = useState(true)
+  const filtered = mostImpact
+    ? aspects.filter((a) => aspectStrength(a.orb) === "exact" || aspectStrength(a.orb) === "strong")
+    : aspects
+  const sorted = [...filtered].sort((a, b) => a.orb - b.orb)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   const aspInterps = interpretations?.aspects ?? []
   const interpMap = new Map(
     aspInterps.map((ai) => [`${ai.p1}_${ai.aspect}_${ai.p2}`, ai]),
   )
+  const posMap = new Map((positions ?? []).map((p) => [p.id, p]))
 
   const toggle = (key: string) => {
     setExpanded((prev) => {
@@ -267,55 +283,104 @@ export function NatalAspectsTable({
 
   return (
     <div className="natal-asp">
+      <div className="natal-asp__header">
+        <span className="natal-asp__title">{t("widget.natalAspects")}</span>
+        <label className="cw-toggle-wrap">
+          <span className="cw-toggle-label">{t("transits.mostImpact")}</span>
+          <div
+            className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}
+            onClick={() => setMostImpact(!mostImpact)}
+          >
+            <div className="cw-toggle-thumb" />
+          </div>
+        </label>
+      </div>
       {groupedAspects.map((group) => (
-        <Fragment key={group.key}>
-          <div className="natal-asp__group">{t(GROUP_LABEL_KEYS[group.key])}</div>
-          {group.aspects.map((a, i) => {
-            const strength = aspectStrength(a.orb)
-            const aspKey = `${a.p1}_${a.aspect}_${a.p2}`
-            const interp = interpMap.get(aspKey)
-            const clickable = !!interp?.meaning
-            const isOpen = expanded.has(aspKey)
-            return (
-              <Fragment key={`${aspKey}-${i}`}>
+        <div key={group.key} className="cw-transit-group">
+          <div className="cw-transit-group-label">{t(GROUP_LABEL_KEYS[group.key])}</div>
+          <div className="cw-transit-list">
+            {group.aspects.map((a, i) => {
+              const strength = aspectStrength(a.orb)
+              const strengthColor = STRENGTH_COLORS[strength] ?? "#8E8E93"
+              const aspKey = `${a.p1}_${a.aspect}_${a.p2}`
+              const interp = interpMap.get(aspKey)
+              const clickable = !!interp?.meaning
+              const isOpen = expanded.has(aspKey)
+              return (
                 <div
-                  className={`natal-asp__row${clickable ? " natal-asp__row--clickable" : ""}`}
+                  key={`${aspKey}-${i}`}
+                  className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
                   onClick={clickable ? () => toggle(aspKey) : undefined}
+                  style={clickable ? { cursor: "pointer" } : undefined}
                 >
-                  <span className="natal-asp__planet">
-                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
-                    <strong>{t(`planet.${a.p1}`)}</strong>
-                  </span>
-                  <span className="natal-asp__aspect">
-                    <span className="natal-asp__glyph">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                    <span className="natal-asp__aspect-name">{t(`aspect.${a.aspect}`)}</span>
-                  </span>
-                  <span className="natal-asp__planet">
-                    <span className="natal-pos__glyph">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
-                    <strong>{t(`planet.${a.p2}`)}</strong>
-                  </span>
-                  <span className="natal-asp__orb">{a.orb.toFixed(2)}°</span>
-                  <span className={`natal-asp__str natal-asp__str--${strength}`}>{t(`strength.${strength}`)}</span>
-                  {clickable ? <span className={`natal-pos__chevron${isOpen ? " natal-pos__chevron--open" : ""}`}>▾</span> : null}
-                </div>
-                {isOpen && interp?.meaning ? (
-                  <div className="natal-interp">
-                    <div className="natal-interp__block">
-                      <div className="natal-interp__text">{interp.meaning}</div>
+                  <div className="cw-transit-row">
+                    <span className="cw-transit-left">
+                      <span className="cw-transit-glyphs">
+                        <span className="cw-glyph-transit">{OBJECT_GLYPHS[a.p1] ?? ""}</span>
+                        <span className="cw-glyph-aspect">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
+                        <span className="cw-glyph-natal">{OBJECT_GLYPHS[a.p2] ?? ""}</span>
+                      </span>
+                      <span className="cw-transit-label">
+                        {t(`planet.${a.p1}`)} {t(`aspect.${a.aspect}`)} {t(`planet.${a.p2}`)}
+                      </span>
+                    </span>
+                    <span className="cw-transit-right">
+                      <span className="cw-transit-orb">{a.orb.toFixed(2)}°</span>
+                      <span
+                        className="cw-transit-strength"
+                        style={{ background: `${strengthColor}18`, color: strengthColor }}
+                      >
+                        {t(`strength.${strength}`)}
+                      </span>
+                    </span>
+                  </div>
+
+                  {isOpen && interp?.meaning ? (
+                    <div className="cw-transit-description">
+                      <p className="cw-transit-meaning">{interp.meaning}</p>
                       {interp.keywords?.length ? (
-                        <div className="natal-interp__keywords">
+                        <div className="cw-transit-keywords">
                           {interp.keywords.map((kw, ki) => (
-                            <span key={ki} className="natal-interp__tag">{kw}</span>
+                            <span key={ki} className="cw-transit-keyword-tag">{kw}</span>
                           ))}
                         </div>
                       ) : null}
+                      {(() => {
+                        const p1pos = posMap.get(a.p1)
+                        const p2pos = posMap.get(a.p2)
+                        if (!p1pos && !p2pos) return null
+                        return (
+                          <div className="cw-transit-positions">
+                            {p1pos ? (
+                              <div className="cw-pos-line">
+                                <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.p1]}</span>
+                                <span className="cw-pos-name">{t(`planet.${a.p1}`)}</span>
+                                <span className="cw-pos-deg">{p1pos.degree}°{String(p1pos.minute).padStart(2, "0")}′</span>
+                                <span className="cw-pos-sign">{SIGN_GLYPHS[p1pos.sign] ?? ""} {t(`sign.${p1pos.sign}`)}</span>
+                                <span className="cw-pos-house">△{p1pos.house}</span>
+                                {p1pos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                              </div>
+                            ) : null}
+                            {p2pos ? (
+                              <div className="cw-pos-line">
+                                <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.p2]}</span>
+                                <span className="cw-pos-name">{t(`planet.${a.p2}`)}</span>
+                                <span className="cw-pos-deg">{p2pos.degree}°{String(p2pos.minute).padStart(2, "0")}′</span>
+                                <span className="cw-pos-sign">{SIGN_GLYPHS[p2pos.sign] ?? ""} {t(`sign.${p2pos.sign}`)}</span>
+                                <span className="cw-pos-house">△{p2pos.house}</span>
+                                {p2pos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        )
+                      })()}
                     </div>
-                  </div>
-                ) : null}
-              </Fragment>
-            )
-          })}
-        </Fragment>
+                  ) : null}
+                </div>
+              )
+            })}
+          </div>
+        </div>
       ))}
     </div>
   )
@@ -530,7 +595,6 @@ export function ProfileDetail({
       {!detailLoading && !detailError && activeDetail ? (
         <div className="profile-summary-row">
           <ProfileSummaryCard detail={activeDetail} />
-          <button type="button" className="edit-btn" onClick={onEditClick}>{t("widget.editProfile")}</button>
         </div>
       ) : null}
 
@@ -563,7 +627,7 @@ export function ProfileDetail({
       ) : null}
 
       {!detailLoading && !detailError && activeDetail?.chart.natal_aspects?.length ? (
-        <NatalAspectsTable aspects={activeDetail.chart.natal_aspects} interpretations={activeDetail.chart.natal_interpretations} />
+        <NatalAspectsTable aspects={activeDetail.chart.natal_aspects} interpretations={activeDetail.chart.natal_interpretations} positions={activeDetail.chart.natal_positions} />
       ) : null}
     </>
   )

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { useAuth } from "./contexts/AuthContext"
 import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
+import { LandingPage } from "./components/LandingPage"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
@@ -177,6 +178,7 @@ export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { t, lang } = useLanguage()
   const [theme, setTheme] = useTheme()
+  const [showAuth, setShowAuth] = useState(false)
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [profiles, setProfiles] = useState<ProfileSummary[]>(() => {
     try { return JSON.parse(localStorage.getItem("cachedProfiles") || "[]") } catch { return [] }
@@ -221,7 +223,8 @@ export function App() {
     } catch {}
     return "list"
   })
-  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
+  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("natal")
+  const [unfollowPopup, setUnfollowPopup] = useState<{ id: string; name: string; username: string } | null>(null)
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
     try {
       // Try dedicated TII cache first (survives even when server has no latest_transit)
@@ -267,8 +270,10 @@ export function App() {
   const autoFetchRef = useRef<AbortController | null>(null)
   const [fetchTrigger, setFetchTrigger] = useState(0)
   const [transitLoading, setTransitLoading] = useState(false)
+  // Use user.id as dependency (not user object) to avoid re-running bootstrap on token refresh
+  const userId = user?.id
   useEffect(() => {
-    if (!user) return
+    if (!userId) return
     let cancelled = false
 
     async function bootstrap(attempt = 0) {
@@ -285,16 +290,28 @@ export function App() {
         setProfiles(profilesPayload.profiles)
         try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
 
-        // Clear stale primaryProfileId if it points to a deleted profile
+        // Read primary fresh from localStorage (state value may be stale in closure)
         const validIds = new Set(profilesPayload.profiles.map((p: ProfileSummary) => p.profile_id))
-        let effectivePrimary = primaryProfileId
+        let effectivePrimary = localStorage.getItem("primaryProfileId")
         if (effectivePrimary && !validIds.has(effectivePrimary)) {
-          localStorage.removeItem("primaryProfileId")
-          setPrimaryProfileId(null)
-          effectivePrimary = null
+          // Only clear primary if we actually got a non-empty profile list from server.
+          // An empty response likely means a network/server issue — don't lose the user's setting.
+          if (profilesPayload.profiles.length > 0) {
+            localStorage.removeItem("primaryProfileId")
+            setPrimaryProfileId(null)
+            effectivePrimary = null
+          }
+          // If profiles list is empty, keep primary intact — it will validate on next successful load
+        } else if (effectivePrimary) {
+          setPrimaryProfileId(effectivePrimary)
         }
 
-        setActiveProfileId((current) => current || effectivePrimary || profilesPayload.profiles[0]?.profile_id || null)
+        const defaultId = profilesPayload.profiles[0]?.profile_id || null
+        setActiveProfileId((current) => {
+          // If primary is set, always prefer it (even over current)
+          if (effectivePrimary) return effectivePrimary
+          return current || defaultId
+        })
 
         // Merge server-side TII into existing tiiMap (preserve client-cached values)
         const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -327,7 +344,8 @@ export function App() {
 
     bootstrap()
     return () => { cancelled = true }
-  }, [user])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- userId is stable, avoids re-bootstrap on token refresh
+  }, [userId])
 
   // Background TII: compute transit for profiles missing TII so sidebar populates automatically
   useEffect(() => {
@@ -474,6 +492,7 @@ export function App() {
       latitude: savedLat,
       longitude: savedLon,
       include_timing: true,
+      lang,
     }
 
     function applyReport(report: TransitReportResponse) {
@@ -504,6 +523,7 @@ export function App() {
           transit_time: params.transit_time,
           timezone: browserTz,
           include_timing: true,
+          lang,
         }
         fetchTransitReport(activeProfileId, fallback, controller.signal)
           .then(applyReport)
@@ -517,7 +537,7 @@ export function App() {
 
     return () => controller.abort()
   // eslint-disable-next-line react-hooks/exhaustive-deps -- profiles read for location only, no re-fetch needed
-  }, [activeProfileId, fetchTrigger])
+  }, [activeProfileId, fetchTrigger, lang])
 
   const refreshProfile = useCallback(async () => {
     setIsEditing(false)
@@ -535,9 +555,10 @@ export function App() {
     }
   }, [activeProfileId])
 
-  // Public profile search: triggered when searchQuery starts with "@"
-  const isPublicSearch = searchQuery.startsWith("@")
-  const publicQuery = searchQuery.slice(1).trim()
+  // Public profile search: triggered when searchQuery has 2+ chars
+  const trimmedSearch = searchQuery.trim()
+  const isPublicSearch = trimmedSearch.length >= 2
+  const publicQuery = trimmedSearch.startsWith("@") ? trimmedSearch.slice(1) : trimmedSearch
 
   useEffect(() => {
     if (!isPublicSearch || publicQuery.length < 2) {
@@ -580,24 +601,42 @@ export function App() {
       await followProfile(result.profile_id)
       const profilesPayload = await fetchProfiles()
       setProfiles(profilesPayload.profiles)
-      setActiveProfileId(result.profile_id)
+      try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
       setSearchQuery("")
       setPublicResults([])
       setMobileView("detail")
+
+      // Always set the active profile and force re-fetch detail + transits
+      // (if already viewing this profile, the ID won't change so we must manually trigger)
+      const pid = result.profile_id
+      if (pid === activeProfileId) {
+        // Same profile — force re-fetch by fetching directly
+        try {
+          const detail = await fetchProfileDetail(pid, undefined, lang)
+          setActiveDetail(detail)
+          try { localStorage.setItem("cachedDetail_" + pid, JSON.stringify(detail)) } catch {}
+        } catch { /* silent */ }
+        setFetchTrigger((n) => n + 1) // re-trigger transit fetch
+      } else {
+        setActiveProfileId(pid) // different profile — useEffect handles it
+      }
     } catch (err) {
       console.error("Follow failed:", err)
     } finally {
       setPublicAddingId(null)
     }
-  }, [])
+  }, [activeProfileId, lang])
 
   const handleUnfollowProfile = useCallback(async (profileId: string) => {
     try {
       await unfollowProfile(profileId)
       const profilesPayload = await fetchProfiles()
       setProfiles(profilesPayload.profiles)
+      try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
       if (activeProfileId === profileId) {
-        setActiveProfileId(profilesPayload.profiles[0]?.profile_id || null)
+        // Switch to first remaining profile (the unfollowed one is removed from list)
+        const nextId = profilesPayload.profiles[0]?.profile_id || null
+        setActiveProfileId(nextId)
       }
     } catch {
       // silent
@@ -623,7 +662,10 @@ export function App() {
   }
 
   if (!user) {
-    return <AuthScreen />
+    if (showAuth) {
+      return <AuthScreen onBack={() => setShowAuth(false)} />
+    }
+    return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
   }
 
   return (
@@ -638,18 +680,16 @@ export function App() {
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               title={sidebarCollapsed ? t("sidebar.showSidebar") : t("sidebar.hideSidebar")}
             >
-              {sidebarCollapsed ? "\u25C1" : "\u2630"}
+              {"\u2630"}
             </button>
-            {!sidebarCollapsed && (
-              <button
-                type="button"
-                className="sidebar-toolbar-btn sidebar-toolbar-btn--add"
-                onClick={() => setIsCreating(true)}
-                title={t("sidebar.newProfile")}
-              >
-                +
-              </button>
-            )}
+            <button
+              type="button"
+              className="sidebar-toolbar-btn sidebar-toolbar-btn--add"
+              onClick={() => setIsCreating(true)}
+              title={t("sidebar.newProfile")}
+            >
+              +
+            </button>
           </div>
 
           {/* Mobile header: "Astromi" title + settings/info */}
@@ -673,92 +713,108 @@ export function App() {
                 />
               </div>
               <div className="sidebar-scroll">
-                {isPublicSearch ? (
-                  <div className="public-search-results">
-                    {publicSearching ? (
-                      <div className="public-search-status">
-                        <div className="content-loader__spinner" />
-                        <span>{t("sidebar.publicSearching")}</span>
-                      </div>
-                    ) : publicQuery.length < 2 ? (
-                      <div className="public-search-status">
-                        <span className="public-search-hint">{t("sidebar.searchPublic")}</span>
-                      </div>
-                    ) : publicResults.length === 0 ? (
-                      <div className="public-search-status">
-                        <span>{t("sidebar.publicNoResults")}</span>
-                      </div>
-                    ) : (
-                      publicResults.map((r) => (
-                        <div key={r.profile_id} className="public-search-card">
-                          <div className="public-search-card__info">
-                            <div className="public-search-card__name">{r.profile_name}</div>
-                            <div className="public-search-card__username">@{r.username}</div>
-                            <div className="public-search-card__meta">
-                              {r.location_name && <span className="public-search-card__location">{r.location_name}</span>}
-                              {r.natal_summary && (
-                                <span className="public-search-card__summary">
-                                  {typeof r.natal_summary === "string"
-                                    ? r.natal_summary
-                                    : `☉ ${r.natal_summary.sun} · ☽ ${r.natal_summary.moon} · AC ${r.natal_summary.asc}`}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="public-search-card__add"
-                            onClick={() => handleFollowProfile(r)}
-                            disabled={publicAddingId === r.profile_id}
-                            title={t("sidebar.follow")}
-                          >
-                            {publicAddingId === r.profile_id ? "..." : "+"}
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                ) : profiles.length === 0 && !bootError ? (
+                {profiles.length === 0 && !bootError && !isPublicSearch ? (
                   <SkeletonSidebarItems count={6} />
                 ) : (
-                  <ProfileList
-                    profiles={(() => {
-                      // Sort: primary first, then by saved manual order, then rest
-                      const order = profileOrder
-                      const sorted = [...profiles].sort((a, b) => {
-                        if (a.profile_id === primaryProfileId) return -1
-                        if (b.profile_id === primaryProfileId) return 1
-                        const ai = order.indexOf(a.profile_id)
-                        const bi = order.indexOf(b.profile_id)
-                        if (ai !== -1 && bi !== -1) return ai - bi
-                        if (ai !== -1) return -1
-                        if (bi !== -1) return 1
-                        return 0
-                      })
-                      if (!searchQuery.trim()) return sorted
-                      const q = searchQuery.toLowerCase()
-                      return sorted.filter((p) =>
-                        p.profile_name.toLowerCase().includes(q)
-                        || p.username.toLowerCase().includes(q)
-                        || (p.location_name ?? "").toLowerCase().includes(q)
-                      )
-                    })()}
-                    activeProfileId={activeProfileId}
-                    onSelect={(id) => {
-                      if (id === activeProfileId) {
-                        setFetchTrigger((n) => n + 1)
-                      } else {
-                        setActiveProfileId(id)
-                      }
-                      setMobileView("detail")
-                    }}
-                    tiiMap={tiiMap}
-                    primaryProfileId={primaryProfileId}
-                    onReorder={(ids) => {
-                      setProfileOrder(ids)
-                      localStorage.setItem("profileOrder", JSON.stringify(ids))
-                    }}
-                  />
+                  <>
+                  {/* Show empty message only when no profiles and not searching */}
+                  {profiles.length === 0 && !isPublicSearch && (
+                    <div className="empty-card">
+                      <strong>{t("profileList.empty")}</strong>
+                      <span>{t("profileList.emptyDesc")}</span>
+                    </div>
+                  )}
+                  {/* Local profiles — filtered by search, hidden when empty */}
+                  {(() => {
+                    const order = profileOrder
+                    const sorted = [...profiles].sort((a, b) => {
+                      if (a.profile_id === primaryProfileId) return -1
+                      if (b.profile_id === primaryProfileId) return 1
+                      const ai = order.indexOf(a.profile_id)
+                      const bi = order.indexOf(b.profile_id)
+                      if (ai !== -1 && bi !== -1) return ai - bi
+                      if (ai !== -1) return -1
+                      if (bi !== -1) return 1
+                      return 0
+                    })
+                    const q = searchQuery.trim().toLowerCase()
+                    const filtered = q
+                      ? sorted.filter((p) =>
+                          p.profile_name.toLowerCase().includes(q)
+                          || p.username.toLowerCase().includes(q)
+                          || (p.location_name ?? "").toLowerCase().includes(q)
+                        )
+                      : sorted
+                    if (filtered.length === 0) return null
+                    return (
+                    <ProfileList
+                      profiles={filtered}
+                      activeProfileId={activeProfileId}
+                      onSelect={(id) => {
+                        if (id === activeProfileId) {
+                          setFetchTrigger((n) => n + 1)
+                        } else {
+                          setActiveProfileId(id)
+                        }
+                        setMobileView("detail")
+                      }}
+                      tiiMap={tiiMap}
+                      primaryProfileId={primaryProfileId}
+                      onReorder={(ids) => {
+                        setProfileOrder(ids)
+                        localStorage.setItem("profileOrder", JSON.stringify(ids))
+                      }}
+                      onUnfollow={handleUnfollowProfile}
+                    />
+                    )
+                  })()}
+
+                  {/* Public search results */}
+                  {isPublicSearch && (
+                    <div className="public-search-results">
+                      <div className="public-search-divider">{t("sidebar.globalResults")}</div>
+                      {publicSearching ? (
+                        <div className="public-search-status">
+                          <div className="content-loader__spinner" />
+                        </div>
+                      ) : publicResults.length === 0 ? (
+                        <div className="public-search-status">
+                          <span>{t("sidebar.publicNoResults")}</span>
+                        </div>
+                      ) : (
+                        publicResults
+                          .filter((r) => !profiles.some((p) => p.profile_id === r.profile_id))
+                          .map((r) => (
+                            <button
+                              key={r.profile_id}
+                              type="button"
+                              className={`profile-list-item public-search-item ${r.profile_id === activeProfileId ? "active" : ""}`}
+                              onClick={() => {
+                                setActiveProfileId(r.profile_id)
+                                setWheelMode("natal")
+                                setMobileView("detail")
+                              }}
+                            >
+                              <div className="pli-top">
+                                <div className="pli-left">
+                                  <div className="pli-name">{r.profile_name}</div>
+                                  <div className="pli-location">@{r.username}</div>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="pli-follow-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleFollowProfile(r) }}
+                                  disabled={publicAddingId === r.profile_id}
+                                >
+                                  {publicAddingId === r.profile_id ? "..." : `+ ${t("sidebar.follow")}`}
+                                </button>
+                              </div>
+                            </button>
+                          ))
+                      )}
+                    </div>
+                  )}
+                  </>
                 )}
               </div>
               {/* Desktop footer */}
@@ -788,43 +844,14 @@ export function App() {
                   {theme === "dark" ? "\u263D" : theme === "light" ? "\u2600" : "\u25D0"}
                 </button>
               </div>
-              {/* Mobile footer: search + add button */}
-              <div className="mobile-list-footer">
-                <div className="mobile-search-bar">
-                  <span className="mobile-search-icon">{"\uD83D\uDD0D"}</span>
-                  <input
-                    type="text"
-                    placeholder={t("sidebar.search")}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="mobile-add-btn"
-                  onClick={() => setIsCreating(true)}
-                  title={t("sidebar.newProfile")}
-                >
-                  +
-                </button>
-              </div>
+              {/* Mobile footer moved outside sidebar — see below */}
             </>
           )}
         </aside>
 
         <div className="content-pane">
-          {/* Mobile bottom bar: list button (like Apple Weather) */}
-          <div className="mobile-detail-bottombar">
-            <button
-              type="button"
-              className="mobile-list-btn"
-              onClick={() => setMobileView("list")}
-              title={t("sidebar.back")}
-            >
-              {"\u2630"}
-            </button>
-          </div>
-          {/* Hero section: DailyWeather or skeleton */}
+          {/* Mobile footer handles navigation — see below */}
+          {/* Hero section: DailyWeather, locked preview, or skeleton */}
           {transitReport && activeDetail ? (
             <DailyWeather
               transitReport={transitReport}
@@ -839,11 +866,17 @@ export function App() {
                   timezone: tz || undefined,
                   location_name: loc || null,
                   include_timing: true,
+                  lang,
                 }).then((report) => {
                   setTransitReport(report)
                   try {
                     const saved = JSON.parse(localStorage.getItem("transitParams") || "{}")
-                    saved[activeProfileId] = { timezone: tz, locationName: loc }
+                    saved[activeProfileId] = {
+                      timezone: tz,
+                      locationName: loc,
+                      latitude: report.snapshot?.transit_latitude ?? null,
+                      longitude: report.snapshot?.transit_longitude ?? null,
+                    }
                     localStorage.setItem("transitParams", JSON.stringify(saved))
                   } catch { /* ignore */ }
                   if (report.tii != null) {
@@ -860,10 +893,13 @@ export function App() {
                 }).catch(() => {})
               }}
             />
+          ) : activeDetail && !profiles.some((p) => p.profile_id === activeProfileId) ? (
+            <header className="sticky-header">
+              <h1 className="content-profile-name">{activeDetail.profile.profile_name}</h1>
+            </header>
           ) : activeDetail ? (
             <header className="sticky-header">
               <h1 className="content-profile-name">{activeDetail.profile.profile_name}</h1>
-              <span className="content-profile-username">@{activeDetail.profile.username}</span>
             </header>
           ) : activeProfileId ? (
             <SkeletonHero />
@@ -874,15 +910,91 @@ export function App() {
           )}
 
           <div className="widget-grid">
-            {/* Left column: Transits + Climate */}
-            <div className="widget-col-left">
+            {/* Left column: Followers + Natal + Wheel (was right) */}
+            {(() => {
+              const isOwnProfile = profiles.some((p) => p.profile_id === activeProfileId)
+              return (
+            <div className="widget-col-right">
               {/* Active Transits widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
                   <ActiveTransitsWidget transitReport={transitReport} />
                 </div>
-              ) : (transitLoading || activeProfileId) && !transitReport ? (
+              ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={4} />
+              ) : !isOwnProfile && activeDetail ? (
+                <div className="widget widget--summary locked-preview locked-preview--widget">
+                  <div className="locked-preview__title">{t("transits.title")}</div>
+                  <div className="locked-preview__content">
+                    <div className="locked-preview__content-blur">
+                      <div className="locked-preview__group-label">PERSONAL PLANETS</div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">♂ △ ♆</span>
+                          <span>Mars trine Neptune</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.16°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>EXACT</span>
+                        </span>
+                      </div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">☉ △ ☉</span>
+                          <span>Sun trine Sun</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.55°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>STRONG</span>
+                        </span>
+                      </div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">☿ ☍ ♇</span>
+                          <span>Mercury opp Pluto</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.83°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>STRONG</span>
+                        </span>
+                      </div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">♂ △ ♀</span>
+                          <span>Mars trine Venus</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.87°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>STRONG</span>
+                        </span>
+                      </div>
+                      <div className="locked-preview__group-label">OUTER PLANETS</div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">♄ △ ♂</span>
+                          <span>Saturn trine Mars</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.47°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>STRONG</span>
+                        </span>
+                      </div>
+                      <div className="locked-preview__transit-row">
+                        <span className="locked-preview__transit-left">
+                          <span className="locked-preview__transit-glyphs">♆ ✱ ♃</span>
+                          <span>Neptune sextile Jupiter</span>
+                        </span>
+                        <span className="locked-preview__transit-right">
+                          <span className="locked-preview__transit-orb">0.58°</span>
+                          <span className="locked-preview__transit-strength" style={{ background: "rgba(255,152,0,0.15)", color: "#ff9800" }}>STRONG</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="locked-preview__glass" data-tooltip={t("widget.followForTransit")}>
+                      <span className="locked-preview__lock">🔒</span>
+                    </div>
+                  </div>
+                </div>
               ) : null}
 
               {/* Cosmic Climate widget */}
@@ -890,13 +1002,90 @@ export function App() {
                 <div className="widget widget--summary">
                   <CosmicClimateWidget transitReport={transitReport} />
                 </div>
-              ) : (transitLoading || activeProfileId) && !transitReport ? (
+              ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={3} />
+              ) : !isOwnProfile && activeDetail ? (
+                <div className="widget widget--summary locked-preview locked-preview--widget">
+                  <div className="locked-preview__title">{t("climate.title")}</div>
+                  <div className="locked-preview__content">
+                    <div className="locked-preview__content-blur">
+                      <div className="locked-preview__climate-card">
+                        <div className="locked-preview__climate-header">
+                          <span className="locked-preview__climate-left">
+                            <span>🔴</span>
+                            <span>Pluto ✳ Mars</span>
+                          </span>
+                          <span className="locked-preview__climate-date">Dec 2025 – Feb 2027</span>
+                        </div>
+                        <p className="locked-preview__climate-desc">Deep transformation of motivation and willpower. Actions become more purposeful.</p>
+                      </div>
+                      <div className="locked-preview__climate-card">
+                        <div className="locked-preview__climate-header">
+                          <span className="locked-preview__climate-left">
+                            <span>🪐</span>
+                            <span>Saturn △ Venus</span>
+                          </span>
+                          <span className="locked-preview__climate-date">Jan 2026 – Mar 2026</span>
+                        </div>
+                        <p className="locked-preview__climate-desc">Stabilizing relationships and values. Commitment deepens naturally.</p>
+                      </div>
+                    </div>
+                    <div className="locked-preview__glass" data-tooltip={t("widget.followForTransit")}>
+                      <span className="locked-preview__lock">🔒</span>
+                    </div>
+                  </div>
+                </div>
               ) : null}
             </div>
+              )
+            })()}
 
             {/* Right column: Natal + Wheel */}
-            <div className="widget-col-right">
+            <div className="widget-col-left">
+              {/* Followers widget */}
+              {activeDetail ? (() => {
+                const isOwn = activeDetail.profile.is_own === true
+                const isFollowed = profiles.some((p) => p.profile_id === activeProfileId && p.is_following === true)
+                return (
+                <div className="widget widget--followers">
+                  <div className="followers-stats">
+                    <span className="followers-stat">
+                      <strong>{activeDetail.profile.followers_count ?? 0}</strong> {t("profile.followers")}
+                    </span>
+                    <span className="followers-stat">
+                      <strong>{activeDetail.profile.following_count ?? 0}</strong> {t("profile.following")}
+                    </span>
+                  </div>
+                  {isOwn ? (
+                    <span className="followers-owner">{t("profile.owner")}</span>
+                  ) : isFollowed ? (
+                    <button
+                      type="button"
+                      className="followers-btn followers-btn--following"
+                      onClick={() => setUnfollowPopup({
+                        id: activeDetail.profile.profile_id,
+                        name: activeDetail.profile.profile_name,
+                        username: activeDetail.profile.username,
+                      })}
+                    >
+                      {t("sidebar.following")}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="followers-btn followers-btn--follow"
+                      onClick={() => {
+                        const pub = publicResults.find((r) => r.profile_id === activeProfileId)
+                        if (pub) handleFollowProfile(pub)
+                      }}
+                    >
+                      + {t("sidebar.follow")}
+                    </button>
+                  )}
+                </div>
+                )
+              })() : null}
+
               {/* Natal widget */}
               {activeDetail ? (
                 <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
@@ -908,10 +1097,17 @@ export function App() {
               ) : null}
               {activeDetail ? (
                 <div className="widget widget--chart widget--wheel-right" onClick={() => setWheelExpanded(true)}>
+                  {(() => {
+                    const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
+                    return (
                   <div className="wheel-mode-toggle" onClick={(e) => e.stopPropagation()}>
                     <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("widget.natal")}</button>
-                    <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
+                    <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
+                      <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
+                    </span>
                   </div>
+                    )
+                  })()}
                   <NatalZodiacRing
                     asc={coerceNumber(activeDetail.chart.asc)}
                     mc={coerceNumber(activeDetail.chart.mc)}
@@ -952,9 +1148,44 @@ export function App() {
               ) : activeProfileId ? (
                 <SkeletonWheel />
               ) : null}
-            </div>{/* end widget-col-right */}
+            </div>{/* end widget-col-left */}
           </div>{/* end widget-grid */}
         </div>
+      </div>
+
+      {/* Mobile footer: always visible, same position in list & detail */}
+      <div className="mobile-footer">
+        <button
+          type="button"
+          className="mobile-footer-btn mobile-footer-btn--add"
+          onClick={() => {
+            setMobileView("list")
+            setIsCreating(true)
+          }}
+          title={t("sidebar.newProfile")}
+        >
+          +
+        </button>
+        <div className="mobile-search-bar" onClick={() => setMobileView("list")}>
+          <span className="mobile-search-icon">{"\uD83D\uDD0D"}</span>
+          <input
+            type="text"
+            placeholder={t("sidebar.search")}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setMobileView("list")
+            }}
+            onFocus={() => setMobileView("list")}
+          />
+        </div>
+        <button
+          type="button"
+          className="mobile-footer-btn mobile-footer-btn--menu"
+          onClick={() => setMobileView(mobileView === "list" ? "detail" : "list")}
+        >
+          {"\u2630"}
+        </button>
       </div>
 
       {isEditing && activeProfileId && activeDetail ? (
@@ -996,36 +1227,30 @@ export function App() {
                 {expandedWidget === "aspects" ? t("widget.natalAspects") : null}
                 {expandedWidget === "transits" ? `${t("transits.title")}${activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}` : null}
               </h3>
-              <button type="button" className="settings-close" onClick={() => setExpandedWidget(null)}>&times;</button>
+              <div className="widget-popup-head__actions">
+                {expandedWidget === "summary" && (() => {
+                  const activeP = profiles.find((p) => p.profile_id === activeProfileId)
+                  const isOwn = activeP != null && activeP.is_own !== false
+                  return isOwn ? (
+                    <button type="button" className="edit-btn edit-btn--compact" onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.edit")}</button>
+                  ) : null
+                })()}
+                <button type="button" className="settings-close" onClick={() => setExpandedWidget(null)}>&times;</button>
+              </div>
             </div>
             <div className="widget-popup-body">
               {expandedWidget === "summary" && activeDetail ? (
                 <div>
                   <ProfileSummaryCard detail={activeDetail} />
-                  {(() => {
-                    const activeP = profiles.find((p) => p.profile_id === activeProfileId)
-                    const isOwn = activeP?.is_own !== false
-                    const isFollowing = activeP?.is_following === true
-                    return (
-                      <>
-                        {isOwn ? (
-                          <button type="button" className="edit-btn" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.editProfile")}</button>
-                        ) : null}
-                        {isFollowing ? (
-                          <button type="button" className="edit-btn edit-btn--unfollow" style={{ marginTop: 16 }} onClick={() => { setExpandedWidget(null); if (activeProfileId) handleUnfollowProfile(activeProfileId) }}>{t("sidebar.unfollow")}</button>
-                        ) : null}
-                      </>
-                    )
-                  })()}
                   {natalPositions.length ? <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
-                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
+                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} /> : null}
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
                 <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
-                <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} />
+                <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} />
               ) : null}
               {expandedWidget === "transits" ? (
                 <TransitsTab
@@ -1059,10 +1284,17 @@ export function App() {
       {wheelExpanded && activeDetail ? (
         <div className="wheel-fullscreen" onClick={() => setWheelExpanded(false)}>
           <button type="button" className="wheel-fullscreen__close" onClick={() => setWheelExpanded(false)}>&times;</button>
+          {(() => {
+            const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
+            return (
           <div className="wheel-fullscreen__toggle" onClick={(e) => e.stopPropagation()}>
             <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("wheel.natal")}</button>
-            <button type="button" className={wheelMode === "transit" ? "active" : ""} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
+            <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
+              <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
+            </span>
           </div>
+            )
+          })()}
           <div className="wheel-fullscreen__ring" onClick={(e) => e.stopPropagation()}>
             <NatalZodiacRing
               asc={coerceNumber(activeDetail.chart.asc)}
@@ -1105,6 +1337,35 @@ export function App() {
       ) : null}
 
       {guideOpen ? <TiiGuide onClose={() => setGuideOpen(false)} /> : null}
+
+      {/* Unfollow confirmation popup */}
+      {unfollowPopup ? (
+        <div className="unfollow-popup-overlay" onClick={() => setUnfollowPopup(null)}>
+          <div className="unfollow-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="unfollow-popup__name">{unfollowPopup.name}</div>
+            <div className="unfollow-popup__username">@{unfollowPopup.username}</div>
+            <div className="unfollow-popup__actions">
+              <button
+                type="button"
+                className="unfollow-popup__btn unfollow-popup__btn--danger"
+                onClick={() => {
+                  handleUnfollowProfile(unfollowPopup.id)
+                  setUnfollowPopup(null)
+                }}
+              >
+                {t("sidebar.unfollow")}
+              </button>
+              <button
+                type="button"
+                className="unfollow-popup__btn unfollow-popup__btn--cancel"
+                onClick={() => setUnfollowPopup(null)}
+              >
+                {t("sidebar.cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <SettingsModal
         open={settingsOpen}

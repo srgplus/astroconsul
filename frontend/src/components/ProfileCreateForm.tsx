@@ -78,10 +78,6 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
                 <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>{t("form.timezone")}</label>
-                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
-              </div>
-              <div className="edit-form-field edit-form-field--full">
                 <label>{t("form.birthLocation")}</label>
                 <LocationAutocomplete
                   value={locationName}
@@ -102,13 +98,17 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
             <h3>{t("form.coordinates")}</h3>
             <p className="edit-section-desc">{t("form.coordDesc")}</p>
             <div className="edit-form-grid">
+              <div className="edit-form-field edit-form-field--full">
+                <label>{t("form.timezone")}</label>
+                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+              </div>
               <div className="edit-form-field">
                 <label>{t("form.latitude")}</label>
-                <input type="number" step="any" value={latitude} onChange={(e) => setLatitude(Number(e.target.value))} required />
+                <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
               </div>
               <div className="edit-form-field">
                 <label>{t("form.longitude")}</label>
-                <input type="number" step="any" value={longitude} onChange={(e) => setLongitude(Number(e.target.value))} required />
+                <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
               </div>
             </div>
           </div>

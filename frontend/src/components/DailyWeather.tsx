@@ -120,7 +120,20 @@ export function DailyWeather({ transitReport, activeDetail, onGuideOpen, onTrans
   const feelsLabel = t(`feels.${feelsLike}`)
 
   const tz = transitReport.snapshot?.transit_timezone ?? ""
-  const tzLabel = tz ? tz.replace(/\//g, " / ").replace(/_/g, " ").toUpperCase() : ""
+  const tzLabel = (() => {
+    if (!tz) return ""
+    // Extract city part: "America/Los_Angeles" → "Los Angeles"
+    const city = tz.split("/").pop()?.replace(/_/g, " ") ?? tz
+    // Get UTC offset like "+03:00" or "-07:00"
+    try {
+      const offsetStr = new Intl.DateTimeFormat("en", { timeZone: tz, timeZoneName: "shortOffset" })
+        .formatToParts(new Date())
+        .find((p) => p.type === "timeZoneName")?.value ?? ""
+      return `${city} ${offsetStr}`.toUpperCase()
+    } catch {
+      return city.toUpperCase()
+    }
+  })()
 
   function openSettings() {
     const snap = transitReport.snapshot

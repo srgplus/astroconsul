@@ -119,10 +119,6 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
                 <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
               </div>
               <div className="edit-form-field edit-form-field--full">
-                <label>{t("form.timezone")}</label>
-                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
-              </div>
-              <div className="edit-form-field edit-form-field--full">
                 <label>{t("form.locationName")}</label>
                 <LocationAutocomplete
                   value={locationName}
@@ -140,8 +136,8 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
           </div>
 
           <div className="edit-section">
-            <h3>{t("form.natalLocation")}</h3>
-            <p className="edit-section-desc">{t("form.natalLocationDesc")}</p>
+            <h3>{t("form.coordinates")}</h3>
+            <p className="edit-section-desc">{t("form.coordDesc")}</p>
             <div className="edit-resolve-row">
               <button type="button" className="resolve-btn" onClick={handleResolve} disabled={resolving || !locationName.trim()}>
                 {resolving ? t("form.resolving") : t("form.resolve")}
@@ -149,13 +145,17 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
               <span className="edit-resolve-hint">{t("form.resolveHint")}</span>
             </div>
             <div className="edit-form-grid">
+              <div className="edit-form-field edit-form-field--full">
+                <label>{t("form.timezone")}</label>
+                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+              </div>
               <div className="edit-form-field">
                 <label>{t("form.latitude")}</label>
-                <input type="number" step="any" value={latitude} onChange={(e) => setLatitude(Number(e.target.value))} required />
+                <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
               </div>
               <div className="edit-form-field">
                 <label>{t("form.longitude")}</label>
-                <input type="number" step="any" value={longitude} onChange={(e) => setLongitude(Number(e.target.value))} required />
+                <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
               </div>
             </div>
           </div>

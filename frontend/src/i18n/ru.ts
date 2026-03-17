@@ -26,14 +26,21 @@ export const ru: Record<string, string> = {
   "sidebar.showSidebar": "Показать панель",
   "sidebar.hideSidebar": "Скрыть панель",
   "sidebar.back": "Все профили",
-  "sidebar.searchPublic": "Поиск публичных профилей через @",
+  "sidebar.searchPublic": "Поиск профилей",
   "sidebar.publicSearching": "Поиск...",
   "sidebar.publicNoResults": "Профили не найдены",
+  "sidebar.globalResults": "Глобальный поиск",
   "sidebar.publicAddSuccess": "Профиль добавлен!",
   "sidebar.publicAddError": "Не удалось добавить профиль",
   "sidebar.follow": "Подписаться",
   "sidebar.unfollow": "Отписаться",
   "sidebar.following": "Подписка",
+  "sidebar.cancel": "Отмена",
+
+  // Profile stats
+  "profile.followers": "подписчиков",
+  "profile.following": "подписок",
+  "profile.owner": "Владелец",
 
   // Profile list
   "profileList.empty": "Профилей пока нет",
@@ -127,6 +134,12 @@ export const ru: Record<string, string> = {
   "widget.natalProfile": "Натальный профиль",
   "widget.planetPositions": "Позиции планет",
   "widget.natalAspects": "Натальные аспекты",
+  "widget.planetsHouses": "Планеты и дома",
+  "widget.edit": "Ред.",
+  "widget.followForTransit": "Подпишитесь для транзитов",
+  "widget.followToUnlock": "Подпишитесь для прогноза",
+  "widget.followToSeeTransits": "Подпишитесь для транзитов",
+  "widget.followToSeeClimate": "Подпишитесь для климата",
 
   // Profile forms
   "form.newProfile": "Новый профиль",
@@ -209,7 +222,7 @@ export const ru: Record<string, string> = {
   "planet.Selena": "Селена",
   "planet.Vertex": "Вертекс",
   "planet.ASC": "Асцендент",
-  "planet.MC": "MC",
+  "planet.MC": "Середина Неба",
 
   // Aspect names
   "aspect.conjunction": "соединение",
@@ -223,6 +236,10 @@ export const ru: Record<string, string> = {
   "strength.strong": "СИЛЬНЫЙ",
   "strength.moderate": "УМЕРЕННЫЙ",
   "strength.wide": "СЛАБЫЙ",
+
+  // Interpretation labels
+  "interp.inSign": "в",
+  "interp.inHouse": "в доме",
 
   // Zodiac signs
   "sign.Aries": "Овен",
@@ -474,4 +491,14 @@ export const ru: Record<string, string> = {
   // Natal interpretations
   "natal.in": "в",
   "natal.house": "Дом",
+
+  // Landing page
+  "landing.hero": "Исследуй Космическую Погоду",
+  "landing.subtitle": "Узнай что звёзды говорят о твоих любимых знаменитостях",
+  "landing.cta": "Создай Свою Натальную Карту",
+  "landing.signIn": "Войти",
+  "landing.signUp": "Регистрация",
+  "landing.signUpUnlock": "Зарегистрируйся для полного доступа",
+  "landing.back": "Назад",
+  "landing.loading": "Загрузка...",
 }

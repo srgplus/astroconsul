@@ -5,7 +5,7 @@ import json
 from datetime import UTC, date, datetime, time
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings
@@ -426,11 +426,61 @@ class SqlAlchemyProfileRepository:
 
         self.chart_repository.delete_chart(resolved_chart_id)
 
+    def list_featured(self, limit: int = 20) -> list[dict[str, Any]]:
+        with self.session_factory() as session:
+            statement = (
+                select(ProfileModel)
+                .options(
+                    joinedload(ProfileModel.latest_transit),
+                    joinedload(ProfileModel.chart),
+                )
+                .where(ProfileModel.is_featured == True)  # noqa: E712
+                .order_by(func.random())
+                .limit(limit)
+            )
+            rows = session.execute(statement).unique().scalars()
+
+            results: list[dict[str, Any]] = []
+            for model in rows:
+                if model.chart is None:
+                    continue
+                chart_payload = dict(model.chart.chart_payload_json)
+                summary = profile_summary(_profile_payload(model), chart_payload)
+                summary["user_id"] = model.user_id
+                summary["birth_date"] = model.birth_date.isoformat()
+                summary["birth_time"] = model.birth_time.replace(microsecond=0).isoformat()
+                summary["timezone"] = model.timezone
+                summary["location_name"] = model.location_name
+                summary["latitude"] = model.latitude
+                summary["longitude"] = model.longitude
+                # Include latest_transit summary data
+                if model.latest_transit is not None:
+                    summary["latest_transit"] = {
+                        "tii": model.latest_transit.tii,
+                        "tension_ratio": model.latest_transit.tension_ratio,
+                        "feels_like": model.latest_transit.feels_like,
+                        "timezone": model.latest_transit.timezone,
+                        "location_name": model.latest_transit.location_name,
+                    }
+                results.append(summary)
+            return results
+
+    def set_featured(self, profile_id: str, featured: bool) -> None:
+        with self.session_factory() as session:
+            model = session.get(ProfileModel, profile_id)
+            if model is None:
+                raise FileNotFoundError(f"Natal profile not found: {profile_id}")
+            model.is_featured = featured
+            session.commit()
+
     def search_public(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
         with self.session_factory() as session:
             statement = (
                 select(ProfileModel)
-                .where(ProfileModel.handle.ilike(f"%{query}%"))
+                .where(
+                    ProfileModel.handle.ilike(f"%{query}%")
+                    | ProfileModel.display_name.ilike(f"%{query}%")
+                )
                 .order_by(ProfileModel.updated_at.desc())
                 .limit(limit)
             )
@@ -514,6 +564,26 @@ class SqlAlchemyProfileRepository:
                 )
             ).scalar_one_or_none()
             return existing is not None
+
+    def count_followers(self, profile_id: str) -> int:
+        """How many users follow this profile."""
+        with self.session_factory() as session:
+            return session.execute(
+                select(func.count()).where(ProfileFollowModel.profile_id == profile_id)
+            ).scalar_one()
+
+    def count_following(self, user_id: str) -> int:
+        """How many profiles this user follows."""
+        with self.session_factory() as session:
+            return session.execute(
+                select(func.count()).where(ProfileFollowModel.user_id == user_id)
+            ).scalar_one()
+
+    def get_owner_user_id(self, profile_id: str) -> str | None:
+        """Get the user_id that owns a profile."""
+        with self.session_factory() as session:
+            profile = session.get(ProfileModel, profile_id)
+            return profile.user_id if profile else None
 
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         normalized = normalize_latest_transit(latest_transit)

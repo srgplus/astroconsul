@@ -26,14 +26,21 @@ export const en: Record<string, string> = {
   "sidebar.showSidebar": "Show sidebar",
   "sidebar.hideSidebar": "Hide sidebar",
   "sidebar.back": "All Profiles",
-  "sidebar.searchPublic": "Search public profiles with @",
+  "sidebar.searchPublic": "Search profiles",
   "sidebar.publicSearching": "Searching...",
   "sidebar.publicNoResults": "No profiles found",
+  "sidebar.globalResults": "Global Search",
   "sidebar.publicAddSuccess": "Profile added!",
   "sidebar.publicAddError": "Could not add profile",
   "sidebar.follow": "Follow",
   "sidebar.unfollow": "Unfollow",
   "sidebar.following": "Following",
+  "sidebar.cancel": "Cancel",
+
+  // Profile stats
+  "profile.followers": "followers",
+  "profile.following": "following",
+  "profile.owner": "Owner",
 
   // Profile list
   "profileList.empty": "No profiles yet",
@@ -127,6 +134,12 @@ export const en: Record<string, string> = {
   "widget.natalProfile": "Natal Profile",
   "widget.planetPositions": "Planet Positions",
   "widget.natalAspects": "Natal Aspects",
+  "widget.planetsHouses": "Planets & Houses",
+  "widget.edit": "Edit",
+  "widget.followForTransit": "Follow to unlock transits",
+  "widget.followToUnlock": "Follow to see daily forecast",
+  "widget.followToSeeTransits": "Follow to see active transits",
+  "widget.followToSeeClimate": "Follow to see cosmic climate",
 
   // Profile forms
   "form.newProfile": "New Profile",
@@ -208,8 +221,8 @@ export const en: Record<string, string> = {
   "planet.Part of Fortune": "Part of Fortune",
   "planet.Selena": "Selena",
   "planet.Vertex": "Vertex",
-  "planet.ASC": "ASC",
-  "planet.MC": "MC",
+  "planet.ASC": "Ascendent",
+  "planet.MC": "Mid Heaven",
 
   // Aspect names
   "aspect.conjunction": "conjunction",
@@ -223,6 +236,10 @@ export const en: Record<string, string> = {
   "strength.strong": "STRONG",
   "strength.moderate": "MODERATE",
   "strength.wide": "WIDE",
+
+  // Interpretation labels
+  "interp.inSign": "in",
+  "interp.inHouse": "in house",
 
   // Zodiac signs
   "sign.Aries": "Aries",
@@ -474,4 +491,14 @@ export const en: Record<string, string> = {
   // Natal interpretations
   "natal.in": "in",
   "natal.house": "House",
+
+  // Landing page
+  "landing.hero": "Explore Cosmic Weather",
+  "landing.subtitle": "See what the stars reveal about your favorite celebrities",
+  "landing.cta": "Create Your Natal Chart",
+  "landing.signIn": "Sign In",
+  "landing.signUp": "Sign Up",
+  "landing.signUpUnlock": "Sign up to unlock full features",
+  "landing.back": "Back",
+  "landing.loading": "Loading...",
 }

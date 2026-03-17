@@ -112,7 +112,7 @@ export async function fetchTransitReport(
   return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/transits/report`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...auth },
-    body: JSON.stringify({ lang: body.lang || localStorage.getItem("lang") || "ru", ...body }),
+    body: JSON.stringify({ ...body, lang: body.lang || localStorage.getItem("lang") || "en" }),
     signal,
   }).then(json<TransitReportResponse>)
 }
@@ -222,4 +222,15 @@ export async function searchLocations(
   const auth = await getAuthHeaders()
   return fetch(`/api/v1/locations/search?q=${encodeURIComponent(query)}`, { headers: auth, signal })
     .then(json<PlaceCandidate[]>)
+}
+
+// --- Public (no-auth) endpoints ---
+
+export function fetchFeaturedProfiles(): Promise<{ profiles: ProfileSummary[] }> {
+  return fetch("/api/v1/public/featured").then(json<{ profiles: ProfileSummary[] }>)
+}
+
+export function fetchPublicProfileDetail(profileId: string, lang?: string): Promise<ProfileDetailResponse> {
+  const l = lang || localStorage.getItem("lang") || "en"
+  return fetch(`/api/v1/public/profiles/${encodeURIComponent(profileId)}?lang=${l}`).then(json<ProfileDetailResponse>)
 }
