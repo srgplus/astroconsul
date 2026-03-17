@@ -326,7 +326,7 @@ def find_all_exact_passes(
     transit_object_id: str,
     natal_longitude: float,
     exact_angle: int,
-    tolerance: float = EXACT_TOLERANCE,
+    tolerance: float = 1.0,  # 1° tolerance — wider than EXACT_TOLERANCE to catch retrograde passes
     longitude_cache: dict[tuple[str, int], float] | None = None,
 ) -> list[dict[str, object]]:
     """Find ALL local minima (exact passes) within the aspect window.

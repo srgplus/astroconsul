@@ -327,20 +327,23 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
 
   const nowPct = Math.max(0, Math.min(100, ((now - start) / total) * 100))
 
-  let exactPct: number | null = null
-  if (timing.exact_utc) {
-    const exact = new Date(timing.exact_utc).getTime()
-    exactPct = Math.max(0, Math.min(100, ((exact - start) / total) * 100))
+  // Use peak_utc (closest approach, always exists) for the main notch
+  // exact_utc only exists when orb < 0.01° which is too strict
+  const peakDate = timing.peak_utc ?? timing.exact_utc
+  let peakPct: number | null = null
+  if (peakDate) {
+    const peak = new Date(peakDate).getTime()
+    peakPct = Math.max(0, Math.min(100, ((peak - start) / total) * 100))
   }
 
   const pFactor = PLANET_FACTOR[transitObject] ?? 1.0
-  const peakPct = exactPct ?? 50
-  const gradient = buildTransitGradient(peakPct, pFactor)
+  const gradientPeak = peakPct ?? 50
+  const gradient = buildTransitGradient(gradientPeak, pFactor)
   const dotColor = peakColor(pFactor)
   const isOuter = pFactor > 1.0
 
   const startLabel = shortDate(timing.start_utc, t)
-  const exactLabel = shortDate(timing.exact_utc, t)
+  const peakLabel = shortDate(peakDate, t)
   const endLabel = shortDate(timing.end_utc, t)
 
   return (
@@ -356,22 +359,17 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
             backgroundSize: nowPct > 0 ? `${100 / nowPct * 100}% 100%` : undefined,
           }}
         />
-        {/* Render notches for each exact pass (retrograde = multiple) */}
-        {timing.exact_passes?.length ? timing.exact_passes.map((pass, i) => {
-          const passTime = new Date(pass.utc).getTime()
-          const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-          return (
-            <div
-              key={i}
-              className="transit-bar__exact"
-              style={{ left: `${passPct}%` }}
-            />
-          )
-        }) : exactPct !== null ? (
-          <div
-            className="transit-bar__exact"
-            style={{ left: `${exactPct}%` }}
-          />
+        {/* Render notches: exact_passes if multiple, otherwise peak notch */}
+        {timing.exact_passes && timing.exact_passes.length > 1 ? (
+          timing.exact_passes.map((pass, i) => {
+            const passTime = new Date(pass.utc).getTime()
+            const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+            return (
+              <div key={i} className="transit-bar__exact" style={{ left: `${passPct}%` }} />
+            )
+          })
+        ) : peakPct !== null ? (
+          <div className="transit-bar__exact" style={{ left: `${peakPct}%` }} />
         ) : null}
         <div
           className="transit-bar__now"
@@ -381,7 +379,6 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
       <div className="transit-bar__labels">
         <span>{startLabel}</span>
         {timing.exact_passes && timing.exact_passes.length > 1 ? (
-          /* Multiple passes: show labels for each */
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
@@ -391,8 +388,8 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
               </span>
             )
           })
-        ) : exactPct !== null && exactLabel ? (
-          <span className="transit-bar__exact-label" style={{ left: `${exactPct}%` }}>{exactLabel}</span>
+        ) : peakPct !== null && peakLabel ? (
+          <span className="transit-bar__exact-label" style={{ left: `${peakPct}%` }}>{peakLabel}</span>
         ) : null}
         <span>{endLabel}</span>
       </div>
