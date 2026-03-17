@@ -1153,9 +1153,6 @@ export function App() {
                     <span className="followers-stat">
                       <strong>{activeDetail.profile.followers_count ?? 0}</strong> {t("profile.followers")}
                     </span>
-                    <span className="followers-stat">
-                      <strong>{activeDetail.profile.following_count ?? 0}</strong> {t("profile.following")}
-                    </span>
                   </div>
                   {isOwn ? (
                     <span className="followers-owner">{t("profile.owner")}</span>

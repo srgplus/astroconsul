@@ -459,12 +459,14 @@ select {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  order: -1;
 }
 
 .widget-col-right {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  order: 1;
 }
 
 .widget {
