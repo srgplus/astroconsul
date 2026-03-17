@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.legacy import router as legacy_router
@@ -64,6 +66,36 @@ def create_app() -> FastAPI:
             StaticFiles(directory=str(settings.frontend_dist_dir / "assets")),
             name="frontend-assets",
         )
+
+    # Serve root-level static files (og-image.png, favicon.ico, robots.txt, etc.)
+    _static_root_files = [
+        "og-image.png", "favicon.ico", "favicon-32x32.png", "favicon-16x16.png",
+        "favicon.svg", "apple-touch-icon.png", "robots.txt", "sitemap.xml",
+    ]
+    for _fname in _static_root_files:
+        _fpath = settings.frontend_dist_dir / _fname
+        if _fpath.exists():
+            def _make_handler(_p: Path = _fpath):
+                @app.get(f"/{_p.name}", include_in_schema=False)
+                def _serve():
+                    return FileResponse(str(_p))
+            _make_handler(_fpath)
+
+    canonical_host = settings.canonical_host.strip().lower() if settings.canonical_host else None
+
+    if canonical_host:
+        www_host = f"www.{canonical_host}"
+
+        @app.middleware("http")
+        async def redirect_www_to_canonical(request: Request, call_next):
+            incoming_host = (request.url.hostname or "").lower()
+            if incoming_host == www_host:
+                scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
+                path = request.url.path
+                query = f"?{request.url.query}" if request.url.query else ""
+                canonical_url = f"{scheme}://{canonical_host}{path}{query}"
+                return RedirectResponse(url=canonical_url, status_code=308)
+            return await call_next(request)
 
     @app.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
