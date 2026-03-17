@@ -318,6 +318,70 @@ def find_peak_within_interval(
     return best_moment, round(best_error, 6)
 
 
+def find_all_exact_passes(
+    *,
+    start_utc: datetime,
+    end_utc: datetime,
+    coarse_step: timedelta,
+    transit_object_id: str,
+    natal_longitude: float,
+    exact_angle: int,
+    tolerance: float = EXACT_TOLERANCE,
+    longitude_cache: dict[tuple[str, int], float] | None = None,
+) -> list[dict[str, object]]:
+    """Find ALL local minima (exact passes) within the aspect window.
+
+    Returns a list of {utc, orb} dicts for each time the orb dips below
+    *tolerance*, sorted chronologically.  For non-retrograde transits this
+    typically returns 0-1 entries; for retrogrades it can return 2-3.
+    """
+    samples = sample_points(start_utc, end_utc, coarse_step, start_utc)
+    scored = [
+        (
+            moment,
+            aspect_error_at(
+                transit_object_id, natal_longitude, exact_angle, moment,
+                longitude_cache=longitude_cache,
+            ),
+        )
+        for moment in samples
+    ]
+
+    # Find indices that are local minima (lower than both neighbours)
+    minima_indices: list[int] = []
+    for i in range(len(scored)):
+        left = scored[i - 1][1] if i > 0 else float("inf")
+        right = scored[i + 1][1] if i < len(scored) - 1 else float("inf")
+        if scored[i][1] <= left and scored[i][1] <= right:
+            minima_indices.append(i)
+
+    passes: list[dict[str, object]] = []
+    for idx in minima_indices:
+        # Refine each minimum to minute resolution
+        local_start = samples[max(0, idx - 1)]
+        local_end = samples[min(len(samples) - 1, idx + 1)]
+        best_moment, best_error = scored[idx]
+
+        cursor = local_start
+        while cursor <= local_end:
+            error = aspect_error_at(
+                transit_object_id, natal_longitude, exact_angle, cursor,
+                longitude_cache=longitude_cache,
+            )
+            if error < best_error:
+                best_moment = cursor
+                best_error = error
+            cursor += TIMING_RESOLUTION
+
+        if best_error <= tolerance:
+            passes.append({
+                "utc": format_utc_datetime(best_moment),
+                "orb": round(best_error, 6),
+            })
+
+    return passes
+
+
 def timing_status(current_utc: datetime, peak_utc: datetime) -> str:
     difference = (current_utc - peak_utc).total_seconds()
     tolerance_seconds = TIMING_RESOLUTION.total_seconds()
@@ -386,6 +450,19 @@ def compute_active_aspect_timing(
     if start_utc is not None and end_utc is not None:
         duration_hours = round((end_utc - start_utc).total_seconds() / 3600, 6)
 
+    # Find all exact passes (retrograde can produce 2-3)
+    exact_passes: list[dict[str, object]] = []
+    if start_utc is not None and end_utc is not None:
+        exact_passes = find_all_exact_passes(
+            start_utc=search_start,
+            end_utc=search_end,
+            coarse_step=step,
+            transit_object_id=transit_object_id,
+            natal_longitude=natal_longitude,
+            exact_angle=exact_angle,
+            longitude_cache=longitude_cache,
+        )
+
     return {
         "start_utc": format_utc_datetime(start_utc),
         "peak_utc": format_utc_datetime(peak_utc),
@@ -395,4 +472,5 @@ def compute_active_aspect_timing(
         "status": timing_status(current_utc, peak_utc),
         "will_perfect": exact_utc is not None,
         "duration_hours": duration_hours,
+        "exact_passes": exact_passes,
     }

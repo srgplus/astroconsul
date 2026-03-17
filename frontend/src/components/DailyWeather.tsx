@@ -356,7 +356,18 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
             backgroundSize: nowPct > 0 ? `${100 / nowPct * 100}% 100%` : undefined,
           }}
         />
-        {exactPct !== null ? (
+        {/* Render notches for each exact pass (retrograde = multiple) */}
+        {timing.exact_passes?.length ? timing.exact_passes.map((pass, i) => {
+          const passTime = new Date(pass.utc).getTime()
+          const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+          return (
+            <div
+              key={i}
+              className="transit-bar__exact"
+              style={{ left: `${passPct}%` }}
+            />
+          )
+        }) : exactPct !== null ? (
           <div
             className="transit-bar__exact"
             style={{ left: `${exactPct}%` }}
@@ -369,7 +380,18 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
       </div>
       <div className="transit-bar__labels">
         <span>{startLabel}</span>
-        {exactPct !== null && exactLabel ? (
+        {timing.exact_passes && timing.exact_passes.length > 1 ? (
+          /* Multiple passes: show labels for each */
+          timing.exact_passes.map((pass, i) => {
+            const passTime = new Date(pass.utc).getTime()
+            const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+            return (
+              <span key={i} className="transit-bar__exact-label" style={{ left: `${passPct}%` }}>
+                {shortDate(pass.utc, t)}
+              </span>
+            )
+          })
+        ) : exactPct !== null && exactLabel ? (
           <span className="transit-bar__exact-label" style={{ left: `${exactPct}%` }}>{exactLabel}</span>
         ) : null}
         <span>{endLabel}</span>
@@ -577,6 +599,7 @@ export function ActiveTransitsWidget({ transitReport }: {
                       </span>
                       <span className="cw-transit-label">
                         {t(`planet.${a.transit_object}`)} {t(`aspect.${a.aspect}`)} {t(`planet.${a.natal_object}`)}
+                        {tp?.retrograde ? <span className="cw-retro-badge">Ⓡ</span> : null}
                       </span>
                     </span>
                     <span className="cw-transit-right">

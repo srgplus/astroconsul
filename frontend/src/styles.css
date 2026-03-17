@@ -1949,6 +1949,15 @@ select {
   color: var(--text);
 }
 
+.cw-retro-badge {
+  display: inline-block;
+  margin-left: 4px;
+  color: #FF9500;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
 .cw-transit-right {
   display: flex;
   align-items: center;

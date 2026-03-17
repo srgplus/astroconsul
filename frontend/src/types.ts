@@ -147,6 +147,11 @@ export type TransitPosition = {
   natal_house: number
 }
 
+export type ExactPass = {
+  utc: string
+  orb: number
+}
+
 export type AspectTiming = {
   start_utc: string | null
   peak_utc: string | null
@@ -156,6 +161,7 @@ export type AspectTiming = {
   status: string | null
   will_perfect: boolean
   duration_hours: number | null
+  exact_passes?: ExactPass[]
 }
 
 export type ActiveAspect = {
