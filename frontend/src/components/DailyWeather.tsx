@@ -3,7 +3,7 @@ import type { TransitReportResponse, ProfileDetailResponse, ActiveAspect, Aspect
 import type { PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
-import B3Logo from "./B3Logo"
+
 import { useLanguage } from "../contexts/LanguageContext"
 import { useMobileTap } from "../lib/useMobileTap"
 
@@ -207,7 +207,6 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
     <div className="cw">
       {/* Compact fixed header — appears when hero scrolls out */}
       <div className={`cw-compact${compact ? " cw-compact--visible" : ""}`}>
-        <B3Logo size="sm" className="cw-compact__logo" />
         <span className="cw-compact__name">{activeDetail.profile.profile_name}</span>
         <span className="cw-compact__emoji">{emoji}</span>
         <span className="cw-compact__tii">{Math.round(tii)}&deg;</span>

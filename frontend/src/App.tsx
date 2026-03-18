@@ -725,10 +725,6 @@ export function App() {
 
   return (
     <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
-      {/* Desktop persistent logo — top right */}
-      <div className="b3-logo-desktop-fixed">
-        <B3Logo />
-      </div>
       <div className="main-layout">
         <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
           {/* Desktop toolbar (burger + add) */}
@@ -741,6 +737,7 @@ export function App() {
             >
               {"\u2630"}
             </button>
+            <B3Logo size="sm" className="sidebar-toolbar__logo" />
             <button
               type="button"
               className="sidebar-toolbar-btn sidebar-toolbar-btn--add"
@@ -909,9 +906,9 @@ export function App() {
         </aside>
 
         <div className="content-pane">
-          {/* Sticky logo — always visible at top */}
-          <div className="b3-logo-sticky">
-            <B3Logo />
+          {/* Mobile-only sticky logo at top of detail view */}
+          <div className="b3-logo-mobile-detail">
+            <B3Logo size="sm" />
           </div>
           {/* Hero section: DailyWeather, locked preview, or skeleton */}
           {transitReport && activeDetail ? (

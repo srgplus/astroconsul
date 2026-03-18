@@ -8,18 +8,12 @@ export default function B3Logo({ size = "md", className }: B3LogoProps) {
 
   return (
     <span
-      className={className}
-      style={{
-        fontFamily: "'Space Grotesk', sans-serif",
-        fontSize,
-        letterSpacing: "-1px",
-        lineHeight: 1,
-        whiteSpace: "nowrap",
-      }}
+      className={`b3-wordmark ${className ?? ""}`}
+      style={{ fontSize }}
     >
-      <span style={{ fontWeight: 300, color: "#f5f5f7" }}>big</span>
-      <span style={{ fontWeight: 700, color: "#f5f5f7" }}>3</span>
-      <span style={{ fontWeight: 400, fontSize: "0.65em", letterSpacing: 0, color: "#666" }}>.me</span>
+      <span className="b3-wordmark__big">big</span>
+      <span className="b3-wordmark__3">3</span>
+      <span className="b3-wordmark__me">.me</span>
     </span>
   );
 }
