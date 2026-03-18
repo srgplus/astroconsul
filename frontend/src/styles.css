@@ -34,8 +34,8 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg: #f0ece4;
-    --bg-deep: #e8e3d9;
+    --bg: #F7F7F5;
+    --bg-deep: #EDEDEB;
     --surface: rgba(255, 255, 255, 0.88);
     --surface-strong: rgba(255, 255, 255, 0.96);
     --surface-soft: rgba(0, 0, 0, 0.03);
@@ -48,11 +48,11 @@
     --muted: #6b7280;
     --muted-strong: #374151;
     --accent: #1a1a1a;
-    --accent-ink: #f5f3ee;
+    --accent-ink: #F7F7F5;
     --ring-sector: #1a1a1a;
     --ring-outline: rgba(255, 255, 255, 0.5);
     --ring-line-soft: #c0c0bb;
-    --ring-label: #f0ede6;
+    --ring-label: #F0F0EE;
     --ring-center-fill: #ffffff;
     --ring-inner-fill: #ffffff;
     --ring-empty-bg: rgba(0, 0, 0, 0.02);
@@ -61,15 +61,15 @@
     --ok: #22c55e;
     --error: #ef4444;
     --shadow: 0 28px 80px rgba(0, 0, 0, 0.08);
-    --sk-base: #ddd8ce;
-    --sk-shine: #cdc7bb;
+    --sk-base: #E0E0DE;
+    --sk-shine: #D4D4D2;
   }
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f0ece4;
-  --bg-deep: #e8e3d9;
+  --bg: #F7F7F5;
+  --bg-deep: #EDEDEB;
   --surface: rgba(255, 255, 255, 0.88);
   --surface-strong: rgba(255, 255, 255, 0.96);
   --surface-soft: rgba(0, 0, 0, 0.03);
@@ -82,11 +82,11 @@
   --muted: #6b7280;
   --muted-strong: #374151;
   --accent: #1a1a1a;
-  --accent-ink: #f5f3ee;
+  --accent-ink: #F7F7F5;
   --ring-sector: #1a1a1a;
   --ring-outline: rgba(255, 255, 255, 0.5);
   --ring-line-soft: #c0c0bb;
-  --ring-label: #f0ede6;
+  --ring-label: #F0F0EE;
   --ring-center-fill: #ffffff;
   --ring-inner-fill: #ffffff;
   --ring-empty-bg: rgba(0, 0, 0, 0.02);
@@ -95,8 +95,8 @@
   --ok: #22c55e;
   --error: #ef4444;
   --shadow: 0 28px 80px rgba(0, 0, 0, 0.08);
-  --sk-base: #ddd8ce;
-  --sk-shine: #cdc7bb;
+  --sk-base: #E0E0DE;
+  --sk-shine: #D4D4D2;
 }
 
 * {
@@ -119,17 +119,17 @@ body {
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) body {
     background:
-      radial-gradient(circle at top center, rgba(94, 126, 177, 0.06), transparent 24%),
-      radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.06), transparent 20%),
-      linear-gradient(180deg, #f5f1e8 0%, var(--bg) 50%, var(--bg-deep) 100%);
+      radial-gradient(circle at top center, rgba(94, 126, 177, 0.04), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.04), transparent 20%),
+      linear-gradient(180deg, #F7F7F5 0%, var(--bg) 50%, var(--bg-deep) 100%);
   }
 }
 
 :root[data-theme="light"] body {
   background:
-    radial-gradient(circle at top center, rgba(94, 126, 177, 0.06), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.06), transparent 20%),
-    linear-gradient(180deg, #f5f1e8 0%, var(--bg) 50%, var(--bg-deep) 100%);
+    radial-gradient(circle at top center, rgba(94, 126, 177, 0.04), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.04), transparent 20%),
+    linear-gradient(180deg, #F7F7F5 0%, var(--bg) 50%, var(--bg-deep) 100%);
 }
 
 button,
@@ -4335,7 +4335,7 @@ button.natal-pos__row--clickable {
     width: 100%;
   }
 
-  /* ===== Mobile list header: "Astromi" + settings/info ===== */
+  /* ===== Mobile list header: "big3.me" + settings/info ===== */
   .mobile-list-header {
     display: flex;
     align-items: center;
@@ -4343,12 +4343,16 @@ button.natal-pos__row--clickable {
     padding: 16px 20px 8px;
   }
   .mobile-list-title {
+    font-family: "Space Grotesk", sans-serif;
     font-size: 32px;
-    font-weight: 700;
+    font-weight: 300;
     letter-spacing: -0.5px;
     color: var(--ink);
     margin: 0;
   }
+  .brand-big { font-weight: 300; }
+  .brand-3 { font-weight: 700; }
+  .brand-me { font-weight: 400; font-size: 0.75em; }
   .mobile-list-header-actions {
     display: flex;
     gap: 8px;
@@ -4840,8 +4844,10 @@ button.natal-pos__row--clickable {
 
 .auth-logo {
   text-align: center;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 300;
+  letter-spacing: -0.5px;
   color: var(--text);
   margin: 0 0 8px;
 }

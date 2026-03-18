@@ -3,7 +3,7 @@ export const en: Record<string, string> = {
   "wheel.natal": "Natal",
   "wheel.transit": "Transit",
   // Auth
-  "auth.logo": "✦ Astro Consul",
+  "auth.logo": "big3.me",
   "auth.signIn": "Sign In",
   "auth.signUp": "Sign Up",
   "auth.signInSubtitle": "Sign in to your account",
@@ -92,7 +92,7 @@ export const en: Record<string, string> = {
   "settings.resetCache": "Reset Cache",
 
   // Settings: About
-  "settings.appName": "Astro Consul",
+  "settings.appName": "big3.me",
   "settings.version": "Version",
   "settings.versionVal": "0.1.0 beta",
   "settings.builtBy": "Built by",

@@ -746,9 +746,9 @@ export function App() {
             </button>
           </div>
 
-          {/* Mobile header: "Astromi" title + settings/info */}
+          {/* Mobile header: "big3.me" title + settings/info */}
           <div className="mobile-list-header">
-            <h1 className="mobile-list-title">Astromi</h1>
+            <h1 className="mobile-list-title"><span className="brand-big">big</span><span className="brand-3">3</span><span className="brand-me">.me</span></h1>
             <div className="mobile-list-header-actions">
               <button type="button" className="sidebar-icon-btn" onClick={() => setSettingsOpen(true)} title={t("sidebar.settings")}>{"\u2699"}</button>
               <button type="button" className="sidebar-icon-btn" onClick={() => setGuideOpen(true)} title={t("sidebar.howItWorks")}>{"\u2139"}</button>
