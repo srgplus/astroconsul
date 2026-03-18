@@ -206,6 +206,12 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
     <div className="cw">
       {/* Compact fixed header — appears when hero scrolls out */}
       <div className={`cw-compact${compact ? " cw-compact--visible" : ""}`}>
+        <svg className="cw-compact__logo" viewBox="0 0 32 32" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="7" fill="#1a1a22"/>
+          <text x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fill="white">
+            <tspan fontWeight="300">b</tspan><tspan fontWeight="700">3</tspan>
+          </text>
+        </svg>
         <span className="cw-compact__name">{activeDetail.profile.profile_name}</span>
         <span className="cw-compact__emoji">{emoji}</span>
         <span className="cw-compact__tii">{Math.round(tii)}&deg;</span>
