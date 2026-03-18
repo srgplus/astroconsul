@@ -987,13 +987,13 @@ export function App() {
                     <div className="cw-hero__tii" style={{ color: accent }}>{Math.round(tiiData.tii)}°</div>
                     <div className="cw-hero__sublabel">INTENSITY</div>
                     <div className="cw-hero__feels" style={{ color: accent }}>{feelsLabel}</div>
-                    <div className="cw-hero__mood">{mood}</div>
                     <div className="cw-hero__bar-row">
                       <div className="cw-hero__bar">
                         <div className="cw-hero__bar-fill" style={{ width: `${Math.round(tiiData.tension_ratio * 100)}%`, background: accent }} />
                       </div>
                       <span className="cw-hero__bar-label">Tension {Math.round(tiiData.tension_ratio * 100)}%</span>
                     </div>
+                    <div className="cw-hero__mood">{mood}</div>
                   </div>
                 </div>
               )

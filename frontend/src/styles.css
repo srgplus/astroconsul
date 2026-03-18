@@ -1611,7 +1611,16 @@ select {
   font-size: 15px;
   color: var(--muted);
   max-width: 320px;
-  margin-bottom: 16px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.cw-feels-desc {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 300px;
+  margin: 0 auto 16px;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .cw-tension-bar {

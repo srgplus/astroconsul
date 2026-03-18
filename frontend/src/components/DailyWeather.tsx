@@ -122,6 +122,23 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
   const mood = t(`mood.${feelsLike}`)
   const feelsLabel = t(`feels.${feelsLike}`)
 
+  // Map feels_like → guide translation key for the description
+  const FEELS_DESC_KEY: Record<string, string> = {
+    Calm: "guide.feelsCalmQuiet",
+    "Subtle pressure": "guide.feelsSubtleQuiet",
+    Grinding: "guide.feelsGrindingQuiet",
+    Flowing: "guide.feelsFlowingActive",
+    Dynamic: "guide.feelsDynamicActive",
+    Pressured: "guide.feelsPressuredActive",
+    Expansive: "guide.feelsExpansiveHot",
+    Charged: "guide.feelsChargedHot",
+    Intense: "guide.feelsIntenseHot",
+    Powerful: "guide.feelsPowerfulExtreme",
+    Volatile: "guide.feelsVolatileExtreme",
+    Explosive: "guide.feelsExplosiveExtreme",
+  }
+  const feelsDesc = t(FEELS_DESC_KEY[feelsLike] ?? "guide.feelsCalmQuiet")
+
   const tz = transitReport.snapshot?.transit_timezone ?? ""
   const tzLabel = (() => {
     if (!tz) return ""
@@ -214,7 +231,6 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
         <div className="cw-tii-label">{t("weather.intensity")}</div>
 
         <div className="cw-feels" style={{ color: accent }}>{feelsLabel}</div>
-        <div className="cw-mood">{mood}</div>
 
         <div className="cw-tension-bar">
           <div className="cw-tension-bar__track">
@@ -225,6 +241,9 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
           </div>
           <span className="cw-tension-bar__label">{t("weather.tension")} {Math.round(tensionRatio * 100)}%</span>
         </div>
+
+        <div className="cw-mood">{mood}</div>
+        <div className="cw-feels-desc">{feelsDesc}</div>
       </div>
 
       {settingsOpen ? (
