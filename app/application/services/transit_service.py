@@ -11,6 +11,8 @@ from app.application.services.input_resolution import (
 from app.domain.astrology.charts import swiss_ephemeris_version
 from app.domain.astrology.cosmic_climate import get_cosmic_climate
 from app.domain.astrology.tii import (
+    compute_ope,
+    compute_retrograde_index,
     compute_tension_ratio,
     compute_tii,
     feels_like,
@@ -117,6 +119,12 @@ class TransitService:
         report["tension_ratio"] = tension_ratio
         report["feels_like"] = feels_like(tii, tension_ratio)
 
+        # --- OPE & Retrograde ---
+        ope = compute_ope(active_aspects)
+        rx = compute_retrograde_index(report.get("transit_positions", []))
+        report["ope"] = ope
+        report["retrograde_index"] = rx
+
         if payload.profile_id:
             profile_repository.save_latest_transit(
                 payload.profile_id,
@@ -130,6 +138,8 @@ class TransitService:
                     "tii": tii,
                     "tension_ratio": tension_ratio,
                     "feels_like": report["feels_like"],
+                    "ope": ope,
+                    "retrograde_count": rx["count"],
                 },
             )
         report["top_transits"] = top_active_transits(active_aspects)
@@ -137,6 +147,80 @@ class TransitService:
 
         report["snapshot"] = snapshot
         return report
+
+    def build_forecast(
+        self,
+        payload,
+        *,
+        profile_repository,
+    ) -> dict[str, object]:
+        """Build a multi-day TII forecast (no timing engine — fast)."""
+        from datetime import timedelta
+        from zoneinfo import ZoneInfo
+
+        chart_id = ensure_chart_reference(
+            getattr(payload, "chart_id", None),
+            payload.profile_id,
+            resolver=profile_repository.resolve_profile_chart_id,
+        )
+
+        tz = ZoneInfo(payload.timezone)
+        start = date.fromisoformat(str(payload.start_date))
+        num_days = payload.days
+        lang = getattr(payload, "lang", "ru")
+
+        prev_tii: float | None = None
+        days: list[dict] = []
+
+        for offset in range(num_days):
+            current_date = start + timedelta(days=offset)
+            # Noon local → UTC
+            local_noon = datetime.combine(current_date, datetime.min.time().replace(hour=12), tzinfo=tz)
+            utc_noon = local_noon.astimezone(UTC)
+
+            report = build_transit_report(
+                chart_id,
+                utc_noon.date().isoformat(),
+                utc_noon.strftime("%H:%M:%S"),
+                include_timing=False,
+                lang=lang,
+            )
+
+            active_aspects = report.get("active_aspects", [])
+            tii_val = compute_tii(active_aspects)
+            tr = compute_tension_ratio(active_aspects)
+            fl = feels_like(tii_val, tr)
+            ope_val = compute_ope(active_aspects)
+            rx = compute_retrograde_index(report.get("transit_positions", []))
+            top = top_active_transits(active_aspects, n=3)
+
+            # Velocity (delta vs previous day)
+            velocity_delta: float | None = None
+            velocity_direction: str | None = None
+            if prev_tii is not None:
+                velocity_delta = round(tii_val - prev_tii, 1)
+                if velocity_delta > 2:
+                    velocity_direction = "rising"
+                elif velocity_delta < -2:
+                    velocity_direction = "falling"
+                else:
+                    velocity_direction = "stable"
+
+            days.append({
+                "date": current_date.isoformat(),
+                "tii": tii_val,
+                "tension_ratio": tr,
+                "feels_like": fl,
+                "ope": ope_val,
+                "retrograde_count": rx["count"],
+                "retrograde_planets": rx["planets"],
+                "velocity_delta": velocity_delta,
+                "velocity_direction": velocity_direction,
+                "top_transits": top,
+            })
+            prev_tii = tii_val
+
+        return {"days": days}
 
     def build_timeline(self, payload, *, profile_repository) -> dict[str, object]:
         chart_id = ensure_chart_reference(

@@ -131,8 +131,33 @@ class TransitReportResponse(BaseModel):
     tension_ratio: float | None = None
     feels_like: str | None = None
     top_transits: list[Any] | None = None
+    ope: float | None = None
+    retrograde_index: dict[str, Any] | None = None
 
 
 class TransitTimelineResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
     timeline: list[Any]
+
+
+# ---------------------------------------------------------------------------
+# Forecast
+# ---------------------------------------------------------------------------
+
+
+class DailyForecastItem(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    date: str
+    tii: float
+    tension_ratio: float
+    feels_like: str
+    ope: float
+    retrograde_count: int
+    retrograde_planets: list[str]
+    velocity_delta: float | None = None
+    velocity_direction: str | None = None
+    top_transits: list[Any]
+
+
+class ForecastResponse(BaseModel):
+    days: list[DailyForecastItem]

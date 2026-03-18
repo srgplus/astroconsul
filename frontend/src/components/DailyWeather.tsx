@@ -117,6 +117,8 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
   const tii = transitReport.tii ?? 0
   const feelsLike = transitReport.feels_like ?? "Calm"
   const tensionRatio = transitReport.tension_ratio ?? 0
+  const ope = transitReport.ope ?? 0
+  const rx = transitReport.retrograde_index
   const accent = zoneColor(tii)
   const emoji = FEELS_EMOJI[feelsLike] ?? "\u2728"
   const mood = t(`mood.${feelsLike}`)
@@ -224,6 +226,19 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
             />
           </div>
           <span className="cw-tension-bar__label">{t("weather.tension")} {Math.round(tensionRatio * 100)}%</span>
+        </div>
+
+        <div className="cw-metrics-row">
+          {ope > 0 ? (
+            <span className="cw-metric-badge" title="Outer Planet Energy">
+              OPE {Math.round(ope)}
+            </span>
+          ) : null}
+          {rx && rx.count > 0 ? (
+            <span className="cw-metric-badge cw-metric-badge--rx" title={rx.planets.join(", ")}>
+              {rx.count} Rx
+            </span>
+          ) : null}
         </div>
       </div>
 

@@ -70,3 +70,12 @@ class ProfileTransitTimelineRequest(BaseModel):
     start_date: date
     end_date: date
     timezone: str
+
+
+class ForecastRequest(BaseModel):
+    profile_id: str | None = None
+    chart_id: str | None = None
+    start_date: date | None = None
+    days: int = 10
+    timezone: str
+    lang: str = "ru"

@@ -7,6 +7,7 @@ import type {
   TransitReportResponse,
   TransitTimelineResponse,
   PublicSearchResult,
+  ForecastResponse,
 } from "./types"
 import { supabase } from "./lib/supabase"
 
@@ -222,6 +223,23 @@ export async function searchLocations(
   const auth = await getAuthHeaders()
   return fetch(`/api/v1/locations/search?q=${encodeURIComponent(query)}`, { headers: auth, signal })
     .then(json<PlaceCandidate[]>)
+}
+
+export async function fetchForecast(
+  profileId: string,
+  params: { days?: number; timezone: string; lang?: string },
+  signal?: AbortSignal,
+): Promise<ForecastResponse> {
+  const auth = await getAuthHeaders()
+  const query = new URLSearchParams({
+    days: String(params.days ?? 10),
+    timezone: params.timezone,
+    lang: params.lang || localStorage.getItem("lang") || "en",
+  }).toString()
+  return fetch(
+    `/api/v1/profiles/${encodeURIComponent(profileId)}/transits/forecast?${query}`,
+    { headers: auth, signal },
+  ).then(json<ForecastResponse>)
 }
 
 // --- Public (no-auth) endpoints ---

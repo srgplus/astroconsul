@@ -150,3 +150,68 @@ def top_active_transits(aspects: list[dict], n: int = 3) -> list[dict]:
 
     scored.sort(key=lambda a: a["_tii_contribution"], reverse=True)
     return scored[:n]
+
+
+# ---------------------------------------------------------------------------
+# OPE (Outer Planet Energy)
+# ---------------------------------------------------------------------------
+
+_OUTER_PLANETS: set[str] = {"Uranus", "Neptune", "Pluto"}
+
+
+def compute_ope(aspects: list[dict]) -> float:
+    """OPE = Σ (aspect_weight × orb_score) for outer planets only.
+
+    Returns a raw score (not normalised to TII).  Higher = more outer-planet
+    pressure on the natal chart.
+    """
+    total = 0.0
+    for aspect in aspects:
+        transit_obj = str(aspect.get("transit_object", ""))
+        if transit_obj not in _OUTER_PLANETS:
+            continue
+        natal_obj = str(aspect.get("natal_object", ""))
+        if natal_obj not in TII_NATAL_POINTS:
+            continue
+        aspect_name = str(aspect.get("aspect", ""))
+        orb = float(aspect.get("orb", 99))
+        weight = ASPECT_WEIGHT.get(aspect_name, 0)
+        total += weight * _orb_score(orb)
+    return round(total, 1)
+
+
+# ---------------------------------------------------------------------------
+# Retrograde Index
+# ---------------------------------------------------------------------------
+
+_RX_BONUS: dict[str, float] = {
+    "Mercury": 2.0,
+    "Venus": 1.5,
+    "Mars": 1.5,
+    "Jupiter": 0.5,
+    "Saturn": 0.5,
+    "Uranus": 0.5,
+    "Neptune": 0.5,
+    "Pluto": 0.5,
+}
+
+
+def compute_retrograde_index(transit_positions: list[dict]) -> dict:
+    """Retrograde index from current transit positions.
+
+    Returns ``{"count": int, "index": float, "planets": [str, ...]}``.
+    """
+    count = 0
+    index = 0.0
+    planets: list[str] = []
+    for pos in transit_positions:
+        pid = str(pos.get("id", ""))
+        if not pos.get("retrograde"):
+            continue
+        bonus = _RX_BONUS.get(pid, 0.0)
+        if bonus == 0.0:
+            continue
+        count += 1
+        index += bonus
+        planets.append(pid)
+    return {"count": count, "index": round(index, 1), "planets": planets}

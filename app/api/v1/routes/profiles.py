@@ -26,12 +26,14 @@ from app.application.services.transit_service import TransitService
 from app.domain.astrology.locations import LocationResolutionError, resolve_location_name
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.schemas.requests import (
+    ForecastRequest,
     NatalProfileUpsertRequest,
     ProfileTransitReportRequest,
     TransitReportRequest,
     TransitTimelineRequest,
 )
 from app.schemas.responses import (
+    ForecastResponse,
     ProfileDetailResponse,
     ProfileListResponse,
     PublicProfileSearchResponse,
@@ -318,6 +320,39 @@ def profile_transit_timeline(
     )
     try:
         return transit_service.build_timeline(request, profile_repository=repos.profiles)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/{profile_id}/transits/forecast", response_model=ForecastResponse)
+def profile_transit_forecast(
+    profile_id: str,
+    timezone: str = Query(...),
+    days: int = Query(10, ge=1, le=30),
+    lang: str = Query("en"),
+    user: dict[str, Any] = Depends(get_current_user),
+    transit_service: TransitService = Depends(get_transit_service),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, object]:
+    profile = repos.profiles.load_profile(profile_id)
+    owner = profile.get("user_id", "user_local_dev")
+    user_id = user["user_id"]
+    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
+        raise HTTPException(status_code=403, detail="Not your profile")
+
+    from datetime import date as date_cls
+
+    request = ForecastRequest(
+        profile_id=profile_id,
+        start_date=date_cls.today(),
+        days=days,
+        timezone=timezone,
+        lang=lang,
+    )
+    try:
+        return transit_service.build_forecast(request, profile_repository=repos.profiles)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:

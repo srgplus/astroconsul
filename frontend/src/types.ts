@@ -189,6 +189,12 @@ export type TopTransit = {
   _tii_contribution: number
 }
 
+export type RetrogradeIndex = {
+  count: number
+  index: number
+  planets: string[]
+}
+
 export type TransitReportResponse = {
   snapshot: TransitSnapshot | null
   natal_positions: NatalPosition[] | null
@@ -200,6 +206,8 @@ export type TransitReportResponse = {
   feels_like: string | null
   top_transits: TopTransit[] | null
   cosmic_climate: ActiveAspect[] | null
+  ope: number | null
+  retrograde_index: RetrogradeIndex | null
 }
 
 export type TimelineItem = {
@@ -254,4 +262,23 @@ export type LocationResponse = {
   longitude: number
   timezone: string
   source: string | null
+}
+
+// --- Forecast ---
+
+export type DailyForecastItem = {
+  date: string
+  tii: number
+  tension_ratio: number
+  feels_like: string
+  ope: number
+  retrograde_count: number
+  retrograde_planets: string[]
+  velocity_delta: number | null
+  velocity_direction: string | null
+  top_transits: TopTransit[]
+}
+
+export type ForecastResponse = {
+  days: DailyForecastItem[]
 }
