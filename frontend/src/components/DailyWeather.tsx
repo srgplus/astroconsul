@@ -365,46 +365,34 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
   const peakLabel = shortDate(peakDate, t)
   const endLabel = shortDate(timing.end_utc, t)
 
-  // Smart tier assignment: greedily place labels on row 0 (top) or 1 (alt)
-  // to avoid overlap. MIN_GAP_PCT is the minimum % distance between labels on same row.
-  const MIN_GAP_PCT = 14
-  const labelTiers: number[] = []
+
+  // Split exact dates: even indices above, odd indices below
+  const aboveDates: { pct: number; label: string }[] = []
+  const belowDates: { pct: number; label: string }[] = []
   if (timing.exact_passes && timing.exact_passes.length > 1) {
-    const pcts = timing.exact_passes.map(p => {
-      const t2 = new Date(p.utc).getTime()
-      return Math.max(0, Math.min(100, ((t2 - start) / total) * 100))
+    timing.exact_passes.forEach((pass, i) => {
+      const passTime = new Date(pass.utc).getTime()
+      const pct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+      const lbl = shortDate(pass.utc, t)
+      if (i % 2 === 0) aboveDates.push({ pct, label: lbl })
+      else belowDates.push({ pct, label: lbl })
     })
-    const lastInTier = [-Infinity, -Infinity] // last used pct for tier 0 and 1
-    for (let i = 0; i < pcts.length; i++) {
-      if (pcts[i] - lastInTier[0] >= MIN_GAP_PCT) {
-        labelTiers.push(0)
-        lastInTier[0] = pcts[i]
-      } else {
-        labelTiers.push(1)
-        lastInTier[1] = pcts[i]
-      }
-    }
+  } else if (peakPct !== null && peakLabel) {
+    aboveDates.push({ pct: peakPct, label: peakLabel })
   }
 
   return (
     <div className="transit-bar">
       {/* Date labels above the bar */}
-      <div className="transit-bar__dates-above">
-        {timing.exact_passes && timing.exact_passes.length > 1 ? (
-          timing.exact_passes.map((pass, i) => {
-            const passTime = new Date(pass.utc).getTime()
-            const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-            const tier = labelTiers[i] === 1 ? " transit-bar__date--alt" : ""
-            return (
-              <span key={i} className={`transit-bar__date${tier}`} style={{ left: `${passPct}%` }}>
-                {shortDate(pass.utc, t)}
-              </span>
-            )
-          })
-        ) : peakPct !== null && peakLabel ? (
-          <span className="transit-bar__date" style={{ left: `${peakPct}%` }}>{peakLabel}</span>
-        ) : null}
-      </div>
+      {aboveDates.length > 0 ? (
+        <div className="transit-bar__dates-above">
+          {aboveDates.map((d, i) => (
+            <span key={i} className="transit-bar__date" style={{ left: `${d.pct}%` }}>
+              {d.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
       <div className={`transit-bar__track${isOuter ? " transit-bar__track--outer" : ""}`}
         style={isOuter ? { boxShadow: `0 0 6px ${dotColor}40` } as React.CSSProperties : undefined}
       >
@@ -416,14 +404,13 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
             backgroundSize: nowPct > 0 ? `${100 / nowPct * 100}% 100%` : undefined,
           }}
         />
-        {/* Render notches: exact_passes if multiple, otherwise peak notch */}
+        {/* Render notches */}
         {timing.exact_passes && timing.exact_passes.length > 1 ? (
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-            const tier = labelTiers[i] === 1 ? " transit-bar__exact--alt" : ""
             return (
-              <div key={i} className={`transit-bar__exact${tier}`} style={{ left: `${passPct}%` }} />
+              <div key={i} className="transit-bar__exact" style={{ left: `${passPct}%` }} />
             )
           })
         ) : peakPct !== null ? (
@@ -436,6 +423,11 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
       </div>
       <div className="transit-bar__labels">
         <span>{startLabel}</span>
+        {belowDates.map((d, i) => (
+          <span key={i} className="transit-bar__date-below" style={{ left: `${d.pct}%` }}>
+            {d.label}
+          </span>
+        ))}
         <span>{endLabel}</span>
       </div>
     </div>
