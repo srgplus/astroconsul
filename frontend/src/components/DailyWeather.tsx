@@ -346,6 +346,27 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
   const peakLabel = shortDate(peakDate, t)
   const endLabel = shortDate(timing.end_utc, t)
 
+  // Smart tier assignment: greedily place labels on row 0 (top) or 1 (alt)
+  // to avoid overlap. MIN_GAP_PCT is the minimum % distance between labels on same row.
+  const MIN_GAP_PCT = 14
+  const labelTiers: number[] = []
+  if (timing.exact_passes && timing.exact_passes.length > 1) {
+    const pcts = timing.exact_passes.map(p => {
+      const t2 = new Date(p.utc).getTime()
+      return Math.max(0, Math.min(100, ((t2 - start) / total) * 100))
+    })
+    const lastInTier = [-Infinity, -Infinity] // last used pct for tier 0 and 1
+    for (let i = 0; i < pcts.length; i++) {
+      if (pcts[i] - lastInTier[0] >= MIN_GAP_PCT) {
+        labelTiers.push(0)
+        lastInTier[0] = pcts[i]
+      } else {
+        labelTiers.push(1)
+        lastInTier[1] = pcts[i]
+      }
+    }
+  }
+
   return (
     <div className="transit-bar">
       <div className={`transit-bar__track${isOuter ? " transit-bar__track--outer" : ""}`}
@@ -364,7 +385,7 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-            const tier = i % 2 === 0 ? "" : " transit-bar__exact--alt"
+            const tier = labelTiers[i] === 1 ? " transit-bar__exact--alt" : ""
             return (
               <div key={i} className={`transit-bar__exact${tier}`} style={{ left: `${passPct}%` }} />
             )
@@ -383,7 +404,7 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-            const tier = i % 2 === 0 ? "" : " transit-bar__exact-label--alt"
+            const tier = labelTiers[i] === 1 ? " transit-bar__exact-label--alt" : ""
             return (
               <span key={i} className={`transit-bar__exact-label${tier}`} style={{ left: `${passPct}%` }}>
                 {shortDate(pass.utc, t)}
