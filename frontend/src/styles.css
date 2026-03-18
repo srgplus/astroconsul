@@ -1924,15 +1924,14 @@ select {
   padding: 2px 8px;
   font-size: 0.72rem;
   border-radius: 10px;
-  opacity: 0.85;
 }
-.cw-transit-keyword-tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #2d8a5e; }
-.cw-transit-keyword-tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #3a7c96; }
-.cw-transit-keyword-tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #7c4dbd; }
-.cw-transit-keyword-tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #9a7a1c; }
-.cw-transit-keyword-tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #c04830; }
-.cw-transit-keyword-tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #3672b0; }
-.cw-transit-keyword-tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #b06820; }
+.cw-transit-keyword-tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #6ee7a8; }
+.cw-transit-keyword-tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #7dd3e8; }
+.cw-transit-keyword-tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #c4a0f5; }
+.cw-transit-keyword-tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #f0d060; }
+.cw-transit-keyword-tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #f09070; }
+.cw-transit-keyword-tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #7db8f8; }
+.cw-transit-keyword-tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #f8a850; }
 
 .cw-transit-row {
   display: flex;
@@ -2930,15 +2929,14 @@ button.natal-pos__row--clickable {
   padding: 2px 8px;
   border-radius: 10px;
   letter-spacing: 0.02em;
-  opacity: 0.85;
 }
-.natal-interp__tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #2d8a5e; }
-.natal-interp__tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #3a7c96; }
-.natal-interp__tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #7c4dbd; }
-.natal-interp__tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #9a7a1c; }
-.natal-interp__tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #c04830; }
-.natal-interp__tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #3672b0; }
-.natal-interp__tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #b06820; }
+.natal-interp__tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #6ee7a8; }
+.natal-interp__tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #7dd3e8; }
+.natal-interp__tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #c4a0f5; }
+.natal-interp__tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #f0d060; }
+.natal-interp__tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #f09070; }
+.natal-interp__tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #7db8f8; }
+.natal-interp__tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #f8a850; }
 
 /* Natal asp — position lines now use transit .cw-pos-* classes */
 
@@ -3944,15 +3942,14 @@ button.natal-pos__row--clickable {
   font-size: 0.75rem;
   border-radius: 12px;
   letter-spacing: 0.02em;
-  opacity: 0.85;
 }
-.aspect-keyword-tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #2d8a5e; }
-.aspect-keyword-tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #3a7c96; }
-.aspect-keyword-tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #7c4dbd; }
-.aspect-keyword-tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #9a7a1c; }
-.aspect-keyword-tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #c04830; }
-.aspect-keyword-tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #3672b0; }
-.aspect-keyword-tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #b06820; }
+.aspect-keyword-tag:nth-child(7n+1) { background: rgba(78, 207, 139, 0.18); color: #6ee7a8; }
+.aspect-keyword-tag:nth-child(7n+2) { background: rgba(168, 216, 234, 0.25); color: #7dd3e8; }
+.aspect-keyword-tag:nth-child(7n+3) { background: rgba(192, 132, 252, 0.18); color: #c4a0f5; }
+.aspect-keyword-tag:nth-child(7n+4) { background: rgba(240, 199, 76, 0.2); color: #f0d060; }
+.aspect-keyword-tag:nth-child(7n+5) { background: rgba(240, 96, 64, 0.15); color: #f09070; }
+.aspect-keyword-tag:nth-child(7n+6) { background: rgba(96, 165, 250, 0.2); color: #7db8f8; }
+.aspect-keyword-tag:nth-child(7n)   { background: rgba(251, 146, 60, 0.18); color: #f8a850; }
 
 /* Row 1: glyphs + label left — orb + badge right */
 .aspect-card-row1 {
