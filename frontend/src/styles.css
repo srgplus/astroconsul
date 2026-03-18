@@ -1627,6 +1627,7 @@ select {
   align-items: center;
   gap: 10px;
   width: 240px;
+  margin: 0 auto;
 }
 
 .cw-tension-bar__track {
