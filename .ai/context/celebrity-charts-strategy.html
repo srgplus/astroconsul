@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astromi.AI — Celebrity Charts SEO Strategy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #060709;
+    --surface: #0d0f14;
+    --surface-2: #14171e;
+    --border: rgba(255,255,255,0.06);
+    --text: #eae8e3;
+    --muted: #7a7f8a;
+    --primary: #6c63ff;
+    --primary-light: #8b83ff;
+    --secondary: #00d4aa;
+    --warm: #f0a0ff;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --gradient-brand: linear-gradient(135deg, #6c63ff 0%, #00d4aa 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 60px 32px; }
+
+  .hero {
+    text-align: center;
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 20%; right: 20%;
+    height: 1px;
+    background: var(--gradient-brand);
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle { font-size: 1.05rem; color: var(--muted); max-width: 620px; margin: 0 auto; }
+
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--primary-light);
+  }
+
+  .section { margin-bottom: 56px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card p { color: var(--muted); font-size: 0.93rem; }
+  .card p + p { margin-top: 10px; }
+
+  /* Celebrity table */
+  .celeb-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .celeb-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .celeb-table td {
+    padding: 14px;
+    font-size: 0.9rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .celeb-table tr:last-child td { border-bottom: none; }
+  .celeb-table tr:hover { background: rgba(108,99,255,0.03); }
+
+  .celeb-name {
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+  }
+  .celeb-why {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .sign-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    background: rgba(108,99,255,0.1);
+    color: var(--primary-light);
+    white-space: nowrap;
+  }
+
+  .quality {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .quality.verified {
+    background: rgba(34,197,94,0.1);
+    color: var(--green);
+  }
+  .quality.reported {
+    background: rgba(234,179,8,0.1);
+    color: var(--yellow);
+  }
+  .quality.unknown {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+  }
+
+  .rank-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Strategy cards */
+  .strat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .strat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .strat-card p { color: var(--muted); font-size: 0.88rem; }
+
+  .keyword-list {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .keyword-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .keyword-list li:last-child { border-bottom: none; }
+  .keyword-vol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--secondary);
+  }
+
+  .page-example {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 12px;
+  }
+  .page-example code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--secondary);
+    background: rgba(0,212,170,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .page-example p { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+
+  .action-list {
+    list-style: none;
+    margin-top: 16px;
+  }
+  .action-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--primary);
+    background: rgba(108,99,255,0.1);
+    border-radius: 6px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+  }
+
+  .note-box {
+    background: rgba(108,99,255,0.05);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .note-box p { color: var(--muted); font-size: 0.88rem; }
+  .note-box strong { color: var(--primary-light); }
+
+  .footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .footer p { color: var(--muted); font-size: 0.8rem; }
+
+  @media (max-width: 700px) {
+    h1 { font-size: 2rem; }
+    .strat-grid { grid-template-columns: 1fr; }
+    .container { padding: 32px 16px; }
+    .celeb-table { font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <div class="badge">Growth & SEO Strategy</div>
+    <h1>Celebrity Natal Charts<br>as a Growth Engine</h1>
+    <p class="subtitle">Public, live-updating natal charts + transits for the world's most famous people — a perpetual traffic machine for Astromi.AI</p>
+  </div>
+
+  <!-- CONCEPT -->
+  <div class="section">
+    <h2>The Concept</h2>
+    <div class="card">
+      <p>Each celebrity gets a permanent, public page on <strong style="color:var(--text)">astromi.ai/charts/{name}</strong> showing their full natal chart with <strong style="color:var(--text)">live transits overlaid in real-time</strong>. These pages update automatically — every day the transit positions shift, the TII (Transit Intensity Index) recalculates, and the AI generates a fresh "cosmic weather" reading for that person.</p>
+      <p>Users can follow any celebrity chart and get notified when something major happens astrologically (Saturn return, eclipse on their Sun, etc.). This creates a <strong style="color:var(--text)">reason to come back daily</strong> — "What's happening in Taylor Swift's chart today?" — and a natural funnel to sign up and track their own chart.</p>
+      <p>This strategy targets <strong style="color:var(--text)">millions of monthly searches</strong> for "[celebrity name] birth chart" and "[celebrity name] astrology" — high-intent queries from people already interested in astrology.</p>
+    </div>
+  </div>
+
+  <!-- TOP 10 CELEBRITIES -->
+  <div class="section">
+    <h2>Top 10 Celebrity Charts</h2>
+    <div class="card" style="padding: 0; overflow-x: auto;">
+      <table class="celeb-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Person</th>
+            <th>Born</th>
+            <th>Place</th>
+            <th>Time</th>
+            <th>Sun</th>
+            <th>Data Quality</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rank-num">01</span></td>
+            <td>
+              <span class="celeb-name">Taylor Swift</span>
+              <span class="celeb-why">#1 pop culture icon, 283M IG followers</span>
+            </td>
+            <td>Dec 13, 1989</td>
+            <td>West Reading, PA</td>
+            <td>~5:17 AM*</td>
+            <td><span class="sign-badge">♐ Sagittarius</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">02</span></td>
+            <td>
+              <span class="celeb-name">Donald Trump</span>
+              <span class="celeb-why">#1 most Googled person on Earth, 16M searches/mo</span>
+            </td>
+            <td>Jun 14, 1946</td>
+            <td>Queens, NY</td>
+            <td>10:54 AM</td>
+            <td><span class="sign-badge">♊ Gemini</span></td>
+            <td><span class="quality verified">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">03</span></td>
+            <td>
+              <span class="celeb-name">Elon Musk</span>
+              <span class="celeb-why">#2 most Googled, 11M searches/mo, tech icon</span>
+            </td>
+            <td>Jun 28, 1971</td>
+            <td>Pretoria, South Africa</td>
+            <td>7:30 AM</td>
+            <td><span class="sign-badge">♋ Cancer</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">04</span></td>
+            <td>
+              <span class="celeb-name">Cristiano Ronaldo</span>
+              <span class="celeb-why">#1 most-followed human on Instagram (650M+)</span>
+            </td>
+            <td>Feb 5, 1985</td>
+            <td>Funchal, Portugal</td>
+            <td>5:25 AM*</td>
+            <td><span class="sign-badge">♒ Aquarius</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">05</span></td>
+            <td>
+              <span class="celeb-name">Beyoncé</span>
+              <span class="celeb-why">Cultural icon, 320M+ IG, birth time recently confirmed</span>
+            </td>
+            <td>Sep 4, 1981</td>
+            <td>Houston, TX</td>
+            <td>9:47 PM</td>
+            <td><span class="sign-badge">♍ Virgo</span></td>
+            <td><span class="quality verified">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">06</span></td>
+            <td>
+              <span class="celeb-name">Bad Bunny</span>
+              <span class="celeb-why">Super Bowl LX, #2 most Googled 2026, Latin global star</span>
+            </td>
+            <td>Mar 10, 1994</td>
+            <td>San Juan, PR</td>
+            <td>Unknown</td>
+            <td><span class="sign-badge">♓ Pisces</span></td>
+            <td><span class="quality unknown">NO TIME</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">07</span></td>
+            <td>
+              <span class="celeb-name">Rihanna</span>
+              <span class="celeb-why">Music + Fenty empire, massive cross-demo appeal</span>
+            </td>
+            <td>Feb 20, 1988</td>
+            <td>Bridgetown, Barbados</td>
+            <td>8:50 AM</td>
+            <td><span class="sign-badge">♓ Pisces</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">08</span></td>
+            <td>
+              <span class="celeb-name">Kim Kardashian</span>
+              <span class="celeb-why">365M IG, pop culture crossover, self-confirmed time</span>
+            </td>
+            <td>Oct 21, 1980</td>
+            <td>Los Angeles, CA</td>
+            <td>10:46 AM</td>
+            <td><span class="sign-badge">♎ Libra</span></td>
+            <td><span class="quality verified">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">09</span></td>
+            <td>
+              <span class="celeb-name">Lionel Messi</span>
+              <span class="celeb-why">Most followed athlete, World Cup icon, 504M IG</span>
+            </td>
+            <td>Jun 24, 1987</td>
+            <td>Rosario, Argentina</td>
+            <td>~8:30 PM*</td>
+            <td><span class="sign-badge">♋ Cancer</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+          <tr>
+            <td><span class="rank-num">10</span></td>
+            <td>
+              <span class="celeb-name">Billie Eilish</span>
+              <span class="celeb-why">Gen-Z icon, Oscar + Grammy winner, 119M IG</span>
+            </td>
+            <td>Dec 18, 2001</td>
+            <td>Los Angeles, CA</td>
+            <td>~11:30 AM*</td>
+            <td><span class="sign-badge">♐ Sagittarius</span></td>
+            <td><span class="quality reported">REPORTED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-box">
+      <p><strong>* Birth time notes:</strong> "VERIFIED" = from birth certificate or self-confirmed. "REPORTED" = from astrology databases with Rodden Rating A/B. "NO TIME" = unknown birth time — chart shows planets by date only, houses omitted. For Bad Bunny, we display a "sunrise chart" (common practice) and note that houses are approximate.</p>
+    </div>
+  </div>
+
+  <!-- WHY THESE 10 -->
+  <div class="section">
+    <h2>Selection Criteria</h2>
+    <div class="strat-grid">
+      <div class="strat-card">
+        <h3>Search Volume</h3>
+        <p>These 10 people collectively generate tens of millions of Google searches monthly. Celebrity birth chart queries follow a long-tail pattern — "taylor swift birth chart" alone gets ~200K+ monthly searches, and every related query ("taylor swift zodiac," "taylor swift astrology," "taylor swift rising sign") adds volume.</p>
+      </div>
+      <div class="strat-card">
+        <h3>Demographic Coverage</h3>
+        <p>The list covers key audiences: Gen-Z (Billie, Bad Bunny, Sabrina), Millennials (Taylor, Rihanna, Beyoncé), older demos (Trump, Musk), sports fans (Ronaldo, Messi), and global markets (Latin America, Europe, Asia). Every user segment has someone they care about.</p>
+      </div>
+      <div class="strat-card">
+        <h3>News Cycle Synergy</h3>
+        <p>These are people who generate constant news. Every time Trump makes a policy move, or Taylor drops an album, or Messi scores — there's a spike in searches, and Astromi's transit page can offer an astrological angle. "Here's what was happening in Taylor's chart when she announced..."</p>
+      </div>
+      <div class="strat-card">
+        <h3>Data Quality</h3>
+        <p>7 of 10 have reliable birth times (verified or well-reported). This means accurate Ascendant, houses, and transit timing — which makes the live chart feature genuinely valuable and accurate, not just a gimmick.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEO STRATEGY -->
+  <div class="section">
+    <h2>SEO Target Keywords</h2>
+    <div class="card">
+      <h3>High-Volume Keywords Per Celebrity</h3>
+      <ul class="keyword-list">
+        <li><span>[celebrity] birth chart</span> <span class="keyword-vol">50K–200K/mo each</span></li>
+        <li><span>[celebrity] zodiac sign</span> <span class="keyword-vol">30K–150K/mo each</span></li>
+        <li><span>[celebrity] astrology</span> <span class="keyword-vol">10K–80K/mo each</span></li>
+        <li><span>[celebrity] rising sign</span> <span class="keyword-vol">5K–40K/mo each</span></li>
+        <li><span>[celebrity] natal chart</span> <span class="keyword-vol">5K–30K/mo each</span></li>
+        <li><span>[celebrity] moon sign</span> <span class="keyword-vol">5K–25K/mo each</span></li>
+        <li><span>[celebrity] compatibility with [other celebrity]</span> <span class="keyword-vol">10K–50K/mo</span></li>
+        <li><span>[celebrity] horoscope today</span> <span class="keyword-vol">5K–20K/mo each</span></li>
+      </ul>
+      <p style="margin-top: 16px;">Estimated total addressable search volume across 10 celebrities: <strong style="color:var(--secondary)">2-5M searches/month</strong></p>
+    </div>
+  </div>
+
+  <!-- PAGE STRUCTURE -->
+  <div class="section">
+    <h2>Page Structure per Celebrity</h2>
+    <div class="card">
+      <h3>URL Pattern</h3>
+      <div class="page-example">
+        <code>astromi.ai/charts/taylor-swift</code>
+        <p>Clean, SEO-friendly URL with celebrity slug</p>
+      </div>
+
+      <h3 style="margin-top: 20px;">Page Sections</h3>
+      <ul class="action-list">
+        <li>
+          <span class="action-num">A</span>
+          <span><strong style="color:var(--text)">Interactive Natal Chart</strong> — SVG wheel with planets, houses, aspects. Hover for details. Dark theme matching brand.</span>
+        </li>
+        <li>
+          <span class="action-num">B</span>
+          <span><strong style="color:var(--text)">Live Transits Overlay</strong> — Real-time planetary positions superimposed on natal chart. Shows current aspects to natal planets. Updates every hour.</span>
+        </li>
+        <li>
+          <span class="action-num">C</span>
+          <span><strong style="color:var(--text)">Today's Cosmic Weather (TII)</strong> — "Taylor Swift's cosmic weather today: Dynamic (67°)" with AI-generated interpretation. "Mars is transiting her 7th house — expect public attention on relationships."</span>
+        </li>
+        <li>
+          <span class="action-num">D</span>
+          <span><strong style="color:var(--text)">Natal Chart Breakdown</strong> — Sun, Moon, Rising explanation. Key aspects. House placements. Written in approachable language, not astro-jargon.</span>
+        </li>
+        <li>
+          <span class="action-num">E</span>
+          <span><strong style="color:var(--text)">Upcoming Transits Timeline</strong> — "March 22: Venus conjunct natal Mars — creative breakthrough likely" — scrollable timeline of the next 30 days of significant transits.</span>
+        </li>
+        <li>
+          <span class="action-num">F</span>
+          <span><strong style="color:var(--text)">Compare Your Chart</strong> — CTA: "See how your chart compares to Taylor Swift's" → sign-up funnel. Shows synastry preview as a teaser.</span>
+        </li>
+        <li>
+          <span class="action-num">G</span>
+          <span><strong style="color:var(--text)">Historical Moments</strong> — "On the night Taylor won her 14th Grammy, transiting Jupiter was exactly conjunct her Midheaven." AI-matched life events to transits.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GROWTH FLYWHEEL -->
+  <div class="section">
+    <h2>Growth Flywheel</h2>
+    <div class="card">
+      <h3>How Celebrity Charts Drive Revenue</h3>
+      <p><strong style="color:var(--text)">Stage 1 — Discovery:</strong> User googles "elon musk birth chart" → lands on astromi.ai/charts/elon-musk → sees live transits, TII score, AI reading.</p>
+      <p><strong style="color:var(--text)">Stage 2 — Engagement:</strong> "Compare your chart" CTA → user enters their birth data → gets free natal chart → sees their own TII for today.</p>
+      <p><strong style="color:var(--text)">Stage 3 — Retention:</strong> Push notification: "Your chart has the same Mars-Saturn square that Taylor Swift is experiencing today" → daily re-engagement.</p>
+      <p><strong style="color:var(--text)">Stage 4 — Conversion:</strong> Free tier shows basic chart. Pro ($4.99/mo) unlocks: full transit timeline, AI daily readings, compatibility with any celebrity, historical moment matching.</p>
+      <p><strong style="color:var(--text)">Stage 5 — Virality:</strong> "I have the same Moon sign as Beyoncé" → shareable cards for social media → organic referrals.</p>
+    </div>
+  </div>
+
+  <!-- CONTENT CALENDAR -->
+  <div class="section">
+    <h2>Content Calendar Hooks</h2>
+    <div class="strat-grid">
+      <div class="strat-card">
+        <h3>Event-Triggered Content</h3>
+        <p>Every time a celebrity makes news, auto-generate a blog post/social: "What's happening in [name]'s chart right now?" This is evergreen, automated content — your Swiss Ephemeris + Claude AI pipeline makes it near-zero effort.</p>
+      </div>
+      <div class="strat-card">
+        <h3>Birthday Charts</h3>
+        <p>Celebrity birthday = Solar Return chart. Annual content piece: "Taylor Swift's 2026 Solar Return: What the stars say about her year ahead." Predictable, schedulable, high-search moments.</p>
+      </div>
+      <div class="strat-card">
+        <h3>Compatibility Series</h3>
+        <p>"Are Taylor and Travis written in the stars?" Synastry charts for celebrity couples. Massive search volume during relationship news cycles. Auto-updates when couple dynamics change.</p>
+      </div>
+      <div class="strat-card">
+        <h3>Retro Season Specials</h3>
+        <p>"How Mercury Retrograde is hitting Elon Musk's chart this month" — tie planetary events to specific celebrities. Makes abstract astrology concrete and searchable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPANSION PATH -->
+  <div class="section">
+    <h2>Expansion: Beyond 10</h2>
+    <div class="card">
+      <h3>Phase 1 — Launch with 10 curated charts</h3>
+      <p>Hand-crafted pages for the top 10 above. High quality, verified data where possible, detailed AI interpretations. This is the showcase.</p>
+
+      <h3 style="margin-top: 16px;">Phase 2 — Expand to 100 celebrities</h3>
+      <p>Add athletes (LeBron, Mbappé), musicians (Drake, Dua Lipa, Sabrina Carpenter), actors (Zendaya, Timothée Chalamet), tech figures (Zuckerberg, Sam Altman). Automated pipeline: birth data → Swiss Ephemeris → AI interpretation → page generation.</p>
+
+      <h3 style="margin-top: 16px;">Phase 3 — User-generated celebrity charts</h3>
+      <p>Let users request any public figure. Community validates birth data. Crowdsourced accuracy ratings. This scales to thousands of pages of unique, SEO-rich content.</p>
+
+      <h3 style="margin-top: 16px;">Phase 4 — "Your chart vs. anyone"</h3>
+      <p>Users can run synastry with any celebrity. "Am I compatible with Bad Bunny?" This is a Pro feature and a massive conversion driver.</p>
+    </div>
+  </div>
+
+  <!-- LEGAL NOTE -->
+  <div class="section">
+    <div class="note-box">
+      <p><strong>Legal note:</strong> Publishing natal charts for public figures using publicly available birth data is standard practice in the astrology industry (Co-Star, Astro-Seek, AstroTheme all do this). Birth dates and times from public records, interviews, and self-disclosures are factual data and not subject to IP claims. The AI-generated interpretations are original content. However, avoid using celebrity photos without licensing — use illustrated avatars or zodiac symbols instead.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Astromi.AI — Celebrity Charts Strategy — March 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

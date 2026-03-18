@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>big3.me — Brand Kit & Instagram Grid</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #fafafa;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ─── HEADER ─── */
+  .page-header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 56px;
+  }
+
+  .page-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+
+  .page-header .sub {
+    font-size: 0.95rem;
+    color: #888;
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #bbb;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 32px;
+  }
+
+  section { margin-bottom: 72px; }
+
+  /* ─── COLOR PALETTE ─── */
+  .palette {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .swatch {
+    width: 120px;
+    text-align: center;
+  }
+
+  .swatch-color {
+    width: 120px;
+    height: 80px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+
+  .swatch-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .swatch-hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  /* ─── PROFILE PICTURE ─── */
+  .profile-section {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .profile-pic-container {
+    text-align: center;
+  }
+
+  .profile-pic {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-pic-light {
+    background: #ffffff;
+    border: 2px solid #f0f0f0;
+  }
+
+  .profile-pic-dark {
+    background: #0a0a0f;
+    border: 2px solid #222;
+  }
+
+  .profile-pic .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+  }
+
+  .profile-pic-light .logo-text { color: #1a1a1a; }
+  .profile-pic-dark .logo-text { color: #ffffff; }
+
+  .profile-pic .three {
+    position: relative;
+  }
+
+  .profile-pic-light .three {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .profile-pic-dark .three {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .pic-label {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 400;
+  }
+
+  /* ─── APP ICON ─── */
+  .app-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .app-icon-light {
+    background: #fff;
+    border: 1px solid #eee;
+  }
+
+  .app-icon-dark {
+    background: #0a0a0f;
+    border: 1px solid #222;
+  }
+
+  .app-icon .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: -1px;
+  }
+
+  .app-icon-light .logo-text { color: #1a1a1a; }
+  .app-icon-dark .logo-text { color: #fff; }
+
+  .app-icon .three {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── INSTAGRAM GRID ─── */
+  .ig-phone-frame {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+    border: 1px solid #e8e8e8;
+  }
+
+  .ig-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ig-header-pic {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: #1a1a1a;
+  }
+
+  .ig-header-pic .t {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .ig-header-info {
+    flex: 1;
+  }
+
+  .ig-handle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+  }
+
+  .ig-bio-text {
+    font-size: 0.7rem;
+    color: #888;
+  }
+
+  .ig-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ig-stat {
+    text-align: center;
+  }
+
+  .ig-stat-num {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+  }
+
+  .ig-stat-label {
+    font-size: 0.65rem;
+    color: #888;
+  }
+
+  .ig-bio {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ig-bio-name {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+
+  .ig-bio-desc {
+    font-size: 0.75rem;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  .ig-bio-link {
+    font-size: 0.75rem;
+    color: #00376b;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* Highlights */
+  .ig-highlights {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ig-highlight {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .ig-highlight-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 4px;
+    font-size: 1.2rem;
+    background: #fafafa;
+  }
+
+  .ig-highlight-label {
+    font-size: 0.6rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  /* Grid */
+  .ig-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .ig-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Cell 1 — Logo reveal */
+  .cell-1 {
+    background: #ffffff;
+  }
+
+  .cell-1 .big {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -1px;
+    color: #1a1a1a;
+  }
+
+  .cell-1 .three-grad {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cell-1 .dot-me {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: #ccc;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  /* Cell 2 — Tagline */
+  .cell-2 {
+    background: #f8f8f8;
+  }
+
+  .cell-2 p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+  }
+
+  /* Cell 3 — Sun accent */
+  .cell-3 {
+    background: linear-gradient(135deg, #fff5f5, #fff);
+  }
+
+  .cell-3 .icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+  .cell-3 .label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #ff6b6b;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .cell-3 .desc {
+    font-size: 0.55rem;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* Cell 4 — Moon accent */
+  .cell-4 {
+    background: linear-gradient(135deg, #fffdf5, #fff);
+  }
+
+  .cell-4 .icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+  .cell-4 .label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #e6b800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .cell-4 .desc {
+    font-size: 0.55rem;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* Cell 5 — App mockup */
+  .cell-5 {
+    background: #ffffff;
+    padding: 8px;
+  }
+
+  .cell-5 .phone-mockup {
+    width: 70%;
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 10px 8px;
+    border: 1px solid #eee;
+  }
+
+  .cell-5 .mockup-header {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+  }
+
+  .cell-5 .mockup-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+  }
+
+  .cell-5 .bar-calm { background: linear-gradient(90deg, #4ade80, #86efac); width: 35%; }
+  .cell-5 .bar-dynamic { background: linear-gradient(90deg, #ffd93d, #fbbf24); width: 60%; }
+  .cell-5 .bar-intense { background: linear-gradient(90deg, #ff6b6b, #ef4444); width: 85%; }
+
+  .cell-5 .mockup-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.4rem;
+    color: #bbb;
+    margin-top: 2px;
+  }
+
+  /* Cell 6 — Rising accent */
+  .cell-6 {
+    background: linear-gradient(135deg, #f5faff, #fff);
+  }
+
+  .cell-6 .icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+  .cell-6 .label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6bcbff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .cell-6 .desc {
+    font-size: 0.55rem;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* Cell 7 — Feature: TII */
+  .cell-7 {
+    background: #f8f8f8;
+  }
+
+  .cell-7 .tii-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fbbf24;
+  }
+
+  .cell-7 .tii-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: #bbb;
+    letter-spacing: 1px;
+  }
+
+  .cell-7 .tii-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6rem;
+    color: #666;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Cell 8 — What's your Big 3? */
+  .cell-8 {
+    background: #1a1a1a;
+  }
+
+  .cell-8 .q {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  .cell-8 .q .highlight {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cell-8 .cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: #666;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* Cell 9 — Coming Soon */
+  .cell-9 {
+    background: #ffffff;
+  }
+
+  .cell-9 .coming {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+
+  .cell-9 .year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .cell-9 .waitlist {
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.5rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── GRID LABELS ─── */
+  .grid-guide {
+    max-width: 420px;
+    margin: 32px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .grid-guide-cell {
+    text-align: center;
+    padding: 8px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: #888;
+  }
+
+  .grid-guide-cell .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: #bbb;
+    font-size: 0.6rem;
+  }
+
+  /* ─── STORY HIGHLIGHTS ─── */
+  .highlights-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .highlight-item {
+    text-align: center;
+  }
+
+  .highlight-circle-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    background: #fff;
+  }
+
+  .highlight-circle-lg .inner-icon {
+    font-size: 1.4rem;
+  }
+
+  .highlight-item-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  /* ─── BIO SECTION ─── */
+  .bio-card {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid #eee;
+  }
+
+  .bio-card .handle {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+  }
+
+  .bio-card .bio-line {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 4px;
+  }
+
+  .bio-card .bio-link-text {
+    color: #00376b;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  /* ─── LINK IN BIO ─── */
+  .linkinbio {
+    max-width: 380px;
+    margin: 24px auto 0;
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    border: 1px solid #eee;
+    text-align: center;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .linkinbio .lib-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .linkinbio .lib-logo .t {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .linkinbio .lib-tagline {
+    font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 24px;
+  }
+
+  .lib-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+
+  .lib-btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+  }
+
+  .lib-btn-outline {
+    background: #fff;
+    color: #1a1a1a;
+    border: 1.5px solid #e8e8e8;
+  }
+
+  .lib-btn-ghost {
+    background: transparent;
+    color: #888;
+    font-size: 0.75rem;
+  }
+
+  /* ─── APP STORE ─── */
+  .appstore-frame {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .appstore-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .appstore-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .appstore-icon .t {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .appstore-meta h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .appstore-meta .dev {
+    font-size: 0.8rem;
+    color: #007AFF;
+  }
+
+  .appstore-meta .cat {
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  .appstore-get {
+    margin-left: auto;
+    padding: 6px 20px;
+    background: #007AFF;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .appstore-screenshots {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 0;
+  }
+
+  .appstore-ss {
+    width: 140px;
+    height: 280px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ss-1 { background: #fff; border: 1px solid #eee; }
+  .ss-2 { background: #f8f8f8; }
+  .ss-3 { background: #1a1a1a; }
+
+  .ss-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .ss-1 .ss-headline { color: #1a1a1a; }
+  .ss-2 .ss-headline { color: #1a1a1a; }
+  .ss-3 .ss-headline { color: #fff; }
+
+  .ss-subtext {
+    font-size: 0.55rem;
+    line-height: 1.4;
+  }
+
+  .ss-1 .ss-subtext { color: #999; }
+  .ss-2 .ss-subtext { color: #888; }
+  .ss-3 .ss-subtext { color: #666; }
+
+  .ss-mini-ui {
+    margin-top: 8px;
+    width: 80%;
+  }
+
+  .ss-mini-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 3px;
+  }
+
+  /* ─── DARK VARIANTS ─── */
+  .dark-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .note {
+    font-size: 0.8rem;
+    color: #aaa;
+    text-align: center;
+    margin-top: 16px;
+    font-style: italic;
+  }
+
+  /* ─── TYPOGRAPHY SPECIMEN ─── */
+  .type-row {
+    margin-bottom: 20px;
+  }
+
+  .type-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .type-sample-grotesk {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .type-sample-inter {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #444;
+    font-weight: 400;
+  }
+
+  .type-sample-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  /* ─── WORDMARK ─── */
+  .wordmark-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .wordmark-box {
+    width: 240px;
+    height: 120px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .wordmark-light {
+    background: #fff;
+    border: 1px solid #eee;
+  }
+
+  .wordmark-dark {
+    background: #0a0a0f;
+    border: 1px solid #222;
+  }
+
+  .wordmark-box .wm-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2.4rem;
+    letter-spacing: -1px;
+  }
+
+  .wordmark-light .wm-text { color: #1a1a1a; }
+  .wordmark-dark .wm-text { color: #fff; }
+
+  .wm-text .wm-three {
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .wordmark-box .wm-domain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    margin-top: 2px;
+  }
+
+  .wordmark-light .wm-domain { color: #ccc; }
+  .wordmark-dark .wm-domain { color: #444; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ═══ PAGE HEADER ═══ -->
+<div class="page-header">
+  <h1>big<span style="background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">3</span>.me</h1>
+  <div class="sub">Brand Kit — Light Minimal Edition</div>
+</div>
+
+<!-- ═══ 1. WORDMARK ═══ -->
+<section>
+  <div class="section-label">01</div>
+  <div class="section-title">Wordmark</div>
+  <div class="wordmark-row">
+    <div class="wordmark-box wordmark-light">
+      <div class="wm-text">big<span class="wm-three">3</span></div>
+      <div class="wm-domain">.ME</div>
+    </div>
+    <div class="wordmark-box wordmark-dark">
+      <div class="wm-text">big<span class="wm-three">3</span></div>
+      <div class="wm-domain">.ME</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2. COLOR PALETTE ═══ -->
+<section>
+  <div class="section-label">02</div>
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background: #ff6b6b;"></div>
+      <div class="swatch-name">Sun Red</div>
+      <div class="swatch-hex">#ff6b6b</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #ffd93d;"></div>
+      <div class="swatch-name">Moon Gold</div>
+      <div class="swatch-hex">#ffd93d</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #6bcbff;"></div>
+      <div class="swatch-name">Rising Blue</div>
+      <div class="swatch-hex">#6bcbff</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #1a1a1a;"></div>
+      <div class="swatch-name">Void</div>
+      <div class="swatch-hex">#1a1a1a</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #fafafa; border: 1px solid #eee;"></div>
+      <div class="swatch-name">Light</div>
+      <div class="swatch-hex">#fafafa</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3. TYPOGRAPHY ═══ -->
+<section>
+  <div class="section-label">03</div>
+  <div class="section-title">Typography</div>
+  <div class="type-row">
+    <div class="type-label">Headlines — Space Grotesk 700</div>
+    <div class="type-sample-grotesk">Know your three.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-label">Body — Inter 400</div>
+    <div class="type-sample-inter">Your Sun, Moon, and Rising signs reveal who you are at your core, how you feel, and how the world sees you.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-label">Data / Code — JetBrains Mono 400</div>
+    <div class="type-sample-mono">TII 72° — Dynamic — 3 active transits</div>
+  </div>
+</section>
+
+<!-- ═══ 4. PROFILE PICTURE + APP ICON ═══ -->
+<section>
+  <div class="section-label">04</div>
+  <div class="section-title">Profile Picture & App Icon</div>
+  <div class="profile-section">
+    <div class="profile-pic-container">
+      <div class="profile-pic profile-pic-light">
+        <span class="logo-text">big<span class="three">3</span></span>
+      </div>
+      <div class="pic-label">Profile — Light</div>
+    </div>
+    <div class="profile-pic-container">
+      <div class="profile-pic profile-pic-dark">
+        <span class="logo-text">big<span class="three">3</span></span>
+      </div>
+      <div class="pic-label">Profile — Dark</div>
+    </div>
+    <div class="profile-pic-container">
+      <div class="app-icon app-icon-light">
+        <span class="logo-text">b<span class="three">3</span></span>
+      </div>
+      <div class="pic-label">App Icon — Light</div>
+    </div>
+    <div class="profile-pic-container">
+      <div class="app-icon app-icon-dark">
+        <span class="logo-text" style="color:#fff;">b<span class="three">3</span></span>
+      </div>
+      <div class="pic-label">App Icon — Dark</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5. INSTAGRAM 9-GRID ═══ -->
+<section>
+  <div class="section-label">05</div>
+  <div class="section-title">Instagram 9-Grid — Brand Launch</div>
+
+  <div class="ig-phone-frame">
+    <!-- Header -->
+    <div class="ig-header">
+      <div class="ig-header-pic">b<span class="t">3</span></div>
+      <div class="ig-header-info">
+        <div class="ig-handle">big3app</div>
+        <div class="ig-bio-text">Cosmic weather for your Big 3</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="ig-stats">
+      <div class="ig-stat"><div class="ig-stat-num">9</div><div class="ig-stat-label">posts</div></div>
+      <div class="ig-stat"><div class="ig-stat-num">—</div><div class="ig-stat-label">followers</div></div>
+      <div class="ig-stat"><div class="ig-stat-num">—</div><div class="ig-stat-label">following</div></div>
+    </div>
+
+    <!-- Bio -->
+    <div class="ig-bio">
+      <div class="ig-bio-name">big3.me</div>
+      <div class="ig-bio-desc">
+        Sun. Moon. Rising. You.<br>
+        AI-powered cosmic weather for your Big 3<br>
+        Know your three. Know yourself.
+      </div>
+      <div class="ig-bio-link">big3.me</div>
+    </div>
+
+    <!-- Highlights -->
+    <div class="ig-highlights">
+      <div class="ig-highlight">
+        <div class="ig-highlight-circle">☀️</div>
+        <div class="ig-highlight-label">Sun</div>
+      </div>
+      <div class="ig-highlight">
+        <div class="ig-highlight-circle">🌙</div>
+        <div class="ig-highlight-label">Moon</div>
+      </div>
+      <div class="ig-highlight">
+        <div class="ig-highlight-circle">⬆️</div>
+        <div class="ig-highlight-label">Rising</div>
+      </div>
+      <div class="ig-highlight">
+        <div class="ig-highlight-circle">🌡️</div>
+        <div class="ig-highlight-label">TII</div>
+      </div>
+      <div class="ig-highlight">
+        <div class="ig-highlight-circle">✨</div>
+        <div class="ig-highlight-label">Launch</div>
+      </div>
+    </div>
+
+    <!-- 9-GRID -->
+    <div class="ig-grid">
+      <!-- Row 3 (bottom — posted first, appears at bottom) -->
+      <!-- Cell 7: TII -->
+      <div class="ig-cell cell-7">
+        <div class="tii-value">72°</div>
+        <div class="tii-unit">TRANSIT INTENSITY</div>
+        <div class="tii-label">Dynamic</div>
+      </div>
+
+      <!-- Cell 8: What's your Big 3 -->
+      <div class="ig-cell cell-8">
+        <div class="q">What's your<br><span class="highlight">Big 3</span>?</div>
+        <div class="cta">FIND OUT → BIG3.ME</div>
+      </div>
+
+      <!-- Cell 9: Coming Soon -->
+      <div class="ig-cell cell-9">
+        <div class="coming">Coming</div>
+        <div class="year">2026</div>
+        <div class="waitlist">Join Waitlist</div>
+      </div>
+
+      <!-- Row 2 (middle) -->
+      <!-- Cell 4: Moon -->
+      <div class="ig-cell cell-4">
+        <div class="icon">🌙</div>
+        <div class="label">Moon</div>
+        <div class="desc">How you feel</div>
+      </div>
+
+      <!-- Cell 5: App mockup -->
+      <div class="ig-cell cell-5">
+        <div class="phone-mockup">
+          <div class="mockup-header">Cosmic Weather</div>
+          <div class="mockup-bar bar-calm"></div>
+          <div class="mockup-bar bar-dynamic"></div>
+          <div class="mockup-bar bar-intense"></div>
+          <div class="mockup-label">Today's TII: 72°</div>
+        </div>
+      </div>
+
+      <!-- Cell 6: Rising -->
+      <div class="ig-cell cell-6">
+        <div class="icon">⬆️</div>
+        <div class="label">Rising</div>
+        <div class="desc">How they see you</div>
+      </div>
+
+      <!-- Row 1 (top — posted last, appears at top) -->
+      <!-- Cell 1: Logo -->
+      <div class="ig-cell cell-1">
+        <div class="big">big<span class="three-grad">3</span></div>
+        <div class="dot-me">.ME</div>
+      </div>
+
+      <!-- Cell 2: Tagline -->
+      <div class="ig-cell cell-2">
+        <p>Know your<br>three.<br>Know<br>yourself.</p>
+      </div>
+
+      <!-- Cell 3: Sun -->
+      <div class="ig-cell cell-3">
+        <div class="icon">☀️</div>
+        <div class="label">Sun</div>
+        <div class="desc">Who you are</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid Guide -->
+  <div class="grid-guide">
+    <div class="grid-guide-cell"><div class="num">1</div> Logo</div>
+    <div class="grid-guide-cell"><div class="num">2</div> Tagline</div>
+    <div class="grid-guide-cell"><div class="num">3</div> Sun</div>
+    <div class="grid-guide-cell"><div class="num">4</div> Moon</div>
+    <div class="grid-guide-cell"><div class="num">5</div> App Preview</div>
+    <div class="grid-guide-cell"><div class="num">6</div> Rising</div>
+    <div class="grid-guide-cell"><div class="num">7</div> TII Meter</div>
+    <div class="grid-guide-cell"><div class="num">8</div> CTA</div>
+    <div class="grid-guide-cell"><div class="num">9</div> Coming Soon</div>
+  </div>
+  <div class="note">Post order: 9 → 8 → 7 → 6 → 5 → 4 → 3 → 2 → 1 (bottom-up)</div>
+</section>
+
+<!-- ═══ 6. STORY HIGHLIGHT COVERS ═══ -->
+<section>
+  <div class="section-label">06</div>
+  <div class="section-title">Story Highlight Covers</div>
+  <div class="highlights-row">
+    <div class="highlight-item">
+      <div class="highlight-circle-lg"><span class="inner-icon">☀️</span></div>
+      <div class="highlight-item-label">Sun</div>
+    </div>
+    <div class="highlight-item">
+      <div class="highlight-circle-lg"><span class="inner-icon">🌙</span></div>
+      <div class="highlight-item-label">Moon</div>
+    </div>
+    <div class="highlight-item">
+      <div class="highlight-circle-lg"><span class="inner-icon">⬆️</span></div>
+      <div class="highlight-item-label">Rising</div>
+    </div>
+    <div class="highlight-item">
+      <div class="highlight-circle-lg"><span class="inner-icon">🌡️</span></div>
+      <div class="highlight-item-label">TII</div>
+    </div>
+    <div class="highlight-item">
+      <div class="highlight-circle-lg"><span class="inner-icon">✨</span></div>
+      <div class="highlight-item-label">Launch</div>
+    </div>
+    <div class="highlight-item">
+      <div class="highlight-circle-lg" style="border-color: #eee; background: #fafafa;"><span class="inner-icon" style="font-size: 1rem; color: #ccc;">+</span></div>
+      <div class="highlight-item-label" style="color: #ccc;">New</div>
+    </div>
+  </div>
+  <div class="note">Minimal circle icons on white background — consistent with light brand identity</div>
+</section>
+
+<!-- ═══ 7. BIO + LINK IN BIO ═══ -->
+<section>
+  <div class="section-label">07</div>
+  <div class="section-title">Instagram Bio & Link-in-Bio</div>
+
+  <div class="bio-card">
+    <div class="handle">@big3app</div>
+    <div class="bio-line">Sun. Moon. Rising. You.</div>
+    <div class="bio-line">AI-powered cosmic weather for your Big 3</div>
+    <div class="bio-line">Know your three. Know yourself.</div>
+    <div class="bio-link-text">big3.me</div>
+  </div>
+
+  <div class="linkinbio">
+    <div class="lib-logo">big<span class="t">3</span></div>
+    <div class="lib-tagline">Know your three. Know yourself.</div>
+    <div class="lib-btn lib-btn-primary">What's Your Big 3? →</div>
+    <div class="lib-btn lib-btn-outline">Join the Waitlist</div>
+    <div class="lib-btn lib-btn-outline">Today's Cosmic Weather</div>
+    <div class="lib-btn lib-btn-ghost">About big3.me</div>
+  </div>
+</section>
+
+<!-- ═══ 8. APP STORE MOCKUP ═══ -->
+<section>
+  <div class="section-label">08</div>
+  <div class="section-title">App Store Listing Concept</div>
+
+  <div class="appstore-frame">
+    <div class="appstore-header">
+      <div class="appstore-icon">b<span class="t">3</span></div>
+      <div class="appstore-meta">
+        <h3>big3 — Cosmic Weather</h3>
+        <div class="dev">Big3 Inc.</div>
+        <div class="cat">Lifestyle</div>
+      </div>
+      <div class="appstore-get">GET</div>
+    </div>
+
+    <div class="appstore-screenshots">
+      <!-- Screenshot 1 -->
+      <div class="appstore-ss ss-1">
+        <div class="ss-headline">Know your<br>Big 3</div>
+        <div style="font-size: 2rem; margin: 8px 0;">☀️ 🌙 ⬆️</div>
+        <div class="ss-subtext">Sun. Moon. Rising.<br>One app.</div>
+      </div>
+
+      <!-- Screenshot 2 -->
+      <div class="appstore-ss ss-2">
+        <div class="ss-headline">Cosmic<br>Weather</div>
+        <div class="ss-mini-ui">
+          <div class="ss-mini-bar" style="background: linear-gradient(90deg, #4ade80, #86efac); width: 30%; height: 6px; border-radius: 3px; margin-bottom: 6px;"></div>
+          <div class="ss-mini-bar" style="background: linear-gradient(90deg, #ffd93d, #fbbf24); width: 55%; height: 6px; border-radius: 3px; margin-bottom: 6px;"></div>
+          <div class="ss-mini-bar" style="background: linear-gradient(90deg, #ff6b6b, #ef4444); width: 80%; height: 6px; border-radius: 3px;"></div>
+        </div>
+        <div class="ss-subtext" style="margin-top: 12px;">Transit Intensity<br>Index — live</div>
+      </div>
+
+      <!-- Screenshot 3 -->
+      <div class="appstore-ss ss-3">
+        <div class="ss-headline" style="color: #fff;">What's your<br><span style="background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Big 3</span>?</div>
+        <div style="margin: 12px 0;">
+          <div style="font-size: 0.6rem; color: #666; margin-bottom: 6px;">☀️ <span style="color:#ff6b6b;">Aries</span></div>
+          <div style="font-size: 0.6rem; color: #666; margin-bottom: 6px;">🌙 <span style="color:#ffd93d;">Scorpio</span></div>
+          <div style="font-size: 0.6rem; color: #666;">⬆️ <span style="color:#6bcbff;">Leo</span></div>
+        </div>
+        <div class="ss-subtext" style="color: #555;">AI-powered<br>insights</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<div style="text-align: center; padding: 40px 0; border-top: 1px solid #eee; color: #ccc; font-size: 0.8rem;">
+  big3.me Brand Kit — Light Minimal Edition — March 2026
+</div>
+
+</div>
+</body>
+</html>

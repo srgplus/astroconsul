@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>big3.me — Brand Guidelines</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --sun: #ff6b6b;
+    --moon: #ffd93d;
+    --rising: #6bcbff;
+    --void: #0e0e12;
+    --ink: #1a1a1a;
+    --ash: #888888;
+    --mist: #c8c8c8;
+    --snow: #f7f7f5;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--snow);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── LAYOUT ─── */
+  .page { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+  }
+
+  .cover-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 7rem;
+    letter-spacing: -5px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .cover-logo .w { font-weight: 300; }
+  .cover-logo .n { font-weight: 700; }
+
+  .cover-domain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 6px;
+    color: var(--mist);
+    margin-top: 8px;
+  }
+
+  .cover-sub {
+    position: absolute;
+    bottom: 48px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+
+  /* ─── SECTIONS ─── */
+  .sect {
+    padding: 96px 0;
+    border-top: 1px solid #e8e8e4;
+  }
+
+  .sect-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--mist);
+    margin-bottom: 6px;
+  }
+
+  .sect-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .sect-desc {
+    font-size: 0.9rem;
+    color: var(--ash);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* ─── LOGO SECTION ─── */
+  .logo-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .logo-box {
+    border-radius: 20px;
+    padding: 64px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .logo-box-label {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .lb-light { background: var(--white); border: 1px solid #eee; }
+  .lb-dark { background: var(--void); }
+  .lb-snow { background: var(--snow); border: 1px solid #e8e8e4; }
+
+  .lb-light .logo-box-label { color: #ddd; }
+  .lb-dark .logo-box-label { color: #2a2a2f; }
+  .lb-snow .logo-box-label { color: #ccc; }
+
+  .mark {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -3px;
+    line-height: 1;
+  }
+
+  .mark .w { font-weight: 300; }
+  .mark .n { font-weight: 700; }
+
+  .mark-lg { font-size: 4.5rem; }
+  .mark-md { font-size: 2.8rem; letter-spacing: -2px; }
+  .mark-sm { font-size: 1.6rem; letter-spacing: -1px; }
+
+  .lb-light .mark { color: var(--ink); }
+  .lb-dark .mark { color: var(--white); }
+
+  .mark-domain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    margin-top: 6px;
+  }
+
+  .lb-light .mark-domain { color: #999; }
+  .lb-dark .mark-domain { color: #999; }
+
+  /* Tagline lockup */
+  .lockup-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+
+  .lb-light .lockup-tagline { color: #777; }
+  .lb-dark .lockup-tagline { color: #999; }
+
+  /* ─── ICON MARKS ─── */
+  .icon-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+
+  .icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22%;
+    background: var(--white);
+    border: 1px solid #eee;
+  }
+
+  .icon-box .ic {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--ink);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .icon-box .ic .iw { font-weight: 300; }
+  .icon-box .ic .in { font-weight: 700; }
+
+  .icon-box-dark {
+    background: var(--void);
+    border-color: #1a1a1f;
+  }
+
+  .icon-box-dark .ic { color: var(--white); }
+
+  .icon-size-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--mist);
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* ─── CLEAR SPACE ─── */
+  .clearspace-demo {
+    display: inline-block;
+    position: relative;
+    margin: 32px auto;
+    display: flex;
+    justify-content: center;
+  }
+
+  .cs-inner {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    font-weight: 300;
+    letter-spacing: -2px;
+    color: var(--ink);
+    padding: 40px 56px;
+    border: 1px dashed var(--mist);
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .cs-inner .n { font-weight: 700; }
+
+  .cs-arrow {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: var(--sun);
+    letter-spacing: 1px;
+  }
+
+  .cs-top { top: 12px; left: 50%; transform: translateX(-50%); }
+  .cs-bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+  .cs-left { left: 12px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+  .cs-right { right: 12px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+  /* ─── COLOR PALETTE ─── */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 700px) { .palette-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .color-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--white);
+    border: 1px solid #eee;
+  }
+
+  .color-swatch {
+    height: 100px;
+  }
+
+  .color-info {
+    padding: 14px 16px;
+  }
+
+  .color-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .color-hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ash);
+  }
+
+  .color-role {
+    font-size: 0.7rem;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* Tint strips */
+  .tint-row {
+    display: flex;
+    gap: 2px;
+    margin-top: 24px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .tint-cell {
+    flex: 1;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tint-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.45rem;
+    color: rgba(0,0,0,0.3);
+  }
+
+  .tint-label-light { color: rgba(255,255,255,0.5); }
+
+  /* ─── TYPOGRAPHY ─── */
+  .type-specimen {
+    margin-bottom: 40px;
+  }
+
+  .type-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 8px;
+  }
+
+  .type-sample {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 24px;
+  }
+
+  .ts-grotesk {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .ts-grotesk-light {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .ts-inter {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #555;
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  .ts-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--ash);
+    line-height: 1.6;
+  }
+
+  .type-scale {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    margin-top: 32px;
+  }
+
+  .ts-row {
+    display: contents;
+  }
+
+  .ts-size {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0ec;
+    display: flex;
+    align-items: center;
+  }
+
+  .ts-text {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--ink);
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0ec;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /* ─── VOICE & TONE ─── */
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 700px) { .voice-grid { grid-template-columns: 1fr; } }
+
+  .voice-card {
+    background: var(--white);
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .voice-do {
+    border-left: 3px solid var(--ink);
+  }
+
+  .voice-dont {
+    border-left: 3px solid var(--mist);
+  }
+
+  .voice-card h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .voice-card p {
+    font-size: 0.85rem;
+    color: var(--ash);
+    line-height: 1.7;
+  }
+
+  .voice-card .example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink);
+    background: var(--snow);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* ─── USAGE GRID ─── */
+  .usage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 700px) { .usage-grid { grid-template-columns: 1fr 1fr; } }
+
+  .usage-card {
+    border-radius: 16px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .usage-card .badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .badge-yes { background: #e8f5e9; color: #2e7d32; }
+  .badge-no { background: #ffeef0; color: #d32f2f; }
+
+  .usage-card .usage-label {
+    position: absolute;
+    bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+    color: var(--mist);
+  }
+
+  /* ─── SOCIAL MOCKUPS ─── */
+  .social-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .social-card {
+    background: var(--white);
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .social-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: -1px;
+  }
+
+  .sa-light { background: var(--white); border: 1.5px solid #eee; color: var(--ink); }
+  .sa-dark { background: var(--void); border: 1.5px solid #222; color: var(--white); }
+
+  .sa-light .w, .sa-dark .w { font-weight: 300; }
+  .sa-light .n, .sa-dark .n { font-weight: 700; }
+
+  .social-handle {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+
+  .social-platform {
+    font-size: 0.75rem;
+    color: var(--mist);
+    margin-top: 2px;
+  }
+
+  /* ─── MOTION ─── */
+  .motion-box {
+    background: var(--white);
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .motion-demo {
+    display: inline-block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    letter-spacing: -2px;
+    color: var(--ink);
+    animation: fadeReveal 2.5s ease-out infinite;
+  }
+
+  .motion-demo .w { font-weight: 300; }
+  .motion-demo .n { font-weight: 700; opacity: 0; animation: numReveal 2.5s ease-out infinite; }
+
+  @keyframes fadeReveal {
+    0% { opacity: 0; transform: translateY(8px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes numReveal {
+    0% { opacity: 0; }
+    30% { opacity: 0; }
+    50% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .motion-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    letter-spacing: 1px;
+    margin-top: 16px;
+  }
+
+  /* ─── TAGLINE SYSTEM ─── */
+  .tagline-list {
+    list-style: none;
+  }
+
+  .tagline-list li {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+
+  .tagline-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .tagline-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .tagline-use {
+    font-size: 0.75rem;
+    color: var(--mist);
+    margin-left: auto;
+  }
+
+  /* ─── FOOTER ─── */
+  .brand-footer {
+    text-align: center;
+    padding: 64px 0;
+    border-top: 1px solid #e8e8e4;
+  }
+
+  .bf-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    letter-spacing: -2px;
+    color: var(--mist);
+  }
+
+  .bf-logo .w { font-weight: 300; }
+  .bf-logo .n { font-weight: 700; }
+
+  .bf-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: #ddd;
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- COVER                                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page">
+<div class="cover">
+  <div class="cover-logo"><span class="w">big</span><span class="n">3</span><span class="w" style="font-weight: 400; font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span></div>
+  <div class="cover-sub">Brand Guidelines — V1.0 — March 2026</div>
+</div>
+
+<!-- ═══ 01 LOGO ═══ -->
+<div class="sect">
+  <div class="sect-num">01</div>
+  <div class="sect-title">Logo</div>
+  <div class="sect-desc">The primary logo is "big3.me" — the full domain as a wordmark. Space Grotesk with weight contrast: "big" in Light (300), "3" in Bold (700), ".me" in Regular (400) at slightly reduced size — visible but subordinate. The domain IS the brand. The compact mark "b3" is used for app icons, favicons, and social avatars.</div>
+
+  <div class="logo-showcase">
+    <div class="logo-box lb-light" style="grid-column: span 2; padding: 80px 40px;">
+      <div class="logo-box-label">Primary — Light</div>
+      <div class="mark mark-lg"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span></div>
+    </div>
+
+    <div class="logo-box lb-dark" style="grid-column: span 2; padding: 80px 40px;">
+      <div class="logo-box-label">Primary — Dark</div>
+      <div class="mark mark-lg"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #999;">.me</span></div>
+    </div>
+
+    <div class="logo-box lb-light">
+      <div class="logo-box-label">With Tagline</div>
+      <div class="mark mark-md"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span></div>
+      <div class="lockup-tagline">Know your three</div>
+    </div>
+
+    <div class="logo-box lb-dark">
+      <div class="logo-box-label">With Tagline</div>
+      <div class="mark mark-md"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #999;">.me</span></div>
+      <div class="lockup-tagline">Know your three</div>
+    </div>
+
+    <div class="logo-box lb-light">
+      <div class="logo-box-label">Compact — b3</div>
+      <div class="mark mark-md"><span class="w">b</span><span class="n">3</span></div>
+    </div>
+
+    <div class="logo-box lb-dark">
+      <div class="logo-box-label">Compact — b3</div>
+      <div class="mark mark-md"><span class="w">b</span><span class="n">3</span></div>
+    </div>
+  </div>
+
+  <!-- Clear space -->
+  <div style="margin-top: 48px;">
+    <div class="type-label">Clear Space</div>
+    <p style="font-size: 0.85rem; color: var(--ash); margin-bottom: 24px;">Minimum clear space equals the height of the "3" character on all sides.</p>
+    <div class="clearspace-demo">
+      <div class="cs-inner">
+        <span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span>
+        <span class="cs-arrow cs-top">↓ 3-height</span>
+        <span class="cs-arrow cs-bottom">↑ 3-height</span>
+        <span class="cs-arrow cs-left">3-height →</span>
+        <span class="cs-arrow cs-right">← 3-height</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02 APP ICON ═══ -->
+<div class="sect">
+  <div class="sect-num">02</div>
+  <div class="sect-title">App Icon & Lettermark</div>
+  <div class="sect-desc">The "b3" lettermark inherits the same weight contrast. For extremely small sizes (16px), use the standalone bold "3".</div>
+
+  <div class="icon-row">
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:128px; height:128px;">
+        <span class="ic" style="font-size:3rem;"><span class="iw">b</span><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">1024px</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box icon-box-dark" style="width:128px; height:128px;">
+        <span class="ic" style="font-size:3rem;"><span class="iw">b</span><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">1024px dark</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:80px; height:80px;">
+        <span class="ic" style="font-size:1.8rem;"><span class="iw">b</span><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">180px</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:56px; height:56px;">
+        <span class="ic" style="font-size:1.3rem;"><span class="iw">b</span><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">120px</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:40px; height:40px;">
+        <span class="ic" style="font-size:0.95rem;"><span class="iw">b</span><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">60px</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:28px; height:28px;">
+        <span class="ic" style="font-size:0.7rem;"><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">32px</div>
+    </div>
+    <div style="text-align: center;">
+      <div class="icon-box" style="width:20px; height:20px;">
+        <span class="ic" style="font-size:0.5rem;"><span class="in">3</span></span>
+      </div>
+      <div class="icon-size-label">16px</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 03 COLOR ═══ -->
+<div class="sect">
+  <div class="sect-num">03</div>
+  <div class="sect-title">Color</div>
+  <div class="sect-desc">Three accent colors map to the Big 3 of astrology. They're used sparingly — for data visualization, UI states, and accent moments. The primary brand is black and white. Color is the reward, not the default.</div>
+
+  <div class="palette-grid">
+    <div class="color-card">
+      <div class="color-swatch" style="background: var(--sun);"></div>
+      <div class="color-info">
+        <div class="color-name">Sun</div>
+        <div class="color-hex">#FF6B6B</div>
+        <div class="color-role">Identity, ego, self</div>
+      </div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background: var(--moon);"></div>
+      <div class="color-info">
+        <div class="color-name">Moon</div>
+        <div class="color-hex">#FFD93D</div>
+        <div class="color-role">Emotion, instinct</div>
+      </div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background: var(--rising);"></div>
+      <div class="color-info">
+        <div class="color-name">Rising</div>
+        <div class="color-hex">#6BCBFF</div>
+        <div class="color-role">Appearance, first impression</div>
+      </div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background: var(--void);"></div>
+      <div class="color-info">
+        <div class="color-name">Void</div>
+        <div class="color-hex">#0E0E12</div>
+        <div class="color-role">Dark mode, backgrounds</div>
+      </div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background: var(--snow); border-bottom: 1px solid #eee;"></div>
+      <div class="color-info">
+        <div class="color-name">Snow</div>
+        <div class="color-hex">#F7F7F5</div>
+        <div class="color-role">Light surfaces</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tint strip -->
+  <div style="margin-top: 32px;">
+    <div class="type-label">Sun Tints</div>
+    <div class="tint-row">
+      <div class="tint-cell" style="background: #fff0f0;"><span class="tint-label">50</span></div>
+      <div class="tint-cell" style="background: #ffd4d4;"><span class="tint-label">100</span></div>
+      <div class="tint-cell" style="background: #ffb0b0;"><span class="tint-label">200</span></div>
+      <div class="tint-cell" style="background: #ff8e8e;"><span class="tint-label">300</span></div>
+      <div class="tint-cell" style="background: var(--sun);"><span class="tint-label tint-label-light">400</span></div>
+      <div class="tint-cell" style="background: #e85555;"><span class="tint-label tint-label-light">500</span></div>
+      <div class="tint-cell" style="background: #c44040;"><span class="tint-label tint-label-light">600</span></div>
+      <div class="tint-cell" style="background: #992e2e;"><span class="tint-label tint-label-light">700</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <div class="type-label">Moon Tints</div>
+    <div class="tint-row">
+      <div class="tint-cell" style="background: #fffde8;"><span class="tint-label">50</span></div>
+      <div class="tint-cell" style="background: #fff5b5;"><span class="tint-label">100</span></div>
+      <div class="tint-cell" style="background: #ffed80;"><span class="tint-label">200</span></div>
+      <div class="tint-cell" style="background: #ffe45c;"><span class="tint-label">300</span></div>
+      <div class="tint-cell" style="background: var(--moon);"><span class="tint-label">400</span></div>
+      <div class="tint-cell" style="background: #e6c235;"><span class="tint-label">500</span></div>
+      <div class="tint-cell" style="background: #c4a52d;"><span class="tint-label">600</span></div>
+      <div class="tint-cell" style="background: #997f22;"><span class="tint-label tint-label-light">700</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <div class="type-label">Rising Tints</div>
+    <div class="tint-row">
+      <div class="tint-cell" style="background: #f0f8ff;"><span class="tint-label">50</span></div>
+      <div class="tint-cell" style="background: #d0ecff;"><span class="tint-label">100</span></div>
+      <div class="tint-cell" style="background: #a8ddff;"><span class="tint-label">200</span></div>
+      <div class="tint-cell" style="background: #88d2ff;"><span class="tint-label">300</span></div>
+      <div class="tint-cell" style="background: var(--rising);"><span class="tint-label">400</span></div>
+      <div class="tint-cell" style="background: #55b5e8;"><span class="tint-label">500</span></div>
+      <div class="tint-cell" style="background: #3d96c4;"><span class="tint-label tint-label-light">600</span></div>
+      <div class="tint-cell" style="background: #2a7099;"><span class="tint-label tint-label-light">700</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 04 TYPOGRAPHY ═══ -->
+<div class="sect">
+  <div class="sect-num">04</div>
+  <div class="sect-title">Typography</div>
+  <div class="sect-desc">Three typefaces, three roles. Space Grotesk for impact, Inter for reading, JetBrains Mono for data. Mirrors the Big 3 concept — three elements, one system.</div>
+
+  <div class="type-specimen">
+    <div class="type-label">Headlines — Space Grotesk Bold</div>
+    <div class="type-sample">
+      <div class="ts-grotesk">Know your three.<br>Know yourself.</div>
+    </div>
+  </div>
+
+  <div class="type-specimen">
+    <div class="type-label">Subheads — Space Grotesk Light</div>
+    <div class="type-sample">
+      <div class="ts-grotesk-light">AI-powered cosmic weather<br>for your Sun, Moon & Rising</div>
+    </div>
+  </div>
+
+  <div class="type-specimen">
+    <div class="type-label">Body — Inter Regular</div>
+    <div class="type-sample">
+      <div class="ts-inter">Your Big 3 — Sun, Moon, and Rising — are the three most important placements in your natal chart. Together they describe who you are at your core, how you process emotions, and how the world perceives you. Big3 tracks how planetary transits interact with these three signs in real-time.</div>
+    </div>
+  </div>
+
+  <div class="type-specimen">
+    <div class="type-label">Data / Technical — JetBrains Mono</div>
+    <div class="type-sample">
+      <div class="ts-mono">TII 72° — Dynamic — 3 active transits<br>Saturn conjunct Moon · Mars square Sun · Jupiter trine Rising</div>
+    </div>
+  </div>
+
+  <!-- Type scale -->
+  <div class="type-label" style="margin-top: 40px;">Type Scale</div>
+  <div class="type-scale">
+    <div class="ts-row"><div class="ts-size">48px</div><div class="ts-text" style="font-size: 3rem; font-weight: 700; letter-spacing: -2px;">Know your three</div></div>
+    <div class="ts-row"><div class="ts-size">36px</div><div class="ts-text" style="font-size: 2.25rem; font-weight: 600; letter-spacing: -1px;">Cosmic Weather</div></div>
+    <div class="ts-row"><div class="ts-size">24px</div><div class="ts-text" style="font-size: 1.5rem; font-weight: 500;">Transit Intensity Index</div></div>
+    <div class="ts-row"><div class="ts-size">18px</div><div class="ts-text" style="font-size: 1.125rem; font-weight: 400;">Your Big 3 this week</div></div>
+    <div class="ts-row"><div class="ts-size">16px</div><div class="ts-text" style="font-size: 1rem; font-weight: 400; font-family: 'Inter';">Body text for descriptions and longer content</div></div>
+    <div class="ts-row"><div class="ts-size">14px</div><div class="ts-text" style="font-size: 0.875rem; font-weight: 400; font-family: 'Inter'; color: #888;">Secondary text and metadata</div></div>
+    <div class="ts-row"><div class="ts-size">12px</div><div class="ts-text" style="font-size: 0.75rem; font-weight: 400; font-family: 'JetBrains Mono'; color: #aaa;">TII 72° · 3 TRANSITS · UPDATED 2M AGO</div></div>
+  </div>
+</div>
+
+<!-- ═══ 05 VOICE ═══ -->
+<div class="sect">
+  <div class="sect-num">05</div>
+  <div class="sect-title">Voice & Tone</div>
+  <div class="sect-desc">Big3 speaks like a smart friend who happens to understand astrology — never mystical, never condescending. We translate cosmic complexity into clarity.</div>
+
+  <div class="voice-grid">
+    <div class="voice-card voice-do">
+      <h4>Clear, not mystical</h4>
+      <p>We explain what's happening in the sky in plain language. No jargon without context.</p>
+      <div class="example">"Saturn is pressing on your Moon today. Emotions might feel heavier than usual — that's normal."</div>
+    </div>
+    <div class="voice-card voice-dont">
+      <h4>Not this</h4>
+      <p>Avoid fortune-teller energy, vague promises, or overly dramatic cosmic language.</p>
+      <div class="example" style="text-decoration: line-through; color: #ccc;">"The celestial energies are aligning to transform your spiritual essence during this powerful lunation portal."</div>
+    </div>
+    <div class="voice-card voice-do">
+      <h4>Confident, not bossy</h4>
+      <p>We present data and let people decide. The TII tells you the weather — you decide what to wear.</p>
+      <div class="example">"TII 84° — Intense day. Good for deep work, less ideal for difficult conversations."</div>
+    </div>
+    <div class="voice-card voice-dont">
+      <h4>Not this</h4>
+      <p>We never tell people what to do or make fear-based predictions.</p>
+      <div class="example" style="text-decoration: line-through; color: #ccc;">"WARNING: Do NOT sign contracts today! Mercury retrograde will destroy your plans!"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 06 TAGLINES ═══ -->
+<div class="sect">
+  <div class="sect-num">06</div>
+  <div class="sect-title">Taglines</div>
+  <div class="sect-desc">A hierarchy of phrases for different contexts — from hero banners to social bios.</div>
+
+  <ul class="tagline-list">
+    <li>
+      <span class="tagline-rank">01</span>
+      <span class="tagline-text">Know your three. Know yourself.</span>
+      <span class="tagline-use">Primary</span>
+    </li>
+    <li>
+      <span class="tagline-rank">02</span>
+      <span class="tagline-text">Sun. Moon. Rising. You.</span>
+      <span class="tagline-use">Bio / Social</span>
+    </li>
+    <li>
+      <span class="tagline-rank">03</span>
+      <span class="tagline-text">Cosmic weather for your Big 3</span>
+      <span class="tagline-use">Descriptive</span>
+    </li>
+    <li>
+      <span class="tagline-rank">04</span>
+      <span class="tagline-text">What's your Big 3?</span>
+      <span class="tagline-use">Viral CTA</span>
+    </li>
+    <li>
+      <span class="tagline-rank">05</span>
+      <span class="tagline-text">The weather app for your chart</span>
+      <span class="tagline-use">Pitch / Press</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ═══ 07 MOTION ═══ -->
+<div class="sect">
+  <div class="sect-num">07</div>
+  <div class="sect-title">Motion</div>
+  <div class="sect-desc">The logo animation mirrors the product reveal — "big" appears first (the everyday), then "3" lands with weight (the cosmic insight), then ".me" fades in softly (it's personal).</div>
+
+  <div class="motion-box">
+    <div class="motion-demo"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: var(--ash); opacity: 0; animation: meReveal 2.5s ease-out infinite;">.me</span></div>
+    <div class="motion-label">Ease-out · 600ms "big" · 400ms "3" delay · 800ms ".me" delay</div>
+  </div>
+  <style>
+    @keyframes meReveal {
+      0% { opacity: 0; }
+      50% { opacity: 0; }
+      70% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</div>
+
+<!-- ═══ 08 SOCIAL ═══ -->
+<div class="sect">
+  <div class="sect-num">08</div>
+  <div class="sect-title">Social Profiles</div>
+  <div class="sect-desc">Light avatar for light-mode platforms (Instagram, TikTok). Dark avatar for dark-mode contexts (X, Discord). Always use "b3" lettermark at social avatar size.</div>
+
+  <div class="social-row">
+    <div class="social-card">
+      <div class="social-avatar sa-light"><span class="w">b</span><span class="n">3</span></div>
+      <div class="social-handle">@big3app</div>
+      <div class="social-platform">Instagram</div>
+    </div>
+    <div class="social-card">
+      <div class="social-avatar sa-dark"><span class="w">b</span><span class="n">3</span></div>
+      <div class="social-handle">@big3app</div>
+      <div class="social-platform">X (Twitter)</div>
+    </div>
+    <div class="social-card">
+      <div class="social-avatar sa-light"><span class="w">b</span><span class="n">3</span></div>
+      <div class="social-handle">@big3app</div>
+      <div class="social-platform">TikTok</div>
+    </div>
+    <div class="social-card">
+      <div class="social-avatar sa-dark"><span class="w">b</span><span class="n">3</span></div>
+      <div class="social-handle">big3.me</div>
+      <div class="social-platform">Discord</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 09 USAGE ═══ -->
+<div class="sect">
+  <div class="sect-num">09</div>
+  <div class="sect-title">Logo Usage</div>
+  <div class="sect-desc">Do's and don'ts. The logo works because of its restraint — don't add to it.</div>
+
+  <div class="usage-grid">
+    <!-- DO: White bg -->
+    <div class="usage-card" style="background: #fff; border: 1px solid #eee;">
+      <div class="badge badge-yes">DO</div>
+      <div class="mark" style="font-size: 1.6rem; color: var(--ink);"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span></div>
+      <div class="usage-label">White background</div>
+    </div>
+    <!-- DO: Dark bg -->
+    <div class="usage-card" style="background: var(--void);">
+      <div class="badge badge-yes">DO</div>
+      <div class="mark" style="font-size: 1.6rem; color: #fff;"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #999;">.me</span></div>
+      <div class="usage-label" style="color: #333;">Dark background</div>
+    </div>
+    <!-- DO: Off-white -->
+    <div class="usage-card" style="background: #f5f5f0; border: 1px solid #e8e8e3;">
+      <div class="badge badge-yes">DO</div>
+      <div class="mark" style="font-size: 1.6rem; color: var(--ink);"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #555;">.me</span></div>
+      <div class="usage-label">Warm neutral</div>
+    </div>
+    <!-- DON'T: Gradient on text -->
+    <div class="usage-card" style="background: #fff; border: 1px solid #eee;">
+      <div class="badge badge-no">DON'T</div>
+      <div style="font-family: 'Space Grotesk'; font-size: 1.8rem; letter-spacing: -1px; background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcbff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">big3</div>
+      <div class="usage-label">Gradient on logo</div>
+    </div>
+    <!-- DON'T: Color bg -->
+    <div class="usage-card" style="background: var(--sun);">
+      <div class="badge badge-no">DON'T</div>
+      <div class="mark" style="font-size: 1.8rem; color: #fff;"><span class="w">big</span><span class="n">3</span></div>
+      <div class="usage-label" style="color: rgba(255,255,255,0.4);">Colored background</div>
+    </div>
+    <!-- DON'T: Outline -->
+    <div class="usage-card" style="background: #fff; border: 1px solid #eee;">
+      <div class="badge badge-no">DON'T</div>
+      <div style="font-family: 'Space Grotesk'; font-size: 1.8rem; letter-spacing: -1px; color: transparent; -webkit-text-stroke: 1.5px #ccc; font-weight: 700;">big3</div>
+      <div class="usage-label">Outline treatment</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="brand-footer">
+  <div class="bf-logo"><span class="w">big</span><span class="n">3</span><span class="w" style="font-size: 0.65em; letter-spacing: 0; color: #777;">.me</span></div>
+  <div class="bf-text">Brand Guidelines V1.0 — March 2026</div>
+</div>
+
+</div>
+</body>
+</html>
