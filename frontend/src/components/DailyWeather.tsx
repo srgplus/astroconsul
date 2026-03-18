@@ -231,6 +231,7 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
         <div className="cw-tii-label">{t("weather.intensity")}</div>
 
         <div className="cw-feels" style={{ color: accent }}>{feelsLabel}</div>
+        <div className="cw-mood">{mood}</div>
 
         <div className="cw-tension-bar">
           <div className="cw-tension-bar__track">
@@ -242,7 +243,6 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
           <span className="cw-tension-bar__label">{t("weather.tension")} {Math.round(tensionRatio * 100)}%</span>
         </div>
 
-        <div className="cw-mood">{mood}</div>
         <div className="cw-feels-desc">{feelsDesc}</div>
       </div>
 

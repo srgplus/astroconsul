@@ -16,7 +16,7 @@ function Collapsible({ title, children, defaultOpen = true }: { title: string; c
 
 function ZoneSection({ zone, range, color, desc, items }: {
   zone: string; range: string; color: string; desc: string
-  items: readonly { emoji: string; label: string; tension: string; text: string }[]
+  items: readonly { emoji: string; label: string; tension: string; mood: string; text: string }[]
 }) {
   const [open, setOpen] = useState(true)
   return (
@@ -30,13 +30,14 @@ function ZoneSection({ zone, range, color, desc, items }: {
       {open ? (
         <div className="guide-zone__body">
           <p className="guide-text guide-text--muted">{desc}</p>
-          {items.map(({ emoji, label, tension, text }) => (
+          {items.map(({ emoji, label, tension, mood, text }) => (
             <div key={label} className="guide-feels">
               <div className="guide-feels__head">
                 <span className="guide-feels__emoji">{emoji}</span>
                 <strong>{label}</strong>
                 <span className="guide-text--muted">({tension})</span>
               </div>
+              <p className="guide-feels__mood">{mood}</p>
               <p className="guide-feels__text">{text}</p>
             </div>
           ))}
@@ -58,18 +59,21 @@ function buildZones(t: (key: string) => string) {
           emoji: "\u2601\uFE0F",
           label: t("guide.feelsCalmLabel"),
           tension: t("guide.feelsCalmTension"),
+          mood: t("mood.Calm"),
           text: t("guide.feelsCalmQuiet"),
         },
         {
           emoji: "\u{1F32B}\uFE0F",
           label: t("guide.feelsSubtleLabel"),
           tension: t("guide.feelsSubtleTension"),
+          mood: t("mood.Subtle pressure"),
           text: t("guide.feelsSubtleQuiet"),
         },
         {
           emoji: "\u26CF",
           label: t("guide.feelsGrindingLabel"),
           tension: t("guide.feelsGrindingTension"),
+          mood: t("mood.Grinding"),
           text: t("guide.feelsGrindingQuiet"),
         },
       ],
@@ -84,18 +88,21 @@ function buildZones(t: (key: string) => string) {
           emoji: "\u2600\uFE0F",
           label: t("guide.feelsFlowingLabel"),
           tension: t("guide.feelsFlowingTension"),
+          mood: t("mood.Flowing"),
           text: t("guide.feelsFlowingActive"),
         },
         {
           emoji: "\u26A1",
           label: t("guide.feelsDynamicLabel"),
           tension: t("guide.feelsDynamicTension"),
+          mood: t("mood.Dynamic"),
           text: t("guide.feelsDynamicActive"),
         },
         {
           emoji: "\u{1FAA8}",
           label: t("guide.feelsPressuredLabel"),
           tension: t("guide.feelsPressuredTension"),
+          mood: t("mood.Pressured"),
           text: t("guide.feelsPressuredActive"),
         },
       ],
@@ -110,18 +117,21 @@ function buildZones(t: (key: string) => string) {
           emoji: "\u{1F305}",
           label: t("guide.feelsExpansiveLabel"),
           tension: t("guide.feelsExpansiveTension"),
+          mood: t("mood.Expansive"),
           text: t("guide.feelsExpansiveHot"),
         },
         {
           emoji: "\u26C8\uFE0F",
           label: t("guide.feelsChargedLabel"),
           tension: t("guide.feelsChargedTension"),
+          mood: t("mood.Charged"),
           text: t("guide.feelsChargedHot"),
         },
         {
           emoji: "\u{1F525}",
           label: t("guide.feelsIntenseLabel"),
           tension: t("guide.feelsIntenseTension"),
+          mood: t("mood.Intense"),
           text: t("guide.feelsIntenseHot"),
         },
       ],
@@ -136,18 +146,21 @@ function buildZones(t: (key: string) => string) {
           emoji: "\u{1F680}",
           label: t("guide.feelsPowerfulLabel"),
           tension: t("guide.feelsPowerfulTension"),
+          mood: t("mood.Powerful"),
           text: t("guide.feelsPowerfulExtreme"),
         },
         {
           emoji: "\u2694\uFE0F",
           label: t("guide.feelsVolatileLabel"),
           tension: t("guide.feelsVolatileTension"),
+          mood: t("mood.Volatile"),
           text: t("guide.feelsVolatileExtreme"),
         },
         {
           emoji: "\u{1F4A5}",
           label: t("guide.feelsExplosiveLabel"),
           tension: t("guide.feelsExplosiveTension"),
+          mood: t("mood.Explosive"),
           text: t("guide.feelsExplosiveExtreme"),
         },
       ],
