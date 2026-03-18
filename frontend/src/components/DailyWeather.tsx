@@ -364,8 +364,9 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+            const tier = i % 2 === 0 ? "" : " transit-bar__exact--alt"
             return (
-              <div key={i} className="transit-bar__exact" style={{ left: `${passPct}%` }} />
+              <div key={i} className={`transit-bar__exact${tier}`} style={{ left: `${passPct}%` }} />
             )
           })
         ) : peakPct !== null ? (
@@ -382,8 +383,9 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
           timing.exact_passes.map((pass, i) => {
             const passTime = new Date(pass.utc).getTime()
             const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+            const tier = i % 2 === 0 ? "" : " transit-bar__exact-label--alt"
             return (
-              <span key={i} className="transit-bar__exact-label" style={{ left: `${passPct}%` }}>
+              <span key={i} className={`transit-bar__exact-label${tier}`} style={{ left: `${passPct}%` }}>
                 {shortDate(pass.utc, t)}
               </span>
             )
