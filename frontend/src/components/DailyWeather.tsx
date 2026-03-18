@@ -388,6 +388,23 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
 
   return (
     <div className="transit-bar">
+      {/* Date labels above the bar */}
+      <div className="transit-bar__dates-above">
+        {timing.exact_passes && timing.exact_passes.length > 1 ? (
+          timing.exact_passes.map((pass, i) => {
+            const passTime = new Date(pass.utc).getTime()
+            const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
+            const tier = labelTiers[i] === 1 ? " transit-bar__date--alt" : ""
+            return (
+              <span key={i} className={`transit-bar__date${tier}`} style={{ left: `${passPct}%` }}>
+                {shortDate(pass.utc, t)}
+              </span>
+            )
+          })
+        ) : peakPct !== null && peakLabel ? (
+          <span className="transit-bar__date" style={{ left: `${peakPct}%` }}>{peakLabel}</span>
+        ) : null}
+      </div>
       <div className={`transit-bar__track${isOuter ? " transit-bar__track--outer" : ""}`}
         style={isOuter ? { boxShadow: `0 0 6px ${dotColor}40` } as React.CSSProperties : undefined}
       >
@@ -419,20 +436,6 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
       </div>
       <div className="transit-bar__labels">
         <span>{startLabel}</span>
-        {timing.exact_passes && timing.exact_passes.length > 1 ? (
-          timing.exact_passes.map((pass, i) => {
-            const passTime = new Date(pass.utc).getTime()
-            const passPct = Math.max(0, Math.min(100, ((passTime - start) / total) * 100))
-            const tier = labelTiers[i] === 1 ? " transit-bar__exact-label--alt" : ""
-            return (
-              <span key={i} className={`transit-bar__exact-label${tier}`} style={{ left: `${passPct}%` }}>
-                {shortDate(pass.utc, t)}
-              </span>
-            )
-          })
-        ) : peakPct !== null && peakLabel ? (
-          <span className="transit-bar__exact-label" style={{ left: `${peakPct}%` }}>{peakLabel}</span>
-        ) : null}
         <span>{endLabel}</span>
       </div>
     </div>
