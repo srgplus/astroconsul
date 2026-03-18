@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { useAuth } from "./contexts/AuthContext"
 import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
+import B3Logo from "./components/B3Logo"
 import { LandingPage } from "./components/LandingPage"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
@@ -726,12 +727,7 @@ export function App() {
     <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
       {/* Desktop persistent logo — top right */}
       <div className="b3-logo-desktop-fixed">
-        <svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-          <rect className="b3-logo-svg__bg" width="32" height="32" rx="7"/>
-          <text className="b3-logo-svg__text" x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18">
-            <tspan fontWeight="300">b</tspan><tspan fontWeight="700">3</tspan>
-          </text>
-        </svg>
+        <B3Logo />
       </div>
       <div className="main-layout">
         <aside className={`sidebar${sidebarCollapsed ? " sidebar--collapsed" : ""}`}>
@@ -915,12 +911,7 @@ export function App() {
         <div className="content-pane">
           {/* Sticky logo — always visible at top */}
           <div className="b3-logo-sticky">
-            <svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-              <rect className="b3-logo-svg__bg" width="32" height="32" rx="7"/>
-              <text className="b3-logo-svg__text" x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18">
-                <tspan fontWeight="300">b</tspan><tspan fontWeight="700">3</tspan>
-              </text>
-            </svg>
+            <B3Logo />
           </div>
           {/* Hero section: DailyWeather, locked preview, or skeleton */}
           {transitReport && activeDetail ? (

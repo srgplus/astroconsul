@@ -261,8 +261,7 @@ select {
   display: none;  /* shown only on mobile */
 }
 
-.b3-logo-svg__bg { fill: var(--ink); }
-.b3-logo-svg__text { fill: var(--bg); }
+/* b3 logo colors are now inline in the B3Logo component */
 
 /* Desktop: persistent top-right logo */
 .b3-logo-desktop-fixed {
