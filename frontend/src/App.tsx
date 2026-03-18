@@ -727,8 +727,8 @@ export function App() {
       {/* Desktop persistent logo — top right */}
       <div className="b3-logo-desktop-fixed">
         <svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="7" fill="#1a1a22"/>
-          <text x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fill="white">
+          <rect className="b3-logo-svg__bg" width="32" height="32" rx="7"/>
+          <text className="b3-logo-svg__text" x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18">
             <tspan fontWeight="300">b</tspan><tspan fontWeight="700">3</tspan>
           </text>
         </svg>
@@ -916,8 +916,8 @@ export function App() {
           {/* Sticky logo — always visible at top */}
           <div className="b3-logo-sticky">
             <svg viewBox="0 0 32 32" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="7" fill="#1a1a22"/>
-              <text x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fill="white">
+              <rect className="b3-logo-svg__bg" width="32" height="32" rx="7"/>
+              <text className="b3-logo-svg__text" x="16" y="22" textAnchor="middle" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18">
                 <tspan fontWeight="300">b</tspan><tspan fontWeight="700">3</tspan>
               </text>
             </svg>
