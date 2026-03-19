@@ -4149,6 +4149,7 @@ button.natal-pos__row--clickable {
   max-height: calc(100vh - 48px);
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-x: none;
 }
 
 .modal-sticky-footer {
@@ -4200,6 +4201,12 @@ button.natal-pos__row--clickable {
   gap: 24px;
 }
 
+.edit-section-desc {
+  margin-top: 6px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
 .edit-section {
   padding: 0;
 }
@@ -4211,16 +4218,12 @@ button.natal-pos__row--clickable {
   letter-spacing: -0.02em;
 }
 
-.edit-section-desc {
-  margin-top: 6px;
-  font-size: 0.88rem;
-  color: var(--muted);
-}
 
 .edit-section-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
   background: none;
   border: none;
   padding: 0;
@@ -4236,14 +4239,19 @@ button.natal-pos__row--clickable {
   letter-spacing: -0.02em;
 }
 
-.edit-section-arrow {
-  font-size: 0.7rem;
-  color: var(--muted);
+.edit-section-chevron {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(-45deg);
   transition: transform 200ms ease;
+  flex-shrink: 0;
 }
 
-.edit-section-arrow.open {
-  transform: rotate(90deg);
+.edit-section-chevron.open {
+  transform: rotate(45deg);
 }
 
 .edit-form-grid {
@@ -4351,6 +4359,7 @@ button.natal-pos__row--clickable {
   font-weight: 700;
   cursor: pointer;
   transition: opacity 160ms ease;
+  text-align: left;
 }
 
 .save-btn:hover {
