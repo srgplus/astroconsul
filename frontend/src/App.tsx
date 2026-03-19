@@ -1278,13 +1278,24 @@ export function App() {
           <span className="mobile-search-icon">{"\uD83D\uDD0D"}</span>
           <input
             type="text"
+            enterKeyHint="search"
             placeholder={t("sidebar.search")}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value)
               setMobileView("list")
             }}
-            onFocus={() => setMobileView("list")}
+            onFocus={(e) => {
+              setMobileView("list")
+              // Prevent iOS from scrolling page up when keyboard opens
+              const el = e.currentTarget
+              const reset = () => window.scrollTo(0, 0)
+              reset()
+              const tid = setInterval(reset, 50)
+              const stop = () => { clearInterval(tid); el.removeEventListener("blur", stop) }
+              el.addEventListener("blur", stop)
+              setTimeout(stop, 600)
+            }}
           />
         </div>
         <button
