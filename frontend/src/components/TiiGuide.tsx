@@ -1,5 +1,9 @@
 import { useState } from "react"
 import { useLanguage } from "../contexts/LanguageContext"
+import modifiersData from "../data/feels_like_time_modifiers.json"
+
+const timeWindows = ["morning", "afternoon", "evening", "night"] as const
+const timeIcons: Record<string, string> = { morning: "\u{1F305}", afternoon: "\u2600\uFE0F", evening: "\u{1F307}", night: "\u{1F319}" }
 
 function Collapsible({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -14,9 +18,9 @@ function Collapsible({ title, children, defaultOpen = true }: { title: string; c
   )
 }
 
-function ZoneSection({ zone, range, color, desc, items }: {
-  zone: string; range: string; color: string; desc: string
-  items: readonly { emoji: string; label: string; tension: string; mood: string; text: string }[]
+function ZoneSection({ zone, range, color, desc, items, lang }: {
+  zone: string; range: string; color: string; desc: string; lang: "en" | "ru"
+  items: readonly { emoji: string; label: string; tension: string; mood: string; text: string; feelsKey: string }[]
 }) {
   const [open, setOpen] = useState(true)
   return (
@@ -30,17 +34,37 @@ function ZoneSection({ zone, range, color, desc, items }: {
       {open ? (
         <div className="guide-zone__body">
           <p className="guide-text guide-text--muted">{desc}</p>
-          {items.map(({ emoji, label, tension, mood, text }) => (
-            <div key={label} className="guide-feels">
-              <div className="guide-feels__head">
-                <span className="guide-feels__emoji">{emoji}</span>
-                <strong>{label}</strong>
-                <span className="guide-text--muted">({tension})</span>
+          {items.map(({ emoji, label, tension, mood, text, feelsKey }) => {
+            const mod = (modifiersData as Record<string, Record<string, Record<string, { headline: string; description: string }>>>)[feelsKey]
+            return (
+              <div key={label} className="guide-feels">
+                <div className="guide-feels__head">
+                  <span className="guide-feels__emoji">{emoji}</span>
+                  <strong>{label}</strong>
+                  <span className="guide-text--muted">({tension})</span>
+                </div>
+                <p className="guide-feels__mood">{mood}</p>
+                <p className="guide-feels__text">{text}</p>
+                {mod && (
+                  <div className="guide-feels__times">
+                    {timeWindows.map((tw) => {
+                      const m = mod[tw]?.[lang]
+                      if (!m) return null
+                      return (
+                        <div key={tw} className="guide-feels__time-row">
+                          <span className="guide-feels__time-icon">{timeIcons[tw]}</span>
+                          <div>
+                            <strong>{m.headline}</strong>
+                            <span className="guide-text--muted"> &mdash; {m.description}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-              <p className="guide-feels__mood">{mood}</p>
-              <p className="guide-feels__text">{text}</p>
-            </div>
-          ))}
+            )
+          })}
         </div>
       ) : null}
     </div>
@@ -61,6 +85,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsCalmTension"),
           mood: t("mood.Calm"),
           text: t("guide.feelsCalmQuiet"),
+          feelsKey: "Calm",
         },
         {
           emoji: "\u{1F32B}\uFE0F",
@@ -68,6 +93,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsSubtleTension"),
           mood: t("mood.Subtle pressure"),
           text: t("guide.feelsSubtleQuiet"),
+          feelsKey: "Subtle pressure",
         },
         {
           emoji: "\u26CF",
@@ -75,6 +101,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsGrindingTension"),
           mood: t("mood.Grinding"),
           text: t("guide.feelsGrindingQuiet"),
+          feelsKey: "Grinding",
         },
       ],
     },
@@ -90,6 +117,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsFlowingTension"),
           mood: t("mood.Flowing"),
           text: t("guide.feelsFlowingActive"),
+          feelsKey: "Flowing",
         },
         {
           emoji: "\u26A1",
@@ -97,6 +125,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsDynamicTension"),
           mood: t("mood.Dynamic"),
           text: t("guide.feelsDynamicActive"),
+          feelsKey: "Dynamic",
         },
         {
           emoji: "\u{1FAA8}",
@@ -104,6 +133,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsPressuredTension"),
           mood: t("mood.Pressured"),
           text: t("guide.feelsPressuredActive"),
+          feelsKey: "Pressured",
         },
       ],
     },
@@ -119,6 +149,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsExpansiveTension"),
           mood: t("mood.Expansive"),
           text: t("guide.feelsExpansiveHot"),
+          feelsKey: "Expansive",
         },
         {
           emoji: "\u26C8\uFE0F",
@@ -126,6 +157,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsChargedTension"),
           mood: t("mood.Charged"),
           text: t("guide.feelsChargedHot"),
+          feelsKey: "Charged",
         },
         {
           emoji: "\u{1F525}",
@@ -133,6 +165,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsIntenseTension"),
           mood: t("mood.Intense"),
           text: t("guide.feelsIntenseHot"),
+          feelsKey: "Intense",
         },
       ],
     },
@@ -148,6 +181,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsPowerfulTension"),
           mood: t("mood.Powerful"),
           text: t("guide.feelsPowerfulExtreme"),
+          feelsKey: "Powerful",
         },
         {
           emoji: "\u2694\uFE0F",
@@ -155,6 +189,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsVolatileTension"),
           mood: t("mood.Volatile"),
           text: t("guide.feelsVolatileExtreme"),
+          feelsKey: "Volatile",
         },
         {
           emoji: "\u{1F4A5}",
@@ -162,6 +197,7 @@ function buildZones(t: (key: string) => string) {
           tension: t("guide.feelsExplosiveTension"),
           mood: t("mood.Explosive"),
           text: t("guide.feelsExplosiveExtreme"),
+          feelsKey: "Explosive",
         },
       ],
     },
@@ -170,6 +206,7 @@ function buildZones(t: (key: string) => string) {
 
 export function TiiGuide({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage()
+  const lang = (t("auth.signIn") === "Войти" ? "ru" : "en") as "en" | "ru"
   const zones = buildZones(t)
 
   return (
@@ -277,7 +314,7 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
               {t("guide.zonesSubtitle")}
             </p>
             {zones.map((z) => (
-              <ZoneSection key={z.zone} {...z} />
+              <ZoneSection key={z.zone} {...z} lang={lang} />
             ))}
           </section>
 

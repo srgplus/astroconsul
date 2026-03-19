@@ -3671,6 +3671,26 @@ button.natal-pos__row--clickable {
   color: var(--muted);
 }
 
+.guide-feels__times {
+  margin: 8px 0 0 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guide-feels__time-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.guide-feels__time-icon {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
 /* --- Transit form --- */
 
 .transit-form {
