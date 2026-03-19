@@ -7,7 +7,7 @@ import { LandingPage } from "./components/LandingPage"
 import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile, setPrimaryProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
-import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
+import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget, MoonPhaseWidget } from "./components/DailyWeather"
 import { zoneColor, FEELS_EMOJI } from "./tii-zones"
 import { TiiGuide } from "./components/TiiGuide"
 import { ProfileEditForm } from "./components/ProfileEditForm"
@@ -1050,6 +1050,13 @@ export function App() {
               const isOwnProfile = profiles.some((p) => p.profile_id === activeProfileId)
               return (
             <div className="widget-col-right">
+              {/* Moon Phase widget */}
+              {transitReport?.moon_phase ? (
+                <div className="widget widget--summary">
+                  <MoonPhaseWidget transitReport={transitReport} />
+                </div>
+              ) : null}
+
               {/* Active Transits widget */}
               {transitReport ? (
                 <div className="widget widget--summary">

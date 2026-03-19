@@ -429,6 +429,28 @@ export function TransitProgressBar({ timing, nowDate, transitObject }: {
   )
 }
 
+export function MoonPhaseWidget({ transitReport }: { transitReport: TransitReportResponse }) {
+  const { t } = useLanguage()
+  const mp = transitReport.moon_phase
+  if (!mp) return null
+
+  return (
+    <div className="mp-widget">
+      <div className="mp-title">{t("moon.title").toUpperCase()}</div>
+      <div className="mp-card">
+        <span className="mp-emoji">{mp.phase_emoji}</span>
+        <div className="mp-info">
+          <div className="mp-phase">{t(`moon.${mp.phase_name}`)}</div>
+          <div className="mp-sign">
+            {SIGN_GLYPHS[mp.moon_sign] ?? ""} {t(`sign.${mp.moon_sign}`)} {mp.moon_degree}°
+          </div>
+        </div>
+        <span className="mp-illum">{Math.round(mp.illumination_pct)}%</span>
+      </div>
+    </div>
+  )
+}
+
 const OUTER_PLANETS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
 const PLANET_EMOJI: Record<string, string> = {

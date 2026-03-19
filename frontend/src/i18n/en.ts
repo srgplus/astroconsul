@@ -517,4 +517,14 @@ export const en: Record<string, string> = {
   "landing.signUpUnlock": "Sign up to unlock full features",
   "landing.back": "Back",
   "landing.loading": "Loading...",
+  // Moon phase
+  "moon.title": "Moon",
+  "moon.New Moon": "New Moon",
+  "moon.Waxing Crescent": "Waxing Crescent",
+  "moon.First Quarter": "First Quarter",
+  "moon.Waxing Gibbous": "Waxing Gibbous",
+  "moon.Full Moon": "Full Moon",
+  "moon.Waning Gibbous": "Waning Gibbous",
+  "moon.Third Quarter": "Third Quarter",
+  "moon.Waning Crescent": "Waning Crescent",
 }

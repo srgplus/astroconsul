@@ -10,6 +10,7 @@ from app.application.services.input_resolution import (
 )
 from app.domain.astrology.charts import swiss_ephemeris_version
 from app.domain.astrology.cosmic_climate import get_cosmic_climate
+from app.domain.astrology.moon import compute_moon_phase
 from app.domain.astrology.tii import (
     compute_ope,
     compute_retrograde_index,
@@ -144,6 +145,7 @@ class TransitService:
             )
         report["top_transits"] = top_active_transits(active_aspects)
         report["cosmic_climate"] = get_cosmic_climate(active_aspects, lang=lang)
+        report["moon_phase"] = compute_moon_phase(report.get("transit_positions", []))
 
         report["snapshot"] = snapshot
         return report
@@ -206,6 +208,8 @@ class TransitService:
                 else:
                     velocity_direction = "stable"
 
+            moon_phase = compute_moon_phase(report.get("transit_positions", []))
+
             days.append({
                 "date": current_date.isoformat(),
                 "tii": tii_val,
@@ -217,6 +221,7 @@ class TransitService:
                 "velocity_delta": velocity_delta,
                 "velocity_direction": velocity_direction,
                 "top_transits": top,
+                "moon_phase": moon_phase,
             })
             prev_tii = tii_val
 

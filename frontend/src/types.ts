@@ -195,6 +195,15 @@ export type RetrogradeIndex = {
   planets: string[]
 }
 
+export type MoonPhase = {
+  phase_name: string
+  phase_angle: number
+  illumination_pct: number
+  moon_sign: string
+  moon_degree: number
+  phase_emoji: string
+}
+
 export type TransitReportResponse = {
   snapshot: TransitSnapshot | null
   natal_positions: NatalPosition[] | null
@@ -208,6 +217,7 @@ export type TransitReportResponse = {
   cosmic_climate: ActiveAspect[] | null
   ope: number | null
   retrograde_index: RetrogradeIndex | null
+  moon_phase: MoonPhase | null
 }
 
 export type TimelineItem = {
@@ -277,6 +287,7 @@ export type DailyForecastItem = {
   velocity_delta: number | null
   velocity_direction: string | null
   top_transits: TopTransit[]
+  moon_phase?: MoonPhase | null
 }
 
 export type ForecastResponse = {

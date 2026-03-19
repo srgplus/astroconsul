@@ -517,4 +517,14 @@ export const ru: Record<string, string> = {
   "landing.signUpUnlock": "Зарегистрируйся для полного доступа",
   "landing.back": "Назад",
   "landing.loading": "Загрузка...",
+  // Moon phase
+  "moon.title": "Луна",
+  "moon.New Moon": "Новолуние",
+  "moon.Waxing Crescent": "Растущий серп",
+  "moon.First Quarter": "Первая четверть",
+  "moon.Waxing Gibbous": "Растущая Луна",
+  "moon.Full Moon": "Полнолуние",
+  "moon.Waning Gibbous": "Убывающая Луна",
+  "moon.Third Quarter": "Третья четверть",
+  "moon.Waning Crescent": "Убывающий серп",
 }
