@@ -114,6 +114,8 @@ body {
   font-family: "Avenir Next", "Helvetica Neue", sans-serif;
   color: var(--ink);
   background: var(--bg);
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Light & dark themes: solid background color, no gradients */
@@ -4614,6 +4616,8 @@ button.natal-pos__row--clickable {
     align-items: center;
     background: var(--bg);
     transition: bottom 0.15s ease-out;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   .mobile-search-bar {
     flex: 1;
