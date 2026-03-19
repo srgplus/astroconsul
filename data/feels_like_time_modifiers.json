@@ -1,0 +1,218 @@
+{
+  "Calm": {
+    "morning": {
+      "en": { "headline": "Gentle start ahead", "description": "A quiet morning with soft energy. Set simple intentions and ease into the day — no rush needed." },
+      "ru": { "headline": "Мягкое начало дня", "description": "Тихое утро с мягкой энергией. Поставь простые намерения и плавно входи в день — спешить некуда." }
+    },
+    "afternoon": {
+      "en": { "headline": "Calm and steady", "description": "Calm energy, perfect time for reflection. Nothing demanding your attention cosmically." },
+      "ru": { "headline": "Спокойно и ровно", "description": "Спокойная энергия, хорошее время для рефлексии. Ничто не требует твоего внимания космически." }
+    },
+    "evening": {
+      "en": { "headline": "Peaceful wind-down", "description": "A quiet evening to recharge. Good for journaling, a calm conversation, or simply being present." },
+      "ru": { "headline": "Спокойный вечер", "description": "Тихий вечер для восстановления. Хорош для дневника, спокойного разговора или просто присутствия в моменте." }
+    },
+    "night": {
+      "en": { "headline": "Deep stillness", "description": "The quietest kind of night. Let your mind rest fully — nothing needs your attention until morning." },
+      "ru": { "headline": "Глубокая тишина", "description": "Самая тихая ночь. Дай разуму полностью отдохнуть — ничто не требует внимания до утра." }
+    }
+  },
+  "Subtle pressure": {
+    "morning": {
+      "en": { "headline": "Something stirring beneath", "description": "The day starts with a quiet undertone of tension. Pay attention to what feels slightly off — your instincts are picking up signals." },
+      "ru": { "headline": "Что-то шевелится внутри", "description": "День начинается с тихого подтона напряжения. Обрати внимание на то, что чуть не так — интуиция ловит сигналы." }
+    },
+    "afternoon": {
+      "en": { "headline": "Haze of tension", "description": "Light haze of tension in the air. Outwardly quiet but something feels slightly off. Pay attention to small signals." },
+      "ru": { "headline": "Лёгкая дымка напряжения", "description": "Лёгкая дымка напряжения в воздухе. Внешне тихо, но что-то чуть не так. Обращай внимание на мелкие сигналы." }
+    },
+    "evening": {
+      "en": { "headline": "Undercurrent surfaces", "description": "The subtle tension of the day may become clearer tonight. A good time to name what's been bothering you — even just to yourself." },
+      "ru": { "headline": "Подводное течение всплывает", "description": "Лёгкое напряжение дня может проясниться вечером. Хорошее время назвать то, что беспокоило — хотя бы для себя." }
+    },
+    "night": {
+      "en": { "headline": "Restless quiet", "description": "Sleep may be light tonight. If thoughts circle, write them down and let go — clarity comes with morning." },
+      "ru": { "headline": "Беспокойная тишина", "description": "Сон может быть чутким. Если мысли кружат, запиши их и отпусти — ясность придёт утром." }
+    }
+  },
+  "Grinding": {
+    "morning": {
+      "en": { "headline": "Heavy start, pace yourself", "description": "The day begins with weight. Don't force productivity — focus on one thing at a time and give yourself grace." },
+      "ru": { "headline": "Тяжёлое начало, не спеши", "description": "День начинается с тяжести. Не форсируй продуктивность — одно дело за раз и побольше терпения к себе." }
+    },
+    "afternoon": {
+      "en": { "headline": "Endurance mode", "description": "Heavy but few events, endurance needed. Like walking through mud. Not many events, but they feel difficult. Take it slow." },
+      "ru": { "headline": "Режим выносливости", "description": "Тяжело, но событий мало — нужна выносливость. Как идти по грязи. Событий немного, но ощущаются трудно. Не торопись." }
+    },
+    "evening": {
+      "en": { "headline": "Release the weight", "description": "Let go of what felt heavy today. A warm bath, gentle stretching, or quiet music — your body needs to discharge the tension." },
+      "ru": { "headline": "Отпусти тяжесть", "description": "Отпусти то, что давило сегодня. Тёплая ванна, лёгкая растяжка или тихая музыка — телу нужно сбросить напряжение." }
+    },
+    "night": {
+      "en": { "headline": "Let the body recover", "description": "Heavy days need deep rest. Don't replay the day — let sleep do the repair work. Tomorrow will feel lighter." },
+      "ru": { "headline": "Дай телу восстановиться", "description": "Тяжёлым дням нужен глубокий отдых. Не прокручивай день — пусть сон сделает свою работу. Завтра будет легче." }
+    }
+  },
+  "Flowing": {
+    "morning": {
+      "en": { "headline": "Promising start", "description": "Energy is rising smoothly. Set clear intentions — the day is ready to support your plans. Creative ideas flow easily now." },
+      "ru": { "headline": "Многообещающее начало", "description": "Энергия плавно нарастает. Поставь чёткие намерения — день готов поддержать твои планы. Творческие идеи приходят легко." }
+    },
+    "afternoon": {
+      "en": { "headline": "In the flow", "description": "Harmonious energy flow, things align. Ideas come easily, interactions feel natural. Best time for creative work and socializing." },
+      "ru": { "headline": "В потоке", "description": "Гармоничный поток энергии, всё выстраивается. Идеи приходят легко, общение естественно. Лучшее время для творчества и общения." }
+    },
+    "evening": {
+      "en": { "headline": "Savor the harmony", "description": "A beautiful evening to share with people you enjoy. The flowing energy makes conversations warm and connections genuine." },
+      "ru": { "headline": "Насладись гармонией", "description": "Прекрасный вечер провести с приятными людьми. Энергия потока делает разговоры тёплыми, а связи — настоящими." }
+    },
+    "night": {
+      "en": { "headline": "Drift into peace", "description": "Let the day's harmony carry you into sleep. Good night for pleasant dreams and creative insights that come in rest." },
+      "ru": { "headline": "Уплывай в покой", "description": "Пусть гармония дня унесёт тебя в сон. Хорошая ночь для приятных снов и творческих озарений, которые приходят в отдыхе." }
+    }
+  },
+  "Dynamic": {
+    "morning": {
+      "en": { "headline": "Active day building", "description": "Energy is picking up with a stimulating mix of support and challenge. Plan for a busy day — stay flexible and ready to pivot." },
+      "ru": { "headline": "Активный день нарастает", "description": "Энергия набирает обороты со стимулирующей смесью поддержки и вызова. Планируй насыщенный день — будь гибким и готовым к поворотам." }
+    },
+    "afternoon": {
+      "en": { "headline": "Bold moves time", "description": "Active energy, time for bold moves. Busy, stimulating day with a mix of support and challenge. Stay flexible and respond to opportunities." },
+      "ru": { "headline": "Время смелых шагов", "description": "Активная энергия, время для смелых шагов. Насыщенный день со смесью поддержки и вызова. Будь гибким и отвечай на возможности." }
+    },
+    "evening": {
+      "en": { "headline": "Process the buzz", "description": "A lot happened today. Take time to sort through it — what worked, what surprised you. Share stories with someone close." },
+      "ru": { "headline": "Переработай впечатления", "description": "Сегодня много всего произошло. Удели время разобраться — что сработало, что удивило. Поделись историями с кем-то близким." }
+    },
+    "night": {
+      "en": { "headline": "Mind still racing", "description": "Your mind may still be buzzing from the day. Write down tomorrow's priorities to clear your head, then let sleep sort the rest." },
+      "ru": { "headline": "Мысли ещё гудят", "description": "Разум может ещё гудеть после дня. Запиши приоритеты на завтра, чтобы очистить голову, а сон разберётся с остальным." }
+    }
+  },
+  "Pressured": {
+    "morning": {
+      "en": { "headline": "Brace for demands", "description": "The day ahead feels heavy but productive. Prioritize ruthlessly — you can't do everything, but what you do will matter." },
+      "ru": { "headline": "Готовься к нагрузке", "description": "День впереди ощущается тяжёлым, но продуктивным. Безжалостно расставляй приоритеты — всё не сделаешь, но то что сделаешь — будет важным." }
+    },
+    "afternoon": {
+      "en": { "headline": "Adapt to pressure", "description": "External pressure demands adaptation. Active day but everything feels heavy. Like a workout — productive but demanding. Pace yourself." },
+      "ru": { "headline": "Адаптируйся к давлению", "description": "Внешнее давление требует адаптации. Активный день, но всё ощущается тяжело. Как тренировка — продуктивно, но требовательно." }
+    },
+    "evening": {
+      "en": { "headline": "Decompress gently", "description": "You've been under pressure all day. Don't make big decisions tonight — give yourself space to decompress and recover." },
+      "ru": { "headline": "Мягко сбрось давление", "description": "Ты был(а) под давлением весь день. Не принимай больших решений вечером — дай себе пространство расслабиться и восстановиться." }
+    },
+    "night": {
+      "en": { "headline": "Release and restore", "description": "The pressure lifts as you rest. Your body processed a demanding day — give it the deep sleep it needs. Don't bring worries to bed." },
+      "ru": { "headline": "Отпусти и восстановись", "description": "Давление спадает в покое. Тело переработало требовательный день — дай ему глубокий сон. Не бери тревоги в кровать." }
+    }
+  },
+  "Expansive": {
+    "morning": {
+      "en": { "headline": "Big energy awakening", "description": "Something large is opening up today. Set ambitious intentions — the universe is in a generous mood. Doors are ready to open." },
+      "ru": { "headline": "Большая энергия просыпается", "description": "Что-то большое раскрывается сегодня. Ставь амбициозные намерения — вселенная в щедром настроении. Двери готовы открыться." }
+    },
+    "afternoon": {
+      "en": { "headline": "Doors are opening", "description": "Grand scale energy, wide open. Big energy day with doors opening. Good for launches, big conversations, bold moves. Say yes." },
+      "ru": { "headline": "Двери открываются", "description": "Энергия масштаба, всё открыто. День большой энергии. Хорошо для запусков, важных разговоров, смелых шагов. Говори да." }
+    },
+    "evening": {
+      "en": { "headline": "Celebrate the expansion", "description": "The day brought opportunities. Take time tonight to appreciate what opened up and share your excitement with those who matter." },
+      "ru": { "headline": "Отпразднуй расширение", "description": "День принёс возможности. Удели время вечером оценить то, что открылось, и поделись радостью с теми, кто важен." }
+    },
+    "night": {
+      "en": { "headline": "Dream big tonight", "description": "Expansive energy lingers into sleep. Your subconscious may process today's opportunities into creative visions. Keep a dream journal nearby." },
+      "ru": { "headline": "Мечтай масштабно", "description": "Энергия расширения остаётся в сне. Подсознание может переработать возможности дня в творческие видения. Держи дневник снов рядом." }
+    }
+  },
+  "Charged": {
+    "morning": {
+      "en": { "headline": "Storm energy building", "description": "You can feel something brewing. Stay centered and prepare for a powerful day — important decisions may surface by afternoon." },
+      "ru": { "headline": "Энергия грозы нарастает", "description": "Чувствуешь, как что-то назревает. Сохраняй центр и готовься к мощному дню — важные решения могут всплыть к обеду." }
+    },
+    "afternoon": {
+      "en": { "headline": "Ready to discharge", "description": "Charged up, ready to discharge. Like a storm gathering — powerful but unpredictable. Important decisions may arise. Stay centered." },
+      "ru": { "headline": "Готово к разрядке", "description": "Заряжено, готово к разрядке. Как собирающаяся гроза — мощно, но непредсказуемо. Могут возникнуть важные решения. Сохраняй центр." }
+    },
+    "evening": {
+      "en": { "headline": "Let the charge settle", "description": "The intensity is still buzzing. Ground yourself — a walk, deep breaths, or honest conversation can help channel what's built up." },
+      "ru": { "headline": "Дай заряду осесть", "description": "Интенсивность ещё гудит. Заземлись — прогулка, глубокое дыхание или честный разговор помогут направить то, что накопилось." }
+    },
+    "night": {
+      "en": { "headline": "Electric dreams ahead", "description": "Your nervous system is still humming. Wind down slowly — avoid screens, breathe deep. Vivid dreams are likely tonight." },
+      "ru": { "headline": "Электрические сны впереди", "description": "Нервная система ещё гудит. Замедляйся постепенно — убери экраны, дыши глубоко. Яркие сны вероятны этой ночью." }
+    }
+  },
+  "Intense": {
+    "morning": {
+      "en": { "headline": "Fiery day ahead", "description": "Strong pressure is already building. Channel the energy deliberately — don't react impulsively. Focus it on what truly matters today." },
+      "ru": { "headline": "Огненный день впереди", "description": "Сильное давление уже нарастает. Направляй энергию осознанно — не реагируй импульсивно. Фокусируй на том, что действительно важно." }
+    },
+    "afternoon": {
+      "en": { "headline": "Fire and pressure", "description": "Hot energy, strong aspects firing. Conflicts and breakthroughs both possible. Emotions run high. Channel the energy, don't let it control you." },
+      "ru": { "headline": "Огонь и давление", "description": "Горячая энергия, сильные аспекты работают. Возможны и конфликты, и прорывы. Эмоции на высоте. Направляй энергию, не давай ей управлять." }
+    },
+    "evening": {
+      "en": { "headline": "Cool the flames", "description": "Intense days need deliberate cooling. Don't make permanent decisions based on today's heat. Rest, reflect, and let emotions settle." },
+      "ru": { "headline": "Остуди пламя", "description": "Интенсивные дни нуждаются в осознанном охлаждении. Не принимай постоянных решений на эмоциях дня. Отдохни, подумай, дай чувствам улечься." }
+    },
+    "night": {
+      "en": { "headline": "Let the fire die down", "description": "Your system has been running hot. Give it deep quiet — no replaying conflicts, no planning revenge. Sleep heals what intensity ignites." },
+      "ru": { "headline": "Дай огню угаснуть", "description": "Твоя система работала на пределе. Дай ей глубокую тишину — не прокручивай конфликты, не планируй реванш. Сон лечит то, что зажигает интенсивность." }
+    }
+  },
+  "Powerful": {
+    "morning": {
+      "en": { "headline": "Rare launch window", "description": "Maximum energy with minimal friction is building. Whatever you've been preparing — today is the day to launch it. Set big intentions." },
+      "ru": { "headline": "Редкое окно запуска", "description": "Максимум энергии при минимальном трении нарастает. Что бы ты ни готовил(а) — сегодня день для запуска. Ставь большие намерения." }
+    },
+    "afternoon": {
+      "en": { "headline": "Breakthrough energy", "description": "Powerful launch, breakthrough energy. Maximum energy with minimal friction. Whatever you start today has enormous momentum behind it." },
+      "ru": { "headline": "Энергия прорыва", "description": "Мощный запуск, энергия прорыва. Максимум энергии при минимальном трении. Всё, что начнёшь сегодня, имеет огромный импульс." }
+    },
+    "evening": {
+      "en": { "headline": "Ride the momentum", "description": "The power of the day lingers. Share your wins, make plans for what's next. This energy doesn't come often — honor what you accomplished." },
+      "ru": { "headline": "Используй импульс", "description": "Мощь дня ещё чувствуется. Поделись победами, планируй следующий шаг. Такая энергия бывает редко — цени то, что удалось." }
+    },
+    "night": {
+      "en": { "headline": "Power in stillness", "description": "Even powerful days need rest. Your subconscious will continue building on today's momentum. Trust the process and sleep deeply." },
+      "ru": { "headline": "Сила в покое", "description": "Даже мощным дням нужен отдых. Подсознание продолжит работать с импульсом дня. Доверяй процессу и спи глубоко." }
+    }
+  },
+  "Volatile": {
+    "morning": {
+      "en": { "headline": "Expect the unexpected", "description": "Extreme energy, unpredictable direction. Stay alert and avoid committing to rigid plans — the day may demand sharp pivots." },
+      "ru": { "headline": "Жди неожиданного", "description": "Экстремальная энергия, непредсказуемое направление. Будь начеку и не привязывайся к жёстким планам — день может потребовать резких поворотов." }
+    },
+    "afternoon": {
+      "en": { "headline": "Unpredictable shifts", "description": "Extreme energy, unpredictable direction. Major shifts possible. Stay alert, avoid impulsive decisions. Big things are moving." },
+      "ru": { "headline": "Непредсказуемые сдвиги", "description": "Экстремальная энергия, непредсказуемое направление. Возможны крупные сдвиги. Будь внимателен, избегай импульсивных решений." }
+    },
+    "evening": {
+      "en": { "headline": "Ground after the storm", "description": "Whatever happened today was intense. Don't try to make sense of it all tonight — give yourself time. Meaning will clarify in days ahead." },
+      "ru": { "headline": "Заземлись после бури", "description": "Что бы ни случилось сегодня — было интенсивно. Не пытайся осмыслить всё вечером — дай себе время. Смысл прояснится в ближайшие дни." }
+    },
+    "night": {
+      "en": { "headline": "Turbulent dreams possible", "description": "The volatile energy may echo in sleep. Don't be alarmed by vivid or strange dreams — your psyche is processing rapid shifts." },
+      "ru": { "headline": "Возможны бурные сны", "description": "Нестабильная энергия может отзываться во сне. Не пугайся ярких или странных снов — психика обрабатывает быстрые сдвиги." }
+    }
+  },
+  "Explosive": {
+    "morning": {
+      "en": { "headline": "Maximum intensity day", "description": "Everything is amplified. This is not a day for autopilot — stay conscious, breathe before reacting, and focus on what truly matters." },
+      "ru": { "headline": "День максимальной интенсивности", "description": "Всё усилено. Это не день для автопилота — оставайся осознанным, дыши перед реакцией и фокусируйся на том, что действительно важно." }
+    },
+    "afternoon": {
+      "en": { "headline": "Everything at once", "description": "Maximum intensity, maximum pressure. Life-changing moments possible. Everything amplified. Not good or bad — just very, very powerful." },
+      "ru": { "headline": "Всё сразу", "description": "Максимальная интенсивность, максимальное давление. Возможны моменты, меняющие жизнь. Всё усилено. Не хорошо и не плохо — просто очень мощно." }
+    },
+    "evening": {
+      "en": { "headline": "Survive and reflect", "description": "You made it through an extraordinary day. Don't judge what happened yet — explosive days rearrange things. Clarity takes time." },
+      "ru": { "headline": "Выдохни и осмысли", "description": "Ты пережил(а) необычный день. Не суди произошедшее пока — взрывные дни перестраивают всё. Ясность придёт со временем." }
+    },
+    "night": {
+      "en": { "headline": "Deep recovery needed", "description": "Your entire system has been through maximum intensity. Prioritize sleep above everything. The integration happens in deep rest." },
+      "ru": { "headline": "Нужно глубокое восстановление", "description": "Вся система прошла через максимальную интенсивность. Ставь сон выше всего. Интеграция происходит в глубоком отдыхе." }
+    }
+  }
+}

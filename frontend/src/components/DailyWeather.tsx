@@ -3,6 +3,7 @@ import type { TransitReportResponse, ProfileDetailResponse, ActiveAspect, Aspect
 import type { PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
+import { getTimeWindowFromUTC, getFeelsModifier, getTimeWindowLabel, getTimeWindowRange, type TimeWindow } from "../time-modifiers"
 
 import { useLanguage } from "../contexts/LanguageContext"
 import { useMobileTap } from "../lib/useMobileTap"
@@ -120,25 +121,20 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
   const tensionRatio = transitReport.tension_ratio ?? 0
   const accent = zoneColor(tii)
   const emoji = FEELS_EMOJI[feelsLike] ?? "\u2728"
-  const mood = t(`mood.${feelsLike}`)
   const feelsLabel = t(`feels.${feelsLike}`)
 
-  // Map feels_like → guide translation key for the description
-  const FEELS_DESC_KEY: Record<string, string> = {
-    Calm: "guide.feelsCalmQuiet",
-    "Subtle pressure": "guide.feelsSubtleQuiet",
-    Grinding: "guide.feelsGrindingQuiet",
-    Flowing: "guide.feelsFlowingActive",
-    Dynamic: "guide.feelsDynamicActive",
-    Pressured: "guide.feelsPressuredActive",
-    Expansive: "guide.feelsExpansiveHot",
-    Charged: "guide.feelsChargedHot",
-    Intense: "guide.feelsIntenseHot",
-    Powerful: "guide.feelsPowerfulExtreme",
-    Volatile: "guide.feelsVolatileExtreme",
-    Explosive: "guide.feelsExplosiveExtreme",
-  }
-  const feelsDesc = t(FEELS_DESC_KEY[feelsLike] ?? "guide.feelsCalmQuiet")
+  // Determine time window from transit snapshot
+  const utcDt = transitReport.snapshot?.transit_utc_datetime ?? ""
+  const snapTz = transitReport.snapshot?.transit_timezone ?? ""
+  const timeWindow: TimeWindow = utcDt ? getTimeWindowFromUTC(utcDt, snapTz) : "afternoon"
+  const lang = (t("auth.signIn") === "Войти" ? "ru" : "en") as "en" | "ru"
+
+  // Get time-based modifier
+  const timeModifier = getFeelsModifier(feelsLike, timeWindow, lang)
+  const mood = timeModifier?.headline ?? t(`mood.${feelsLike}`)
+  const feelsDesc = timeModifier?.description ?? t(`mood.${feelsLike}`)
+  const timeWindowLabel = getTimeWindowLabel(timeWindow, lang)
+  const timeWindowRange = getTimeWindowRange(timeWindow)
 
   const tz = transitReport.snapshot?.transit_timezone ?? ""
   const tzLabel = (() => {
@@ -245,6 +241,10 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
         </div>
 
         <div className="cw-feels-desc">{feelsDesc}</div>
+        <div className="cw-time-window">
+          <span className="cw-time-window__label">{timeWindowLabel}</span>
+          <span className="cw-time-window__range">{timeWindowRange}</span>
+        </div>
       </div>
 
       {settingsOpen ? (

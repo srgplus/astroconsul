@@ -270,6 +270,44 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
             </p>
           </section>
 
+          {/* --- Time of Day Context --- */}
+          <section className="guide-section">
+            <h4 className="guide-section__title">{t("guide.timeModifiers")}</h4>
+            <p className="guide-text">
+              {t("guide.timeModifiersDesc")}
+            </p>
+            <div className="guide-time-windows">
+              <div className="guide-time-row">
+                <span className="guide-time-icon">{"\u{1F305}"}</span>
+                <div>
+                  <strong>{t("guide.timeMorning")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.timeMorningDesc")}</span>
+                </div>
+              </div>
+              <div className="guide-time-row">
+                <span className="guide-time-icon">{"\u2600\uFE0F"}</span>
+                <div>
+                  <strong>{t("guide.timeAfternoon")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.timeAfternoonDesc")}</span>
+                </div>
+              </div>
+              <div className="guide-time-row">
+                <span className="guide-time-icon">{"\u{1F307}"}</span>
+                <div>
+                  <strong>{t("guide.timeEvening")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.timeEveningDesc")}</span>
+                </div>
+              </div>
+              <div className="guide-time-row">
+                <span className="guide-time-icon">{"\u{1F319}"}</span>
+                <div>
+                  <strong>{t("guide.timeNight")}</strong>
+                  <span className="guide-text--muted"> &mdash; {t("guide.timeNightDesc")}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* --- Intensity Zones --- */}
           <section className="guide-section">
             <h4 className="guide-section__title">{t("guide.intensityZones")}</h4>

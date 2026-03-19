@@ -207,6 +207,18 @@ export const en: Record<string, string> = {
   "mood.Volatile": "Unpredictable, explosive potential",
   "mood.Explosive": "Maximum intensity, everything at once",
 
+  // Time-based modifiers
+  "guide.timeModifiers": "Time of Day Context",
+  "guide.timeModifiersDesc": "The Feels Like description changes based on the time of day. The same cosmic energy manifests differently in the morning vs. at night — morning is about intentions and preparation, afternoon is peak action, evening is reflection and connection, and night is rest and subconscious processing.",
+  "guide.timeMorning": "Morning (6:00–12:00)",
+  "guide.timeMorningDesc": "Energy is rising. Focus on intentions, planning, and setting the tone for the day.",
+  "guide.timeAfternoon": "Afternoon (12:00–18:00)",
+  "guide.timeAfternoonDesc": "Peak energy. Time for action, decisions, and bold moves.",
+  "guide.timeEvening": "Evening (18:00–23:00)",
+  "guide.timeEveningDesc": "Energy slows down. Good for reflection, social connection, and processing the day.",
+  "guide.timeNight": "Night (23:00–6:00)",
+  "guide.timeNightDesc": "Rest and recovery. Your subconscious processes the day's energy through dreams.",
+
   // Planet names
   "planet.Sun": "Sun",
   "planet.Moon": "Moon",
