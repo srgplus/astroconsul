@@ -270,6 +270,17 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
             </p>
           </section>
 
+          {/* --- Intensity Zones --- */}
+          <section className="guide-section">
+            <h4 className="guide-section__title">{t("guide.intensityZones")}</h4>
+            <p className="guide-text guide-text--muted" style={{ marginBottom: 12 }}>
+              {t("guide.zonesSubtitle")}
+            </p>
+            {zones.map((z) => (
+              <ZoneSection key={z.zone} {...z} />
+            ))}
+          </section>
+
           {/* --- Time of Day Context --- */}
           <section className="guide-section">
             <h4 className="guide-section__title">{t("guide.timeModifiers")}</h4>
@@ -306,17 +317,6 @@ export function TiiGuide({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
             </div>
-          </section>
-
-          {/* --- Intensity Zones --- */}
-          <section className="guide-section">
-            <h4 className="guide-section__title">{t("guide.intensityZones")}</h4>
-            <p className="guide-text guide-text--muted" style={{ marginBottom: 12 }}>
-              {t("guide.zonesSubtitle")}
-            </p>
-            {zones.map((z) => (
-              <ZoneSection key={z.zone} {...z} />
-            ))}
           </section>
 
           {/* ===== Reference Guide ===== */}

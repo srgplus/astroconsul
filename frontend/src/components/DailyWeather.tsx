@@ -3,7 +3,7 @@ import type { TransitReportResponse, ProfileDetailResponse, ActiveAspect, Aspect
 import type { PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import { zoneColor, FEELS_EMOJI, FEELS_MOOD } from "../tii-zones"
-import { getTimeWindowFromUTC, getFeelsModifier, getTimeWindowLabel, getTimeWindowRange, type TimeWindow } from "../time-modifiers"
+import { getTimeWindowFromUTC, getFeelsModifier, type TimeWindow } from "../time-modifiers"
 
 import { useLanguage } from "../contexts/LanguageContext"
 import { useMobileTap } from "../lib/useMobileTap"
@@ -133,8 +133,6 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
   const timeModifier = getFeelsModifier(feelsLike, timeWindow, lang)
   const mood = timeModifier?.headline ?? t(`mood.${feelsLike}`)
   const feelsDesc = timeModifier?.description ?? t(`mood.${feelsLike}`)
-  const timeWindowLabel = getTimeWindowLabel(timeWindow, lang)
-  const timeWindowRange = getTimeWindowRange(timeWindow)
 
   const tz = transitReport.snapshot?.transit_timezone ?? ""
   const tzLabel = (() => {
@@ -241,10 +239,6 @@ export function DailyWeather({ transitReport, activeDetail, loading, onGuideOpen
         </div>
 
         <div className="cw-feels-desc">{feelsDesc}</div>
-        <div className="cw-time-window">
-          <span className="cw-time-window__label">{timeWindowLabel}</span>
-          <span className="cw-time-window__range">{timeWindowRange}</span>
-        </div>
       </div>
 
       {settingsOpen ? (
