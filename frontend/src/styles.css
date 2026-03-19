@@ -4504,7 +4504,7 @@ button.natal-pos__row--clickable {
     display: block;
     position: fixed;
     top: calc(env(safe-area-inset-top, 8px) + 6px);
-    left: 16px;
+    left: 24px;
     z-index: 60;
     opacity: 0.85;
     pointer-events: none;
