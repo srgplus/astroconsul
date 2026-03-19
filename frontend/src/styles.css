@@ -3641,7 +3641,7 @@ button.natal-pos__row--clickable {
 
 .transit-fields {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -3649,6 +3649,7 @@ button.natal-pos__row--clickable {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 .transit-field--full {
   margin-top: 12px;
@@ -3674,7 +3675,9 @@ button.natal-pos__row--clickable {
 
 .transit-field input[type="date"],
 .transit-field input[type="time"] {
-  text-align: left;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .transit-field input:focus {
@@ -4186,12 +4189,14 @@ button.natal-pos__row--clickable {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 16px;
+  overflow: hidden;
 }
 
 .edit-form-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .edit-form-field--full {
@@ -4218,7 +4223,9 @@ button.natal-pos__row--clickable {
 
 .edit-form-field input[type="date"],
 .edit-form-field input[type="time"] {
-  text-align: left;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .edit-form-field input:focus {
