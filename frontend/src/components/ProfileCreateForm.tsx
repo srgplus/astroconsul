@@ -77,9 +77,11 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthDate")}</label>
               <input
-                type="date"
+                type={birthDate ? "date" : "text"}
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
+                onFocus={(e) => { e.currentTarget.type = "date" }}
+                onBlur={(e) => { if (!birthDate) e.currentTarget.type = "text" }}
                 placeholder={t("form.placeholderDate")}
                 required
               />
@@ -87,9 +89,11 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthTime")}</label>
               <input
-                type="time"
+                type={birthTime ? "time" : "text"}
                 value={birthTime}
                 onChange={(e) => setBirthTime(e.target.value)}
+                onFocus={(e) => { e.currentTarget.type = "time"; e.currentTarget.step = "1" }}
+                onBlur={(e) => { if (!birthTime) e.currentTarget.type = "text" }}
                 step="1"
                 placeholder={t("form.placeholderTime")}
                 required
