@@ -272,7 +272,7 @@ select {
 }
 
 /* Hidden on desktop — shown only on mobile */
-.b3-logo-mobile-detail {
+.b3-logo-mobile-sticky {
   display: none;
 }
 
@@ -4499,10 +4499,15 @@ button.natal-pos__row--clickable {
   /* Hide compact sticky header on mobile */
   .cw-compact { display: none !important; }
 
-  /* Mobile: detail view sticky logo */
-  .b3-logo-mobile-detail {
+  /* Mobile: sticky logo — always visible on detail view */
+  .mobile-view--detail .b3-logo-mobile-sticky {
     display: block;
-    padding: calc(env(safe-area-inset-top, 8px) + 8px) 20px 0;
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 8px) + 6px);
+    left: 16px;
+    z-index: 60;
+    opacity: 0.85;
+    pointer-events: none;
   }
 
   /* ===== Layout tweaks ===== */

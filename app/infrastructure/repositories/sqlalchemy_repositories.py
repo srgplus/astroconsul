@@ -661,6 +661,20 @@ class SqlAlchemyProfileRepository:
             return _profile_payload(profile)
 
 
+    def get_primary_profile_id(self, user_id: str) -> str | None:
+        with self.session_factory() as session:
+            user = session.get(UserModel, user_id)
+            return user.primary_profile_id if user else None
+
+    def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
+        with self.session_factory() as session:
+            user = session.get(UserModel, user_id)
+            if user is None:
+                user = ensure_user(session, user_id)
+            user.primary_profile_id = profile_id
+            session.commit()
+
+
 class SqlAlchemyLocationCacheRepository:
     def __init__(self, session_factory: sessionmaker[Session]):
         self.session_factory = session_factory

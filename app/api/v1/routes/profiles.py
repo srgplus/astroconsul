@@ -126,7 +126,22 @@ def list_profiles(
     profile_service: ProfileService = Depends(get_profile_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
-    return profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
+    result = profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
+    result["primary_profile_id"] = repos.profiles.get_primary_profile_id(user["user_id"])
+    return result
+
+
+@router.put("/primary")
+def set_primary_profile(
+    payload: dict[str, Any],
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    profile_id = payload.get("profile_id")
+    if not profile_id or not isinstance(profile_id, str):
+        raise HTTPException(status_code=400, detail="profile_id is required")
+    repos.profiles.set_primary_profile_id(user["user_id"], profile_id)
+    return {"status": "ok"}
 
 
 @router.get("/search", response_model=PublicProfileSearchResponse)

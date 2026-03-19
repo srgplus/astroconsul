@@ -199,6 +199,13 @@ class FileProfileRepository:
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         return save_profile_latest_transit(profile_id, latest_transit)
 
+    def get_primary_profile_id(self, user_id: str) -> str | None:
+        del user_id
+        return None
+
+    def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
+        del user_id, profile_id
+
 
 class NullLocationCacheRepository:
     def get(self, query: str) -> dict[str, Any] | None:

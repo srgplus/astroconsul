@@ -78,9 +78,18 @@ export function fetchHealth(): Promise<HealthResponse> {
   return fetch("/api/v1/health/ready").then(json<HealthResponse>)
 }
 
-export async function fetchProfiles(): Promise<{ profiles: ProfileSummary[] }> {
+export async function fetchProfiles(): Promise<{ profiles: ProfileSummary[]; primary_profile_id?: string | null }> {
   const headers = await getAuthHeaders()
-  return fetch("/api/v1/profiles", { headers }).then(json<{ profiles: ProfileSummary[] }>)
+  return fetch("/api/v1/profiles", { headers }).then(json<{ profiles: ProfileSummary[]; primary_profile_id?: string | null }>)
+}
+
+export async function setPrimaryProfile(profileId: string): Promise<{ status: string }> {
+  const headers = await getAuthHeaders()
+  return fetch("/api/v1/profiles/primary", {
+    method: "PUT",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify({ profile_id: profileId }),
+  }).then(json<{ status: string }>)
 }
 
 export async function fetchProfileDetail(

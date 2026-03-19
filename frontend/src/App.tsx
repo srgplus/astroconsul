@@ -4,7 +4,7 @@ import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
 import B3Logo from "./components/B3Logo"
 import { LandingPage } from "./components/LandingPage"
-import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile } from "./api"
+import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile, setPrimaryProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
 import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget } from "./components/DailyWeather"
@@ -293,20 +293,24 @@ export function App() {
         setProfiles(profilesPayload.profiles)
         try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
 
-        // Read primary fresh from localStorage (state value may be stale in closure)
+        // Primary profile: prefer server-side value, fall back to localStorage
         const validIds = new Set(profilesPayload.profiles.map((p: ProfileSummary) => p.profile_id))
-        let effectivePrimary = localStorage.getItem("primaryProfileId")
+        const serverPrimary = profilesPayload.primary_profile_id ?? null
+        const localPrimary = localStorage.getItem("primaryProfileId")
+        let effectivePrimary = serverPrimary && validIds.has(serverPrimary) ? serverPrimary : localPrimary
         if (effectivePrimary && !validIds.has(effectivePrimary)) {
-          // Only clear primary if we actually got a non-empty profile list from server.
-          // An empty response likely means a network/server issue — don't lose the user's setting.
           if (profilesPayload.profiles.length > 0) {
             localStorage.removeItem("primaryProfileId")
             setPrimaryProfileId(null)
             effectivePrimary = null
           }
-          // If profiles list is empty, keep primary intact — it will validate on next successful load
         } else if (effectivePrimary) {
+          localStorage.setItem("primaryProfileId", effectivePrimary)
           setPrimaryProfileId(effectivePrimary)
+          // Sync localStorage → server if server doesn't have it yet
+          if (!serverPrimary && localPrimary && validIds.has(localPrimary)) {
+            setPrimaryProfile(localPrimary).catch(() => {})
+          }
         }
 
         const defaultId = profilesPayload.profiles[0]?.profile_id || null
@@ -905,11 +909,12 @@ export function App() {
           )}
         </aside>
 
+        {/* Mobile sticky logo — outside content-pane so visible on list & detail */}
+        <div className="b3-logo-mobile-sticky">
+          <B3Logo size="sm" />
+        </div>
+
         <div className="content-pane">
-          {/* Mobile-only sticky logo at top of detail view */}
-          <div className="b3-logo-mobile-detail">
-            <B3Logo size="sm" />
-          </div>
           {/* Hero section: DailyWeather, locked preview, or skeleton */}
           {transitReport && activeDetail ? (
             <DailyWeather
@@ -1500,6 +1505,7 @@ export function App() {
         onPrimaryChange={(id) => {
           setPrimaryProfileId(id)
           localStorage.setItem("primaryProfileId", id)
+          setPrimaryProfile(id).catch((err) => console.error("Failed to save primary profile:", err))
         }}
       />
     </main>

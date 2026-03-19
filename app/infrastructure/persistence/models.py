@@ -20,6 +20,7 @@ class UserModel(Base):
     auth_subject: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(64), nullable=False, default="active")
+    primary_profile_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profiles: Mapped[list[ProfileModel]] = relationship(back_populates="user")

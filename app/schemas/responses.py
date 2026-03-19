@@ -77,6 +77,7 @@ class PublicProfileSearchResponse(BaseModel):
 
 class ProfileListResponse(BaseModel):
     profiles: list[ProfileSummary]
+    primary_profile_id: str | None = None
 
 
 class SavedChartResponse(BaseModel):
