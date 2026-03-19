@@ -3243,6 +3243,7 @@ button.natal-pos__row--clickable {
   padding: 24px;
   width: min(480px, calc(100vw - 40px));
   max-height: calc(100vh - 80px);
+  overflow-x: hidden;
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
@@ -3670,7 +3671,7 @@ button.natal-pos__row--clickable {
   border-radius: 12px;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.04);
-  font-size: 0.92rem;
+  font-size: 16px;
 }
 
 .transit-field input[type="date"],
@@ -4141,7 +4142,9 @@ button.natal-pos__row--clickable {
 
 .modal-content {
   width: min(680px, 100%);
+  max-width: calc(100vw - 48px);
   max-height: calc(100vh - 48px);
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -4186,10 +4189,9 @@ button.natal-pos__row--clickable {
 
 .edit-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
   margin-top: 16px;
-  overflow: hidden;
 }
 
 .edit-form-field {
@@ -4218,7 +4220,7 @@ button.natal-pos__row--clickable {
   border-radius: 12px;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.04);
-  font-size: 0.92rem;
+  font-size: 16px;
 }
 
 .edit-form-field input[type="date"],
@@ -4534,7 +4536,7 @@ button.natal-pos__row--clickable {
   .ring-stage { min-height: 320px; padding: 10px; border-radius: 16px; }
   .natal-zodiac-ring__label { font-size: 10px; letter-spacing: 1.6px; }
 
-  .edit-form-grid { grid-template-columns: 1fr; }
+
 
   /* Widget popup: nearly full screen on mobile */
   .widget-popup { width: calc(100vw - 16px); max-height: calc(100vh - 32px); border-radius: 16px; }
