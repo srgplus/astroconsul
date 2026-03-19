@@ -4149,6 +4149,16 @@ button.natal-pos__row--clickable {
   max-height: calc(100vh - 48px);
   overflow-x: hidden;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  padding: 16px 0 4px;
+  background: var(--surface);
+  z-index: 2;
 }
 
 .modal-header {
@@ -4156,12 +4166,12 @@ button.natal-pos__row--clickable {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .modal-header h2 {
-  margin-top: 8px;
-  font-size: 1.8rem;
+  margin: 0;
+  font-size: 1.4rem;
 }
 
 /* --- Edit form --- */
@@ -4230,8 +4240,8 @@ button.natal-pos__row--clickable {
 .edit-form-field input[type="time"] {
   -webkit-appearance: none;
   appearance: none;
-  text-align: center;
   min-width: 0;
+  width: 100%;
   max-width: 100%;
   overflow: hidden;
 }

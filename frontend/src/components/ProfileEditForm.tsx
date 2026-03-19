@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { updateProfile, resolveLocation, type PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import type { ProfileDetailResponse } from "../types"
@@ -45,6 +45,12 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
   const [saving, setSaving] = useState(false)
   const [resolving, setResolving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [])
 
   async function handleResolve() {
     if (!locationName.trim()) return
