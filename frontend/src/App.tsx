@@ -709,24 +709,6 @@ export function App() {
     (a) => a.strength === "exact" || a.strength === "strong"
   ).length
 
-  // Auth gate: show login screen if not authenticated
-  if (authLoading) {
-    return (
-      <main className="app-shell">
-        <div className="content-loader" style={{ position: "fixed", inset: 0 }}>
-          <div className="content-loader__spinner" />
-        </div>
-      </main>
-    )
-  }
-
-  if (!user) {
-    if (showAuth) {
-      return <AuthScreen onBack={() => setShowAuth(false)} />
-    }
-    return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
-  }
-
   // Keep mobile footer above iOS virtual keyboard via VisualViewport API
   const mobileFooterRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -750,6 +732,24 @@ export function App() {
       vv.removeEventListener("scroll", onResize)
     }
   }, [])
+
+  // Auth gate: show login screen if not authenticated
+  if (authLoading) {
+    return (
+      <main className="app-shell">
+        <div className="content-loader" style={{ position: "fixed", inset: 0 }}>
+          <div className="content-loader__spinner" />
+        </div>
+      </main>
+    )
+  }
+
+  if (!user) {
+    if (showAuth) {
+      return <AuthScreen onBack={() => setShowAuth(false)} />
+    }
+    return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
+  }
 
   return (
     <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
