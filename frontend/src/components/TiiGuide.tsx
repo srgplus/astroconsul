@@ -43,8 +43,6 @@ function ZoneSection({ zone, range, color, desc, items, lang }: {
                   <strong>{label}</strong>
                   <span className="guide-text--muted">({tension})</span>
                 </div>
-                <p className="guide-feels__mood">{mood}</p>
-                <p className="guide-feels__text">{text}</p>
                 {mod && (
                   <div className="guide-feels__times">
                     {timeWindows.map((tw) => {
