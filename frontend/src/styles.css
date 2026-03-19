@@ -4300,6 +4300,11 @@ button.natal-pos__row--clickable {
   text-align: left;
 }
 
+.edit-form-field input[type="date"]::-webkit-date-and-time-value,
+.edit-form-field input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 .date-input-wrap {
   position: relative;
   width: 100%;
