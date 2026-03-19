@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { updateProfile, resolveLocation, type PlaceCandidate } from "../api"
+import { updateProfile, type PlaceCandidate } from "../api"
 import { LocationAutocomplete } from "./LocationAutocomplete"
 import type { ProfileDetailResponse } from "../types"
 import { useLanguage } from "../contexts/LanguageContext"
@@ -41,9 +41,9 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
   const [longitude, setLongitude] = useState(() => {
     return (birthInput?.longitude as number) || 0
   })
+  const [coordsOpen, setCoordsOpen] = useState(false)
 
   const [saving, setSaving] = useState(false)
-  const [resolving, setResolving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Lock body scroll while modal is open
@@ -51,23 +51,6 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
     document.body.style.overflow = "hidden"
     return () => { document.body.style.overflow = "" }
   }, [])
-
-  async function handleResolve() {
-    if (!locationName.trim()) return
-    setResolving(true)
-    setError(null)
-    try {
-      const loc = await resolveLocation(locationName.trim())
-      setLatitude(loc.latitude)
-      setLongitude(loc.longitude)
-      setTimezone(loc.timezone)
-      setLocationName(loc.resolved_name || loc.location_name)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to resolve location")
-    } finally {
-      setResolving(false)
-    }
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -95,99 +78,92 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div>
-            <div className="eyebrow">{t("form.profile")}</div>
-            <h2>{t("form.editProfile")}</h2>
-          </div>
+        <div className="modal-header modal-header--sticky">
+          <h2>{t("form.editProfile")}</h2>
           <button type="button" className="edit-btn" onClick={onClose}>{t("form.close")}</button>
         </div>
 
         <form className="edit-form" onSubmit={handleSave}>
-          <div className="edit-section">
-            <h3>{t("form.profileBirth")}</h3>
-            <p className="edit-section-desc">{t("form.editDesc")}</p>
-            <div className="edit-form-grid">
-              <div className="edit-form-field">
-                <label>{t("form.profileName")}</label>
-                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required />
-              </div>
-              <div className="edit-form-field">
-                <label>{t("form.username")}</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-              </div>
-              <div className="edit-form-field">
-                <label>{t("form.birthDate")}</label>
-                <div className="date-input-wrap" data-placeholder={!birthDate ? t("form.placeholderDate") : undefined}>
-                  <input
-                    type="date"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    className={birthDate ? "" : "date-input--empty"}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="edit-form-field">
-                <label>{t("form.birthTime")}</label>
-                <div className="date-input-wrap" data-placeholder={!birthTime ? t("form.placeholderTime") : undefined}>
-                  <input
-                    type="time"
-                    value={birthTime}
-                    onChange={(e) => setBirthTime(e.target.value)}
-                    step="1"
-                    className={birthTime ? "" : "date-input--empty"}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="edit-form-field edit-form-field--full">
-                <label>{t("form.locationName")}</label>
-                <LocationAutocomplete
-                  value={locationName}
-                  onChange={setLocationName}
-                  onSelect={(place: PlaceCandidate) => {
-                    setLocationName(place.display_name)
-                    setLatitude(place.latitude)
-                    setLongitude(place.longitude)
-                    if (place.timezone) setTimezone(place.timezone)
-                  }}
-                  placeholder={t("form.placeholderLocation")}
+          <div className="edit-form-grid">
+            <div className="edit-form-field edit-form-field--full">
+              <label>{t("form.profileName")}</label>
+              <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder={t("form.placeholderName")} required />
+            </div>
+            <div className="edit-form-field edit-form-field--full">
+              <label>{t("form.username")}</label>
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t("form.placeholderUsername")} required />
+            </div>
+            <div className="edit-form-field edit-form-field--full">
+              <label>{t("form.birthDate")}</label>
+              <div className="date-input-wrap" data-placeholder={!birthDate ? t("form.placeholderDate") : undefined}>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className={birthDate ? "" : "date-input--empty"}
+                  required
                 />
               </div>
+            </div>
+            <div className="edit-form-field edit-form-field--full">
+              <label>{t("form.birthTime")}</label>
+              <div className="date-input-wrap" data-placeholder={!birthTime ? t("form.placeholderTime") : undefined}>
+                <input
+                  type="time"
+                  value={birthTime}
+                  onChange={(e) => setBirthTime(e.target.value)}
+                  step="1"
+                  className={birthTime ? "" : "date-input--empty"}
+                  required
+                />
+              </div>
+            </div>
+            <div className="edit-form-field edit-form-field--full">
+              <label>{t("form.birthLocation")}</label>
+              <LocationAutocomplete
+                value={locationName}
+                onChange={setLocationName}
+                onSelect={(place: PlaceCandidate) => {
+                  setLocationName(place.display_name)
+                  setLatitude(place.latitude)
+                  setLongitude(place.longitude)
+                  if (place.timezone) setTimezone(place.timezone)
+                }}
+                placeholder={t("form.placeholderLocation")}
+              />
             </div>
           </div>
 
           <div className="edit-section">
-            <h3>{t("form.coordinates")}</h3>
-            <p className="edit-section-desc">{t("form.coordDesc")}</p>
-            <div className="edit-resolve-row">
-              <button type="button" className="resolve-btn" onClick={handleResolve} disabled={resolving || !locationName.trim()}>
-                {resolving ? t("form.resolving") : t("form.resolve")}
-              </button>
-              <span className="edit-resolve-hint">{t("form.resolveHint")}</span>
-            </div>
-            <div className="edit-form-grid">
-              <div className="edit-form-field edit-form-field--full">
-                <label>{t("form.timezone")}</label>
-                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+            <button type="button" className="edit-section-toggle" onClick={() => setCoordsOpen(!coordsOpen)}>
+              <h3>{t("form.coordsAndTz")}</h3>
+              <span className={`edit-section-chevron ${coordsOpen ? "open" : ""}`} />
+            </button>
+            {coordsOpen && (
+              <div className="edit-form-grid">
+                <div className="edit-form-field edit-form-field--full">
+                  <label>{t("form.timezone")}</label>
+                  <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+                </div>
+                <div className="edit-form-field">
+                  <label>{t("form.latitude")}</label>
+                  <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
+                </div>
+                <div className="edit-form-field">
+                  <label>{t("form.longitude")}</label>
+                  <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
+                </div>
               </div>
-              <div className="edit-form-field">
-                <label>{t("form.latitude")}</label>
-                <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
-              </div>
-              <div className="edit-form-field">
-                <label>{t("form.longitude")}</label>
-                <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
-              </div>
-            </div>
+            )}
           </div>
 
           {error ? <div className="edit-error">{error}</div> : null}
 
-          <button type="submit" className="save-btn" disabled={saving}>
-            {saving ? t("form.saving") : t("form.saveProfile")}
-          </button>
+          <div className="modal-sticky-footer">
+            <button type="submit" className="save-btn" disabled={saving}>
+              {saving ? t("form.saving") : t("form.saveProfile")}
+            </button>
+          </div>
         </form>
       </div>
     </div>
