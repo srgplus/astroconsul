@@ -3676,6 +3676,11 @@ button.natal-pos__row--clickable {
   font-size: 0.92rem;
 }
 
+.transit-field input[type="date"],
+.transit-field input[type="time"] {
+  text-align: left;
+}
+
 .transit-field input:focus {
   outline: none;
   border-color: var(--line-strong);
@@ -4216,6 +4221,11 @@ button.natal-pos__row--clickable {
   color: var(--ink);
   background: rgba(255, 255, 255, 0.04);
   font-size: 0.92rem;
+}
+
+.edit-form-field input[type="date"],
+.edit-form-field input[type="time"] {
+  text-align: left;
 }
 
 .edit-form-field input:focus {
@@ -4831,7 +4841,12 @@ button.natal-pos__row--clickable {
 @keyframes loc-spin { to { transform: translateY(-50%) rotate(360deg); } }
 
 .loc-ac__list {
-  margin: 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin: 4px 0 0;
   padding: 4px 0;
   list-style: none;
   background: #ffffff;
