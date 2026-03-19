@@ -160,7 +160,7 @@ export const en: Record<string, string> = {
   "form.autoLocation": "Auto-filled from location",
   "form.placeholderName": "e.g. John",
   "form.placeholderUsername": "e.g. johndoe",
-  "form.placeholderLocation": "e.g. Moscow, Russia",
+  "form.placeholderLocation": "e.g. San Francisco, California",
   "form.placeholderDate": "e.g. 1990-06-15",
   "form.placeholderTime": "e.g. 14:30",
   "form.coordsAndTz": "Coordinates & Timezone",

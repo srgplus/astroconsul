@@ -4298,8 +4298,6 @@ button.natal-pos__row--clickable {
   box-sizing: border-box;
   color-scheme: dark;
   text-align: left;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 .edit-form-field input:focus {

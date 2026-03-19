@@ -80,6 +80,7 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
                 type="date"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
+                placeholder={t("form.placeholderDate")}
                 required
               />
             </div>
@@ -90,6 +91,7 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
                 value={birthTime}
                 onChange={(e) => setBirthTime(e.target.value)}
                 step="1"
+                placeholder={t("form.placeholderTime")}
                 required
               />
             </div>
