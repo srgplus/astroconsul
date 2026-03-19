@@ -3676,9 +3676,12 @@ button.natal-pos__row--clickable {
 
 .transit-field input[type="date"],
 .transit-field input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
   text-align: center;
   min-width: 0;
   max-width: 100%;
+  overflow: hidden;
 }
 
 .transit-field input:focus {
@@ -4225,9 +4228,12 @@ button.natal-pos__row--clickable {
 
 .edit-form-field input[type="date"],
 .edit-form-field input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
   text-align: center;
   min-width: 0;
   max-width: 100%;
+  overflow: hidden;
 }
 
 .edit-form-field input:focus {
