@@ -116,21 +116,7 @@ body {
   background: var(--bg);
 }
 
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) body {
-    background:
-      radial-gradient(circle at top center, rgba(94, 126, 177, 0.04), transparent 24%),
-      radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.04), transparent 20%),
-      linear-gradient(180deg, #F7F7F5 0%, var(--bg) 50%, var(--bg-deep) 100%);
-  }
-}
-
-:root[data-theme="light"] body {
-  background:
-    radial-gradient(circle at top center, rgba(94, 126, 177, 0.04), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(65, 87, 123, 0.04), transparent 20%),
-    linear-gradient(180deg, #F7F7F5 0%, var(--bg) 50%, var(--bg-deep) 100%);
-}
+/* Light & dark themes: solid background color, no gradients */
 
 button,
 input,
