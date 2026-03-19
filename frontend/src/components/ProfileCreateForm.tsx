@@ -18,6 +18,7 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
   const [locationName, setLocationName] = useState("")
   const [latitude, setLatitude] = useState(0)
   const [longitude, setLongitude] = useState(0)
+  const [coordsOpen, setCoordsOpen] = useState(false)
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -75,11 +76,28 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthDate")}</label>
-              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
+              <input
+                type={birthDate ? "date" : "text"}
+                value={birthDate}
+                placeholder={t("form.placeholderDate")}
+                onFocus={(e) => { if (!birthDate) e.target.type = "date" }}
+                onBlur={(e) => { if (!birthDate) e.target.type = "text" }}
+                onChange={(e) => setBirthDate(e.target.value)}
+                required
+              />
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthTime")}</label>
-              <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
+              <input
+                type={birthTime ? "time" : "text"}
+                value={birthTime}
+                placeholder={t("form.placeholderTime")}
+                onFocus={(e) => { if (!birthTime) e.target.type = "time" }}
+                onBlur={(e) => { if (!birthTime) e.target.type = "text" }}
+                onChange={(e) => setBirthTime(e.target.value)}
+                step="1"
+                required
+              />
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthLocation")}</label>
@@ -98,22 +116,27 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
           </div>
 
           <div className="edit-section">
-            <h3>{t("form.coordinates")}</h3>
+            <button type="button" className="edit-section-toggle" onClick={() => setCoordsOpen(!coordsOpen)}>
+              <span className={`edit-section-arrow ${coordsOpen ? "open" : ""}`}>&#9654;</span>
+              <h3>{t("form.coordsAndTz")}</h3>
+            </button>
             <p className="edit-section-desc">{t("form.coordDesc")}</p>
-            <div className="edit-form-grid">
-              <div className="edit-form-field edit-form-field--full">
-                <label>{t("form.timezone")}</label>
-                <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+            {coordsOpen && (
+              <div className="edit-form-grid">
+                <div className="edit-form-field edit-form-field--full">
+                  <label>{t("form.timezone")}</label>
+                  <input type="text" value={timezone} readOnly placeholder={t("form.autoLocation")} />
+                </div>
+                <div className="edit-form-field">
+                  <label>{t("form.latitude")}</label>
+                  <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
+                </div>
+                <div className="edit-form-field">
+                  <label>{t("form.longitude")}</label>
+                  <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
+                </div>
               </div>
-              <div className="edit-form-field">
-                <label>{t("form.latitude")}</label>
-                <input type="number" step="any" value={latitude} readOnly tabIndex={-1} />
-              </div>
-              <div className="edit-form-field">
-                <label>{t("form.longitude")}</label>
-                <input type="number" step="any" value={longitude} readOnly tabIndex={-1} />
-              </div>
-            </div>
+            )}
           </div>
 
           {error ? <div className="edit-error">{error}</div> : null}
