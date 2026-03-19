@@ -4149,29 +4149,46 @@ button.natal-pos__row--clickable {
   max-height: calc(100vh - 48px);
   overflow-x: hidden;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .modal-sticky-footer {
   position: sticky;
-  bottom: 0;
-  padding: 16px 0 4px;
-  background: var(--surface);
+  bottom: -24px;
+  padding: 16px 0;
+  margin: 0 -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+  background: inherit;
   z-index: 2;
 }
 
 .modal-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
 }
 
+.modal-header--sticky {
+  position: sticky;
+  top: -24px;
+  margin: -24px -24px 16px;
+  padding: 20px 24px 12px;
+  background: inherit;
+  z-index: 3;
+}
+
 .modal-header h2 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  flex: 1;
+  text-align: center;
+}
+
+.modal-header .edit-btn {
+  position: absolute;
+  right: 24px;
 }
 
 /* --- Edit form --- */
@@ -4240,10 +4257,12 @@ button.natal-pos__row--clickable {
 .edit-form-field input[type="time"] {
   -webkit-appearance: none;
   appearance: none;
+  display: block;
   min-width: 0;
-  width: 100%;
+  width: 100% !important;
   max-width: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .edit-form-field input:focus {

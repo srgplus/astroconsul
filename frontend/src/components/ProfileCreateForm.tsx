@@ -58,19 +58,18 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+        <div className="modal-header modal-header--sticky">
           <h2>{t("form.createNatal")}</h2>
           <button type="button" className="edit-btn" onClick={onClose}>{t("form.close")}</button>
         </div>
 
         <form className="edit-form" onSubmit={handleSave}>
-          <p className="edit-section-desc" style={{ marginTop: 0 }}>{t("form.createDesc")}</p>
           <div className="edit-form-grid">
-            <div className="edit-form-field">
+            <div className="edit-form-field edit-form-field--full">
               <label>{t("form.profileName")}</label>
               <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder={t("form.placeholderName")} required />
             </div>
-            <div className="edit-form-field">
+            <div className="edit-form-field edit-form-field--full">
               <label>{t("form.username")}</label>
               <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t("form.placeholderUsername")} required />
             </div>
