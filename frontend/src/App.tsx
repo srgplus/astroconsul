@@ -727,6 +727,30 @@ export function App() {
     return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
   }
 
+  // Keep mobile footer above iOS virtual keyboard via VisualViewport API
+  const mobileFooterRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      const el = mobileFooterRef.current
+      if (!el) return
+      const offsetFromBottom = window.innerHeight - vv.height - vv.offsetTop
+      if (offsetFromBottom > 50) {
+        // Keyboard is open
+        el.style.bottom = `${offsetFromBottom}px`
+      } else {
+        el.style.bottom = ""
+      }
+    }
+    vv.addEventListener("resize", onResize)
+    vv.addEventListener("scroll", onResize)
+    return () => {
+      vv.removeEventListener("resize", onResize)
+      vv.removeEventListener("scroll", onResize)
+    }
+  }, [])
+
   return (
     <main className={`app-shell${sidebarCollapsed ? " app-shell--sidebar-collapsed" : ""} mobile-view--${mobileView}`}>
       <div className="main-layout">
@@ -1262,7 +1286,7 @@ export function App() {
       </div>
 
       {/* Mobile footer: always visible, same position in list & detail */}
-      <div className="mobile-footer">
+      <div className="mobile-footer" ref={mobileFooterRef}>
         <button
           type="button"
           className="mobile-footer-btn mobile-footer-btn--add"
@@ -1285,16 +1309,11 @@ export function App() {
               setSearchQuery(e.target.value)
               setMobileView("list")
             }}
-            onFocus={(e) => {
+            onFocus={() => {
               setMobileView("list")
               // Prevent iOS from scrolling page up when keyboard opens
-              const el = e.currentTarget
-              const reset = () => window.scrollTo(0, 0)
-              reset()
-              const tid = setInterval(reset, 50)
-              const stop = () => { clearInterval(tid); el.removeEventListener("blur", stop) }
-              el.addEventListener("blur", stop)
-              setTimeout(stop, 600)
+              setTimeout(() => window.scrollTo(0, 0), 100)
+              setTimeout(() => window.scrollTo(0, 0), 300)
             }}
           />
         </div>
