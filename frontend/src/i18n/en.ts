@@ -174,6 +174,7 @@ export const en: Record<string, string> = {
   "form.saveProfile": "Save Natal Profile",
   "form.creating": "Creating...",
   "form.createProfile": "Create Profile",
+  "form.errorSelectLocation": "Select a city from the dropdown to fill coordinates",
 
   // Feels-like labels
   "feels.Calm": "Calm",

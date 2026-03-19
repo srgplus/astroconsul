@@ -174,6 +174,7 @@ export const ru: Record<string, string> = {
   "form.saveProfile": "Сохранить профиль",
   "form.creating": "Создание...",
   "form.createProfile": "Создать профиль",
+  "form.errorSelectLocation": "Выберите город из списка для заполнения координат",
 
   // Feels-like labels
   "feels.Calm": "Спокойно",

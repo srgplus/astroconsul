@@ -70,9 +70,9 @@ export function LocationAutocomplete({ value, onChange, onSelect, placeholder }:
     }
   }, [value, updatePosition])
 
-  // Close on outside click
+  // Close on outside click/touch
   useEffect(() => {
-    function handler(e: MouseEvent) {
+    function handler(e: Event) {
       const target = e.target as Node
       if (
         inputRef.current && !inputRef.current.contains(target) &&
@@ -82,16 +82,38 @@ export function LocationAutocomplete({ value, onChange, onSelect, placeholder }:
       }
     }
     document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
+    document.addEventListener("touchstart", handler)
+    return () => {
+      document.removeEventListener("mousedown", handler)
+      document.removeEventListener("touchstart", handler)
+    }
   }, [])
 
-  // Close on scroll of any parent (dropdown would be mispositioned)
+  // Reposition on scroll instead of closing (mobile keyboard causes scroll)
   useEffect(() => {
     if (!open) return
-    function onScroll() { setOpen(false) }
+    function onScroll() { updatePosition() }
     window.addEventListener("scroll", onScroll, true)
     return () => window.removeEventListener("scroll", onScroll, true)
-  }, [open])
+  }, [open, updatePosition])
+
+  // Reposition on resize (keyboard show/hide on mobile)
+  useEffect(() => {
+    if (!open) return
+    const onResize = () => updatePosition()
+    window.addEventListener("resize", onResize)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onResize)
+      window.visualViewport.addEventListener("scroll", onResize)
+    }
+    return () => {
+      window.removeEventListener("resize", onResize)
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onResize)
+        window.visualViewport.removeEventListener("scroll", onResize)
+      }
+    }
+  }, [open, updatePosition])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     typingRef.current = true
@@ -115,7 +137,13 @@ export function LocationAutocomplete({ value, onChange, onSelect, placeholder }:
   const dropdown = open && results.length > 0 ? createPortal(
     <ul className="loc-ac__list" ref={listRef} style={listStyle}>
       {results.map((r, i) => (
-        <li key={`${r.latitude}-${r.longitude}-${i}`} onMouseDown={() => handleSelect(r)}>
+        <li
+          key={`${r.latitude}-${r.longitude}-${i}`}
+          onPointerDown={(e) => {
+            e.preventDefault()
+            handleSelect(r)
+          }}
+        >
           <span className="loc-ac__name">{shortName(r.display_name)}</span>
           {r.timezone ? <span className="loc-ac__tz">{r.timezone}</span> : null}
         </li>

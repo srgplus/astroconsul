@@ -24,6 +24,10 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
+    if (!timezone) {
+      setError(t("form.errorSelectLocation"))
+      return
+    }
     setSaving(true)
     setError(null)
     try {

@@ -4865,6 +4865,9 @@ button.natal-pos__row--clickable {
 .loc-ac__list li:hover {
   background: #f2f2f7;
 }
+.loc-ac__list li:active {
+  background: #e5e5ea;
+}
 .loc-ac__name {
   flex: 1;
   min-width: 0;
@@ -4879,8 +4882,10 @@ button.natal-pos__row--clickable {
   flex-shrink: 0;
 }
 :root[data-theme="dark"] .loc-ac__list li:hover { background: #3a3a3c; }
+:root[data-theme="dark"] .loc-ac__list li:active { background: #48484a; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .loc-ac__list li:hover { background: #3a3a3c; }
+  :root:not([data-theme="light"]) .loc-ac__list li:active { background: #48484a; }
 }
 
 /* ===========================
