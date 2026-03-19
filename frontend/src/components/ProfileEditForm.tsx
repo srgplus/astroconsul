@@ -118,11 +118,28 @@ export function ProfileEditForm({ profileId, activeDetail, onClose, onSaved }: P
               </div>
               <div className="edit-form-field">
                 <label>{t("form.birthDate")}</label>
-                <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
+                <div className="date-input-wrap" data-placeholder={!birthDate ? t("form.placeholderDate") : undefined}>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className={birthDate ? "" : "date-input--empty"}
+                    required
+                  />
+                </div>
               </div>
               <div className="edit-form-field">
                 <label>{t("form.birthTime")}</label>
-                <input type="time" step="1" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} required />
+                <div className="date-input-wrap" data-placeholder={!birthTime ? t("form.placeholderTime") : undefined}>
+                  <input
+                    type="time"
+                    value={birthTime}
+                    onChange={(e) => setBirthTime(e.target.value)}
+                    step="1"
+                    className={birthTime ? "" : "date-input--empty"}
+                    required
+                  />
+                </div>
               </div>
               <div className="edit-form-field edit-form-field--full">
                 <label>{t("form.locationName")}</label>
