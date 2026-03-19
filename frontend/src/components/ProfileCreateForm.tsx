@@ -76,28 +76,28 @@ export function ProfileCreateForm({ onClose, onCreated }: ProfileCreateFormProps
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthDate")}</label>
-              <input
-                type={birthDate ? "date" : "text"}
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                onFocus={(e) => { e.currentTarget.type = "date" }}
-                onBlur={(e) => { if (!birthDate) e.currentTarget.type = "text" }}
-                placeholder={t("form.placeholderDate")}
-                required
-              />
+              <div className="date-input-wrap" data-placeholder={!birthDate ? t("form.placeholderDate") : undefined}>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className={birthDate ? "" : "date-input--empty"}
+                  required
+                />
+              </div>
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthTime")}</label>
-              <input
-                type={birthTime ? "time" : "text"}
-                value={birthTime}
-                onChange={(e) => setBirthTime(e.target.value)}
-                onFocus={(e) => { e.currentTarget.type = "time"; e.currentTarget.step = "1" }}
-                onBlur={(e) => { if (!birthTime) e.currentTarget.type = "text" }}
-                step="1"
-                placeholder={t("form.placeholderTime")}
-                required
-              />
+              <div className="date-input-wrap" data-placeholder={!birthTime ? t("form.placeholderTime") : undefined}>
+                <input
+                  type="time"
+                  value={birthTime}
+                  onChange={(e) => setBirthTime(e.target.value)}
+                  step="1"
+                  className={birthTime ? "" : "date-input--empty"}
+                  required
+                />
+              </div>
             </div>
             <div className="edit-form-field edit-form-field--full">
               <label>{t("form.birthLocation")}</label>

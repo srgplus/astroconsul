@@ -4300,6 +4300,34 @@ button.natal-pos__row--clickable {
   text-align: left;
 }
 
+.date-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.date-input-wrap input {
+  width: 100%;
+}
+
+.date-input-wrap[data-placeholder]::after {
+  content: attr(data-placeholder);
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 16px;
+}
+
+.date-input--empty {
+  color: transparent !important;
+}
+
+.date-input--empty::-webkit-datetime-edit {
+  color: transparent;
+}
+
 .edit-form-field input:focus {
   outline: none;
   border-color: var(--line-strong);
