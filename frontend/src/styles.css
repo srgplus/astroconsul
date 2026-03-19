@@ -4184,7 +4184,7 @@ button.natal-pos__row--clickable {
   margin: 0;
   font-size: 1.3rem;
   flex: 1;
-  text-align: center;
+  text-align: left;
 }
 
 .modal-header .edit-btn {
@@ -4297,6 +4297,9 @@ button.natal-pos__row--clickable {
   min-width: 0;
   box-sizing: border-box;
   color-scheme: dark;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .edit-form-field input:focus {
@@ -4359,7 +4362,7 @@ button.natal-pos__row--clickable {
   font-weight: 700;
   cursor: pointer;
   transition: opacity 160ms ease;
-  text-align: left;
+  text-align: center;
 }
 
 .save-btn:hover {
