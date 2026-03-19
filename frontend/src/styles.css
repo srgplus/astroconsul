@@ -1645,6 +1645,25 @@ select {
   text-align: center;
 }
 
+.cw-time-window {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.7;
+  margin: 0 auto 8px;
+}
+.cw-time-window__label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+.cw-time-window__range {
+  opacity: 0.7;
+}
+
 .cw-tension-bar {
   display: flex;
   align-items: center;
@@ -3562,6 +3581,26 @@ button.natal-pos__row--clickable {
   border-radius: 2px;
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+/* Time-of-day windows */
+.guide-time-windows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.guide-time-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.guide-time-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 /* Zone sections */

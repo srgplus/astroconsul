@@ -803,6 +803,41 @@ Houses numbered 1-12 from ASC
 
 ---
 
+## 13. Time-Based Feels Like Modifiers
+
+### Overview
+The "Feels Like" description changes based on the time of day. The same TII × Tension combination produces different guidance depending on when the user views it.
+
+### Time Windows
+| Window | Hours | Theme |
+|--------|-------|-------|
+| Morning | 6:00–12:00 | Intentions, preparation, rising energy |
+| Afternoon | 12:00–18:00 | Peak action, decisions, bold moves |
+| Evening | 18:00–23:00 | Reflection, social connection, winding down |
+| Night | 23:00–6:00 | Rest, recovery, subconscious processing |
+
+### Data File
+`data/feels_like_time_modifiers.json` — 12 feels_like labels × 4 time windows × 2 languages (EN + RU).
+
+Each entry has:
+- `headline` (3-5 words) — shown as mood line
+- `description` (1-2 sentences) — shown as feels description
+
+### Frontend Integration
+- `frontend/src/time-modifiers.ts` — utility to determine time window from UTC datetime + timezone, and look up the appropriate modifier
+- `DailyWeather.tsx` — uses time-based descriptions instead of static guide descriptions
+- Time window indicator shown below the description (e.g. "MORNING 6:00–12:00")
+- `TiiGuide.tsx` — "Time of Day Context" section added to How It Works popup
+
+### Design Principles
+- Night descriptions are restful, NOT action-oriented
+- Morning descriptions focus on intentions and preparation
+- Evening descriptions focus on reflection and social connection
+- Afternoon descriptions are the original "peak day" descriptions
+- Tone: warm, concrete, actionable (time-appropriate)
+
+---
+
 ## Worklog
 
 ### 2026-03-16 — UI/UX Polish & Bug Fixes
