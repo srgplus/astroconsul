@@ -1,7 +1,7 @@
 // Time-of-day modifiers for feels_like descriptions
 // Time windows: morning (6-12), afternoon (12-18), evening (18-23), night (23-6)
 
-import modifiersData from "../../data/feels_like_time_modifiers.json"
+import modifiersData from "./data/feels_like_time_modifiers.json"
 
 export type TimeWindow = "morning" | "afternoon" | "evening" | "night"
 
