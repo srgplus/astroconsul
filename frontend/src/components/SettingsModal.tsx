@@ -135,6 +135,11 @@ export function SettingsModal({
                     <span className="stg-val">{t("settings.unlimited")}</span>
                   </div>
                 </div>
+                <div className="stg-mobile-signout">
+                  <button type="button" className="stg-signout-btn" onClick={onSignOut}>
+                    {t("settings.signOut")}
+                  </button>
+                </div>
               </>
             )}
 

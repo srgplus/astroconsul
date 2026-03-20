@@ -5366,6 +5366,10 @@ button.natal-pos__row--clickable {
   background: rgba(226, 75, 74, 0.1);
 }
 
+.stg-mobile-signout {
+  display: none;
+}
+
 /* Right content */
 .stg-content {
   flex: 1;
@@ -5614,6 +5618,7 @@ button.natal-pos__row--clickable {
   }
   .stg-nav-header { display: none; }
   .stg-nav-footer { display: none; }
+  .stg-mobile-signout { display: block; margin-top: 16px; }
   .stg-nav-list {
     flex-direction: row;
     gap: 4px;
