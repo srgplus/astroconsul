@@ -52,12 +52,18 @@ def create_invite(
     host = settings.canonical_host or "big3.me"
     invite_url = f"https://{host}/invite/{token}"
 
-    send_invite_email(
+    email_sent = send_invite_email(
         to_email=payload.email,
         profile_name=profile.get("profile_name", ""),
         inviter_email=user.get("email", ""),
         invite_url=invite_url,
     )
+
+    if not email_sent:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to send invite email. Please try again later.",
+        )
 
     return {"status": "ok", "token": token, "invite_url": invite_url}
 
