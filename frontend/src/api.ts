@@ -265,13 +265,13 @@ export type InviteInfo = {
 export async function createProfileInvite(
   profileId: string,
   email: string,
-): Promise<{ status: string; token: string; invite_url: string }> {
+): Promise<{ status: string; token: string; invite_url: string; email_sent: boolean }> {
   const auth = await getAuthHeaders()
   return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/invite`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify({ email }),
-  }).then(json<{ status: string; token: string; invite_url: string }>)
+  }).then(json<{ status: string; token: string; invite_url: string; email_sent: boolean }>)
 }
 
 export function fetchInviteInfo(token: string): Promise<InviteInfo> {

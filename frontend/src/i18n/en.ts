@@ -547,6 +547,9 @@ export const en: Record<string, string> = {
   "invite.send": "Send Invitation",
   "invite.sending": "Sending...",
   "invite.sent": "Invitation sent!",
+  "invite.created": "Invitation created!",
+  "invite.copyLinkHint": "Send this link to the recipient:",
+  "invite.copyLink": "Copy Link",
   "invite.sendError": "Failed to send invitation.",
   "invite.backToApp": "Go to App",
 }

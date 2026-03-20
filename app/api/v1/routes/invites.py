@@ -59,13 +59,7 @@ def create_invite(
         invite_url=invite_url,
     )
 
-    if not email_sent:
-        raise HTTPException(
-            status_code=502,
-            detail="Failed to send invite email. Please try again later.",
-        )
-
-    return {"status": "ok", "token": token, "invite_url": invite_url}
+    return {"status": "ok", "token": token, "invite_url": invite_url, "email_sent": email_sent}
 
 
 @router.get("/invites/{token}")

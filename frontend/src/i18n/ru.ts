@@ -547,6 +547,9 @@ export const ru: Record<string, string> = {
   "invite.send": "Отправить приглашение",
   "invite.sending": "Отправляем...",
   "invite.sent": "Приглашение отправлено!",
+  "invite.created": "Приглашение создано!",
+  "invite.copyLinkHint": "Отправьте ссылку получателю вручную:",
+  "invite.copyLink": "Скопировать ссылку",
   "invite.sendError": "Не удалось отправить приглашение.",
   "invite.backToApp": "Перейти в приложение",
 }

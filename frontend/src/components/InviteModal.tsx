@@ -15,6 +15,8 @@ export function InviteModal({
   const [email, setEmail] = useState("")
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null)
+  const [emailSent, setEmailSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,12 +25,20 @@ export function InviteModal({
     setSending(true)
     setError(null)
     try {
-      await createProfileInvite(profileId, email.trim())
+      const result = await createProfileInvite(profileId, email.trim())
       setSent(true)
+      setInviteUrl(result.invite_url)
+      setEmailSent(result.email_sent)
     } catch {
       setError(t("invite.sendError"))
     } finally {
       setSending(false)
+    }
+  }
+
+  const handleCopyLink = () => {
+    if (inviteUrl) {
+      navigator.clipboard.writeText(inviteUrl)
     }
   }
 
@@ -42,8 +52,22 @@ export function InviteModal({
 
         {sent ? (
           <div className="invite-modal-body">
-            <p className="invite-success">{t("invite.sent")}</p>
-            <p className="invite-modal-hint">{email}</p>
+            {emailSent ? (
+              <>
+                <p className="invite-success">{t("invite.sent")}</p>
+                <p className="invite-modal-hint">{email}</p>
+              </>
+            ) : (
+              <>
+                <p className="invite-success">{t("invite.created")}</p>
+                <p className="invite-modal-hint">{t("invite.copyLinkHint")}</p>
+                {inviteUrl && (
+                  <button className="invite-btn invite-btn--primary" onClick={handleCopyLink} style={{ marginBottom: 8 }}>
+                    {t("invite.copyLink")}
+                  </button>
+                )}
+              </>
+            )}
             <button className="invite-btn" onClick={onClose}>OK</button>
           </div>
         ) : (
