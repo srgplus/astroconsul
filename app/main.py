@@ -101,8 +101,7 @@ def create_app() -> FastAPI:
                 return RedirectResponse(url=canonical_url, status_code=308)
             return await call_next(request)
 
-    @app.get("/", response_class=HTMLResponse)
-    def home() -> HTMLResponse:
+    def _serve_spa() -> HTMLResponse:
         index_path = settings.frontend_index_path
         if not index_path.exists():
             raise HTTPException(
@@ -111,16 +110,13 @@ def create_app() -> FastAPI:
             )
         return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
+    @app.get("/", response_class=HTMLResponse)
+    def home() -> HTMLResponse:
+        return _serve_spa()
+
     @app.get("/invite/{token}", response_class=HTMLResponse)
     def invite_page(token: str) -> HTMLResponse:
-        """SPA catch-all for invite acceptance page."""
-        index_path = settings.frontend_index_path
-        if not index_path.exists():
-            raise HTTPException(
-                status_code=404,
-                detail="Frontend has not been built yet. Run: cd frontend && npm run build",
-            )
-        return HTMLResponse(index_path.read_text(encoding="utf-8"))
+        return _serve_spa()
 
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     app.include_router(legacy_router)

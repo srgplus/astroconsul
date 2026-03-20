@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import UTC, date, datetime, time
 from typing import Any
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings
@@ -507,12 +508,17 @@ class SqlAlchemyProfileRepository:
 
     def search_public(self, query: str, *, limit: int = 20) -> list[dict[str, Any]]:
         with self.session_factory() as session:
+            # Normalize: strip underscores/spaces so "nickmitu" finds "nick_mitu" / "Nick Mitu"
+            raw = query.strip()
+            collapsed = re.sub(r"[\s_]+", "", raw).lower()
             statement = (
                 select(ProfileModel)
-                .where(
-                    ProfileModel.handle.ilike(f"%{query}%")
-                    | ProfileModel.display_name.ilike(f"%{query}%")
-                )
+                .where(or_(
+                    ProfileModel.handle.ilike(f"%{raw}%"),
+                    ProfileModel.display_name.ilike(f"%{raw}%"),
+                    func.replace(func.lower(ProfileModel.handle), "_", "").ilike(f"%{collapsed}%"),
+                    func.replace(func.replace(func.lower(ProfileModel.display_name), "_", ""), " ", "").ilike(f"%{collapsed}%"),
+                ))
                 .order_by(ProfileModel.updated_at.desc())
                 .limit(limit)
             )
