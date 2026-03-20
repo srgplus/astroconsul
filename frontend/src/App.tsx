@@ -536,12 +536,12 @@ export function App() {
     } catch { /* ignore */ }
 
     const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, "0")
-    const day = String(now.getDate()).padStart(2, "0")
+    // Get current date/time in the profile's saved timezone (not local browser time)
+    const tzDateParts = new Intl.DateTimeFormat("en-CA", { timeZone: savedTz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now)
+    const tzTimeParts = new Intl.DateTimeFormat("en-GB", { timeZone: savedTz, hour: "2-digit", minute: "2-digit", hour12: false }).format(now).replace(/[^0-9:]/g, "")
     const params = {
-      transit_date: `${year}-${month}-${day}`,
-      transit_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+      transit_date: tzDateParts,
+      transit_time: tzTimeParts,
       timezone: savedTz,
       location_name: savedLoc,
       latitude: savedLat,
