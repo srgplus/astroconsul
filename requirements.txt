@@ -8,6 +8,7 @@ alembic
 psycopg[binary]
 httpx
 pydantic
+email-validator
 python-dotenv
 PyJWT
 cryptography
