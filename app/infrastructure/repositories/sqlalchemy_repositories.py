@@ -16,6 +16,7 @@ from app.infrastructure.persistence.models import (
     LocationCacheModel,
     NatalChartModel,
     ProfileFollowModel,
+    ProfileInviteModel,
     ProfileModel,
     UserModel,
 )
@@ -673,6 +674,112 @@ class SqlAlchemyProfileRepository:
                 user = ensure_user(session, user_id)
             user.primary_profile_id = profile_id
             session.commit()
+
+    def create_invite(
+        self,
+        profile_id: str,
+        invited_email: str,
+        token: str,
+        invited_by: str,
+        expires_at: datetime,
+    ) -> dict[str, Any]:
+        now = _now_utc()
+        with self.session_factory() as session:
+            invite = ProfileInviteModel(
+                profile_id=profile_id,
+                invited_email=invited_email,
+                token=token,
+                invited_by=invited_by,
+                status="pending",
+                created_at=now,
+                expires_at=expires_at,
+            )
+            session.add(invite)
+            session.commit()
+            return {
+                "id": invite.id,
+                "profile_id": profile_id,
+                "invited_email": invited_email,
+                "token": token,
+                "status": "pending",
+                "created_at": _isoformat_z(now),
+                "expires_at": _isoformat_z(expires_at),
+            }
+
+    def get_invite_by_token(self, token: str) -> dict[str, Any] | None:
+        with self.session_factory() as session:
+            invite = session.execute(
+                select(ProfileInviteModel).where(ProfileInviteModel.token == token)
+            ).scalar_one_or_none()
+            if invite is None:
+                return None
+            profile = session.get(ProfileModel, invite.profile_id)
+            inviter = session.get(UserModel, invite.invited_by)
+            return {
+                "token": invite.token,
+                "profile_id": invite.profile_id,
+                "profile_name": profile.display_name if profile else "Unknown",
+                "invited_email": invite.invited_email,
+                "invited_by_email": inviter.email if inviter else "",
+                "status": invite.status,
+                "created_at": _isoformat_z(invite.created_at),
+                "expires_at": _isoformat_z(invite.expires_at),
+                "accepted_at": _isoformat_z(invite.accepted_at) if invite.accepted_at else None,
+            }
+
+    def accept_invite(self, token: str, new_user_id: str) -> dict[str, Any]:
+        now = _now_utc()
+        with self.session_factory() as session:
+            invite = session.execute(
+                select(ProfileInviteModel).where(ProfileInviteModel.token == token)
+            ).scalar_one_or_none()
+            if invite is None:
+                raise FileNotFoundError("Invite not found")
+            if invite.status != "pending":
+                raise ValueError(f"Invite already {invite.status}")
+            if invite.expires_at < now:
+                invite.status = "expired"
+                session.commit()
+                raise ValueError("Invite has expired")
+
+            # Ensure new user exists in DB
+            ensure_user(session, new_user_id)
+
+            old_owner_id = invite.invited_by
+            profile = session.get(ProfileModel, invite.profile_id)
+            if profile is None:
+                raise FileNotFoundError("Profile not found")
+
+            # Transfer ownership
+            profile.user_id = new_user_id
+            profile.updated_at = now
+
+            # Mark invite accepted
+            invite.status = "accepted"
+            invite.accepted_at = now
+
+            # Make old owner a follower of this profile
+            existing_follow = session.execute(
+                select(ProfileFollowModel).where(
+                    ProfileFollowModel.user_id == old_owner_id,
+                    ProfileFollowModel.profile_id == invite.profile_id,
+                )
+            ).scalar_one_or_none()
+            if existing_follow is None:
+                follow = ProfileFollowModel(
+                    user_id=old_owner_id,
+                    profile_id=invite.profile_id,
+                    created_at=now,
+                )
+                session.add(follow)
+
+            session.commit()
+            return {
+                "profile_id": invite.profile_id,
+                "profile_name": profile.display_name,
+                "new_owner_id": new_user_id,
+                "old_owner_id": old_owner_id,
+            }
 
 
 class SqlAlchemyLocationCacheRepository:

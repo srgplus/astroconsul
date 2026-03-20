@@ -17,6 +17,7 @@ type ProfileDetailProps = {
   activeProfileId: string | null
   transitReport: TransitReportResponse | null
   onEditClick: () => void
+  onTransferClick?: () => void
 }
 
 function coerceNumber(value: number | string | null | undefined): number | null {
@@ -623,6 +624,7 @@ export function ProfileDetail({
   activeProfileId,
   transitReport,
   onEditClick,
+  onTransferClick,
 }: ProfileDetailProps) {
   const { t } = useLanguage()
   return (

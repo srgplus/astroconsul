@@ -251,6 +251,43 @@ export async function fetchForecast(
   ).then(json<ForecastResponse>)
 }
 
+// --- Invite endpoints ---
+
+export type InviteInfo = {
+  token: string
+  profile_name: string
+  invited_email: string
+  invited_by_email: string
+  status: string
+  expires_at: string
+}
+
+export async function createProfileInvite(
+  profileId: string,
+  email: string,
+): Promise<{ status: string; token: string; invite_url: string }> {
+  const auth = await getAuthHeaders()
+  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ email }),
+  }).then(json<{ status: string; token: string; invite_url: string }>)
+}
+
+export function fetchInviteInfo(token: string): Promise<InviteInfo> {
+  return fetch(`/api/v1/invites/${encodeURIComponent(token)}`).then(json<InviteInfo>)
+}
+
+export async function acceptInvite(
+  token: string,
+): Promise<{ status: string; profile_id: string; profile_name: string }> {
+  const auth = await getAuthHeaders()
+  return fetch(`/api/v1/invites/${encodeURIComponent(token)}/accept`, {
+    method: "POST",
+    headers: auth,
+  }).then(json<{ status: string; profile_id: string; profile_name: string }>)
+}
+
 // --- Public (no-auth) endpoints ---
 
 export function fetchFeaturedProfiles(): Promise<{ profiles: ProfileSummary[] }> {

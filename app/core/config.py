@@ -40,6 +40,7 @@ class Settings:
     supabase_url: str | None
     supabase_anon_key: str | None
     supabase_jwt_secret: str | None
+    resend_api_key: str | None
 
     @property
     def use_database(self) -> bool:
@@ -85,6 +86,7 @@ def get_settings() -> Settings:
         supabase_url=os.getenv("ASTRO_CONSUL_SUPABASE_URL"),
         supabase_anon_key=os.getenv("ASTRO_CONSUL_SUPABASE_ANON_KEY"),
         supabase_jwt_secret=os.getenv("ASTRO_CONSUL_SUPABASE_JWT_SECRET"),
+        resend_api_key=os.getenv("ASTRO_CONSUL_RESEND_API_KEY"),
     )
 
 

@@ -15,6 +15,8 @@ import { ProfileCreateForm } from "./components/ProfileCreateForm"
 import { TransitsTab } from "./components/TransitsTab"
 import { NatalZodiacRing } from "./components/NatalZodiacRing"
 import { SettingsModal } from "./components/SettingsModal"
+import { InviteAcceptPage } from "./components/InviteAcceptPage"
+import { InviteModal } from "./components/InviteModal"
 import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition, PublicSearchResult } from "./types"
 
 const OBJECT_GLYPHS: Record<string, string> = {
@@ -213,6 +215,7 @@ export function App() {
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
   const [transitReport, setTransitReport] = useState<TransitReportResponse | null>(null)
   const [wheelExpanded, setWheelExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -734,6 +737,12 @@ export function App() {
   }, [])
 
   // Auth gate: show login screen if not authenticated
+  // Invite page: /invite/{token}
+  const inviteMatch = window.location.pathname.match(/^\/invite\/([a-f0-9]+)$/)
+  if (inviteMatch) {
+    return <InviteAcceptPage token={inviteMatch[1]} />
+  }
+
   if (authLoading) {
     return (
       <main className="app-shell">
@@ -1342,6 +1351,14 @@ export function App() {
         />
       ) : null}
 
+      {showInviteModal && activeProfileId && activeDetail ? (
+        <InviteModal
+          profileId={activeProfileId}
+          profileName={activeDetail.profile.profile_name}
+          onClose={() => setShowInviteModal(false)}
+        />
+      ) : null}
+
       {isCreating ? (
         <ProfileCreateForm
           onClose={() => setIsCreating(false)}
@@ -1377,7 +1394,10 @@ export function App() {
                   const activeP = profiles.find((p) => p.profile_id === activeProfileId)
                   const isOwn = activeP != null && activeP.is_own !== false
                   return isOwn ? (
-                    <button type="button" className="edit-btn edit-btn--compact" onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.edit")}</button>
+                    <>
+                      <button type="button" className="edit-btn edit-btn--compact edit-btn--transfer" onClick={() => { setExpandedWidget(null); setShowInviteModal(true) }}>{t("invite.transfer")}</button>
+                      <button type="button" className="edit-btn edit-btn--compact" onClick={() => { setExpandedWidget(null); setIsEditing(true) }}>{t("widget.edit")}</button>
+                    </>
                   ) : null
                 })()}
                 <button type="button" className="settings-close" onClick={() => setExpandedWidget(null)}>&times;</button>

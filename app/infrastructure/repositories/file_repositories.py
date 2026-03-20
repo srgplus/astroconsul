@@ -206,6 +206,15 @@ class FileProfileRepository:
     def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
         del user_id, profile_id
 
+    def create_invite(self, profile_id: str, invited_email: str, token: str, invited_by: str, expires_at: object) -> dict[str, Any]:
+        raise NotImplementedError("Invites require database persistence")
+
+    def get_invite_by_token(self, token: str) -> dict[str, Any] | None:
+        raise NotImplementedError("Invites require database persistence")
+
+    def accept_invite(self, token: str, new_user_id: str) -> dict[str, Any]:
+        raise NotImplementedError("Invites require database persistence")
+
 
 class NullLocationCacheRepository:
     def get(self, query: str) -> dict[str, Any] | None:

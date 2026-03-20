@@ -99,6 +99,20 @@ class ProfileFollowModel(Base):
     __table_args__ = (UniqueConstraint("user_id", "profile_id", name="uq_user_profile_follow"),)
 
 
+class ProfileInviteModel(Base):
+    __tablename__ = "profile_invites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False)
+    invited_email: Mapped[str] = mapped_column(String(255), nullable=False)
+    token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    invited_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class LocationCacheModel(Base):
     __tablename__ = "location_cache"
 
