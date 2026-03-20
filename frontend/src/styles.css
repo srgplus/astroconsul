@@ -2609,6 +2609,28 @@ select {
   background: var(--surface-soft);
 }
 
+.empty-card--onboard {
+  text-align: center;
+  padding: 32px 18px;
+}
+
+.empty-card__create-btn {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+.empty-card__create-btn:hover {
+  opacity: 0.85;
+}
+
 .ring-card {
   min-height: 620px;
 }

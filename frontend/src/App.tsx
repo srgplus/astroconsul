@@ -211,6 +211,7 @@ export function App() {
     } catch {}
     return null
   })
+  const [bootDone, setBootDone] = useState(false)
   const [bootError, setBootError] = useState<string | null>(null)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -278,12 +279,35 @@ export function App() {
   const [transitRefreshing, setTransitRefreshing] = useState(false)
   // Use user.id as dependency (not user object) to avoid re-running bootstrap on token refresh
   const userId = user?.id
+
+  // Clear stale caches when a different user logs in
+  useEffect(() => {
+    if (!userId) return
+    const prevUserId = localStorage.getItem("lastUserId")
+    if (prevUserId && prevUserId !== userId) {
+      // Different user — wipe cached data from previous account
+      const keysToRemove = Object.keys(localStorage).filter((k) =>
+        k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "cachedTiiMap" || k === "transitParams" || k === "primaryProfileId" || k === "profileOrder"
+      )
+      keysToRemove.forEach((k) => localStorage.removeItem(k))
+      setProfiles([])
+      setActiveProfileId(null)
+      setActiveDetail(null)
+      setTransitReport(null)
+      setTiiMap({})
+      setPrimaryProfileId(null)
+      setProfileOrder([])
+    }
+    localStorage.setItem("lastUserId", userId)
+  }, [userId])
+
   useEffect(() => {
     if (!userId) return
     let cancelled = false
 
     async function bootstrap(attempt = 0) {
       setBootError(null)
+      setBootDone(false)
       try {
         const [healthPayload, profilesPayload] = await Promise.all([
           fetchHealth(),
@@ -323,6 +347,11 @@ export function App() {
           return current || defaultId
         })
 
+        // New user with no profiles — ensure mobile shows list (with create prompt)
+        if (profilesPayload.profiles.length === 0) {
+          setMobileView("list")
+        }
+
         // Merge server-side TII into existing tiiMap (preserve client-cached values)
         const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone
         setTiiMap((prev) => {
@@ -340,6 +369,7 @@ export function App() {
           }
           return merged
         })
+        setBootDone(true)
       } catch (err) {
         if (cancelled) return
         const msg = err instanceof Error ? err.message : "Unknown error"
@@ -349,6 +379,7 @@ export function App() {
           if (!cancelled) return bootstrap(attempt + 1)
         }
         setBootError(msg)
+        setBootDone(true)
       }
     }
 
@@ -806,15 +837,22 @@ export function App() {
                 />
               </div>
               <div className="sidebar-scroll">
-                {profiles.length === 0 && !bootError && !isPublicSearch ? (
+                {profiles.length === 0 && !bootDone && !bootError && !isPublicSearch ? (
                   <SkeletonSidebarItems count={6} />
                 ) : (
                   <>
-                  {/* Show empty message only when no profiles and not searching */}
-                  {profiles.length === 0 && !isPublicSearch && (
-                    <div className="empty-card">
+                  {/* Show create-profile prompt when no profiles after boot */}
+                  {profiles.length === 0 && !isPublicSearch && bootDone && (
+                    <div className="empty-card empty-card--onboard">
                       <strong>{t("profileList.empty")}</strong>
                       <span>{t("profileList.emptyDesc")}</span>
+                      <button
+                        type="button"
+                        className="empty-card__create-btn"
+                        onClick={() => setIsCreating(true)}
+                      >
+                        + {t("sidebar.newProfile")}
+                      </button>
                     </div>
                   )}
                   {/* Local profiles — filtered by search, hidden when empty */}
@@ -1545,6 +1583,14 @@ export function App() {
           setActiveProfileId(null)
           setActiveDetail(null)
           setTransitReport(null)
+          setBootDone(false)
+          setTiiMap({})
+          setPrimaryProfileId(null)
+          // Clear all cached data so next user doesn't see stale profiles
+          const keysToRemove = Object.keys(localStorage).filter((k) =>
+            k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "cachedTiiMap" || k === "transitParams" || k === "primaryProfileId" || k === "profileOrder"
+          )
+          keysToRemove.forEach((k) => localStorage.removeItem(k))
         }}
         onResetCache={() => {
           // Clear all cached data from localStorage
