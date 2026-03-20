@@ -4365,8 +4365,12 @@ button.natal-pos__row--clickable {
   display: block;
   min-width: 0;
   box-sizing: border-box;
-  color-scheme: dark;
   text-align: left;
+}
+
+[data-theme="dark"] .edit-form-field input[type="date"],
+[data-theme="dark"] .edit-form-field input[type="time"] {
+  color-scheme: dark;
 }
 
 .edit-form-field input[type="date"]::-webkit-date-and-time-value,
@@ -4400,6 +4404,11 @@ button.natal-pos__row--clickable {
 
 .date-input--empty::-webkit-datetime-edit {
   color: transparent;
+  opacity: 0;
+}
+
+.date-input--empty::-webkit-datetime-edit-fields-wrapper {
+  opacity: 0;
 }
 
 .edit-form-field input:focus {

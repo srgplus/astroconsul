@@ -95,6 +95,7 @@ export function ProfileForm({ title, submitLabel, savingLabel, initial, onClose,
                   type="date"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
+                  onFocus={(e) => { try { (e.target as any).showPicker() } catch {} }}
                   className={birthDate ? "" : "date-input--empty"}
                   required
                 />
@@ -107,6 +108,7 @@ export function ProfileForm({ title, submitLabel, savingLabel, initial, onClose,
                   type="time"
                   value={birthTime}
                   onChange={(e) => setBirthTime(e.target.value)}
+                  onFocus={(e) => { try { (e.target as any).showPicker() } catch {} }}
                   step="1"
                   className={birthTime ? "" : "date-input--empty"}
                   required
