@@ -11,7 +11,7 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 
 RESEND_API_URL = "https://api.resend.com/emails"
-FROM_EMAIL = "big3.me <noreply@big3.me>"
+FROM_EMAIL = "big3.me <onboarding@resend.dev>"
 
 
 def send_invite_email(
