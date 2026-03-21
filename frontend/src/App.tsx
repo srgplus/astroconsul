@@ -219,6 +219,17 @@ export function App() {
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [transitReport, setTransitReport] = useState<TransitReportResponse | null>(null)
   const [wheelExpanded, setWheelExpanded] = useState(false)
+
+  // Allow pinch-to-zoom only when wheel is fullscreen
+  useEffect(() => {
+    const tag = document.querySelector('meta[name="viewport"]')
+    if (!tag) return
+    if (wheelExpanded) {
+      tag.setAttribute("content", "width=device-width, initial-scale=1.0, viewport-fit=cover")
+    } else {
+      tag.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover")
+    }
+  }, [wheelExpanded])
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
   const [mobileView, setMobileView] = useState<"list" | "detail">(() => {
