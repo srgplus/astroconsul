@@ -240,7 +240,7 @@ export function App() {
     } catch {}
     return "list"
   })
-  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("natal")
+  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
   const [unfollowPopup, setUnfollowPopup] = useState<{ id: string; name: string; username: string } | null>(null)
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
     try {
