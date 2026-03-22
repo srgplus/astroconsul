@@ -6475,6 +6475,10 @@ button.natal-pos__row--clickable {
   white-space: pre-line;
 }
 
+/* A/B glyph colors */
+.syn-glyph-a { color: #a5b4fc; }
+.syn-glyph-b { color: #f9a8d4; }
+
 /* Footer */
 .syn-footer {
   text-align: center;

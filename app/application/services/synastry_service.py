@@ -83,6 +83,20 @@ class SynastryService:
         # Overall reading
         overall_reading = _generate_overall_reading(aspects_a_to_b, scores, lang)
 
+        # Lightweight positions for display in aspect cards
+        def _slim_positions(positions: list[dict]) -> list[dict]:
+            return [
+                {
+                    "id": p["id"],
+                    "sign": p.get("sign", ""),
+                    "degree": p.get("degree", 0),
+                    "minute": p.get("minute", 0),
+                    "house": p.get("house"),
+                    "retrograde": p.get("retrograde", False),
+                }
+                for p in positions
+            ]
+
         return {
             "person_a": person_a,
             "person_b": person_b,
@@ -92,6 +106,8 @@ class SynastryService:
             "exact_count": exact_count,
             "strong_count": strong_count,
             "overall_reading": overall_reading,
+            "positions_a": _slim_positions(a_positions),
+            "positions_b": _slim_positions(b_positions),
         }
 
 

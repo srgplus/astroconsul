@@ -186,8 +186,12 @@ def compute_synastry_scores(aspects: list[dict]) -> dict:
         """Normalize a raw score to 0-100 range."""
         if count == 0:
             return 50  # Neutral if no aspects in category
-        # Baseline: 50 (neutral). Each point of raw_score shifts by ~5.
-        normalized = 50 + (raw_score * 4.0)
+        # Average score per aspect, then scale to 0-100
+        # Max possible single aspect score ≈ 8.0, min ≈ -3.0
+        # Average of 8.0 → 100, average of -3.0 → 0, average of 0 → 50
+        avg = raw_score / count
+        # Map avg from [-3, 8] to [0, 100]
+        normalized = ((avg + 3.0) / 11.0) * 100.0
         return max(0, min(100, round(normalized)))
 
     emotional = _normalize(raw["emotional"], counts["emotional"])

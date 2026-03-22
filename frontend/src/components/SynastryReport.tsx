@@ -1,4 +1,5 @@
-import type { SynastryReportResponse, SynastryAspect } from "../types"
+import { useState } from "react"
+import type { SynastryReportResponse, SynastryAspect, SynastryPosition } from "../types"
 
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648", Taurus: "\u2649", Gemini: "\u264A", Cancer: "\u264B",
@@ -15,6 +16,28 @@ const OBJECT_GLYPHS: Record<string, string> = {
 
 const ASPECT_GLYPHS: Record<string, string> = {
   conjunction: "\u260C", sextile: "\u26B9", square: "\u25A1", trine: "\u25B3", opposition: "\u260D",
+}
+
+const STRENGTH_COLORS: Record<string, string> = {
+  exact: "#FF2D55",
+  strong: "#FF9500",
+  moderate: "#5AC8FA",
+  wide: "#8E8E93",
+}
+
+const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC"])
+const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
+
+function categorizeAspect(a: SynastryAspect): string {
+  if (PERSONAL_IDS.has(a.person_a_object) || PERSONAL_IDS.has(a.person_b_object)) return "personal"
+  if (OUTER_IDS.has(a.person_a_object) || OUTER_IDS.has(a.person_b_object)) return "outer"
+  return "special"
+}
+
+const GROUP_LABELS: Record<string, string> = {
+  personal: "PERSONAL PLANETS",
+  outer: "OUTER PLANETS",
+  special: "SPECIAL POINTS",
 }
 
 type Props = {
@@ -88,39 +111,40 @@ function CategoryScores({ scores }: { scores: SynastryReportResponse["scores"] }
   )
 }
 
-function AspectCard({ aspect }: { aspect: SynastryAspect }) {
-  const aGlyph = OBJECT_GLYPHS[aspect.person_a_object] || aspect.person_a_object
-  const bGlyph = OBJECT_GLYPHS[aspect.person_b_object] || aspect.person_b_object
-  const aspectGlyph = ASPECT_GLYPHS[aspect.aspect] || aspect.aspect
-
-  // Extract sign+degree from the position data embedded in delta/exact_angle
-  // We show the object name + glyph instead
-  const orbColor = aspect.strength === "exact" ? "#22c55e" : aspect.strength === "strong" ? "#22c55e" : "#8e8e93"
-
-  return (
-    <div className="syn-aspect-card">
-      <div className="syn-aspect-header">
-        <div className="syn-aspect-name">
-          {aspect.person_a_object} {aspect.aspect} {aspect.person_b_object}
-        </div>
-        <span className="syn-aspect-orb" style={{ color: orbColor }}>
-          {aspect.orb.toFixed(1)}&deg;
-        </span>
-      </div>
-      <div className="syn-aspect-chips">
-        <span className="syn-chip syn-chip--a">A {aGlyph} {aspect.person_a_object}</span>
-        <span className="syn-aspect-glyph">{aspectGlyph}</span>
-        <span className="syn-chip syn-chip--b">B {bGlyph} {aspect.person_b_object}</span>
-      </div>
-      {aspect.meaning && <div className="syn-aspect-meaning">{aspect.meaning}</div>}
-    </div>
-  )
-}
-
 export default function SynastryReport({ report }: Props) {
   const { scores, aspects } = report
-  const exactAspects = aspects.filter((a) => a.strength === "exact")
-  const strongAspects = aspects.filter((a) => a.strength === "strong")
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [mostImpact, setMostImpact] = useState(true)
+
+  // Build position maps
+  const posMapA = new Map((report.positions_a ?? []).map((p: SynastryPosition) => [p.id, p]))
+  const posMapB = new Map((report.positions_b ?? []).map((p: SynastryPosition) => [p.id, p]))
+
+  // Filter & sort
+  const filtered = mostImpact
+    ? aspects.filter((a) => a.strength === "exact" || a.strength === "strong")
+    : aspects
+  const sorted = [...filtered].sort((a, b) => a.orb - b.orb)
+
+  // Group by category
+  const groupOrder = ["personal", "outer", "special"]
+  const groups: Record<string, SynastryAspect[]> = {}
+  for (const a of sorted) {
+    const cat = categorizeAspect(a)
+    if (!groups[cat]) groups[cat] = []
+    groups[cat].push(a)
+  }
+  const groupedAspects = groupOrder
+    .filter((key) => groups[key]?.length)
+    .map((key) => ({ key, aspects: groups[key]! }))
+
+  const toggle = (key: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   return (
     <div className="syn-report">
@@ -151,33 +175,114 @@ export default function SynastryReport({ report }: Props) {
         <CategoryScores scores={scores} />
       </div>
 
-      {/* Exact aspects */}
-      {exactAspects.length > 0 && (
-        <div className="syn-section">
-          <h3 className="syn-section-title">EXACT ASPECTS</h3>
-          {exactAspects.map((a, i) => (
-            <AspectCard key={`exact-${i}`} aspect={a} />
-          ))}
-        </div>
-      )}
-
-      {/* Strong aspects */}
-      {strongAspects.length > 0 && (
-        <div className="syn-section">
-          <h3 className="syn-section-title">STRONG ASPECTS</h3>
-          {strongAspects.map((a, i) => (
-            <AspectCard key={`strong-${i}`} aspect={a} />
-          ))}
-        </div>
-      )}
-
-      {/* Overall reading */}
+      {/* Overall reading — ABOVE aspects */}
       {report.overall_reading && (
         <div className="syn-reading">
           <h3 className="syn-reading-title">Overall Reading</h3>
           <div className="syn-reading-text">{report.overall_reading}</div>
         </div>
       )}
+
+      {/* Aspects table — natal style */}
+      <div className="natal-asp">
+        <div className="natal-asp__header">
+          <span className="natal-asp__title">SYNASTRY ASPECTS</span>
+          <label className="cw-toggle-wrap">
+            <span className="cw-toggle-label">Most Impact</span>
+            <div
+              className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}
+              onClick={() => setMostImpact(!mostImpact)}
+            >
+              <div className="cw-toggle-thumb" />
+            </div>
+          </label>
+        </div>
+        {groupedAspects.map((group) => (
+          <div key={group.key} className="cw-transit-group">
+            <div className="cw-transit-group-label">{GROUP_LABELS[group.key]}</div>
+            <div className="cw-transit-list">
+              {group.aspects.map((a, i) => {
+                const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"
+                const aspKey = `${a.person_a_object}_${a.aspect}_${a.person_b_object}_${i}`
+                const clickable = !!a.meaning
+                const isOpen = expanded.has(aspKey)
+                return (
+                  <div
+                    key={aspKey}
+                    className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
+                    style={clickable ? { cursor: "pointer" } : undefined}
+                    onClick={clickable ? () => toggle(aspKey) : undefined}
+                  >
+                    <div className="cw-transit-row">
+                      <span className="cw-transit-left">
+                        <span className="cw-transit-glyphs">
+                          <span className="syn-glyph-a">{OBJECT_GLYPHS[a.person_a_object] ?? ""}</span>
+                          <span className="cw-glyph-aspect">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
+                          <span className="syn-glyph-b">{OBJECT_GLYPHS[a.person_b_object] ?? ""}</span>
+                        </span>
+                        <span className="cw-transit-label">
+                          {a.person_a_object} {a.aspect} {a.person_b_object}
+                        </span>
+                      </span>
+                      <span className="cw-transit-right">
+                        <span className="cw-transit-orb">{a.orb.toFixed(2)}°</span>
+                        <span
+                          className="cw-transit-strength"
+                          style={{ background: `${strengthColor}18`, color: strengthColor }}
+                        >
+                          {a.strength.toUpperCase()}
+                        </span>
+                      </span>
+                    </div>
+
+                    {isOpen && a.meaning ? (
+                      <div className="cw-transit-description">
+                        <p className="cw-transit-meaning">{a.meaning}</p>
+                        {a.keywords?.length ? (
+                          <div className="cw-transit-keywords">
+                            {a.keywords.map((kw, ki) => (
+                              <span key={ki} className="cw-transit-keyword-tag">{kw}</span>
+                            ))}
+                          </div>
+                        ) : null}
+                        {(() => {
+                          const aPos = posMapA.get(a.person_a_object)
+                          const bPos = posMapB.get(a.person_b_object)
+                          if (!aPos && !bPos) return null
+                          return (
+                            <div className="cw-transit-positions">
+                              {aPos ? (
+                                <div className="cw-pos-line">
+                                  <span className="syn-glyph-a" style={{ fontSize: 13 }}>{OBJECT_GLYPHS[a.person_a_object]}</span>
+                                  <span className="cw-pos-name" style={{ color: "#a5b4fc" }}>{a.person_a_object}</span>
+                                  <span className="cw-pos-deg">{aPos.degree}°{String(aPos.minute).padStart(2, "0")}′</span>
+                                  <span className="cw-pos-sign">{SIGN_GLYPHS[aPos.sign] ?? ""} {aPos.sign}</span>
+                                  {aPos.house ? <span className="cw-pos-house">△{aPos.house}</span> : null}
+                                  {aPos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                                </div>
+                              ) : null}
+                              {bPos ? (
+                                <div className="cw-pos-line">
+                                  <span className="syn-glyph-b" style={{ fontSize: 13 }}>{OBJECT_GLYPHS[a.person_b_object]}</span>
+                                  <span className="cw-pos-name" style={{ color: "#f9a8d4" }}>{a.person_b_object}</span>
+                                  <span className="cw-pos-deg">{bPos.degree}°{String(bPos.minute).padStart(2, "0")}′</span>
+                                  <span className="cw-pos-sign">{SIGN_GLYPHS[bPos.sign] ?? ""} {bPos.sign}</span>
+                                  {bPos.house ? <span className="cw-pos-house">△{bPos.house}</span> : null}
+                                  {bPos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })()}
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Footer */}
       <div className="syn-footer">

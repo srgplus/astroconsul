@@ -324,6 +324,15 @@ export type SynastryPersonSummary = {
   natal_summary: Record<string, string> | null
 }
 
+export type SynastryPosition = {
+  id: string
+  sign: string
+  degree: number
+  minute: number
+  house?: number | null
+  retrograde?: boolean
+}
+
 export type SynastryReportResponse = {
   person_a: SynastryPersonSummary
   person_b: SynastryPersonSummary
@@ -333,4 +342,6 @@ export type SynastryReportResponse = {
   exact_count: number
   strong_count?: number
   overall_reading: string | null
+  positions_a?: SynastryPosition[] | null
+  positions_b?: SynastryPosition[] | null
 }
