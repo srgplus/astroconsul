@@ -30,9 +30,9 @@ class SynastryService:
         profile_a = profile_repository.load_profile(profile_a_id)
         profile_b = profile_repository.load_profile(profile_b_id)
 
-        # Load charts
-        chart_a = chart_repository.load_chart(profile_a["chart_id"])
-        chart_b = chart_repository.load_chart(profile_b["chart_id"])
+        # Load charts (load_chart returns (reference, chart_dict) tuple)
+        _, chart_a = chart_repository.load_chart(profile_a["chart_id"])
+        _, chart_b = chart_repository.load_chart(profile_b["chart_id"])
 
         # Extract positions
         a_positions = chart_a.get("natal_positions", [])

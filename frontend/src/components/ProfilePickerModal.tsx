@@ -87,10 +87,10 @@ export default function ProfilePickerModal({ open, onClose, onSelect, profiles, 
   }
 
   return (
-    <div className="picker-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="picker-modal">
-        <div className="picker-header">
-          <h3>Select Profile</h3>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
+        <div className="modal-header modal-header--sticky">
+          <h2>Select Profile</h2>
           <button type="button" className="settings-close" onClick={onClose}>&times;</button>
         </div>
         <div className="picker-search">
