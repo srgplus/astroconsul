@@ -34,22 +34,14 @@ class SynastryService:
         _, chart_a = chart_repository.load_chart(profile_a["chart_id"])
         _, chart_b = chart_repository.load_chart(profile_b["chart_id"])
 
-        # Extract positions
-        a_positions = chart_a.get("natal_positions", [])
-        b_positions = chart_b.get("natal_positions", [])
-        b_angles = {
-            "asc": chart_b.get("asc"),
-            "mc": chart_b.get("mc"),
-        }
-        # Clean None values from angles
-        b_angles = {k: v for k, v in b_angles.items() if v is not None}
+        # Extract positions (filter out unavailable ones with longitude=None)
+        a_positions = [p for p in chart_a.get("natal_positions", []) if p.get("longitude") is not None]
+        b_positions = [p for p in chart_b.get("natal_positions", []) if p.get("longitude") is not None]
+        b_angles_raw = chart_b.get("angles") or {}
+        b_angles = {k: v for k, v in b_angles_raw.items() if k in ("asc", "mc") and v is not None}
 
-        # Also add A's angles as positions for cross-comparison
-        a_angles = {
-            "asc": chart_a.get("asc"),
-            "mc": chart_a.get("mc"),
-        }
-        a_angles = {k: v for k, v in a_angles.items() if v is not None}
+        a_angles_raw = chart_a.get("angles") or {}
+        a_angles = {k: v for k, v in a_angles_raw.items() if k in ("asc", "mc") and v is not None}
 
         # Compute aspects both ways and merge (A→B and B→A with A's angles)
         aspects_a_to_b = compute_synastry_aspects(a_positions, b_positions, b_angles)
