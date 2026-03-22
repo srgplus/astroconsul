@@ -235,13 +235,14 @@ export function App() {
   }, [wheelExpanded])
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
-  // Synastry state
-  const [synastryPartnerId, setSynastryPartnerId] = useState<string | null>(() => localStorage.getItem("synastryPartnerId"))
-  const [synastryPartnerName, setSynastryPartnerName] = useState<string | null>(() => localStorage.getItem("synastryPartnerName"))
-  const [synastryPartnerHandle, setSynastryPartnerHandle] = useState<string | null>(() => localStorage.getItem("synastryPartnerHandle"))
-  const [synastryPartnerNatalSummary, setSynastryPartnerNatalSummary] = useState<Record<string, string> | null>(() => { try { return JSON.parse(localStorage.getItem("synastryPartnerNS") || "null") } catch { return null } })
+  // Synastry state — per-profile (keyed by activeProfileId)
+  const [synastryPartnerId, setSynastryPartnerId] = useState<string | null>(null)
+  const [synastryPartnerName, setSynastryPartnerName] = useState<string | null>(null)
+  const [synastryPartnerHandle, setSynastryPartnerHandle] = useState<string | null>(null)
+  const [synastryPartnerNatalSummary, setSynastryPartnerNatalSummary] = useState<Record<string, string> | null>(null)
   const [synastryReport, setSynastryReport] = useState<SynastryReportResponse | null>(null)
   const [synastryLoading, setSynastryLoading] = useState(false)
+  const synastryPrefetchRef = useRef<AbortController | null>(null)
   const [showProfilePicker, setShowProfilePicker] = useState(false)
   const [mobileView, setMobileView] = useState<"list" | "detail">(() => {
     // On mobile, auto-open detail if we have cached profiles (skip list screen)
@@ -758,7 +759,36 @@ export function App() {
     }
   }, [activeProfileId])
 
+  // --- Synastry: load partner from per-profile localStorage on profile switch ---
+  useEffect(() => {
+    if (!activeProfileId) { setSynastryPartnerId(null); setSynastryPartnerName(null); setSynastryPartnerHandle(null); setSynastryPartnerNatalSummary(null); setSynastryReport(null); return }
+    const pid = localStorage.getItem(`syn_pid_${activeProfileId}`)
+    const pname = localStorage.getItem(`syn_name_${activeProfileId}`)
+    const phandle = localStorage.getItem(`syn_handle_${activeProfileId}`)
+    let pns: Record<string, string> | null = null
+    try { pns = JSON.parse(localStorage.getItem(`syn_ns_${activeProfileId}`) || "null") } catch {}
+    setSynastryPartnerId(pid)
+    setSynastryPartnerName(pname)
+    setSynastryPartnerHandle(phandle)
+    setSynastryPartnerNatalSummary(pns)
+    setSynastryReport(null)
+  }, [activeProfileId])
+
   // --- Synastry handlers ---
+  const handleClearSynastryPartner = useCallback(() => {
+    setSynastryPartnerId(null)
+    setSynastryPartnerName(null)
+    setSynastryPartnerHandle(null)
+    setSynastryPartnerNatalSummary(null)
+    setSynastryReport(null)
+    if (activeProfileId) {
+      localStorage.removeItem(`syn_pid_${activeProfileId}`)
+      localStorage.removeItem(`syn_name_${activeProfileId}`)
+      localStorage.removeItem(`syn_handle_${activeProfileId}`)
+      localStorage.removeItem(`syn_ns_${activeProfileId}`)
+    }
+  }, [activeProfileId])
+
   const handleSelectSynastryPartner = useCallback((profileId: string, name: string, handle: string, natalSummary: Record<string, string> | string | null) => {
     setSynastryPartnerId(profileId)
     setSynastryPartnerName(name)
@@ -767,14 +797,33 @@ export function App() {
     setSynastryPartnerNatalSummary(ns)
     setSynastryReport(null)
     setShowProfilePicker(false)
-    localStorage.setItem("synastryPartnerId", profileId)
-    localStorage.setItem("synastryPartnerName", name)
-    localStorage.setItem("synastryPartnerHandle", handle)
-    try { localStorage.setItem("synastryPartnerNS", JSON.stringify(ns)) } catch {}
-  }, [])
+    if (activeProfileId) {
+      localStorage.setItem(`syn_pid_${activeProfileId}`, profileId)
+      localStorage.setItem(`syn_name_${activeProfileId}`, name)
+      localStorage.setItem(`syn_handle_${activeProfileId}`, handle)
+      try { localStorage.setItem(`syn_ns_${activeProfileId}`, JSON.stringify(ns)) } catch {}
+    }
+    // Prefetch synastry report in the background
+    if (synastryPrefetchRef.current) synastryPrefetchRef.current.abort()
+    if (activeProfileId) {
+      const controller = new AbortController()
+      synastryPrefetchRef.current = controller
+      fetchSynastryReport(activeProfileId, profileId)
+        .then(report => {
+          if (!controller.signal.aborted) setSynastryReport(report)
+        })
+        .catch(err => {
+          if (!controller.signal.aborted) console.error("Synastry prefetch failed:", err)
+        })
+    }
+  }, [activeProfileId])
 
   const handleOpenSynastryReport = useCallback(async () => {
     if (!activeProfileId || !synastryPartnerId) return
+    if (synastryReport) {
+      setExpandedWidget("synastry")
+      return
+    }
     setSynastryLoading(true)
     try {
       const report = await fetchSynastryReport(activeProfileId, synastryPartnerId)
@@ -785,7 +834,7 @@ export function App() {
     } finally {
       setSynastryLoading(false)
     }
-  }, [activeProfileId, synastryPartnerId])
+  }, [activeProfileId, synastryPartnerId, synastryReport])
 
   const natalPositions = activeDetail?.chart.natal_positions ?? []
   const natalAspects = activeDetail?.chart.natal_aspects ?? []
@@ -1393,6 +1442,7 @@ export function App() {
                   partnerHandle={synastryPartnerHandle}
                   partnerNatalSummary={synastryPartnerNatalSummary}
                   onPickPartner={() => setShowProfilePicker(true)}
+                  onClearPartner={handleClearSynastryPartner}
                   onOpenReport={handleOpenSynastryReport}
                   loading={synastryLoading}
                 />

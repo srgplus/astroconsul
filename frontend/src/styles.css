@@ -6069,6 +6069,47 @@ button.natal-pos__row--clickable {
   color: var(--text-tertiary);
 }
 
+.synastry-slot--filled {
+  position: relative;
+  cursor: default;
+}
+
+.synastry-slot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.synastry-clear-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,59,48,0.2);
+  color: #ff3b30;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 0.15s;
+}
+.synastry-clear-btn:hover {
+  background: rgba(255,59,48,0.4);
+}
+
 .synastry-big3 {
   display: flex;
   gap: 4px;

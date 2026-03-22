@@ -12,6 +12,7 @@ type Props = {
   partnerHandle: string | null
   partnerNatalSummary: Record<string, string> | null
   onPickPartner: () => void
+  onClearPartner: () => void
   onOpenReport: () => void
   loading?: boolean
 }
@@ -36,6 +37,7 @@ export default function SynastryWidget({
   partnerHandle,
   partnerNatalSummary,
   onPickPartner,
+  onClearPartner,
   onOpenReport,
   loading,
 }: Props) {
@@ -63,13 +65,16 @@ export default function SynastryWidget({
 
         {/* Person B — partner or placeholder */}
         {hasPartner ? (
-          <button type="button" className="synastry-slot synastry-slot--b synastry-slot--filled" onClick={onPickPartner}>
-            <div className="synastry-avatar synastry-avatar--b">
-              <span className="synastry-avatar-letter">B</span>
-            </div>
-            <div className="synastry-slot-name">{partnerName}</div>
-            <Big3Badges summary={partnerNatalSummary} />
-          </button>
+          <div className="synastry-slot synastry-slot--b synastry-slot--filled">
+            <button type="button" className="synastry-clear-btn" onClick={(e) => { e.stopPropagation(); onClearPartner() }} title="Remove partner">&times;</button>
+            <button type="button" className="synastry-slot-inner" onClick={onPickPartner}>
+              <div className="synastry-avatar synastry-avatar--b">
+                <span className="synastry-avatar-letter">B</span>
+              </div>
+              <div className="synastry-slot-name">{partnerName}</div>
+              <Big3Badges summary={partnerNatalSummary} />
+            </button>
+          </div>
         ) : (
           <button type="button" className="synastry-slot synastry-slot--b synastry-slot--empty" onClick={onPickPartner}>
             <div className="synastry-avatar synastry-avatar--plus">
