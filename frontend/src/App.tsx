@@ -829,8 +829,10 @@ export function App() {
       const report = await fetchSynastryReport(activeProfileId, synastryPartnerId)
       setSynastryReport(report)
       setExpandedWidget("synastry")
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Synastry report failed:", err)
+      const msg = err instanceof Error ? err.message : String(err)
+      alert(`Synastry report error: ${msg}`)
     } finally {
       setSynastryLoading(false)
     }

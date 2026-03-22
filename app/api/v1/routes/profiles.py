@@ -422,3 +422,9 @@ def synastry_report(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (KeyError, TypeError) as exc:
+        logger.exception("Synastry build_report failed for %s × %s", profile_id, payload.partner_profile_id)
+        raise HTTPException(status_code=400, detail=f"Chart data incomplete: {exc}") from exc
+    except Exception as exc:
+        logger.exception("Synastry unexpected error for %s × %s", profile_id, payload.partner_profile_id)
+        raise HTTPException(status_code=500, detail=f"Internal error: {exc}") from exc
