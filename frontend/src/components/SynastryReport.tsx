@@ -187,15 +187,12 @@ export default function SynastryReport({ report }: Props) {
       <div className="natal-asp">
         <div className="natal-asp__header">
           <span className="natal-asp__title">SYNASTRY ASPECTS</span>
-          <label className="cw-toggle-wrap">
+          <button type="button" className="cw-toggle-wrap" onClick={() => setMostImpact(!mostImpact)}>
             <span className="cw-toggle-label">Most Impact</span>
-            <div
-              className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}
-              onClick={() => setMostImpact(!mostImpact)}
-            >
+            <div className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}>
               <div className="cw-toggle-thumb" />
             </div>
-          </label>
+          </button>
         </div>
         {groupedAspects.map((group) => (
           <div key={group.key} className="cw-transit-group">
