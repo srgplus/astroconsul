@@ -1,82 +1,3442 @@
 {
   "Sun_conjunction_Sun": {
-    "en": {"meaning": "Identity fusion. You see yourself in each other — for better and worse. Powerful mutual recognition.", "keywords": ["identity", "recognition"]},
-    "ru": {"meaning": "Слияние идентичностей. Вы видите себя друг в друге — и хорошее, и плохое. Мощное взаимное узнавание.", "keywords": ["идентичность", "узнавание"]}
+    "en": {
+      "meaning": "Identity fusion. You see yourself in each other — for better and worse. Powerful mutual recognition.",
+      "keywords": [
+        "identity",
+        "recognition"
+      ]
+    },
+    "ru": {
+      "meaning": "Слияние идентичностей. Вы видите себя друг в друге — и хорошее, и плохое. Мощное взаимное узнавание.",
+      "keywords": [
+        "идентичность",
+        "узнавание"
+      ]
+    }
   },
   "Sun_conjunction_Moon": {
-    "en": {"meaning": "Classic soulmate indicator. One's core identity lights up the other's emotional world. Natural comfort.", "keywords": ["soulmate", "comfort"]},
-    "ru": {"meaning": "Классический показатель родственных душ. Идентичность одного освещает эмоциональный мир другого.", "keywords": ["родственные души", "комфорт"]}
+    "en": {
+      "meaning": "Classic soulmate indicator. One's core identity lights up the other's emotional world. Natural comfort.",
+      "keywords": [
+        "soulmate",
+        "comfort"
+      ]
+    },
+    "ru": {
+      "meaning": "Классический показатель родственных душ. Идентичность одного освещает эмоциональный мир другого.",
+      "keywords": [
+        "родственные души",
+        "комфорт"
+      ]
+    }
   },
   "Sun_trine_Moon": {
-    "en": {"meaning": "Easy emotional flow between you. One's identity naturally supports the other's feelings. Effortless understanding.", "keywords": ["harmony", "understanding"]},
-    "ru": {"meaning": "Лёгкий эмоциональный поток между вами. Идентичность одного поддерживает чувства другого.", "keywords": ["гармония", "понимание"]}
+    "en": {
+      "meaning": "Easy emotional flow between you. One's identity naturally supports the other's feelings. Effortless understanding.",
+      "keywords": [
+        "harmony",
+        "understanding"
+      ]
+    },
+    "ru": {
+      "meaning": "Лёгкий эмоциональный поток между вами. Идентичность одного поддерживает чувства другого.",
+      "keywords": [
+        "гармония",
+        "понимание"
+      ]
+    }
   },
   "Sun_square_Moon": {
-    "en": {"meaning": "Friction between identity and emotions. You trigger each other — growth through tension.", "keywords": ["friction", "growth"]},
-    "ru": {"meaning": "Трение между идентичностью и эмоциями. Вы провоцируете друг друга — рост через напряжение.", "keywords": ["трение", "рост"]}
+    "en": {
+      "meaning": "Friction between identity and emotions. You trigger each other — growth through tension.",
+      "keywords": [
+        "friction",
+        "growth"
+      ]
+    },
+    "ru": {
+      "meaning": "Трение между идентичностью и эмоциями. Вы провоцируете друг друга — рост через напряжение.",
+      "keywords": [
+        "трение",
+        "рост"
+      ]
+    }
   },
   "Sun_opposition_Moon": {
-    "en": {"meaning": "Magnetic polarity. You complement each other perfectly but see the world from opposite sides.", "keywords": ["polarity", "complement"]},
-    "ru": {"meaning": "Магнитная полярность. Вы дополняете друг друга, но видите мир с противоположных сторон.", "keywords": ["полярность", "дополнение"]}
+    "en": {
+      "meaning": "Magnetic polarity. You complement each other perfectly but see the world from opposite sides.",
+      "keywords": [
+        "polarity",
+        "complement"
+      ]
+    },
+    "ru": {
+      "meaning": "Магнитная полярность. Вы дополняете друг друга, но видите мир с противоположных сторон.",
+      "keywords": [
+        "полярность",
+        "дополнение"
+      ]
+    }
   },
   "Sun_sextile_Moon": {
-    "en": {"meaning": "Gentle support between identity and emotions. Easy to be yourselves around each other.", "keywords": ["support", "ease"]},
-    "ru": {"meaning": "Мягкая поддержка между идентичностью и эмоциями. Легко быть собой рядом друг с другом.", "keywords": ["поддержка", "лёгкость"]}
+    "en": {
+      "meaning": "Gentle support between identity and emotions. Easy to be yourselves around each other.",
+      "keywords": [
+        "support",
+        "ease"
+      ]
+    },
+    "ru": {
+      "meaning": "Мягкая поддержка между идентичностью и эмоциями. Легко быть собой рядом друг с другом.",
+      "keywords": [
+        "поддержка",
+        "лёгкость"
+      ]
+    }
   },
   "Venus_conjunction_Mars": {
-    "en": {"meaning": "The classic sexual chemistry aspect. Magnetic attraction that's hard to ignore. Physical desire is instant.", "keywords": ["chemistry", "desire"]},
-    "ru": {"meaning": "Классический аспект сексуальной химии. Магнетическое притяжение, которое трудно игнорировать.", "keywords": ["химия", "желание"]}
+    "en": {
+      "meaning": "The classic sexual chemistry aspect. Magnetic attraction that's hard to ignore. Physical desire is instant.",
+      "keywords": [
+        "chemistry",
+        "desire"
+      ]
+    },
+    "ru": {
+      "meaning": "Классический аспект сексуальной химии. Магнетическое притяжение, которое трудно игнорировать.",
+      "keywords": [
+        "химия",
+        "желание"
+      ]
+    }
   },
   "Venus_opposition_Moon": {
-    "en": {"meaning": "Deep emotional-romantic pull. The attraction is undeniable, but the love languages need translating.", "keywords": ["emotional pull", "love languages"]},
-    "ru": {"meaning": "Глубокое эмоционально-романтическое притяжение. Притяжение бесспорно, но языки любви нужно переводить.", "keywords": ["притяжение", "языки любви"]}
+    "en": {
+      "meaning": "Deep emotional-romantic pull. The attraction is undeniable, but the love languages need translating.",
+      "keywords": [
+        "emotional pull",
+        "love languages"
+      ]
+    },
+    "ru": {
+      "meaning": "Глубокое эмоционально-романтическое притяжение. Притяжение бесспорно, но языки любви нужно переводить.",
+      "keywords": [
+        "притяжение",
+        "языки любви"
+      ]
+    }
   },
   "Mars_conjunction_Lilith": {
-    "en": {"meaning": "Raw, magnetic physical attraction. Primal chemistry that doesn't need explaining.", "keywords": ["raw chemistry", "magnetic pull"]},
-    "ru": {"meaning": "Сырое магнетическое физическое притяжение. Первобытная химия, не нуждающаяся в объяснениях.", "keywords": ["химия", "магнетизм"]}
+    "en": {
+      "meaning": "Raw, magnetic physical attraction. Primal chemistry that doesn't need explaining.",
+      "keywords": [
+        "raw chemistry",
+        "magnetic pull"
+      ]
+    },
+    "ru": {
+      "meaning": "Сырое магнетическое физическое притяжение. Первобытная химия, не нуждающаяся в объяснениях.",
+      "keywords": [
+        "химия",
+        "магнетизм"
+      ]
+    }
   },
   "Moon_conjunction_Moon": {
-    "en": {"meaning": "Emotional twins. You feel the same things at the same time. Deep instinctive understanding.", "keywords": ["emotional bond", "intuition"]},
-    "ru": {"meaning": "Эмоциональные близнецы. Чувствуете одно и то же одновременно. Глубокое инстинктивное понимание.", "keywords": ["эмоциональная связь", "интуиция"]}
+    "en": {
+      "meaning": "Emotional twins. You feel the same things at the same time. Deep instinctive understanding.",
+      "keywords": [
+        "emotional bond",
+        "intuition"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные близнецы. Чувствуете одно и то же одновременно. Глубокое инстинктивное понимание.",
+      "keywords": [
+        "эмоциональная связь",
+        "интуиция"
+      ]
+    }
   },
   "Mercury_conjunction_Mercury": {
-    "en": {"meaning": "Mental wavelength match. Conversations flow effortlessly, you finish each other's sentences.", "keywords": ["mental sync", "communication"]},
-    "ru": {"meaning": "Совпадение ментальных волн. Разговоры текут легко, вы заканчиваете фразы друг друга.", "keywords": ["ментальная связь", "общение"]}
+    "en": {
+      "meaning": "Mental wavelength match. Conversations flow effortlessly, you finish each other's sentences.",
+      "keywords": [
+        "mental sync",
+        "communication"
+      ]
+    },
+    "ru": {
+      "meaning": "Совпадение ментальных волн. Разговоры текут легко, вы заканчиваете фразы друг друга.",
+      "keywords": [
+        "ментальная связь",
+        "общение"
+      ]
+    }
   },
   "Venus_trine_Venus": {
-    "en": {"meaning": "Natural romantic harmony. You share aesthetic tastes, love languages, and values. Effortless affection.", "keywords": ["romance", "harmony"]},
-    "ru": {"meaning": "Естественная романтическая гармония. Общие вкусы, языки любви и ценности.", "keywords": ["романтика", "гармония"]}
+    "en": {
+      "meaning": "Natural romantic harmony. You share aesthetic tastes, love languages, and values. Effortless affection.",
+      "keywords": [
+        "romance",
+        "harmony"
+      ]
+    },
+    "ru": {
+      "meaning": "Естественная романтическая гармония. Общие вкусы, языки любви и ценности.",
+      "keywords": [
+        "романтика",
+        "гармония"
+      ]
+    }
   },
   "Mars_trine_Mars": {
-    "en": {"meaning": "Your drives and desires align naturally. Great teamwork energy and sexual compatibility.", "keywords": ["drive", "compatibility"]},
-    "ru": {"meaning": "Ваши стремления и желания естественно совпадают. Отличная командная энергия и сексуальная совместимость.", "keywords": ["стремление", "совместимость"]}
+    "en": {
+      "meaning": "Your drives and desires align naturally. Great teamwork energy and sexual compatibility.",
+      "keywords": [
+        "drive",
+        "compatibility"
+      ]
+    },
+    "ru": {
+      "meaning": "Ваши стремления и желания естественно совпадают. Отличная командная энергия и сексуальная совместимость.",
+      "keywords": [
+        "стремление",
+        "совместимость"
+      ]
+    }
   },
   "Saturn_conjunction_Sun": {
-    "en": {"meaning": "Karmic teacher-student dynamic. Saturn grounds Sun but can also restrict. Serious, enduring bond.", "keywords": ["karmic", "structure"]},
-    "ru": {"meaning": "Кармическая динамика учитель-ученик. Сатурн заземляет Солнце, но может и ограничивать.", "keywords": ["карма", "структура"]}
+    "en": {
+      "meaning": "Karmic teacher-student dynamic. Saturn grounds Sun but can also restrict. Serious, enduring bond.",
+      "keywords": [
+        "karmic",
+        "structure"
+      ]
+    },
+    "ru": {
+      "meaning": "Кармическая динамика учитель-ученик. Сатурн заземляет Солнце, но может и ограничивать.",
+      "keywords": [
+        "карма",
+        "структура"
+      ]
+    }
   },
   "Pluto_conjunction_Venus": {
-    "en": {"meaning": "Obsessive, transformative attraction. The deepest, most consuming kind of love. Not casual.", "keywords": ["obsession", "transformation"]},
-    "ru": {"meaning": "Навязчивое, трансформирующее притяжение. Самая глубокая, всепоглощающая любовь.", "keywords": ["одержимость", "трансформация"]}
+    "en": {
+      "meaning": "Obsessive, transformative attraction. The deepest, most consuming kind of love. Not casual.",
+      "keywords": [
+        "obsession",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Навязчивое, трансформирующее притяжение. Самая глубокая, всепоглощающая любовь.",
+      "keywords": [
+        "одержимость",
+        "трансформация"
+      ]
+    }
   },
   "North Node_conjunction_Sun": {
-    "en": {"meaning": "Destined connection. Sun person illuminates Node person's life path. Feels fated.", "keywords": ["destiny", "life path"]},
-    "ru": {"meaning": "Предначертанная связь. Солнце освещает жизненный путь человека Узла. Ощущение судьбы.", "keywords": ["судьба", "жизненный путь"]}
+    "en": {
+      "meaning": "Destined connection. Sun person illuminates Node person's life path. Feels fated.",
+      "keywords": [
+        "destiny",
+        "life path"
+      ]
+    },
+    "ru": {
+      "meaning": "Предначертанная связь. Солнце освещает жизненный путь человека Узла. Ощущение судьбы.",
+      "keywords": [
+        "судьба",
+        "жизненный путь"
+      ]
+    }
   },
   "ASC_conjunction_Mercury": {
-    "en": {"meaning": "Instant mental connection. Thoughts and communication resonate with who you are at the core.", "keywords": ["mental connection", "resonance"]},
-    "ru": {"meaning": "Мгновенная ментальная связь. Мысли и общение резонируют с тем, кто вы есть.", "keywords": ["ментальная связь", "резонанс"]}
+    "en": {
+      "meaning": "Instant mental connection. Thoughts and communication resonate with who you are at the core.",
+      "keywords": [
+        "mental connection",
+        "resonance"
+      ]
+    },
+    "ru": {
+      "meaning": "Мгновенная ментальная связь. Мысли и общение резонируют с тем, кто вы есть.",
+      "keywords": [
+        "ментальная связь",
+        "резонанс"
+      ]
+    }
   },
   "Moon_trine_Venus": {
-    "en": {"meaning": "Emotional tenderness flows naturally. You make each other feel loved and safe without trying.", "keywords": ["tenderness", "safety"]},
-    "ru": {"meaning": "Эмоциональная нежность течёт естественно. Вы даёте друг другу ощущение любви и безопасности.", "keywords": ["нежность", "безопасность"]}
+    "en": {
+      "meaning": "Emotional tenderness flows naturally. You make each other feel loved and safe without trying.",
+      "keywords": [
+        "tenderness",
+        "safety"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная нежность течёт естественно. Вы даёте друг другу ощущение любви и безопасности.",
+      "keywords": [
+        "нежность",
+        "безопасность"
+      ]
+    }
   },
   "Sun_conjunction_Venus": {
-    "en": {"meaning": "Natural admiration and affection. Venus adores Sun's essence, Sun feels valued and beautiful.", "keywords": ["admiration", "affection"]},
-    "ru": {"meaning": "Естественное восхищение и привязанность. Венера обожает суть Солнца, Солнце чувствует себя ценным.", "keywords": ["восхищение", "привязанность"]}
+    "en": {
+      "meaning": "Natural admiration and affection. Venus adores Sun's essence, Sun feels valued and beautiful.",
+      "keywords": [
+        "admiration",
+        "affection"
+      ]
+    },
+    "ru": {
+      "meaning": "Естественное восхищение и привязанность. Венера обожает суть Солнца, Солнце чувствует себя ценным.",
+      "keywords": [
+        "восхищение",
+        "привязанность"
+      ]
+    }
   },
   "Sun_conjunction_Mars": {
-    "en": {"meaning": "Dynamic, energizing connection. You push each other to act. Competitive but stimulating.", "keywords": ["energy", "drive"]},
-    "ru": {"meaning": "Динамичная, энергичная связь. Вы подталкиваете друг друга к действию. Конкуренция, но стимуляция.", "keywords": ["энергия", "драйв"]}
+    "en": {
+      "meaning": "Dynamic, energizing connection. You push each other to act. Competitive but stimulating.",
+      "keywords": [
+        "energy",
+        "drive"
+      ]
+    },
+    "ru": {
+      "meaning": "Динамичная, энергичная связь. Вы подталкиваете друг друга к действию. Конкуренция, но стимуляция.",
+      "keywords": [
+        "энергия",
+        "драйв"
+      ]
+    }
+  },
+  "Sun_trine_Venus": {
+    "en": {
+      "meaning": "Warmth and admiration flow easily. You genuinely enjoy who the other person is.",
+      "keywords": [
+        "warmth",
+        "admiration"
+      ]
+    },
+    "ru": {
+      "meaning": "Тепло и восхищение льются свободно. Вам по-настоящему нравится то, кем является другой.",
+      "keywords": [
+        "тепло",
+        "восхищение"
+      ]
+    }
+  },
+  "Sun_square_Venus": {
+    "en": {
+      "meaning": "Attraction is there but values clash. You want each other yet struggle to agree on what matters.",
+      "keywords": [
+        "tension",
+        "values"
+      ]
+    },
+    "ru": {
+      "meaning": "Притяжение есть, но ценности расходятся. Вы хотите друг друга, но спорите о главном.",
+      "keywords": [
+        "напряжение",
+        "ценности"
+      ]
+    }
+  },
+  "Sun_opposition_Venus": {
+    "en": {
+      "meaning": "Magnetic romantic pull across the axis. What you lack, the other embodies — fascinating and frustrating.",
+      "keywords": [
+        "magnetism",
+        "fascination"
+      ]
+    },
+    "ru": {
+      "meaning": "Магнитное романтическое притяжение. То, чего вам не хватает, воплощает другой — завораживает и раздражает.",
+      "keywords": [
+        "магнетизм",
+        "очарование"
+      ]
+    }
+  },
+  "Sun_sextile_Venus": {
+    "en": {
+      "meaning": "Gentle affection and mutual appreciation. Easy to make each other smile — a sweet, supportive vibe.",
+      "keywords": [
+        "affection",
+        "appreciation"
+      ]
+    },
+    "ru": {
+      "meaning": "Мягкая привязанность и взаимное уважение. Легко дарить друг другу улыбки — тёплая, поддерживающая энергия.",
+      "keywords": [
+        "привязанность",
+        "уважение"
+      ]
+    }
+  },
+  "Sun_trine_Mars": {
+    "en": {
+      "meaning": "Your willpower and desires sync up beautifully. You energize each other without competing.",
+      "keywords": [
+        "synergy",
+        "vitality"
+      ]
+    },
+    "ru": {
+      "meaning": "Ваша воля и желания прекрасно синхронизируются. Вы заряжаете друг друга без соперничества.",
+      "keywords": [
+        "синергия",
+        "энергия"
+      ]
+    }
+  },
+  "Sun_square_Mars": {
+    "en": {
+      "meaning": "Sparks fly — literally. Passionate clashes that can ignite both desire and arguments.",
+      "keywords": [
+        "sparks",
+        "conflict"
+      ]
+    },
+    "ru": {
+      "meaning": "Искры летят — буквально. Страстные столкновения, которые разжигают и желание, и споры.",
+      "keywords": [
+        "искры",
+        "конфликт"
+      ]
+    }
+  },
+  "Sun_opposition_Mars": {
+    "en": {
+      "meaning": "Intense push-pull energy. You challenge each other's ego and drive — thrilling but exhausting.",
+      "keywords": [
+        "challenge",
+        "intensity"
+      ]
+    },
+    "ru": {
+      "meaning": "Интенсивная энергия перетягивания. Вы бросаете вызов эго и воле друг друга — захватывает, но истощает.",
+      "keywords": [
+        "вызов",
+        "интенсивность"
+      ]
+    }
+  },
+  "Sun_sextile_Mars": {
+    "en": {
+      "meaning": "Productive energy between you. You motivate each other to take action without stepping on toes.",
+      "keywords": [
+        "motivation",
+        "action"
+      ]
+    },
+    "ru": {
+      "meaning": "Продуктивная энергия между вами. Вы мотивируете друг друга действовать, не задевая самолюбие.",
+      "keywords": [
+        "мотивация",
+        "действие"
+      ]
+    }
+  },
+  "Sun_conjunction_Mercury": {
+    "en": {
+      "meaning": "Minds light up around each other. Conversation feels like a direct line into who you really are.",
+      "keywords": [
+        "mental bond",
+        "clarity"
+      ]
+    },
+    "ru": {
+      "meaning": "Умы загораются рядом друг с другом. Разговор — как прямая линия к тому, кто вы есть.",
+      "keywords": [
+        "ментальная связь",
+        "ясность"
+      ]
+    }
+  },
+  "Sun_trine_Mercury": {
+    "en": {
+      "meaning": "Words flow and ideas click. You understand each other's thinking without effort.",
+      "keywords": [
+        "understanding",
+        "flow"
+      ]
+    },
+    "ru": {
+      "meaning": "Слова текут, идеи совпадают. Вы понимаете мышление друг друга без усилий.",
+      "keywords": [
+        "понимание",
+        "лёгкость"
+      ]
+    }
+  },
+  "Sun_square_Mercury": {
+    "en": {
+      "meaning": "Miscommunication flares up. Your thoughts and their identity don't always speak the same language.",
+      "keywords": [
+        "miscommunication",
+        "friction"
+      ]
+    },
+    "ru": {
+      "meaning": "Недопонимание вспыхивает регулярно. Ваши мысли и их суть не всегда говорят на одном языке.",
+      "keywords": [
+        "недопонимание",
+        "трение"
+      ]
+    }
+  },
+  "Sun_opposition_Mercury": {
+    "en": {
+      "meaning": "You see each other's blind spots in thinking. Debates are stimulating but can turn personal.",
+      "keywords": [
+        "debate",
+        "perspective"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы видите слепые зоны в мышлении друг друга. Споры стимулируют, но могут стать личными.",
+      "keywords": [
+        "дискуссия",
+        "перспектива"
+      ]
+    }
+  },
+  "Sun_sextile_Mercury": {
+    "en": {
+      "meaning": "Pleasant mental connection. You exchange ideas easily and enjoy each other's take on things.",
+      "keywords": [
+        "exchange",
+        "curiosity"
+      ]
+    },
+    "ru": {
+      "meaning": "Приятная ментальная связь. Вы легко обмениваетесь идеями и цените взгляд друг друга.",
+      "keywords": [
+        "обмен",
+        "любопытство"
+      ]
+    }
+  },
+  "Sun_conjunction_Jupiter": {
+    "en": {
+      "meaning": "Expansive, feel-good energy. Jupiter magnifies Sun's confidence — together you feel unstoppable.",
+      "keywords": [
+        "expansion",
+        "optimism"
+      ]
+    },
+    "ru": {
+      "meaning": "Расширяющая, окрыляющая энергия. Юпитер усиливает уверенность Солнца — вместе вы чувствуете себя непобедимыми.",
+      "keywords": [
+        "расширение",
+        "оптимизм"
+      ]
+    }
+  },
+  "Sun_trine_Jupiter": {
+    "en": {
+      "meaning": "Luck and joy amplify when you're together. A generous, uplifting bond that makes life feel bigger.",
+      "keywords": [
+        "luck",
+        "joy"
+      ]
+    },
+    "ru": {
+      "meaning": "Удача и радость усиливаются, когда вы вместе. Щедрая, вдохновляющая связь, от которой жизнь становится больше.",
+      "keywords": [
+        "удача",
+        "радость"
+      ]
+    }
+  },
+  "Sun_square_Jupiter": {
+    "en": {
+      "meaning": "You hype each other up — sometimes too much. Over-promising and inflated expectations are the risk.",
+      "keywords": [
+        "excess",
+        "overconfidence"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы раздуваете друг друга — иногда чересчур. Завышенные ожидания и избыточные обещания — ваш риск.",
+      "keywords": [
+        "избыток",
+        "самоуверенность"
+      ]
+    }
+  },
+  "Sun_opposition_Jupiter": {
+    "en": {
+      "meaning": "One inspires, the other inflates. Mutual admiration can tip into over-idealization if unchecked.",
+      "keywords": [
+        "idealization",
+        "growth"
+      ]
+    },
+    "ru": {
+      "meaning": "Один вдохновляет, другой преувеличивает. Взаимное восхищение может скатиться в идеализацию.",
+      "keywords": [
+        "идеализация",
+        "рост"
+      ]
+    }
+  },
+  "Sun_sextile_Jupiter": {
+    "en": {
+      "meaning": "Easygoing mutual support. You help each other grow without drama — a quietly lucky aspect.",
+      "keywords": [
+        "support",
+        "growth"
+      ]
+    },
+    "ru": {
+      "meaning": "Спокойная взаимная поддержка. Вы помогаете друг другу расти без драмы — тихо везучий аспект.",
+      "keywords": [
+        "поддержка",
+        "рост"
+      ]
+    }
+  },
+  "Sun_trine_Saturn": {
+    "en": {
+      "meaning": "Mature, stable bond. Saturn gives Sun structure, Sun gives Saturn warmth. Built to last.",
+      "keywords": [
+        "stability",
+        "maturity"
+      ]
+    },
+    "ru": {
+      "meaning": "Зрелая, стабильная связь. Сатурн даёт Солнцу структуру, Солнце даёт Сатурну тепло. Создано навсегда.",
+      "keywords": [
+        "стабильность",
+        "зрелость"
+      ]
+    }
+  },
+  "Sun_square_Saturn": {
+    "en": {
+      "meaning": "Heavy, karmic friction. Saturn criticizes, Sun feels diminished. Growth demands mutual respect.",
+      "keywords": [
+        "restriction",
+        "karma"
+      ]
+    },
+    "ru": {
+      "meaning": "Тяжёлое кармическое трение. Сатурн критикует, Солнце чувствует себя приниженным. Рост требует взаимного уважения.",
+      "keywords": [
+        "ограничение",
+        "карма"
+      ]
+    }
+  },
+  "Sun_opposition_Saturn": {
+    "en": {
+      "meaning": "Authority battles. One feels controlled, the other burdened with responsibility. Respect is the bridge.",
+      "keywords": [
+        "authority",
+        "responsibility"
+      ]
+    },
+    "ru": {
+      "meaning": "Битва за авторитет. Один чувствует контроль, другой — бремя ответственности. Уважение — ваш мост.",
+      "keywords": [
+        "авторитет",
+        "ответственность"
+      ]
+    }
+  },
+  "Sun_sextile_Saturn": {
+    "en": {
+      "meaning": "Constructive teamwork. You hold each other accountable with kindness — a quietly powerful bond.",
+      "keywords": [
+        "accountability",
+        "teamwork"
+      ]
+    },
+    "ru": {
+      "meaning": "Конструктивная командная работа. Вы мягко держите друг друга в ответственности — тихо мощная связь.",
+      "keywords": [
+        "ответственность",
+        "команда"
+      ]
+    }
+  },
+  "Sun_conjunction_Uranus": {
+    "en": {
+      "meaning": "Electric, unpredictable connection. Uranus awakens Sun to new possibilities — never boring, rarely stable.",
+      "keywords": [
+        "awakening",
+        "electric"
+      ]
+    },
+    "ru": {
+      "meaning": "Электрическая, непредсказуемая связь. Уран пробуждает Солнце к новым возможностям — никогда не скучно, редко стабильно.",
+      "keywords": [
+        "пробуждение",
+        "электричество"
+      ]
+    }
+  },
+  "Sun_trine_Uranus": {
+    "en": {
+      "meaning": "Exciting but easy. You inspire each other's individuality without threatening the bond.",
+      "keywords": [
+        "freedom",
+        "inspiration"
+      ]
+    },
+    "ru": {
+      "meaning": "Захватывающе, но легко. Вы вдохновляете индивидуальность друг друга, не угрожая связи.",
+      "keywords": [
+        "свобода",
+        "вдохновение"
+      ]
+    }
+  },
+  "Sun_square_Uranus": {
+    "en": {
+      "meaning": "On-again, off-again energy. Thrilling instability — one craves freedom, the other craves consistency.",
+      "keywords": [
+        "instability",
+        "rebellion"
+      ]
+    },
+    "ru": {
+      "meaning": "Энергия «то вместе, то порознь». Захватывающая нестабильность — один жаждет свободы, другой — постоянства.",
+      "keywords": [
+        "нестабильность",
+        "бунт"
+      ]
+    }
+  },
+  "Sun_opposition_Uranus": {
+    "en": {
+      "meaning": "Fascination meets disruption. The other person shatters your expectations — exhilarating and unnerving.",
+      "keywords": [
+        "disruption",
+        "fascination"
+      ]
+    },
+    "ru": {
+      "meaning": "Очарование встречает разрушение. Другой человек ломает ваши ожидания — восхищает и тревожит.",
+      "keywords": [
+        "разрушение",
+        "очарование"
+      ]
+    }
+  },
+  "Sun_conjunction_Neptune": {
+    "en": {
+      "meaning": "Dreamy, almost psychic bond. Beautiful illusions — make sure the love is real, not just a fantasy.",
+      "keywords": [
+        "dreams",
+        "illusion"
+      ]
+    },
+    "ru": {
+      "meaning": "Мечтательная, почти телепатическая связь. Красивые иллюзии — убедитесь, что любовь реальна, а не фантазия.",
+      "keywords": [
+        "мечты",
+        "иллюзия"
+      ]
+    }
+  },
+  "Sun_trine_Neptune": {
+    "en": {
+      "meaning": "Spiritual harmony. You see the best in each other — creative, compassionate, and gently transcendent.",
+      "keywords": [
+        "spirituality",
+        "compassion"
+      ]
+    },
+    "ru": {
+      "meaning": "Духовная гармония. Вы видите лучшее друг в друге — творчески, сострадательно, возвышенно.",
+      "keywords": [
+        "духовность",
+        "сострадание"
+      ]
+    }
+  },
+  "Sun_square_Neptune": {
+    "en": {
+      "meaning": "Confusion and deception risk. The connection feels magical, but boundaries dissolve too easily.",
+      "keywords": [
+        "confusion",
+        "deception"
+      ]
+    },
+    "ru": {
+      "meaning": "Риск путаницы и обмана. Связь ощущается магической, но границы растворяются слишком легко.",
+      "keywords": [
+        "путаница",
+        "обман"
+      ]
+    }
+  },
+  "Sun_opposition_Neptune": {
+    "en": {
+      "meaning": "One projects, the other absorbs. Romantic fog that can be beautiful or deeply misleading.",
+      "keywords": [
+        "projection",
+        "fog"
+      ]
+    },
+    "ru": {
+      "meaning": "Один проецирует, другой впитывает. Романтический туман — может быть прекрасным или глубоко обманчивым.",
+      "keywords": [
+        "проекция",
+        "туман"
+      ]
+    }
+  },
+  "Sun_conjunction_Pluto": {
+    "en": {
+      "meaning": "Obsessive, soul-deep intensity. Pluto transforms Sun from the inside out. Nothing stays surface here.",
+      "keywords": [
+        "obsession",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Одержимая, глубинная интенсивность. Плутон трансформирует Солнце изнутри. Здесь ничто не остаётся на поверхности.",
+      "keywords": [
+        "одержимость",
+        "трансформация"
+      ]
+    }
+  },
+  "Sun_trine_Pluto": {
+    "en": {
+      "meaning": "Deep empowerment. You transform each other gently — profound trust and quiet intensity.",
+      "keywords": [
+        "empowerment",
+        "depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Глубокое расширение возможностей. Вы мягко трансформируете друг друга — глубокое доверие и тихая интенсивность.",
+      "keywords": [
+        "сила",
+        "глубина"
+      ]
+    }
+  },
+  "Sun_square_Pluto": {
+    "en": {
+      "meaning": "Power struggles are inevitable. One tries to control, the other resists. Transformative if you survive it.",
+      "keywords": [
+        "power",
+        "control"
+      ]
+    },
+    "ru": {
+      "meaning": "Борьба за власть неизбежна. Один пытается контролировать, другой сопротивляется. Трансформирует, если выстоите.",
+      "keywords": [
+        "власть",
+        "контроль"
+      ]
+    }
+  },
+  "Sun_opposition_Pluto": {
+    "en": {
+      "meaning": "Intense gravitational pull. You expose each other's shadows — deeply uncomfortable, deeply healing.",
+      "keywords": [
+        "shadows",
+        "healing"
+      ]
+    },
+    "ru": {
+      "meaning": "Интенсивное гравитационное притяжение. Вы обнажаете тени друг друга — глубоко некомфортно, глубоко целительно.",
+      "keywords": [
+        "тени",
+        "исцеление"
+      ]
+    }
+  },
+  "Moon_conjunction_Mercury": {
+    "en": {
+      "meaning": "Feelings find words easily. You can talk about emotions without it getting awkward — rare and precious.",
+      "keywords": [
+        "emotional talk",
+        "understanding"
+      ]
+    },
+    "ru": {
+      "meaning": "Чувства легко находят слова. Вы говорите об эмоциях без неловкости — редкий и ценный дар.",
+      "keywords": [
+        "эмоциональный разговор",
+        "понимание"
+      ]
+    }
+  },
+  "Moon_trine_Mercury": {
+    "en": {
+      "meaning": "Intuitive communication. You sense what the other means even before they finish the sentence.",
+      "keywords": [
+        "intuition",
+        "communication"
+      ]
+    },
+    "ru": {
+      "meaning": "Интуитивное общение. Вы чувствуете, что имеет в виду другой, ещё до конца фразы.",
+      "keywords": [
+        "интуиция",
+        "общение"
+      ]
+    }
+  },
+  "Moon_square_Mercury": {
+    "en": {
+      "meaning": "Emotions and logic clash. One feels, the other analyzes — misunderstandings need patience to untangle.",
+      "keywords": [
+        "misunderstanding",
+        "patience"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоции и логика сталкиваются. Один чувствует, другой анализирует — недоразумения требуют терпения.",
+      "keywords": [
+        "недоразумение",
+        "терпение"
+      ]
+    }
+  },
+  "Moon_opposition_Mercury": {
+    "en": {
+      "meaning": "Different emotional and mental wavelengths. You learn from the gap, but it takes conscious effort.",
+      "keywords": [
+        "gap",
+        "learning"
+      ]
+    },
+    "ru": {
+      "meaning": "Разные эмоциональные и ментальные волны. Вы учитесь на разнице, но это требует осознанных усилий.",
+      "keywords": [
+        "разрыв",
+        "обучение"
+      ]
+    }
+  },
+  "Moon_sextile_Mercury": {
+    "en": {
+      "meaning": "Easy heart-to-mind connection. Sharing feelings through words comes naturally and feels safe.",
+      "keywords": [
+        "sharing",
+        "safety"
+      ]
+    },
+    "ru": {
+      "meaning": "Лёгкая связь сердца и ума. Делиться чувствами через слова получается естественно и безопасно.",
+      "keywords": [
+        "открытость",
+        "безопасность"
+      ]
+    }
+  },
+  "Moon_conjunction_Venus": {
+    "en": {
+      "meaning": "Pure emotional sweetness. You nurture each other effortlessly — love at its most tender.",
+      "keywords": [
+        "sweetness",
+        "nurture"
+      ]
+    },
+    "ru": {
+      "meaning": "Чистая эмоциональная нежность. Вы заботитесь друг о друге без усилий — любовь в самом нежном виде.",
+      "keywords": [
+        "нежность",
+        "забота"
+      ]
+    }
+  },
+  "Moon_square_Venus": {
+    "en": {
+      "meaning": "Emotional needs and love styles don't align easily. Affection is there but gets lost in translation.",
+      "keywords": [
+        "misalignment",
+        "effort"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные потребности и стили любви не совпадают легко. Нежность есть, но теряется в переводе.",
+      "keywords": [
+        "несовпадение",
+        "усилие"
+      ]
+    }
+  },
+  "Moon_opposition_Venus": {
+    "en": {
+      "meaning": "Romantic tension across the axis. Deeply attracted but your comfort zones and love languages differ.",
+      "keywords": [
+        "tension",
+        "attraction"
+      ]
+    },
+    "ru": {
+      "meaning": "Романтическое напряжение по оси. Глубокое притяжение, но зоны комфорта и языки любви различаются.",
+      "keywords": [
+        "напряжение",
+        "притяжение"
+      ]
+    }
+  },
+  "Moon_sextile_Venus": {
+    "en": {
+      "meaning": "Gentle, pleasant affection. Small gestures of love land perfectly — a quietly beautiful aspect.",
+      "keywords": [
+        "gentleness",
+        "affection"
+      ]
+    },
+    "ru": {
+      "meaning": "Мягкая, приятная привязанность. Маленькие жесты любви попадают точно в цель — тихо прекрасный аспект.",
+      "keywords": [
+        "мягкость",
+        "привязанность"
+      ]
+    }
+  },
+  "Moon_conjunction_Mars": {
+    "en": {
+      "meaning": "Emotionally charged chemistry. Feelings run hot — passionate, reactive, impossible to ignore.",
+      "keywords": [
+        "passion",
+        "intensity"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоционально заряженная химия. Чувства накалены — страсть, реактивность, невозможно игнорировать.",
+      "keywords": [
+        "страсть",
+        "интенсивность"
+      ]
+    }
+  },
+  "Moon_trine_Mars": {
+    "en": {
+      "meaning": "Emotional courage flows easily. You feel safe being bold with each other — passion without the drama.",
+      "keywords": [
+        "courage",
+        "passion"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная смелость течёт легко. Вы чувствуете себя в безопасности, будучи дерзкими — страсть без драмы.",
+      "keywords": [
+        "смелость",
+        "страсть"
+      ]
+    }
+  },
+  "Moon_square_Mars": {
+    "en": {
+      "meaning": "Emotional triggers everywhere. Feelings get inflamed fast — hot chemistry but frequent emotional flare-ups.",
+      "keywords": [
+        "triggers",
+        "volatility"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные триггеры повсюду. Чувства вспыхивают мгновенно — горячая химия, но частые эмоциональные вспышки.",
+      "keywords": [
+        "триггеры",
+        "нестабильность"
+      ]
+    }
+  },
+  "Moon_opposition_Mars": {
+    "en": {
+      "meaning": "Push and pull between heart and desire. One chases, the other retreats — magnetically tense.",
+      "keywords": [
+        "push-pull",
+        "magnetic"
+      ]
+    },
+    "ru": {
+      "meaning": "Перетягивание между сердцем и желанием. Один преследует, другой отступает — магнетически напряжённо.",
+      "keywords": [
+        "перетягивание",
+        "магнетизм"
+      ]
+    }
+  },
+  "Moon_sextile_Mars": {
+    "en": {
+      "meaning": "Warm spark of emotional-physical attraction. You protect and energize each other in equal measure.",
+      "keywords": [
+        "spark",
+        "protection"
+      ]
+    },
+    "ru": {
+      "meaning": "Тёплая искра эмоционально-физического притяжения. Вы защищаете и заряжаете друг друга в равной мере.",
+      "keywords": [
+        "искра",
+        "защита"
+      ]
+    }
+  },
+  "Moon_conjunction_Jupiter": {
+    "en": {
+      "meaning": "Emotional abundance. Being together feels like a warm, generous hug from the universe.",
+      "keywords": [
+        "abundance",
+        "warmth"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональное изобилие. Быть вместе — как тёплые, щедрые объятия вселенной.",
+      "keywords": [
+        "изобилие",
+        "тепло"
+      ]
+    }
+  },
+  "Moon_trine_Jupiter": {
+    "en": {
+      "meaning": "Emotional growth comes naturally. You uplift each other's spirits and expand each other's world.",
+      "keywords": [
+        "uplift",
+        "expansion"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональный рост приходит естественно. Вы поднимаете настроение и расширяете мир друг друга.",
+      "keywords": [
+        "подъём",
+        "расширение"
+      ]
+    }
+  },
+  "Moon_square_Jupiter": {
+    "en": {
+      "meaning": "Emotional overindulgence. You amplify each other's feelings — beautiful but can go overboard fast.",
+      "keywords": [
+        "overindulgence",
+        "excess"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная неумеренность. Вы усиливаете чувства друг друга — прекрасно, но легко перегнуть палку.",
+      "keywords": [
+        "неумеренность",
+        "избыток"
+      ]
+    }
+  },
+  "Moon_opposition_Jupiter": {
+    "en": {
+      "meaning": "Big feelings, big expectations. The emotional connection is generous but needs grounding to stay real.",
+      "keywords": [
+        "expectations",
+        "generosity"
+      ]
+    },
+    "ru": {
+      "meaning": "Большие чувства, большие ожидания. Эмоциональная связь щедра, но нуждается в заземлении.",
+      "keywords": [
+        "ожидания",
+        "щедрость"
+      ]
+    }
+  },
+  "Moon_conjunction_Saturn": {
+    "en": {
+      "meaning": "Heavy emotional bond. Saturn stabilizes but can freeze Moon's feelings. Commitment with a serious tone.",
+      "keywords": [
+        "commitment",
+        "heaviness"
+      ]
+    },
+    "ru": {
+      "meaning": "Тяжёлая эмоциональная связь. Сатурн стабилизирует, но может заморозить чувства Луны. Серьёзные обязательства.",
+      "keywords": [
+        "обязательства",
+        "тяжесть"
+      ]
+    }
+  },
+  "Moon_trine_Saturn": {
+    "en": {
+      "meaning": "Emotionally secure and steady. You trust each other deeply — a quiet foundation that holds.",
+      "keywords": [
+        "trust",
+        "security"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная стабильность и надёжность. Вы глубоко доверяете друг другу — тихий фундамент, который держит.",
+      "keywords": [
+        "доверие",
+        "надёжность"
+      ]
+    }
+  },
+  "Moon_square_Saturn": {
+    "en": {
+      "meaning": "Emotional coldness or distance. Moon feels judged, Saturn feels burdened. Love needs to learn patience.",
+      "keywords": [
+        "coldness",
+        "judgment"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная холодность или дистанция. Луна чувствует осуждение, Сатурн — бремя. Любовь учится терпению.",
+      "keywords": [
+        "холодность",
+        "осуждение"
+      ]
+    }
+  },
+  "Moon_opposition_Saturn": {
+    "en": {
+      "meaning": "Emotional walls between you. One withholds, the other yearns. Breaking through requires real vulnerability.",
+      "keywords": [
+        "walls",
+        "vulnerability"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные стены между вами. Один сдерживается, другой тоскует. Прорыв требует настоящей уязвимости.",
+      "keywords": [
+        "стены",
+        "уязвимость"
+      ]
+    }
+  },
+  "Moon_conjunction_Neptune": {
+    "en": {
+      "meaning": "Psychic, almost telepathic emotional bond. Dreamy and intoxicating — but is it love or just a beautiful mirage?",
+      "keywords": [
+        "psychic bond",
+        "mirage"
+      ]
+    },
+    "ru": {
+      "meaning": "Телепатическая эмоциональная связь. Мечтательно и опьяняюще — но это любовь или просто красивый мираж?",
+      "keywords": [
+        "телепатия",
+        "мираж"
+      ]
+    }
+  },
+  "Moon_trine_Neptune": {
+    "en": {
+      "meaning": "Emotional and spiritual attunement. You heal each other's wounds just by being close. Quietly magical.",
+      "keywords": [
+        "healing",
+        "attunement"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная и духовная настройка. Вы исцеляете раны друг друга просто близостью. Тихо волшебно.",
+      "keywords": [
+        "исцеление",
+        "настройка"
+      ]
+    }
+  },
+  "Moon_square_Neptune": {
+    "en": {
+      "meaning": "Emotional fog and confusion. You idealize what isn't there and miss what is. Reality checks needed.",
+      "keywords": [
+        "fog",
+        "idealization"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональный туман и путаница. Вы идеализируете то, чего нет, и не замечаете того, что есть.",
+      "keywords": [
+        "туман",
+        "идеализация"
+      ]
+    }
+  },
+  "Moon_opposition_Neptune": {
+    "en": {
+      "meaning": "Romantic illusions across the axis. One saves, the other dissolves. Beautiful but dangerously unclear.",
+      "keywords": [
+        "illusion",
+        "dissolution"
+      ]
+    },
+    "ru": {
+      "meaning": "Романтические иллюзии по оси. Один спасает, другой растворяется. Красиво, но опасно неясно.",
+      "keywords": [
+        "иллюзия",
+        "растворение"
+      ]
+    }
+  },
+  "Moon_conjunction_Pluto": {
+    "en": {
+      "meaning": "The deepest emotional bond possible. Obsessive, consuming, transformative — you'll never be the same.",
+      "keywords": [
+        "obsession",
+        "depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Глубочайшая из возможных эмоциональных связей. Одержимость, поглощение, трансформация — вы уже не будете прежними.",
+      "keywords": [
+        "одержимость",
+        "глубина"
+      ]
+    }
+  },
+  "Moon_trine_Pluto": {
+    "en": {
+      "meaning": "Emotional transformation flows gently. Deep trust allows you to explore the darkest corners together.",
+      "keywords": [
+        "trust",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная трансформация течёт мягко. Глубокое доверие позволяет исследовать самые тёмные уголки вместе.",
+      "keywords": [
+        "доверие",
+        "трансформация"
+      ]
+    }
+  },
+  "Moon_square_Pluto": {
+    "en": {
+      "meaning": "Emotional power games. Intense attachment with control issues — love that grips too tight.",
+      "keywords": [
+        "control",
+        "attachment"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные игры за власть. Интенсивная привязанность с проблемами контроля — любовь, которая сжимает слишком сильно.",
+      "keywords": [
+        "контроль",
+        "привязанность"
+      ]
+    }
+  },
+  "Moon_opposition_Pluto": {
+    "en": {
+      "meaning": "Emotional extremes. You expose each other's deepest wounds — either heal together or destroy each other.",
+      "keywords": [
+        "extremes",
+        "wounds"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные крайности. Вы обнажаете глубочайшие раны друг друга — либо исцеляетесь вместе, либо разрушаете друг друга.",
+      "keywords": [
+        "крайности",
+        "раны"
+      ]
+    }
+  },
+  "Moon_conjunction_Uranus": {
+    "en": {
+      "meaning": "Emotionally electric. The connection feels exciting and unpredictable — comfort zone? What comfort zone?",
+      "keywords": [
+        "electric",
+        "unpredictable"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоционально электрическая связь. Захватывающе и непредсказуемо — зона комфорта? Какая зона комфорта?",
+      "keywords": [
+        "электричество",
+        "непредсказуемость"
+      ]
+    }
+  },
+  "Moon_trine_Uranus": {
+    "en": {
+      "meaning": "Emotional freedom without fear. You let each other be weird and wonderful — refreshingly authentic.",
+      "keywords": [
+        "freedom",
+        "authenticity"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная свобода без страха. Вы позволяете друг другу быть странными и прекрасными — освежающе подлинно.",
+      "keywords": [
+        "свобода",
+        "подлинность"
+      ]
+    }
+  },
+  "Moon_square_Uranus": {
+    "en": {
+      "meaning": "Emotional roller coaster. One needs stability, the other needs space — exciting but exhausting.",
+      "keywords": [
+        "instability",
+        "excitement"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные американские горки. Одному нужна стабильность, другому — пространство. Захватывающе, но изматывающе.",
+      "keywords": [
+        "нестабильность",
+        "возбуждение"
+      ]
+    }
+  },
+  "Moon_opposition_Uranus": {
+    "en": {
+      "meaning": "Hot and cold emotional dynamic. Intense closeness followed by sudden distance — hard to relax into.",
+      "keywords": [
+        "hot-cold",
+        "distance"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная динамика «горячо-холодно». Интенсивная близость сменяется внезапной дистанцией — трудно расслабиться.",
+      "keywords": [
+        "горячо-холодно",
+        "дистанция"
+      ]
+    }
+  },
+  "ASC_conjunction_Sun": {
+    "en": {
+      "meaning": "When someone's Ascendant meets your Sun, it's instant recognition — you feel seen in the most effortless way.",
+      "keywords": [
+        "recognition",
+        "visibility"
+      ]
+    },
+    "ru": {
+      "meaning": "Когда чей-то Асцендент встречает ваше Солнце — мгновенное узнавание, вы чувствуете себя увиденными без усилий.",
+      "keywords": [
+        "узнавание",
+        "видимость"
+      ]
+    }
+  },
+  "ASC_trine_Sun": {
+    "en": {
+      "meaning": "A natural glow between you. Your presence energizes each other without competition or ego clashes.",
+      "keywords": [
+        "glow",
+        "ease"
+      ]
+    },
+    "ru": {
+      "meaning": "Естественное сияние между вами. Ваше присутствие заряжает друг друга без конкуренции и столкновения эго.",
+      "keywords": [
+        "сияние",
+        "лёгкость"
+      ]
+    }
+  },
+  "ASC_square_Sun": {
+    "en": {
+      "meaning": "You fascinate each other but there's friction in how you present vs. who you truly are. Growth through tension.",
+      "keywords": [
+        "fascination",
+        "friction"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы очаровываете друг друга, но есть трение между тем, как вы выглядите, и тем, кто вы есть. Рост через напряжение.",
+      "keywords": [
+        "очарование",
+        "трение"
+      ]
+    }
+  },
+  "ASC_opposition_Sun": {
+    "en": {
+      "meaning": "Magnetic mirror energy — you see what you lack in the other. Powerful attraction with a push-pull dynamic.",
+      "keywords": [
+        "mirror",
+        "magnetism"
+      ]
+    },
+    "ru": {
+      "meaning": "Энергия магнитного зеркала — вы видите в другом то, чего вам не хватает. Мощное притяжение с динамикой «тяни-толкай».",
+      "keywords": [
+        "зеркало",
+        "магнетизм"
+      ]
+    }
+  },
+  "ASC_conjunction_Moon": {
+    "en": {
+      "meaning": "Instant emotional comfort. The Moon person feels safe with the Ascendant person from the first meeting.",
+      "keywords": [
+        "comfort",
+        "safety"
+      ]
+    },
+    "ru": {
+      "meaning": "Мгновенный эмоциональный комфорт. Лунный человек чувствует себя в безопасности с первой встречи.",
+      "keywords": [
+        "комфорт",
+        "безопасность"
+      ]
+    }
+  },
+  "ASC_trine_Moon": {
+    "en": {
+      "meaning": "You intuitively understand each other's moods without a word. Emotional attunement that flows naturally.",
+      "keywords": [
+        "intuition",
+        "attunement"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы интуитивно понимаете настроение друг друга без слов. Эмоциональная настройка, текущая естественно.",
+      "keywords": [
+        "интуиция",
+        "настройка"
+      ]
+    }
+  },
+  "ASC_square_Moon": {
+    "en": {
+      "meaning": "Emotional triggers meet outward persona. You stir deep feelings in each other — not always comfortable, but real.",
+      "keywords": [
+        "triggers",
+        "depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные триггеры встречают внешнюю персону. Вы вызываете глубокие чувства друг в друге — не всегда удобно, но по-настоящему.",
+      "keywords": [
+        "триггеры",
+        "глубина"
+      ]
+    }
+  },
+  "ASC_opposition_Moon": {
+    "en": {
+      "meaning": "Strong pull between your public mask and their private heart. You sense each other's vulnerability across the room.",
+      "keywords": [
+        "vulnerability",
+        "pull"
+      ]
+    },
+    "ru": {
+      "meaning": "Сильное притяжение между вашей публичной маской и их внутренним миром. Вы чувствуете уязвимость друг друга на расстоянии.",
+      "keywords": [
+        "уязвимость",
+        "притяжение"
+      ]
+    }
+  },
+  "ASC_conjunction_Venus": {
+    "en": {
+      "meaning": "Love at first sight energy. Venus sees the Ascendant person as their aesthetic ideal. Effortless attraction.",
+      "keywords": [
+        "love at first sight",
+        "beauty"
+      ]
+    },
+    "ru": {
+      "meaning": "Энергия любви с первого взгляда. Венера видит Асцендент как свой эстетический идеал. Притяжение без усилий.",
+      "keywords": [
+        "любовь с первого взгляда",
+        "красота"
+      ]
+    }
+  },
+  "ASC_trine_Venus": {
+    "en": {
+      "meaning": "Natural charm between you. You bring out each other's beauty and grace without even trying.",
+      "keywords": [
+        "charm",
+        "grace"
+      ]
+    },
+    "ru": {
+      "meaning": "Естественное обаяние между вами. Вы раскрываете красоту и грацию друг друга, даже не стараясь.",
+      "keywords": [
+        "обаяние",
+        "грация"
+      ]
+    }
+  },
+  "ASC_square_Venus": {
+    "en": {
+      "meaning": "Attraction with a catch — you want each other but your styles clash. The tension keeps the spark alive.",
+      "keywords": [
+        "tension",
+        "spark"
+      ]
+    },
+    "ru": {
+      "meaning": "Притяжение с подвохом — вы хотите друг друга, но ваши стили сталкиваются. Напряжение поддерживает искру.",
+      "keywords": [
+        "напряжение",
+        "искра"
+      ]
+    }
+  },
+  "ASC_opposition_Venus": {
+    "en": {
+      "meaning": "You embody what the other finds beautiful. A magnetic romantic pull that feels like destiny knocking.",
+      "keywords": [
+        "magnetic romance",
+        "destiny"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы воплощаете то, что другой считает прекрасным. Магнитное романтическое притяжение, похожее на стук судьбы.",
+      "keywords": [
+        "магнетизм",
+        "судьба"
+      ]
+    }
+  },
+  "ASC_conjunction_Mars": {
+    "en": {
+      "meaning": "Electric physical awareness. Mars sees the Ascendant person and wants to act — pursue, protect, or compete.",
+      "keywords": [
+        "electric",
+        "pursuit"
+      ]
+    },
+    "ru": {
+      "meaning": "Электрическое физическое осознание. Марс видит Асцендент и хочет действовать — преследовать, защищать или соревноваться.",
+      "keywords": [
+        "электричество",
+        "преследование"
+      ]
+    }
+  },
+  "ASC_trine_Mars": {
+    "en": {
+      "meaning": "Your energies sync up beautifully. Great for shared activities, workouts, and passionate adventures together.",
+      "keywords": [
+        "synergy",
+        "passion"
+      ]
+    },
+    "ru": {
+      "meaning": "Ваши энергии прекрасно синхронизируются. Отлично для совместных занятий и страстных приключений.",
+      "keywords": [
+        "синергия",
+        "страсть"
+      ]
+    }
+  },
+  "ASC_square_Mars": {
+    "en": {
+      "meaning": "You provoke each other's fire. Arguments spark easily but so does raw attraction. Handle with passion.",
+      "keywords": [
+        "provocation",
+        "fire"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы разжигаете огонь друг в друге. Споры вспыхивают легко, но и сырое притяжение тоже. Обращайтесь со страстью.",
+      "keywords": [
+        "провокация",
+        "огонь"
+      ]
+    }
+  },
+  "ASC_opposition_Mars": {
+    "en": {
+      "meaning": "Intense physical magnetism across the axis. You challenge each other's boldness — exhilarating and exhausting.",
+      "keywords": [
+        "magnetism",
+        "challenge"
+      ]
+    },
+    "ru": {
+      "meaning": "Интенсивный физический магнетизм. Вы бросаете вызов смелости друг друга — захватывающе и изматывающе.",
+      "keywords": [
+        "магнетизм",
+        "вызов"
+      ]
+    }
+  },
+  "MC_conjunction_Sun": {
+    "en": {
+      "meaning": "You illuminate each other's public path. The Sun person naturally boosts the MC person's career and reputation.",
+      "keywords": [
+        "career boost",
+        "visibility"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы освещаете публичный путь друг друга. Солнце естественно усиливает карьеру и репутацию человека MC.",
+      "keywords": [
+        "карьера",
+        "видимость"
+      ]
+    }
+  },
+  "MC_conjunction_Moon": {
+    "en": {
+      "meaning": "Emotional support meets public ambition. The Moon person nurtures the MC person's dreams into reality.",
+      "keywords": [
+        "nurturing ambition",
+        "support"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональная поддержка встречает публичные амбиции. Луна взращивает мечты человека MC в реальность.",
+      "keywords": [
+        "амбиции",
+        "поддержка"
+      ]
+    }
+  },
+  "MC_conjunction_Venus": {
+    "en": {
+      "meaning": "A power couple vibe. Together you look good, feel good, and inspire admiration in the world.",
+      "keywords": [
+        "power couple",
+        "admiration"
+      ]
+    },
+    "ru": {
+      "meaning": "Вайб пары-мечты. Вместе вы хорошо выглядите, хорошо себя чувствуете и вдохновляете восхищение.",
+      "keywords": [
+        "пара-мечта",
+        "восхищение"
+      ]
+    }
+  },
+  "MC_conjunction_Mars": {
+    "en": {
+      "meaning": "Ambitious fire together. Mars drives the MC person to achieve more — a dynamic, goal-crushing duo.",
+      "keywords": [
+        "ambition",
+        "drive"
+      ]
+    },
+    "ru": {
+      "meaning": "Совместный амбициозный огонь. Марс движет MC к большим достижениям — динамичный дуэт, сокрушающий цели.",
+      "keywords": [
+        "амбиции",
+        "драйв"
+      ]
+    }
+  },
+  "North Node_conjunction_Moon": {
+    "en": {
+      "meaning": "The Moon person feels like emotional home on the Node person's life path. A bond that shapes your destiny.",
+      "keywords": [
+        "emotional destiny",
+        "home"
+      ]
+    },
+    "ru": {
+      "meaning": "Луна ощущается как эмоциональный дом на жизненном пути Узла. Связь, формирующая вашу судьбу.",
+      "keywords": [
+        "эмоциональная судьба",
+        "дом"
+      ]
+    }
+  },
+  "North Node_trine_Moon": {
+    "en": {
+      "meaning": "Emotional growth flows easily between you. The Moon person gently guides the Node toward their future self.",
+      "keywords": [
+        "gentle growth",
+        "guidance"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональный рост легко течёт между вами. Луна мягко направляет Узел к его будущему «я».",
+      "keywords": [
+        "мягкий рост",
+        "направление"
+      ]
+    }
+  },
+  "North Node_square_Moon": {
+    "en": {
+      "meaning": "Emotional patterns clash with destiny's call. Uncomfortable but necessary — this bond pushes you to evolve.",
+      "keywords": [
+        "emotional clash",
+        "evolution"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные паттерны сталкиваются с зовом судьбы. Некомфортно, но необходимо — эта связь толкает к эволюции.",
+      "keywords": [
+        "столкновение",
+        "эволюция"
+      ]
+    }
+  },
+  "North Node_opposition_Moon": {
+    "en": {
+      "meaning": "The Moon pulls you back to comfort while the Node demands growth. A tug-of-war between past and future.",
+      "keywords": [
+        "past vs future",
+        "tension"
+      ]
+    },
+    "ru": {
+      "meaning": "Луна тянет вас обратно к комфорту, а Узел требует роста. Перетягивание каната между прошлым и будущим.",
+      "keywords": [
+        "прошлое vs будущее",
+        "напряжение"
+      ]
+    }
+  },
+  "North Node_conjunction_Venus": {
+    "en": {
+      "meaning": "Love that feels written in the stars. Venus sweetens the Node's path — a fated romantic connection.",
+      "keywords": [
+        "fated love",
+        "sweetness"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь, будто написанная звёздами. Венера украшает путь Узла — предначертанная романтическая связь.",
+      "keywords": [
+        "судьбоносная любовь",
+        "сладость"
+      ]
+    }
+  },
+  "North Node_trine_Venus": {
+    "en": {
+      "meaning": "Loving each other comes naturally and aligns with your soul's direction. Romance that supports growth.",
+      "keywords": [
+        "aligned love",
+        "soul growth"
+      ]
+    },
+    "ru": {
+      "meaning": "Любить друг друга естественно и совпадает с направлением вашей души. Романтика, поддерживающая рост.",
+      "keywords": [
+        "созвучная любовь",
+        "рост души"
+      ]
+    }
+  },
+  "North Node_square_Venus": {
+    "en": {
+      "meaning": "Love is the lesson here. Relationships patterns are challenged — you're meant to learn a new way to love.",
+      "keywords": [
+        "love lessons",
+        "challenge"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь — вот урок. Паттерны отношений под вопросом — вы призваны научиться любить по-новому.",
+      "keywords": [
+        "уроки любви",
+        "вызов"
+      ]
+    }
+  },
+  "North Node_conjunction_Mars": {
+    "en": {
+      "meaning": "Mars ignites the Node person's destiny path. Action, courage, and passion push you toward your future.",
+      "keywords": [
+        "destiny fire",
+        "courage"
+      ]
+    },
+    "ru": {
+      "meaning": "Марс зажигает путь судьбы Узла. Действие, смелость и страсть толкают к вашему будущему.",
+      "keywords": [
+        "огонь судьбы",
+        "смелость"
+      ]
+    }
+  },
+  "North Node_square_Mars": {
+    "en": {
+      "meaning": "Your drive conflicts with your destiny. Frustrating but transformative — aggression must become purposeful action.",
+      "keywords": [
+        "drive conflict",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Ваш драйв конфликтует с судьбой. Разочаровывает, но трансформирует — агрессия должна стать целенаправленным действием.",
+      "keywords": [
+        "конфликт драйва",
+        "трансформация"
+      ]
+    }
+  },
+  "North Node_conjunction_Saturn": {
+    "en": {
+      "meaning": "A karmic teacher appears on the destiny path. Saturn provides structure and discipline for the Node's evolution.",
+      "keywords": [
+        "karmic teacher",
+        "discipline"
+      ]
+    },
+    "ru": {
+      "meaning": "Кармический учитель появляется на пути судьбы. Сатурн даёт структуру и дисциплину для эволюции Узла.",
+      "keywords": [
+        "кармический учитель",
+        "дисциплина"
+      ]
+    }
+  },
+  "North Node_square_Saturn": {
+    "en": {
+      "meaning": "Fear and duty block the path forward. This bond demands you confront limitations to unlock your destiny.",
+      "keywords": [
+        "fear",
+        "confrontation"
+      ]
+    },
+    "ru": {
+      "meaning": "Страх и долг блокируют путь вперёд. Эта связь требует столкнуться с ограничениями, чтобы открыть судьбу.",
+      "keywords": [
+        "страх",
+        "столкновение"
+      ]
+    }
+  },
+  "North Node_opposition_Saturn": {
+    "en": {
+      "meaning": "Saturn's weight pulls against the soul's direction. Old structures must crumble for new destiny to emerge.",
+      "keywords": [
+        "old structures",
+        "release"
+      ]
+    },
+    "ru": {
+      "meaning": "Тяжесть Сатурна тянет против направления души. Старые структуры должны рухнуть, чтобы новая судьба проявилась.",
+      "keywords": [
+        "старые структуры",
+        "освобождение"
+      ]
+    }
+  },
+  "North Node_conjunction_Pluto": {
+    "en": {
+      "meaning": "A soul-level power meeting. Pluto transforms the Node person's entire life trajectory. Nothing stays the same.",
+      "keywords": [
+        "soul power",
+        "total transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Встреча силы на уровне души. Плутон трансформирует всю жизненную траекторию Узла. Ничто не остаётся прежним.",
+      "keywords": [
+        "сила души",
+        "полная трансформация"
+      ]
+    }
+  },
+  "Chiron_conjunction_Sun": {
+    "en": {
+      "meaning": "The wounded healer meets the core self. This bond reveals your deepest vulnerabilities — and heals them through love.",
+      "keywords": [
+        "healing",
+        "vulnerability"
+      ]
+    },
+    "ru": {
+      "meaning": "Раненый целитель встречает истинное «я». Эта связь раскрывает глубочайшие уязвимости — и исцеляет их через любовь.",
+      "keywords": [
+        "исцеление",
+        "уязвимость"
+      ]
+    }
+  },
+  "Chiron_square_Sun": {
+    "en": {
+      "meaning": "Old wounds get triggered by the other's presence. Painful but necessary — healing requires facing the shadow.",
+      "keywords": [
+        "wound trigger",
+        "shadow work"
+      ]
+    },
+    "ru": {
+      "meaning": "Старые раны активируются присутствием другого. Болезненно, но необходимо — исцеление требует встречи с тенью.",
+      "keywords": [
+        "триггер ран",
+        "работа с тенью"
+      ]
+    }
+  },
+  "Chiron_opposition_Sun": {
+    "en": {
+      "meaning": "You mirror each other's pain. The Sun illuminates what Chiron has hidden — raw but profoundly healing.",
+      "keywords": [
+        "mirror pain",
+        "illumination"
+      ]
+    },
+    "ru": {
+      "meaning": "Вы отражаете боль друг друга. Солнце освещает то, что Хирон скрывал — сырое, но глубоко исцеляющее.",
+      "keywords": [
+        "отражение боли",
+        "озарение"
+      ]
+    }
+  },
+  "Chiron_conjunction_Moon": {
+    "en": {
+      "meaning": "Emotional wounds surface in this bond. The Moon person's feelings unlock Chiron's deepest healing journey.",
+      "keywords": [
+        "emotional healing",
+        "depth"
+      ]
+    },
+    "ru": {
+      "meaning": "Эмоциональные раны всплывают в этой связи. Чувства Луны запускают глубочайшее целительное путешествие Хирона.",
+      "keywords": [
+        "эмоциональное исцеление",
+        "глубина"
+      ]
+    }
+  },
+  "Chiron_square_Moon": {
+    "en": {
+      "meaning": "Feelings get bruised here. Old emotional patterns collide, forcing both to heal childhood wounds.",
+      "keywords": [
+        "emotional bruise",
+        "inner child"
+      ]
+    },
+    "ru": {
+      "meaning": "Чувства здесь ранятся. Старые эмоциональные паттерны сталкиваются, заставляя обоих исцелять детские раны.",
+      "keywords": [
+        "эмоциональные ушибы",
+        "внутренний ребёнок"
+      ]
+    }
+  },
+  "Chiron_opposition_Moon": {
+    "en": {
+      "meaning": "Your comfort zones are each other's wounds. Tender and painful — this bond teaches compassion through tears.",
+      "keywords": [
+        "compassion",
+        "tenderness"
+      ]
+    },
+    "ru": {
+      "meaning": "Ваши зоны комфорта — раны друг друга. Нежно и больно — эта связь учит состраданию через слёзы.",
+      "keywords": [
+        "сострадание",
+        "нежность"
+      ]
+    }
+  },
+  "Chiron_conjunction_Venus": {
+    "en": {
+      "meaning": "Love itself becomes the medicine. Venus heals Chiron's relationship wounds — or reopens them to finally close right.",
+      "keywords": [
+        "love as medicine",
+        "healing"
+      ]
+    },
+    "ru": {
+      "meaning": "Сама любовь становится лекарством. Венера исцеляет раны Хирона в отношениях — или вскрывает их, чтобы наконец закрыть правильно.",
+      "keywords": [
+        "любовь-лекарство",
+        "исцеление"
+      ]
+    }
+  },
+  "Chiron_square_Venus": {
+    "en": {
+      "meaning": "Love hurts here — but in a way that teaches. Your romantic patterns are challenged to transform.",
+      "keywords": [
+        "love hurts",
+        "pattern breaking"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь здесь ранит — но так, что учит. Ваши романтические паттерны вынуждены трансформироваться.",
+      "keywords": [
+        "любовь ранит",
+        "ломка паттернов"
+      ]
+    }
+  },
+  "Chiron_opposition_Venus": {
+    "en": {
+      "meaning": "What you find beautiful reveals what still hurts. A bittersweet bond that transforms how you experience love.",
+      "keywords": [
+        "bittersweet",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "То, что вы находите прекрасным, раскрывает то, что ещё болит. Горько-сладкая связь, преображающая ваш опыт любви.",
+      "keywords": [
+        "горько-сладкое",
+        "преображение"
+      ]
+    }
+  },
+  "Lilith_conjunction_Sun": {
+    "en": {
+      "meaning": "The wild feminine meets the conscious self. Taboo attraction that brings hidden desires into the light.",
+      "keywords": [
+        "taboo",
+        "hidden desire"
+      ]
+    },
+    "ru": {
+      "meaning": "Дикое женское встречает сознательное «я». Табуированное притяжение, выносящее скрытые желания на свет.",
+      "keywords": [
+        "табу",
+        "скрытые желания"
+      ]
+    }
+  },
+  "Lilith_conjunction_Moon": {
+    "en": {
+      "meaning": "Dark emotional undercurrents. Lilith stirs the Moon's deepest, most primal emotional needs. Intense and raw.",
+      "keywords": [
+        "primal emotions",
+        "intensity"
+      ]
+    },
+    "ru": {
+      "meaning": "Тёмные эмоциональные подводные течения. Лилит пробуждает глубочайшие первобытные эмоциональные потребности Луны.",
+      "keywords": [
+        "первобытные эмоции",
+        "интенсивность"
+      ]
+    }
+  },
+  "Lilith_conjunction_Venus": {
+    "en": {
+      "meaning": "Forbidden fruit energy. The attraction breaks every rule and feels dangerously intoxicating.",
+      "keywords": [
+        "forbidden fruit",
+        "intoxication"
+      ]
+    },
+    "ru": {
+      "meaning": "Энергия запретного плода. Притяжение нарушает все правила и ощущается опасно опьяняющим.",
+      "keywords": [
+        "запретный плод",
+        "опьянение"
+      ]
+    }
+  },
+  "Lilith_square_Mars": {
+    "en": {
+      "meaning": "Sexual tension with a dangerous edge. Power struggles and raw desire clash in equal measure.",
+      "keywords": [
+        "power struggle",
+        "raw desire"
+      ]
+    },
+    "ru": {
+      "meaning": "Сексуальное напряжение с опасной гранью. Борьба за власть и сырое желание сталкиваются в равной мере.",
+      "keywords": [
+        "борьба за власть",
+        "сырое желание"
+      ]
+    }
+  },
+  "Lilith_opposition_Mars": {
+    "en": {
+      "meaning": "The wild and the warrior face off. Explosive attraction that demands authenticity — no games allowed.",
+      "keywords": [
+        "explosive",
+        "authenticity"
+      ]
+    },
+    "ru": {
+      "meaning": "Дикая и воин лицом к лицу. Взрывное притяжение, требующее подлинности — никаких игр.",
+      "keywords": [
+        "взрывное",
+        "подлинность"
+      ]
+    }
+  },
+  "Jupiter_conjunction_Saturn": {
+    "en": {
+      "meaning": "Expansion meets structure. Together you balance big dreams with real plans — a builder's partnership.",
+      "keywords": [
+        "balance",
+        "building"
+      ]
+    },
+    "ru": {
+      "meaning": "Расширение встречает структуру. Вместе вы балансируете большие мечты с реальными планами — партнёрство строителей.",
+      "keywords": [
+        "баланс",
+        "строительство"
+      ]
+    }
+  },
+  "Jupiter_opposition_Saturn": {
+    "en": {
+      "meaning": "One pushes to grow, the other pulls back to reality. Frustrating but incredibly productive when balanced.",
+      "keywords": [
+        "push-pull",
+        "productivity"
+      ]
+    },
+    "ru": {
+      "meaning": "Один толкает к росту, другой тянет к реальности. Разочаровывает, но невероятно продуктивно при балансе.",
+      "keywords": [
+        "тяни-толкай",
+        "продуктивность"
+      ]
+    }
+  },
+  "Jupiter_conjunction_Uranus": {
+    "en": {
+      "meaning": "Lightning in a bottle. Sudden breakthroughs, wild adventures, and a shared hunger for freedom and truth.",
+      "keywords": [
+        "breakthroughs",
+        "freedom"
+      ]
+    },
+    "ru": {
+      "meaning": "Молния в бутылке. Внезапные прорывы, дикие приключения и общая жажда свободы и правды.",
+      "keywords": [
+        "прорывы",
+        "свобода"
+      ]
+    }
+  },
+  "Jupiter_conjunction_Neptune": {
+    "en": {
+      "meaning": "Spiritual dreamers united. Together you access higher realms — but stay grounded or you'll get lost in fantasy.",
+      "keywords": [
+        "spiritual union",
+        "dreams"
+      ]
+    },
+    "ru": {
+      "meaning": "Духовные мечтатели объединяются. Вместе вы получаете доступ к высшим сферам — но оставайтесь на земле, иначе потеряетесь в фантазиях.",
+      "keywords": [
+        "духовный союз",
+        "мечты"
+      ]
+    }
+  },
+  "Jupiter_conjunction_Pluto": {
+    "en": {
+      "meaning": "Power amplified. Together you can move mountains — or become obsessed with control. Use this force wisely.",
+      "keywords": [
+        "power",
+        "amplification"
+      ]
+    },
+    "ru": {
+      "meaning": "Усиленная сила. Вместе вы можете свернуть горы — или стать одержимыми контролем. Используйте эту силу мудро.",
+      "keywords": [
+        "сила",
+        "усиление"
+      ]
+    }
+  },
+  "Saturn_conjunction_Pluto": {
+    "en": {
+      "meaning": "Heavy, transformative bond. Old structures must die for new power to be born. Not for the faint-hearted.",
+      "keywords": [
+        "transformation",
+        "power rebirth"
+      ]
+    },
+    "ru": {
+      "meaning": "Тяжёлая, трансформирующая связь. Старые структуры должны умереть, чтобы родилась новая сила. Не для слабонервных.",
+      "keywords": [
+        "трансформация",
+        "перерождение силы"
+      ]
+    }
+  },
+  "Saturn_square_Pluto": {
+    "en": {
+      "meaning": "Control meets resistance. A grinding friction that forces both to confront power dynamics and let go.",
+      "keywords": [
+        "control",
+        "power struggle"
+      ]
+    },
+    "ru": {
+      "meaning": "Контроль встречает сопротивление. Тяжёлое трение, заставляющее обоих столкнуться с динамикой власти и отпустить.",
+      "keywords": [
+        "контроль",
+        "борьба за власть"
+      ]
+    }
+  },
+  "Saturn_opposition_Pluto": {
+    "en": {
+      "meaning": "Authority clashes with the underworld. A tense standoff that demands total restructuring of power between you.",
+      "keywords": [
+        "authority clash",
+        "restructuring"
+      ]
+    },
+    "ru": {
+      "meaning": "Авторитет сталкивается с подземным миром. Напряжённое противостояние, требующее полной реструктуризации власти между вами.",
+      "keywords": [
+        "столкновение авторитетов",
+        "реструктуризация"
+      ]
+    }
+  },
+  "Venus_conjunction_Venus": {
+    "en": {
+      "meaning": "Mirror love. Same values, same aesthetics, same way of loving. Beautiful but lacks polarity.",
+      "keywords": [
+        "mirror",
+        "values"
+      ]
+    },
+    "ru": {
+      "meaning": "Зеркальная любовь. Одни ценности, эстетика, способ любить. Красиво, но не хватает полярности.",
+      "keywords": [
+        "зеркало",
+        "ценности"
+      ]
+    }
+  },
+  "Venus_square_Venus": {
+    "en": {
+      "meaning": "Different love languages create friction. What one needs, the other struggles to give.",
+      "keywords": [
+        "love languages",
+        "friction"
+      ]
+    },
+    "ru": {
+      "meaning": "Разные языки любви создают трение. То, что нужно одному, другой с трудом может дать.",
+      "keywords": [
+        "языки любви",
+        "трение"
+      ]
+    }
+  },
+  "Venus_opposition_Venus": {
+    "en": {
+      "meaning": "Romantic fascination with your opposite. Different values that attract and eventually challenge.",
+      "keywords": [
+        "fascination",
+        "opposites"
+      ]
+    },
+    "ru": {
+      "meaning": "Романтическое очарование противоположностью. Разные ценности, которые притягивают и в итоге бросают вызов.",
+      "keywords": [
+        "очарование",
+        "противоположности"
+      ]
+    }
+  },
+  "Venus_sextile_Venus": {
+    "en": {
+      "meaning": "Pleasant romantic compatibility. Easy to enjoy life together — shared pleasures.",
+      "keywords": [
+        "compatibility",
+        "pleasure"
+      ]
+    },
+    "ru": {
+      "meaning": "Приятная романтическая совместимость. Легко наслаждаться жизнью вместе.",
+      "keywords": [
+        "совместимость",
+        "удовольствие"
+      ]
+    }
+  },
+  "Venus_trine_Mars": {
+    "en": {
+      "meaning": "Effortless romantic-sexual flow. Desire and affection dance together naturally.",
+      "keywords": [
+        "desire",
+        "dance"
+      ]
+    },
+    "ru": {
+      "meaning": "Лёгкий романтически-сексуальный поток. Желание и нежность танцуют вместе естественно.",
+      "keywords": [
+        "желание",
+        "танец"
+      ]
+    }
+  },
+  "Venus_square_Mars": {
+    "en": {
+      "meaning": "Frustrated desire. Intense attraction with timing and style mismatches. Hot arguments, hotter makeups.",
+      "keywords": [
+        "frustrated desire",
+        "intensity"
+      ]
+    },
+    "ru": {
+      "meaning": "Фрустрированное желание. Интенсивное притяжение с несовпадениями по времени и стилю.",
+      "keywords": [
+        "фрустрация",
+        "интенсивность"
+      ]
+    }
+  },
+  "Venus_opposition_Mars": {
+    "en": {
+      "meaning": "Classic sexual polarity. Irresistible pull between the pursuer and the desired.",
+      "keywords": [
+        "polarity",
+        "irresistible"
+      ]
+    },
+    "ru": {
+      "meaning": "Классическая сексуальная полярность. Неотразимое притяжение между преследователем и желанным.",
+      "keywords": [
+        "полярность",
+        "неотразимость"
+      ]
+    }
+  },
+  "Venus_sextile_Mars": {
+    "en": {
+      "meaning": "Playful flirtation energy. Attraction is there but gentle — romance before passion.",
+      "keywords": [
+        "flirtation",
+        "playful"
+      ]
+    },
+    "ru": {
+      "meaning": "Игривая флиртующая энергия. Притяжение есть, но мягкое — романтика прежде страсти.",
+      "keywords": [
+        "флирт",
+        "игривость"
+      ]
+    }
+  },
+  "Venus_conjunction_Mercury": {
+    "en": {
+      "meaning": "Love through words. Sweet talk that actually means something. Romantic communication.",
+      "keywords": [
+        "sweet talk",
+        "romance"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь через слова. Сладкие речи, которые действительно что-то значат.",
+      "keywords": [
+        "сладкие речи",
+        "романтика"
+      ]
+    }
+  },
+  "Venus_trine_Mercury": {
+    "en": {
+      "meaning": "Charming conversation. You express affection easily and understand each other's love language.",
+      "keywords": [
+        "charm",
+        "expression"
+      ]
+    },
+    "ru": {
+      "meaning": "Очаровательные разговоры. Вы легко выражаете привязанность и понимаете языки любви друг друга.",
+      "keywords": [
+        "очарование",
+        "выражение"
+      ]
+    }
+  },
+  "Venus_square_Mercury": {
+    "en": {
+      "meaning": "Words and feelings misalign. Compliments land wrong, intentions get misread.",
+      "keywords": [
+        "misalignment",
+        "miscommunication"
+      ]
+    },
+    "ru": {
+      "meaning": "Слова и чувства не совпадают. Комплименты не попадают в цель, намерения читаются неверно.",
+      "keywords": [
+        "несовпадение",
+        "недопонимание"
+      ]
+    }
+  },
+  "Venus_opposition_Mercury": {
+    "en": {
+      "meaning": "Intellectual attraction with romantic tension. Flirty debates that can charm or annoy.",
+      "keywords": [
+        "flirty debates",
+        "attraction"
+      ]
+    },
+    "ru": {
+      "meaning": "Интеллектуальное притяжение с романтическим напряжением. Флиртующие споры, которые могут очаровать или раздражать.",
+      "keywords": [
+        "флирт",
+        "споры"
+      ]
+    }
+  },
+  "Venus_conjunction_Jupiter": {
+    "en": {
+      "meaning": "Love feels abundant and generous. Grand romantic gestures and shared joy.",
+      "keywords": [
+        "abundance",
+        "generosity"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь ощущается изобильной и щедрой. Грандиозные романтические жесты и общая радость.",
+      "keywords": [
+        "изобилие",
+        "щедрость"
+      ]
+    }
+  },
+  "Venus_trine_Jupiter": {
+    "en": {
+      "meaning": "One of the luckiest love aspects. Natural grace, generosity, and shared happiness.",
+      "keywords": [
+        "lucky",
+        "happiness"
+      ]
+    },
+    "ru": {
+      "meaning": "Один из самых удачных любовных аспектов. Естественная грация, щедрость и общее счастье.",
+      "keywords": [
+        "удача",
+        "счастье"
+      ]
+    }
+  },
+  "Venus_square_Jupiter": {
+    "en": {
+      "meaning": "Over-indulgent romance. Too much of a good thing — excess sweetness without substance.",
+      "keywords": [
+        "indulgence",
+        "excess"
+      ]
+    },
+    "ru": {
+      "meaning": "Чрезмерно потакающий роман. Слишком много хорошего — избыток сладости без содержания.",
+      "keywords": [
+        "потакание",
+        "избыток"
+      ]
+    }
+  },
+  "Venus_opposition_Jupiter": {
+    "en": {
+      "meaning": "Magnetic romantic expansion. One loves more openly, the other more philosophically.",
+      "keywords": [
+        "expansion",
+        "philosophy"
+      ]
+    },
+    "ru": {
+      "meaning": "Магнетическое романтическое расширение. Один любит более открыто, другой — более философски.",
+      "keywords": [
+        "расширение",
+        "философия"
+      ]
+    }
+  },
+  "Venus_conjunction_Saturn": {
+    "en": {
+      "meaning": "Serious love. Saturn tests Venus's devotion — if it endures, the bond is unbreakable.",
+      "keywords": [
+        "commitment",
+        "test"
+      ]
+    },
+    "ru": {
+      "meaning": "Серьёзная любовь. Сатурн проверяет преданность Венеры — если выдержит, связь нерушима.",
+      "keywords": [
+        "обязательство",
+        "проверка"
+      ]
+    }
+  },
+  "Venus_trine_Saturn": {
+    "en": {
+      "meaning": "Enduring romantic loyalty. Love that ages like fine wine — deepens with time.",
+      "keywords": [
+        "loyalty",
+        "endurance"
+      ]
+    },
+    "ru": {
+      "meaning": "Непоколебимая романтическая верность. Любовь, которая улучшается со временем, как вино.",
+      "keywords": [
+        "верность",
+        "время"
+      ]
+    }
+  },
+  "Venus_square_Saturn": {
+    "en": {
+      "meaning": "Love feels restricted or undeserved. Cold walls around warm feelings. Karmic love lesson.",
+      "keywords": [
+        "restriction",
+        "karmic"
+      ]
+    },
+    "ru": {
+      "meaning": "Любовь ощущается ограниченной или незаслуженной. Холодные стены вокруг тёплых чувств.",
+      "keywords": [
+        "ограничение",
+        "карма"
+      ]
+    }
+  },
+  "Venus_opposition_Saturn": {
+    "en": {
+      "meaning": "Duty and desire in tension. One craves closeness, the other maintains distance.",
+      "keywords": [
+        "duty vs desire",
+        "distance"
+      ]
+    },
+    "ru": {
+      "meaning": "Долг и желание в напряжении. Один жаждет близости, другой держит дистанцию.",
+      "keywords": [
+        "долг vs желание",
+        "дистанция"
+      ]
+    }
+  },
+  "Venus_conjunction_Uranus": {
+    "en": {
+      "meaning": "Love at first sight energy. Electrifying but unstable — freedom-loving romance.",
+      "keywords": [
+        "love at first sight",
+        "electric"
+      ]
+    },
+    "ru": {
+      "meaning": "Энергия любви с первого взгляда. Электризующая, но нестабильная — свободолюбивый роман.",
+      "keywords": [
+        "любовь с первого взгляда",
+        "электричество"
+      ]
+    }
+  },
+  "Venus_trine_Uranus": {
+    "en": {
+      "meaning": "Exciting, unconventional romance. Freedom enhances love rather than threatening it.",
+      "keywords": [
+        "unconventional",
+        "freedom"
+      ]
+    },
+    "ru": {
+      "meaning": "Захватывающий, нетрадиционный роман. Свобода усиливает любовь, а не угрожает ей.",
+      "keywords": [
+        "нетрадиционность",
+        "свобода"
+      ]
+    }
+  },
+  "Venus_square_Uranus": {
+    "en": {
+      "meaning": "On-off romance. Intense attraction disrupted by sudden changes and need for space.",
+      "keywords": [
+        "on-off",
+        "disruption"
+      ]
+    },
+    "ru": {
+      "meaning": "Прерывистый роман. Интенсивное притяжение, прерываемое внезапными переменами и потребностью в пространстве.",
+      "keywords": [
+        "прерывистость",
+        "перемены"
+      ]
+    }
+  },
+  "Venus_opposition_Uranus": {
+    "en": {
+      "meaning": "Magnetic but unreliable attraction. One wants commitment, the other wants excitement.",
+      "keywords": [
+        "unreliable",
+        "excitement"
+      ]
+    },
+    "ru": {
+      "meaning": "Магнетическое, но ненадёжное притяжение. Один хочет обязательств, другой — возбуждения.",
+      "keywords": [
+        "ненадёжность",
+        "возбуждение"
+      ]
+    }
+  },
+  "Venus_conjunction_Neptune": {
+    "en": {
+      "meaning": "Fairy-tale romance. Soul-level love that transcends reality — or just a beautiful illusion.",
+      "keywords": [
+        "fairy tale",
+        "soul love"
+      ]
+    },
+    "ru": {
+      "meaning": "Сказочный роман. Любовь на уровне души, трансцендирующая реальность — или просто красивая иллюзия.",
+      "keywords": [
+        "сказка",
+        "душевная любовь"
+      ]
+    }
+  },
+  "Venus_trine_Neptune": {
+    "en": {
+      "meaning": "Dreamy romantic connection. Art, music, and beauty flow between you. Gentle, poetic love.",
+      "keywords": [
+        "dreamy",
+        "poetic"
+      ]
+    },
+    "ru": {
+      "meaning": "Мечтательная романтическая связь. Искусство, музыка и красота текут между вами. Нежная, поэтичная любовь.",
+      "keywords": [
+        "мечтательность",
+        "поэтичность"
+      ]
+    }
+  },
+  "Venus_square_Neptune": {
+    "en": {
+      "meaning": "Romantic deception or self-deception. Beautiful feelings built on projections rather than truth.",
+      "keywords": [
+        "deception",
+        "projection"
+      ]
+    },
+    "ru": {
+      "meaning": "Романтический обман или самообман. Красивые чувства, построенные на проекциях, а не на правде.",
+      "keywords": [
+        "обман",
+        "проекция"
+      ]
+    }
+  },
+  "Venus_opposition_Neptune": {
+    "en": {
+      "meaning": "Enchanting but disorienting love. One idealizes, the other plays the role — until reality arrives.",
+      "keywords": [
+        "enchantment",
+        "idealization"
+      ]
+    },
+    "ru": {
+      "meaning": "Очаровательная, но дезориентирующая любовь. Один идеализирует, другой играет роль — пока не придёт реальность.",
+      "keywords": [
+        "очарование",
+        "идеализация"
+      ]
+    }
+  },
+  "Venus_trine_Pluto": {
+    "en": {
+      "meaning": "Deep, transformative love flowing easily. Passion and tenderness merge into something profound.",
+      "keywords": [
+        "profound",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Глубокая, трансформирующая любовь, текущая легко. Страсть и нежность сливаются во что-то глубокое.",
+      "keywords": [
+        "глубина",
+        "трансформация"
+      ]
+    }
+  },
+  "Venus_square_Pluto": {
+    "en": {
+      "meaning": "Obsessive love. Jealousy and possessiveness mask a terrifying depth of feeling.",
+      "keywords": [
+        "obsession",
+        "jealousy"
+      ]
+    },
+    "ru": {
+      "meaning": "Навязчивая любовь. Ревность и собственничество маскируют пугающую глубину чувств.",
+      "keywords": [
+        "одержимость",
+        "ревность"
+      ]
+    }
+  },
+  "Venus_opposition_Pluto": {
+    "en": {
+      "meaning": "Magnetically consuming attraction. Love that demands total surrender or nothing at all.",
+      "keywords": [
+        "consuming",
+        "surrender"
+      ]
+    },
+    "ru": {
+      "meaning": "Магнетически поглощающее притяжение. Любовь, требующая полной капитуляции или ничего.",
+      "keywords": [
+        "поглощение",
+        "капитуляция"
+      ]
+    }
+  },
+  "Mars_conjunction_Mars": {
+    "en": {
+      "meaning": "Double fire. Incredible physical energy together — collaboration or collision.",
+      "keywords": [
+        "fire",
+        "collision"
+      ]
+    },
+    "ru": {
+      "meaning": "Двойной огонь. Невероятная физическая энергия вместе — сотрудничество или столкновение.",
+      "keywords": [
+        "огонь",
+        "столкновение"
+      ]
+    }
+  },
+  "Mars_square_Mars": {
+    "en": {
+      "meaning": "Clash of wills. Arguments ignite fast — competitive friction that either strengthens or destroys.",
+      "keywords": [
+        "clash",
+        "competition"
+      ]
+    },
+    "ru": {
+      "meaning": "Столкновение воль. Споры вспыхивают мгновенно — конкурентное трение, которое или укрепляет, или разрушает.",
+      "keywords": [
+        "столкновение",
+        "конкуренция"
+      ]
+    }
+  },
+  "Mars_opposition_Mars": {
+    "en": {
+      "meaning": "Direct confrontation of desires. What one pursues, the other blocks — or mirrors.",
+      "keywords": [
+        "confrontation",
+        "mirror"
+      ]
+    },
+    "ru": {
+      "meaning": "Прямая конфронтация желаний. То, что один преследует, другой блокирует — или зеркалит.",
+      "keywords": [
+        "конфронтация",
+        "зеркало"
+      ]
+    }
+  },
+  "Mars_sextile_Mars": {
+    "en": {
+      "meaning": "Cooperative energy. Your drives support each other without competing.",
+      "keywords": [
+        "cooperation",
+        "support"
+      ]
+    },
+    "ru": {
+      "meaning": "Кооперативная энергия. Ваши стремления поддерживают друг друга без конкуренции.",
+      "keywords": [
+        "кооперация",
+        "поддержка"
+      ]
+    }
+  },
+  "Mars_conjunction_Jupiter": {
+    "en": {
+      "meaning": "Adventure and ambition amplified. Together you dare more and achieve bigger.",
+      "keywords": [
+        "adventure",
+        "ambition"
+      ]
+    },
+    "ru": {
+      "meaning": "Приключение и амбиции усилены. Вместе вы осмеливаетесь на большее и достигаете большего.",
+      "keywords": [
+        "приключение",
+        "амбиции"
+      ]
+    }
+  },
+  "Mars_trine_Jupiter": {
+    "en": {
+      "meaning": "Lucky action. Your combined energy creates opportunities naturally.",
+      "keywords": [
+        "luck",
+        "opportunity"
+      ]
+    },
+    "ru": {
+      "meaning": "Удачное действие. Ваша совместная энергия естественно создаёт возможности.",
+      "keywords": [
+        "удача",
+        "возможности"
+      ]
+    }
+  },
+  "Mars_square_Jupiter": {
+    "en": {
+      "meaning": "Reckless enthusiasm. You egg each other on — exciting but prone to overreach.",
+      "keywords": [
+        "reckless",
+        "overreach"
+      ]
+    },
+    "ru": {
+      "meaning": "Безрассудный энтузиазм. Вы подстрекаете друг друга — захватывающе, но склонно к перебору.",
+      "keywords": [
+        "безрассудство",
+        "перебор"
+      ]
+    }
+  },
+  "Mars_opposition_Jupiter": {
+    "en": {
+      "meaning": "Competing ambitions. One acts, the other philosophizes — inspiring but clashing approaches.",
+      "keywords": [
+        "ambition",
+        "clash"
+      ]
+    },
+    "ru": {
+      "meaning": "Конкурирующие амбиции. Один действует, другой философствует — вдохновляющие, но сталкивающиеся подходы.",
+      "keywords": [
+        "амбиции",
+        "столкновение"
+      ]
+    }
+  },
+  "Mars_conjunction_Saturn": {
+    "en": {
+      "meaning": "Controlled fire. Saturn puts brakes on Mars — frustrating but builds discipline.",
+      "keywords": [
+        "control",
+        "discipline"
+      ]
+    },
+    "ru": {
+      "meaning": "Контролируемый огонь. Сатурн тормозит Марс — фрустрирующе, но строит дисциплину.",
+      "keywords": [
+        "контроль",
+        "дисциплина"
+      ]
+    }
+  },
+  "Mars_trine_Saturn": {
+    "en": {
+      "meaning": "Productive partnership. Drive meets structure — together you build things that last.",
+      "keywords": [
+        "productive",
+        "structure"
+      ]
+    },
+    "ru": {
+      "meaning": "Продуктивное партнёрство. Драйв встречает структуру — вместе вы строите вещи, которые длятся.",
+      "keywords": [
+        "продуктивность",
+        "структура"
+      ]
+    }
+  },
+  "Mars_square_Saturn": {
+    "en": {
+      "meaning": "Blocked energy. Frustration and resentment build when action meets resistance.",
+      "keywords": [
+        "frustration",
+        "blockage"
+      ]
+    },
+    "ru": {
+      "meaning": "Заблокированная энергия. Фрустрация и обида нарастают, когда действие встречает сопротивление.",
+      "keywords": [
+        "фрустрация",
+        "блокировка"
+      ]
+    }
+  },
+  "Mars_opposition_Saturn": {
+    "en": {
+      "meaning": "Action vs. caution. One pushes forward, the other holds back. Tension that either tempers or breaks.",
+      "keywords": [
+        "action vs caution",
+        "tension"
+      ]
+    },
+    "ru": {
+      "meaning": "Действие vs осторожность. Один рвётся вперёд, другой сдерживает. Напряжение, которое или закаляет, или ломает.",
+      "keywords": [
+        "действие vs осторожность",
+        "напряжение"
+      ]
+    }
+  },
+  "Mars_conjunction_Uranus": {
+    "en": {
+      "meaning": "Explosive, unpredictable energy. Sudden attraction with an electric current running through it.",
+      "keywords": [
+        "explosive",
+        "electric"
+      ]
+    },
+    "ru": {
+      "meaning": "Взрывная, непредсказуемая энергия. Внезапное притяжение с электрическим током.",
+      "keywords": [
+        "взрыв",
+        "электричество"
+      ]
+    }
+  },
+  "Mars_trine_Uranus": {
+    "en": {
+      "meaning": "Exciting innovation together. You inspire each other to break rules productively.",
+      "keywords": [
+        "innovation",
+        "rule-breaking"
+      ]
+    },
+    "ru": {
+      "meaning": "Захватывающие инновации вместе. Вы вдохновляете друг друга продуктивно нарушать правила.",
+      "keywords": [
+        "инновации",
+        "нарушение правил"
+      ]
+    }
+  },
+  "Mars_square_Uranus": {
+    "en": {
+      "meaning": "Volatile, accident-prone energy. Sudden conflicts erupt without warning.",
+      "keywords": [
+        "volatile",
+        "sudden"
+      ]
+    },
+    "ru": {
+      "meaning": "Волатильная, аварийная энергия. Внезапные конфликты вспыхивают без предупреждения.",
+      "keywords": [
+        "волатильность",
+        "внезапность"
+      ]
+    }
+  },
+  "Mars_opposition_Uranus": {
+    "en": {
+      "meaning": "Freedom-fighting energy. One provokes the other's rebellion — thrilling but chaotic.",
+      "keywords": [
+        "rebellion",
+        "chaos"
+      ]
+    },
+    "ru": {
+      "meaning": "Борьба за свободу. Один провоцирует бунт другого — захватывающе, но хаотично.",
+      "keywords": [
+        "бунт",
+        "хаос"
+      ]
+    }
+  },
+  "Mars_conjunction_Neptune": {
+    "en": {
+      "meaning": "Desire meets fantasy. Actions driven by dreams — inspired but sometimes directionless.",
+      "keywords": [
+        "fantasy",
+        "inspiration"
+      ]
+    },
+    "ru": {
+      "meaning": "Желание встречает фантазию. Действия, движимые мечтами — вдохновлённые, но иногда бесцельные.",
+      "keywords": [
+        "фантазия",
+        "вдохновение"
+      ]
+    }
+  },
+  "Mars_trine_Neptune": {
+    "en": {
+      "meaning": "Creative passion flows easily. Actions guided by intuition and shared vision.",
+      "keywords": [
+        "creative",
+        "intuition"
+      ]
+    },
+    "ru": {
+      "meaning": "Творческая страсть течёт легко. Действия, направляемые интуицией и общим видением.",
+      "keywords": [
+        "творчество",
+        "интуиция"
+      ]
+    }
+  },
+  "Mars_square_Neptune": {
+    "en": {
+      "meaning": "Misdirected energy. Actions based on illusions — passionate but potentially deceptive.",
+      "keywords": [
+        "misdirection",
+        "deception"
+      ]
+    },
+    "ru": {
+      "meaning": "Неправильно направленная энергия. Действия на основе иллюзий — страстно, но потенциально обманчиво.",
+      "keywords": [
+        "неправильное направление",
+        "обман"
+      ]
+    }
+  },
+  "Mars_opposition_Neptune": {
+    "en": {
+      "meaning": "Desire dissolves in fog. One acts, the other escapes — passive-aggressive dynamics.",
+      "keywords": [
+        "fog",
+        "passive-aggressive"
+      ]
+    },
+    "ru": {
+      "meaning": "Желание растворяется в тумане. Один действует, другой убегает — пассивно-агрессивная динамика.",
+      "keywords": [
+        "туман",
+        "пассивная агрессия"
+      ]
+    }
+  },
+  "Mars_conjunction_Pluto": {
+    "en": {
+      "meaning": "Nuclear-level intensity. Raw power and primal desire — domination or shared transformation.",
+      "keywords": [
+        "nuclear",
+        "primal"
+      ]
+    },
+    "ru": {
+      "meaning": "Ядерная интенсивность. Сырая сила и первобытное желание — доминирование или общая трансформация.",
+      "keywords": [
+        "ядерный",
+        "первобытный"
+      ]
+    }
+  },
+  "Mars_trine_Pluto": {
+    "en": {
+      "meaning": "Empowered action. Together you access deep reserves of willpower and determination.",
+      "keywords": [
+        "willpower",
+        "empowerment"
+      ]
+    },
+    "ru": {
+      "meaning": "Усиленное действие. Вместе вы получаете доступ к глубоким резервам воли и решимости.",
+      "keywords": [
+        "воля",
+        "усиление"
+      ]
+    }
+  },
+  "Mars_square_Pluto": {
+    "en": {
+      "meaning": "Power wars. Control battles that can be destructive or catalyze deep transformation.",
+      "keywords": [
+        "power wars",
+        "destruction"
+      ]
+    },
+    "ru": {
+      "meaning": "Войны за власть. Битвы за контроль, которые могут быть разрушительными или катализировать трансформацию.",
+      "keywords": [
+        "войны за власть",
+        "разрушение"
+      ]
+    }
+  },
+  "Mars_opposition_Pluto": {
+    "en": {
+      "meaning": "Irresistible force meets immovable object. Power dynamics that dominate the relationship.",
+      "keywords": [
+        "irresistible",
+        "immovable"
+      ]
+    },
+    "ru": {
+      "meaning": "Непреодолимая сила встречает неподвижный объект. Динамика власти, доминирующая в отношениях.",
+      "keywords": [
+        "непреодолимость",
+        "неподвижность"
+      ]
+    }
+  },
+  "Mercury_conjunction_Mars": {
+    "en": {
+      "meaning": "Sharp, direct communication. Debates that energize or arguments that cut.",
+      "keywords": [
+        "sharp",
+        "direct"
+      ]
+    },
+    "ru": {
+      "meaning": "Острое, прямое общение. Дебаты, которые энергизируют, или аргументы, которые ранят.",
+      "keywords": [
+        "острота",
+        "прямота"
+      ]
+    }
+  },
+  "Mercury_trine_Mars": {
+    "en": {
+      "meaning": "Ideas turn into action effortlessly. Stimulating conversations that lead somewhere.",
+      "keywords": [
+        "action",
+        "stimulation"
+      ]
+    },
+    "ru": {
+      "meaning": "Идеи превращаются в действия без усилий. Стимулирующие разговоры, ведущие куда-то.",
+      "keywords": [
+        "действие",
+        "стимуляция"
+      ]
+    }
+  },
+  "Mercury_square_Mars": {
+    "en": {
+      "meaning": "Verbal sparring. Words used as weapons — intellectually stimulating but emotionally hurtful.",
+      "keywords": [
+        "sparring",
+        "weapons"
+      ]
+    },
+    "ru": {
+      "meaning": "Словесные спарринги. Слова как оружие — интеллектуально стимулирующе, но эмоционально ранит.",
+      "keywords": [
+        "спарринг",
+        "оружие"
+      ]
+    }
+  },
+  "Mercury_opposition_Mars": {
+    "en": {
+      "meaning": "Heated debates across the table. Different thinking styles that provoke strong reactions.",
+      "keywords": [
+        "heated",
+        "provocation"
+      ]
+    },
+    "ru": {
+      "meaning": "Горячие дебаты через стол. Разные стили мышления, провоцирующие сильные реакции.",
+      "keywords": [
+        "горячность",
+        "провокация"
+      ]
+    }
+  },
+  "Mercury_conjunction_Jupiter": {
+    "en": {
+      "meaning": "Big ideas together. Conversations expand worldviews — inspiring mutual intellectual growth.",
+      "keywords": [
+        "big ideas",
+        "expansion"
+      ]
+    },
+    "ru": {
+      "meaning": "Большие идеи вместе. Разговоры расширяют мировоззрение — вдохновляющий интеллектуальный рост.",
+      "keywords": [
+        "большие идеи",
+        "расширение"
+      ]
+    }
+  },
+  "Mercury_trine_Jupiter": {
+    "en": {
+      "meaning": "Flowing philosophical exchange. You teach each other naturally and see the big picture together.",
+      "keywords": [
+        "philosophy",
+        "teaching"
+      ]
+    },
+    "ru": {
+      "meaning": "Текущий философский обмен. Вы естественно учите друг друга и видите общую картину.",
+      "keywords": [
+        "философия",
+        "обучение"
+      ]
+    }
+  },
+  "Mercury_square_Jupiter": {
+    "en": {
+      "meaning": "Intellectual overreach. Grandiose ideas that lack follow-through — inspiring but impractical.",
+      "keywords": [
+        "overreach",
+        "impractical"
+      ]
+    },
+    "ru": {
+      "meaning": "Интеллектуальный перебор. Грандиозные идеи без доведения до конца — вдохновляюще, но непрактично.",
+      "keywords": [
+        "перебор",
+        "непрактичность"
+      ]
+    }
+  },
+  "Mercury_opposition_Jupiter": {
+    "en": {
+      "meaning": "Mind-expanding tension. Different beliefs that broaden perspective through debate.",
+      "keywords": [
+        "mind-expanding",
+        "debate"
+      ]
+    },
+    "ru": {
+      "meaning": "Расширяющее ум напряжение. Разные убеждения, расширяющие перспективу через дебаты.",
+      "keywords": [
+        "расширение ума",
+        "дебаты"
+      ]
+    }
+  },
+  "Mercury_conjunction_Saturn": {
+    "en": {
+      "meaning": "Serious, structured thinking together. Deep conversations with practical weight.",
+      "keywords": [
+        "serious",
+        "structured"
+      ]
+    },
+    "ru": {
+      "meaning": "Серьёзное, структурированное мышление вместе. Глубокие разговоры с практическим весом.",
+      "keywords": [
+        "серьёзность",
+        "структура"
+      ]
+    }
+  },
+  "Mercury_trine_Saturn": {
+    "en": {
+      "meaning": "Wise communication. Measured words that build trust and mutual respect over time.",
+      "keywords": [
+        "wisdom",
+        "respect"
+      ]
+    },
+    "ru": {
+      "meaning": "Мудрое общение. Взвешенные слова, строящие доверие и уважение со временем.",
+      "keywords": [
+        "мудрость",
+        "уважение"
+      ]
+    }
+  },
+  "Mercury_square_Saturn": {
+    "en": {
+      "meaning": "Communication blocks. One feels intellectually criticized or dismissed by the other.",
+      "keywords": [
+        "blocks",
+        "criticism"
+      ]
+    },
+    "ru": {
+      "meaning": "Коммуникационные блоки. Один чувствует интеллектуальную критику или отвержение от другого.",
+      "keywords": [
+        "блоки",
+        "критика"
+      ]
+    }
+  },
+  "Mercury_conjunction_Neptune": {
+    "en": {
+      "meaning": "Telepathic communication. You understand each other intuitively but may mishear details.",
+      "keywords": [
+        "telepathic",
+        "intuitive"
+      ]
+    },
+    "ru": {
+      "meaning": "Телепатическое общение. Вы понимаете друг друга интуитивно, но можете упускать детали.",
+      "keywords": [
+        "телепатия",
+        "интуиция"
+      ]
+    }
+  },
+  "Mercury_trine_Neptune": {
+    "en": {
+      "meaning": "Creative, imaginative conversations. Poetry flows between your minds.",
+      "keywords": [
+        "creative",
+        "poetry"
+      ]
+    },
+    "ru": {
+      "meaning": "Творческие, образные разговоры. Поэзия течёт между вашими умами.",
+      "keywords": [
+        "творчество",
+        "поэзия"
+      ]
+    }
+  },
+  "Mercury_square_Neptune": {
+    "en": {
+      "meaning": "Miscommunication and confusion. What's said and what's heard rarely match.",
+      "keywords": [
+        "confusion",
+        "miscommunication"
+      ]
+    },
+    "ru": {
+      "meaning": "Недопонимание и путаница. То, что сказано, и то, что услышано, редко совпадают.",
+      "keywords": [
+        "путаница",
+        "недопонимание"
+      ]
+    }
+  },
+  "Mercury_conjunction_Pluto": {
+    "en": {
+      "meaning": "Mind-probing conversations. Nothing stays surface — you dig into each other's psychological depths.",
+      "keywords": [
+        "probing",
+        "psychological"
+      ]
+    },
+    "ru": {
+      "meaning": "Глубинные разговоры. Ничто не остаётся на поверхности — вы копаете психологические глубины друг друга.",
+      "keywords": [
+        "глубина",
+        "психология"
+      ]
+    }
+  },
+  "Mercury_trine_Pluto": {
+    "en": {
+      "meaning": "Powerful shared insights. Conversations that transform the way you both think.",
+      "keywords": [
+        "insights",
+        "transformation"
+      ]
+    },
+    "ru": {
+      "meaning": "Мощные совместные прозрения. Разговоры, трансформирующие образ мышления обоих.",
+      "keywords": [
+        "прозрения",
+        "трансформация"
+      ]
+    }
+  },
+  "Mercury_square_Pluto": {
+    "en": {
+      "meaning": "Mental power struggles. One tries to control the narrative — manipulative undercurrents.",
+      "keywords": [
+        "control",
+        "manipulation"
+      ]
+    },
+    "ru": {
+      "meaning": "Ментальная борьба за власть. Один пытается контролировать нарратив — манипулятивные подводные течения.",
+      "keywords": [
+        "контроль",
+        "манипуляция"
+      ]
+    }
   }
 }
