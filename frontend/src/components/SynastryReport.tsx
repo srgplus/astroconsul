@@ -25,6 +25,13 @@ const STRENGTH_COLORS: Record<string, string> = {
   wide: "#8E8E93",
 }
 
+const PLANET_ORDER: string[] = [
+  "Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC",
+  "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+  "Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex",
+]
+const PLANET_RANK = new Map(PLANET_ORDER.map((id, i) => [id, i]))
+
 const PERSONAL_IDS = new Set(["Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC"])
 const OUTER_IDS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"])
 
@@ -120,19 +127,29 @@ export default function SynastryReport({ report }: Props) {
   const posMapA = new Map((report.positions_a ?? []).map((p: SynastryPosition) => [p.id, p]))
   const posMapB = new Map((report.positions_b ?? []).map((p: SynastryPosition) => [p.id, p]))
 
-  // Filter & sort
+  // Filter
   const filtered = mostImpact
     ? aspects.filter((a) => a.strength === "exact" || a.strength === "strong")
     : aspects
-  const sorted = [...filtered].sort((a, b) => a.orb - b.orb)
 
   // Group by category
   const groupOrder = ["personal", "outer", "special"]
   const groups: Record<string, SynastryAspect[]> = {}
-  for (const a of sorted) {
+  for (const a of filtered) {
     const cat = categorizeAspect(a)
     if (!groups[cat]) groups[cat] = []
     groups[cat].push(a)
+  }
+  // Sort within each group by planet order (like natal), then by orb
+  for (const key of groupOrder) {
+    if (groups[key]) {
+      groups[key].sort((a, b) => {
+        const ra = PLANET_RANK.get(a.person_a_object) ?? 99
+        const rb = PLANET_RANK.get(b.person_a_object) ?? 99
+        if (ra !== rb) return ra - rb
+        return a.orb - b.orb
+      })
+    }
   }
   const groupedAspects = groupOrder
     .filter((key) => groups[key]?.length)
