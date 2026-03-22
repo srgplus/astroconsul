@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
 from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.exc import IntegrityError
+
+logger = logging.getLogger(__name__)
 
 from app.api.auth import get_current_user
 from app.data.natal_lookup import (
@@ -208,6 +212,9 @@ def create_profile(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except IntegrityError as exc:
+        logger.error("Profile creation failed (IntegrityError): %s", exc)
+        raise HTTPException(status_code=409, detail="Profile could not be created — possible duplicate or constraint violation.") from exc
 
 
 @router.get("/{profile_id}", response_model=ProfileDetailResponse)
@@ -283,6 +290,9 @@ def update_profile(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except IntegrityError as exc:
+        logger.error("Profile update failed (IntegrityError): %s", exc)
+        raise HTTPException(status_code=409, detail="Profile could not be updated — possible duplicate or constraint violation.") from exc
 
 
 @router.post("/{profile_id}/transits/report", response_model=TransitReportResponse)

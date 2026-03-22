@@ -69,7 +69,12 @@ async function json<T>(response: Response): Promise<T> {
         await supabase.auth.signOut()
       }
     }
-    throw new Error(`${response.status} ${response.statusText}`)
+    let detail = response.statusText
+    try {
+      const body = await response.json()
+      if (body.detail) detail = body.detail
+    } catch { /* not JSON */ }
+    throw new Error(detail)
   }
   return response.json() as Promise<T>
 }

@@ -354,7 +354,11 @@ class SqlAlchemyProfileRepository:
         updated_at: str | None = None,
     ) -> dict[str, Any]:
         with self.session_factory() as session:
-            ensure_default_user(session, self.settings)
+            resolved_user_id = user_id or self.settings.default_user_id
+            if user_id:
+                ensure_user(session, user_id)
+            else:
+                ensure_default_user(session, self.settings)
             normalized_username = self._ensure_username_available(session, username)
             chart_payload = self._load_chart_payload(chart_id)
             payload = self._profile_input_defaults(profile_input, chart_payload)
@@ -364,7 +368,6 @@ class SqlAlchemyProfileRepository:
             updated_timestamp = (
                 datetime.fromisoformat(updated_at.replace("Z", "+00:00")) if updated_at is not None else timestamp
             )
-            resolved_user_id = user_id or self.settings.default_user_id
             profile = ProfileModel(
                 id=profile_id
                 or f"profile_{hashlib.sha256(f'{normalized_username}:{timestamp}'.encode()).hexdigest()[:32]}",
