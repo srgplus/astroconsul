@@ -21,11 +21,13 @@ from app.api.dependencies import (
     get_location_lookup_service,
     get_profile_service,
     get_repositories,
+    get_synastry_service,
     get_transit_service,
 )
 from app.application.services.chart_service import ChartService
 from app.application.services.location_lookup_service import LocationLookupService
 from app.application.services.profile_service import ProfileService
+from app.application.services.synastry_service import SynastryService
 from app.application.services.transit_service import TransitService
 from app.domain.astrology.locations import LocationResolutionError, resolve_location_name
 from app.infrastructure.repositories.factory import RepositoryBundle
@@ -33,6 +35,7 @@ from app.schemas.requests import (
     ForecastRequest,
     NatalProfileUpsertRequest,
     ProfileTransitReportRequest,
+    SynastryReportRequest,
     TransitReportRequest,
     TransitTimelineRequest,
 )
@@ -41,6 +44,7 @@ from app.schemas.responses import (
     ProfileDetailResponse,
     ProfileListResponse,
     PublicProfileSearchResponse,
+    SynastryReportResponse,
     TransitReportResponse,
     TransitTimelineResponse,
 )
@@ -378,6 +382,42 @@ def profile_transit_forecast(
     )
     try:
         return transit_service.build_forecast(request, profile_repository=repos.profiles)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{profile_id}/synastry", response_model=SynastryReportResponse)
+def synastry_report(
+    profile_id: str,
+    payload: SynastryReportRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+    synastry_service: SynastryService = Depends(get_synastry_service),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, object]:
+    """Compute synastry (inter-chart compatibility) between two profiles."""
+    # Verify access to profile A
+    profile_a = repos.profiles.load_profile(profile_id)
+    owner_a = profile_a.get("user_id", "user_local_dev")
+    user_id = user["user_id"]
+    if owner_a != user_id and not repos.profiles.is_following(user_id, profile_id):
+        raise HTTPException(status_code=403, detail="Not your profile")
+
+    # Verify partner profile exists
+    try:
+        repos.profiles.load_profile(payload.partner_profile_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Partner profile not found") from exc
+
+    try:
+        return synastry_service.build_report(
+            profile_id,
+            payload.partner_profile_id,
+            lang=payload.lang,
+            profile_repository=repos.profiles,
+            chart_repository=repos.charts,
+        )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:

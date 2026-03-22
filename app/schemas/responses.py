@@ -146,6 +146,58 @@ class TransitTimelineResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Synastry
+# ---------------------------------------------------------------------------
+
+
+class SynastryScores(BaseModel):
+    overall: int
+    overall_label: str
+    emotional: int
+    mental: int
+    physical: int
+    karmic: int
+
+
+class SynastryAspectResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    person_a_object: str
+    person_b_object: str
+    aspect: str
+    exact_angle: int | None = None
+    delta: float | None = None
+    orb: float
+    strength: str
+    meaning: str | None = None
+    keywords: list[str] | None = None
+
+
+class SynastryPersonSummary(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    name: str
+    handle: str
+    profile_id: str
+    natal_summary: Any = None
+
+
+class SynastryReportResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    person_a: SynastryPersonSummary
+    person_b: SynastryPersonSummary
+    scores: SynastryScores
+    aspects: list[SynastryAspectResponse]
+    aspect_count: int
+    exact_count: int
+    strong_count: int | None = None
+    overall_reading: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Forecast
+# ---------------------------------------------------------------------------
+
+
 class DailyForecastItem(BaseModel):
     model_config = ConfigDict(extra="allow")
     date: str

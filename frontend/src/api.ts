@@ -8,6 +8,7 @@ import type {
   TransitTimelineResponse,
   PublicSearchResult,
   ForecastResponse,
+  SynastryReportResponse,
 } from "./types"
 import { supabase } from "./lib/supabase"
 
@@ -291,6 +292,23 @@ export async function acceptInvite(
     method: "POST",
     headers: auth,
   }).then(json<{ status: string; profile_id: string; profile_name: string }>)
+}
+
+// --- Synastry ---
+
+export async function fetchSynastryReport(
+  profileId: string,
+  partnerProfileId: string,
+  signal?: AbortSignal,
+): Promise<SynastryReportResponse> {
+  const auth = await getAuthHeaders()
+  const lang = localStorage.getItem("lang") || "en"
+  return fetch(`/api/v1/profiles/${encodeURIComponent(profileId)}/synastry`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ partner_profile_id: partnerProfileId, lang }),
+    signal,
+  }).then(json<SynastryReportResponse>)
 }
 
 // --- Public (no-auth) endpoints ---

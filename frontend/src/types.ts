@@ -293,3 +293,44 @@ export type DailyForecastItem = {
 export type ForecastResponse = {
   days: DailyForecastItem[]
 }
+
+// --- Synastry ---
+
+export type SynastryScores = {
+  overall: number
+  overall_label: string
+  emotional: number
+  mental: number
+  physical: number
+  karmic: number
+}
+
+export type SynastryAspect = {
+  person_a_object: string
+  person_b_object: string
+  aspect: string
+  exact_angle?: number
+  delta?: number
+  orb: number
+  strength: string
+  meaning: string | null
+  keywords: string[] | null
+}
+
+export type SynastryPersonSummary = {
+  name: string
+  handle: string
+  profile_id: string
+  natal_summary: Record<string, string> | null
+}
+
+export type SynastryReportResponse = {
+  person_a: SynastryPersonSummary
+  person_b: SynastryPersonSummary
+  scores: SynastryScores
+  aspects: SynastryAspect[]
+  aspect_count: number
+  exact_count: number
+  strong_count?: number
+  overall_reading: string | null
+}

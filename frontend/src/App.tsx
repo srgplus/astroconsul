@@ -4,7 +4,7 @@ import { useLanguage } from "./contexts/LanguageContext"
 import AuthScreen from "./components/AuthScreen"
 import B3Logo from "./components/B3Logo"
 import { LandingPage } from "./components/LandingPage"
-import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, searchPublicProfiles, followProfile, unfollowProfile, setPrimaryProfile } from "./api"
+import { fetchHealth, fetchProfiles, fetchProfileDetail, fetchTransitReport, fetchSynastryReport, searchPublicProfiles, followProfile, unfollowProfile, setPrimaryProfile } from "./api"
 import { ProfileList, type ProfileTiiData } from "./components/ProfileList"
 import { ProfileSummaryCard, NatalPositionsTable, NatalAspectsTable } from "./components/ProfileDetail"
 import { DailyWeather, ActiveTransitsWidget, CosmicClimateWidget, MoonPhaseWidget } from "./components/DailyWeather"
@@ -17,7 +17,10 @@ import { NatalZodiacRing } from "./components/NatalZodiacRing"
 import { SettingsModal } from "./components/SettingsModal"
 import { InviteAcceptPage } from "./components/InviteAcceptPage"
 import { InviteModal } from "./components/InviteModal"
-import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, NatalPosition, PublicSearchResult } from "./types"
+import SynastryWidget from "./components/SynastryWidget"
+import ProfilePickerModal from "./components/ProfilePickerModal"
+import SynastryReport from "./components/SynastryReport"
+import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, SynastryReportResponse, NatalPosition, PublicSearchResult } from "./types"
 
 const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
@@ -44,7 +47,7 @@ function coerceNumber(value: number | string | null | undefined): number | null 
 }
 
 type Theme = "system" | "light" | "dark"
-type ExpandedWidget = null | "summary" | "planets" | "aspects" | "transits"
+type ExpandedWidget = null | "summary" | "planets" | "aspects" | "transits" | "synastry"
 
 function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem("theme") as Theme) || "system")
@@ -232,6 +235,14 @@ export function App() {
   }, [wheelExpanded])
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
+  // Synastry state
+  const [synastryPartnerId, setSynastryPartnerId] = useState<string | null>(() => localStorage.getItem("synastryPartnerId"))
+  const [synastryPartnerName, setSynastryPartnerName] = useState<string | null>(() => localStorage.getItem("synastryPartnerName"))
+  const [synastryPartnerHandle, setSynastryPartnerHandle] = useState<string | null>(() => localStorage.getItem("synastryPartnerHandle"))
+  const [synastryPartnerNatalSummary, setSynastryPartnerNatalSummary] = useState<Record<string, string> | null>(() => { try { return JSON.parse(localStorage.getItem("synastryPartnerNS") || "null") } catch { return null } })
+  const [synastryReport, setSynastryReport] = useState<SynastryReportResponse | null>(null)
+  const [synastryLoading, setSynastryLoading] = useState(false)
+  const [showProfilePicker, setShowProfilePicker] = useState(false)
   const [mobileView, setMobileView] = useState<"list" | "detail">(() => {
     // On mobile, auto-open detail if we have cached profiles (skip list screen)
     try {
@@ -746,6 +757,35 @@ export function App() {
       // silent
     }
   }, [activeProfileId])
+
+  // --- Synastry handlers ---
+  const handleSelectSynastryPartner = useCallback((profileId: string, name: string, handle: string, natalSummary: Record<string, string> | string | null) => {
+    setSynastryPartnerId(profileId)
+    setSynastryPartnerName(name)
+    setSynastryPartnerHandle(handle)
+    const ns = (natalSummary && typeof natalSummary === "object") ? natalSummary as Record<string, string> : null
+    setSynastryPartnerNatalSummary(ns)
+    setSynastryReport(null)
+    setShowProfilePicker(false)
+    localStorage.setItem("synastryPartnerId", profileId)
+    localStorage.setItem("synastryPartnerName", name)
+    localStorage.setItem("synastryPartnerHandle", handle)
+    try { localStorage.setItem("synastryPartnerNS", JSON.stringify(ns)) } catch {}
+  }, [])
+
+  const handleOpenSynastryReport = useCallback(async () => {
+    if (!activeProfileId || !synastryPartnerId) return
+    setSynastryLoading(true)
+    try {
+      const report = await fetchSynastryReport(activeProfileId, synastryPartnerId)
+      setSynastryReport(report)
+      setExpandedWidget("synastry")
+    } catch (err) {
+      console.error("Synastry report failed:", err)
+    } finally {
+      setSynastryLoading(false)
+    }
+  }, [activeProfileId, synastryPartnerId])
 
   const natalPositions = activeDetail?.chart.natal_positions ?? []
   const natalAspects = activeDetail?.chart.natal_aspects ?? []
@@ -1345,6 +1385,18 @@ export function App() {
               ) : activeProfileId ? (
                 <SkeletonWheel />
               ) : null}
+              {/* Synastry widget */}
+              {activeDetail && profiles.some((p) => p.profile_id === activeProfileId) ? (
+                <SynastryWidget
+                  activeDetail={activeDetail}
+                  partnerName={synastryPartnerName}
+                  partnerHandle={synastryPartnerHandle}
+                  partnerNatalSummary={synastryPartnerNatalSummary}
+                  onPickPartner={() => setShowProfilePicker(true)}
+                  onOpenReport={handleOpenSynastryReport}
+                  loading={synastryLoading}
+                />
+              ) : null}
             </div>{/* end widget-col-left */}
           </div>{/* end widget-grid */}
         </div>
@@ -1437,6 +1489,7 @@ export function App() {
                 {expandedWidget === "planets" ? t("widget.planetPositions") : null}
                 {expandedWidget === "aspects" ? t("widget.natalAspects") : null}
                 {expandedWidget === "transits" ? `${t("transits.title")}${activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}` : null}
+                {expandedWidget === "synastry" ? "Synastry Report" : null}
               </h3>
               <div className="widget-popup-head__actions">
                 {expandedWidget === "summary" && (() => {
@@ -1488,6 +1541,9 @@ export function App() {
                   }}
                   initialReport={transitReport}
                 />
+              ) : null}
+              {expandedWidget === "synastry" && synastryReport ? (
+                <SynastryReport report={synastryReport} />
               ) : null}
             </div>
           </div>
@@ -1621,6 +1677,15 @@ export function App() {
           localStorage.setItem("primaryProfileId", id)
           setPrimaryProfile(id).catch((err) => console.error("Failed to save primary profile:", err))
         }}
+      />
+
+      {/* Profile picker for synastry */}
+      <ProfilePickerModal
+        open={showProfilePicker}
+        onClose={() => setShowProfilePicker(false)}
+        onSelect={handleSelectSynastryPartner}
+        profiles={profiles}
+        excludeProfileId={activeProfileId}
       />
     </main>
   )

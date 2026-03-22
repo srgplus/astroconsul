@@ -6,6 +6,7 @@ from app.application.services.chart_service import ChartService
 from app.application.services.health_service import HealthService
 from app.application.services.location_lookup_service import LocationLookupService
 from app.application.services.profile_service import ProfileService
+from app.application.services.synastry_service import SynastryService
 from app.application.services.transit_service import TransitService
 from app.core.config import get_settings
 from app.infrastructure.repositories.factory import get_repository_bundle
@@ -26,6 +27,11 @@ def get_transit_service() -> TransitService:
     return TransitService()
 
 
+@lru_cache(maxsize=1)
+def get_synastry_service() -> SynastryService:
+    return SynastryService()
+
+
 def get_location_lookup_service() -> LocationLookupService:
     repositories = get_repository_bundle(get_settings())
     return LocationLookupService(cache_repository=repositories.locations)
@@ -44,4 +50,5 @@ def clear_dependency_caches() -> None:
     get_chart_service.cache_clear()
     get_profile_service.cache_clear()
     get_transit_service.cache_clear()
+    get_synastry_service.cache_clear()
     get_health_service.cache_clear()

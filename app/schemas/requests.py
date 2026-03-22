@@ -79,3 +79,8 @@ class ForecastRequest(BaseModel):
     days: int = 10
     timezone: str
     lang: str = "ru"
+
+
+class SynastryReportRequest(BaseModel):
+    partner_profile_id: str
+    lang: str = "ru"

@@ -1,0 +1,82 @@
+{
+  "Sun_conjunction_Sun": {
+    "en": {"meaning": "Identity fusion. You see yourself in each other — for better and worse. Powerful mutual recognition.", "keywords": ["identity", "recognition"]},
+    "ru": {"meaning": "Слияние идентичностей. Вы видите себя друг в друге — и хорошее, и плохое. Мощное взаимное узнавание.", "keywords": ["идентичность", "узнавание"]}
+  },
+  "Sun_conjunction_Moon": {
+    "en": {"meaning": "Classic soulmate indicator. One's core identity lights up the other's emotional world. Natural comfort.", "keywords": ["soulmate", "comfort"]},
+    "ru": {"meaning": "Классический показатель родственных душ. Идентичность одного освещает эмоциональный мир другого.", "keywords": ["родственные души", "комфорт"]}
+  },
+  "Sun_trine_Moon": {
+    "en": {"meaning": "Easy emotional flow between you. One's identity naturally supports the other's feelings. Effortless understanding.", "keywords": ["harmony", "understanding"]},
+    "ru": {"meaning": "Лёгкий эмоциональный поток между вами. Идентичность одного поддерживает чувства другого.", "keywords": ["гармония", "понимание"]}
+  },
+  "Sun_square_Moon": {
+    "en": {"meaning": "Friction between identity and emotions. You trigger each other — growth through tension.", "keywords": ["friction", "growth"]},
+    "ru": {"meaning": "Трение между идентичностью и эмоциями. Вы провоцируете друг друга — рост через напряжение.", "keywords": ["трение", "рост"]}
+  },
+  "Sun_opposition_Moon": {
+    "en": {"meaning": "Magnetic polarity. You complement each other perfectly but see the world from opposite sides.", "keywords": ["polarity", "complement"]},
+    "ru": {"meaning": "Магнитная полярность. Вы дополняете друг друга, но видите мир с противоположных сторон.", "keywords": ["полярность", "дополнение"]}
+  },
+  "Sun_sextile_Moon": {
+    "en": {"meaning": "Gentle support between identity and emotions. Easy to be yourselves around each other.", "keywords": ["support", "ease"]},
+    "ru": {"meaning": "Мягкая поддержка между идентичностью и эмоциями. Легко быть собой рядом друг с другом.", "keywords": ["поддержка", "лёгкость"]}
+  },
+  "Venus_conjunction_Mars": {
+    "en": {"meaning": "The classic sexual chemistry aspect. Magnetic attraction that's hard to ignore. Physical desire is instant.", "keywords": ["chemistry", "desire"]},
+    "ru": {"meaning": "Классический аспект сексуальной химии. Магнетическое притяжение, которое трудно игнорировать.", "keywords": ["химия", "желание"]}
+  },
+  "Venus_opposition_Moon": {
+    "en": {"meaning": "Deep emotional-romantic pull. The attraction is undeniable, but the love languages need translating.", "keywords": ["emotional pull", "love languages"]},
+    "ru": {"meaning": "Глубокое эмоционально-романтическое притяжение. Притяжение бесспорно, но языки любви нужно переводить.", "keywords": ["притяжение", "языки любви"]}
+  },
+  "Mars_conjunction_Lilith": {
+    "en": {"meaning": "Raw, magnetic physical attraction. Primal chemistry that doesn't need explaining.", "keywords": ["raw chemistry", "magnetic pull"]},
+    "ru": {"meaning": "Сырое магнетическое физическое притяжение. Первобытная химия, не нуждающаяся в объяснениях.", "keywords": ["химия", "магнетизм"]}
+  },
+  "Moon_conjunction_Moon": {
+    "en": {"meaning": "Emotional twins. You feel the same things at the same time. Deep instinctive understanding.", "keywords": ["emotional bond", "intuition"]},
+    "ru": {"meaning": "Эмоциональные близнецы. Чувствуете одно и то же одновременно. Глубокое инстинктивное понимание.", "keywords": ["эмоциональная связь", "интуиция"]}
+  },
+  "Mercury_conjunction_Mercury": {
+    "en": {"meaning": "Mental wavelength match. Conversations flow effortlessly, you finish each other's sentences.", "keywords": ["mental sync", "communication"]},
+    "ru": {"meaning": "Совпадение ментальных волн. Разговоры текут легко, вы заканчиваете фразы друг друга.", "keywords": ["ментальная связь", "общение"]}
+  },
+  "Venus_trine_Venus": {
+    "en": {"meaning": "Natural romantic harmony. You share aesthetic tastes, love languages, and values. Effortless affection.", "keywords": ["romance", "harmony"]},
+    "ru": {"meaning": "Естественная романтическая гармония. Общие вкусы, языки любви и ценности.", "keywords": ["романтика", "гармония"]}
+  },
+  "Mars_trine_Mars": {
+    "en": {"meaning": "Your drives and desires align naturally. Great teamwork energy and sexual compatibility.", "keywords": ["drive", "compatibility"]},
+    "ru": {"meaning": "Ваши стремления и желания естественно совпадают. Отличная командная энергия и сексуальная совместимость.", "keywords": ["стремление", "совместимость"]}
+  },
+  "Saturn_conjunction_Sun": {
+    "en": {"meaning": "Karmic teacher-student dynamic. Saturn grounds Sun but can also restrict. Serious, enduring bond.", "keywords": ["karmic", "structure"]},
+    "ru": {"meaning": "Кармическая динамика учитель-ученик. Сатурн заземляет Солнце, но может и ограничивать.", "keywords": ["карма", "структура"]}
+  },
+  "Pluto_conjunction_Venus": {
+    "en": {"meaning": "Obsessive, transformative attraction. The deepest, most consuming kind of love. Not casual.", "keywords": ["obsession", "transformation"]},
+    "ru": {"meaning": "Навязчивое, трансформирующее притяжение. Самая глубокая, всепоглощающая любовь.", "keywords": ["одержимость", "трансформация"]}
+  },
+  "North Node_conjunction_Sun": {
+    "en": {"meaning": "Destined connection. Sun person illuminates Node person's life path. Feels fated.", "keywords": ["destiny", "life path"]},
+    "ru": {"meaning": "Предначертанная связь. Солнце освещает жизненный путь человека Узла. Ощущение судьбы.", "keywords": ["судьба", "жизненный путь"]}
+  },
+  "ASC_conjunction_Mercury": {
+    "en": {"meaning": "Instant mental connection. Thoughts and communication resonate with who you are at the core.", "keywords": ["mental connection", "resonance"]},
+    "ru": {"meaning": "Мгновенная ментальная связь. Мысли и общение резонируют с тем, кто вы есть.", "keywords": ["ментальная связь", "резонанс"]}
+  },
+  "Moon_trine_Venus": {
+    "en": {"meaning": "Emotional tenderness flows naturally. You make each other feel loved and safe without trying.", "keywords": ["tenderness", "safety"]},
+    "ru": {"meaning": "Эмоциональная нежность течёт естественно. Вы даёте друг другу ощущение любви и безопасности.", "keywords": ["нежность", "безопасность"]}
+  },
+  "Sun_conjunction_Venus": {
+    "en": {"meaning": "Natural admiration and affection. Venus adores Sun's essence, Sun feels valued and beautiful.", "keywords": ["admiration", "affection"]},
+    "ru": {"meaning": "Естественное восхищение и привязанность. Венера обожает суть Солнца, Солнце чувствует себя ценным.", "keywords": ["восхищение", "привязанность"]}
+  },
+  "Sun_conjunction_Mars": {
+    "en": {"meaning": "Dynamic, energizing connection. You push each other to act. Competitive but stimulating.", "keywords": ["energy", "drive"]},
+    "ru": {"meaning": "Динамичная, энергичная связь. Вы подталкиваете друг друга к действию. Конкуренция, но стимуляция.", "keywords": ["энергия", "драйв"]}
+  }
+}
