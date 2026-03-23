@@ -31,6 +31,8 @@ const OBJECT_GLYPHS: Record<string, string> = {
   ASC: "AC", MC: "MC",
 }
 
+const SPECIAL_POINT_IDS = new Set(["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"])
+
 const SIGN_OFFSETS: Record<string, number> = {
   Aries: 0, Taurus: 30, Gemini: 60, Cancer: 90,
   Leo: 120, Virgo: 150, Libra: 180, Scorpio: 210,
@@ -242,6 +244,14 @@ export function App() {
   }, [wheelExpanded])
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedWidget, setExpandedWidget] = useState<ExpandedWidget>(null)
+  const [showSpecialPoints, setShowSpecialPoints] = useState(() => localStorage.getItem("showSpecialPoints") !== "false")
+  const toggleSpecialPoints = () => {
+    setShowSpecialPoints((prev) => {
+      const next = !prev
+      localStorage.setItem("showSpecialPoints", String(next))
+      return next
+    })
+  }
   // Synastry state — per-profile (keyed by activeProfileId)
   const [synastryPartnerId, setSynastryPartnerId] = useState<string | null>(null)
   const [synastryPartnerName, setSynastryPartnerName] = useState<string | null>(null)
@@ -1399,6 +1409,12 @@ export function App() {
               ) : null}
               {activeDetail ? (
                 <div className="widget widget--chart widget--wheel-right" onClick={() => setWheelExpanded(true)}>
+                  <button type="button" className="cw-toggle-wrap wheel-sp-toggle" onClick={(e) => { e.stopPropagation(); toggleSpecialPoints() }}>
+                    <span className="cw-toggle-label">{t("wheel.specialPoints")}</span>
+                    <div className={`cw-toggle${showSpecialPoints ? " cw-toggle--on" : ""}`}>
+                      <div className="cw-toggle-thumb" />
+                    </div>
+                  </button>
                   {(() => {
                     const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
                     return (
@@ -1418,40 +1434,45 @@ export function App() {
                     mc={coerceNumber(activeDetail.chart.mc)}
                     houses={activeDetail.chart.houses ?? null}
                     planets={(natalPositions)
-                      .filter((p) => Number.isFinite(p.longitude))
+                      .filter((p) => Number.isFinite(p.longitude) && (showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id)))
                       .map((p) => ({
                         id: p.id,
                         longitude: p.longitude,
                         glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                       }))}
                     transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
-                      .filter((p) => Number.isFinite(p.longitude))
+                      .filter((p) => Number.isFinite(p.longitude) && (showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id)))
                       .map((p) => ({
                         id: p.id,
                         longitude: p.longitude,
                         glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                       })) : wheelMode === "synastry" ? (synastryReport?.positions_b ?? [])
+                      .filter((p) => showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id))
                       .map((p) => ({
                         id: p.id,
                         longitude: (SIGN_OFFSETS[p.sign] ?? 0) + p.degree + p.minute / 60,
                         glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                       })) : []}
                     transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
-                      .filter((a) => a.is_within_orb)
+                      .filter((a) => a.is_within_orb && (showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.transit_object) && !SPECIAL_POINT_IDS.has(a.natal_object))))
                       .map((a) => ({
                         transit_object: a.transit_object,
                         natal_object: a.natal_object,
                         aspect: a.aspect,
                         orb: a.orb,
                         strength: a.strength,
-                      })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? []).map((a) => ({
+                      })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? [])
+                      .filter((a) => showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.person_b_object) && !SPECIAL_POINT_IDS.has(a.person_a_object)))
+                      .map((a) => ({
                         transit_object: a.person_b_object,
                         natal_object: a.person_a_object,
                         aspect: a.aspect,
                         orb: a.orb,
                         strength: a.strength,
                       })) : []}
-                    natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
+                    natalAspects={wheelMode === "natal" ? natalAspects
+                      .filter((a) => showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.p1) && !SPECIAL_POINT_IDS.has(a.p2)))
+                      .map((a) => ({
                       p1: a.p1,
                       p2: a.p2,
                       aspect: a.aspect,
@@ -1637,20 +1658,28 @@ export function App() {
             <button type="button" className="wheel-fullscreen__close" onClick={() => setWheelExpanded(false)}>&times;</button>
             <B3Logo size="sm" className="wheel-fullscreen__logo" />
           </div>
-          {(() => {
-            const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
-            return (
-          <div className="wheel-fullscreen__toggle" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("wheel.natal")}</button>
-            <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
-              <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
-            </span>
-            <span className={!synastryReport ? "transit-locked-wrap" : ""} data-tooltip={!synastryReport ? t("widget.addSynastryFirst") : undefined}>
-              <button type="button" className={`${wheelMode === "synastry" ? "active" : ""} ${!synastryReport ? "disabled" : ""}`} disabled={!synastryReport} onClick={() => setWheelMode("synastry")}>{t("wheel.synastry")}</button>
-            </span>
+          <div className="wheel-fullscreen__top-right" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="cw-toggle-wrap wheel-sp-toggle--fs" onClick={toggleSpecialPoints}>
+              <span className="cw-toggle-label">{t("wheel.specialPoints")}</span>
+              <div className={`cw-toggle${showSpecialPoints ? " cw-toggle--on" : ""}`}>
+                <div className="cw-toggle-thumb" />
+              </div>
+            </button>
+            {(() => {
+              const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
+              return (
+            <div className="wheel-fullscreen__toggle">
+              <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("wheel.natal")}</button>
+              <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
+                <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
+              </span>
+              <span className={!synastryReport ? "transit-locked-wrap" : ""} data-tooltip={!synastryReport ? t("widget.addSynastryFirst") : undefined}>
+                <button type="button" className={`${wheelMode === "synastry" ? "active" : ""} ${!synastryReport ? "disabled" : ""}`} disabled={!synastryReport} onClick={() => setWheelMode("synastry")}>{t("wheel.synastry")}</button>
+              </span>
+            </div>
+              )
+            })()}
           </div>
-            )
-          })()}
           <div className="wheel-fullscreen__content" onClick={(e) => e.stopPropagation()}>
             <div className="wheel-fullscreen__ring">
               <NatalZodiacRing
@@ -1658,40 +1687,45 @@ export function App() {
                 mc={coerceNumber(activeDetail.chart.mc)}
                 houses={activeDetail.chart.houses ?? null}
                 planets={(natalPositions)
-                  .filter((p) => Number.isFinite(p.longitude))
+                  .filter((p) => Number.isFinite(p.longitude) && (showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id)))
                   .map((p) => ({
                     id: p.id,
                     longitude: p.longitude,
                     glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                   }))}
                 transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
-                  .filter((p) => Number.isFinite(p.longitude))
+                  .filter((p) => Number.isFinite(p.longitude) && (showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id)))
                   .map((p) => ({
                     id: p.id,
                     longitude: p.longitude,
                     glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                   })) : wheelMode === "synastry" ? (synastryReport?.positions_b ?? [])
+                  .filter((p) => showSpecialPoints || !SPECIAL_POINT_IDS.has(p.id))
                   .map((p) => ({
                     id: p.id,
                     longitude: (SIGN_OFFSETS[p.sign] ?? 0) + p.degree + p.minute / 60,
                     glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                   })) : []}
                 transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
-                  .filter((a) => a.is_within_orb)
+                  .filter((a) => a.is_within_orb && (showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.transit_object) && !SPECIAL_POINT_IDS.has(a.natal_object))))
                   .map((a) => ({
                     transit_object: a.transit_object,
                     natal_object: a.natal_object,
                     aspect: a.aspect,
                     orb: a.orb,
                     strength: a.strength,
-                  })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? []).map((a) => ({
+                  })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? [])
+                  .filter((a) => showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.person_b_object) && !SPECIAL_POINT_IDS.has(a.person_a_object)))
+                  .map((a) => ({
                     transit_object: a.person_b_object,
                     natal_object: a.person_a_object,
                     aspect: a.aspect,
                     orb: a.orb,
                     strength: a.strength,
                   })) : []}
-                natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
+                natalAspects={wheelMode === "natal" ? natalAspects
+                  .filter((a) => showSpecialPoints || (!SPECIAL_POINT_IDS.has(a.p1) && !SPECIAL_POINT_IDS.has(a.p2)))
+                  .map((a) => ({
                   p1: a.p1,
                   p2: a.p2,
                   aspect: a.aspect,

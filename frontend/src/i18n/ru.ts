@@ -3,6 +3,7 @@ export const ru: Record<string, string> = {
   "wheel.natal": "Натал",
   "wheel.transit": "Транзит",
   "wheel.synastry": "Синастрия",
+  "wheel.specialPoints": "Спец. точки",
   // Auth
   "auth.logo": "big3.me",
   "auth.signIn": "Войти",

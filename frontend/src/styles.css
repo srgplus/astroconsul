@@ -565,6 +565,13 @@ select {
   display: block;
 }
 
+.wheel-sp-toggle {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+}
+
 .wheel-mode-toggle {
   position: absolute;
   top: 12px;
@@ -1133,15 +1140,29 @@ select {
   box-shadow: none;
 }
 
-.wheel-fullscreen__toggle {
+.wheel-fullscreen__top-right {
   position: fixed;
   top: 16px;
   right: 20px;
   display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.wheel-sp-toggle--fs {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
-  z-index: 10;
+  padding: 6px 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wheel-fullscreen__toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -4786,6 +4807,7 @@ button.natal-pos__row--clickable {
   .widget:hover { transform: none; }
 
   .wheel-mode-toggle { top: 8px; right: 8px; }
+  .wheel-sp-toggle { top: 8px; left: 8px; }
 
   .ring-stage { min-height: 320px; padding: 10px; border-radius: 16px; }
   .natal-zodiac-ring__label { font-size: 10px; letter-spacing: 1.6px; }

@@ -3,6 +3,7 @@ export const en: Record<string, string> = {
   "wheel.natal": "Natal",
   "wheel.transit": "Transit",
   "wheel.synastry": "Synastry",
+  "wheel.specialPoints": "Special Points",
   // Auth
   "auth.logo": "big3.me",
   "auth.signIn": "Sign In",
