@@ -129,6 +129,20 @@ def _get_post_by_slug(slug: str):
         }
 
 
+@router.get("/debug-templates", include_in_schema=False)
+def debug_templates():
+    """Temporary debug endpoint to check template resolution."""
+    tdir = Path(__file__).resolve().parents[4] / "templates"
+    result = {
+        "templates_dir": str(tdir),
+        "exists": tdir.exists(),
+        "files": [],
+    }
+    if tdir.exists():
+        result["files"] = [str(f.relative_to(tdir)) for f in tdir.rglob("*") if f.is_file()]
+    return result
+
+
 @router.get("/", response_class=HTMLResponse)
 def news_feed(request: Request, tag: str | None = None, page: int = 1):
     """Render news feed with optional tag filter."""
