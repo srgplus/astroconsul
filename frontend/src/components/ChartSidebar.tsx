@@ -144,12 +144,13 @@ export default function ChartSidebar({
             {/* Aspect cells */}
             {cols.map((colP, ci) => {
               const cx = INFO_W + ci * C
-              const asp = aspMap.get(`${rowP}|${colP}`)
               const isDiag = rowP === colP && !isTransit
+              if (isDiag) return null
+              const asp = aspMap.get(`${rowP}|${colP}`)
               return (
                 <g key={colP}>
-                  <rect x={cx} y={y} width={C} height={C} fill={isDiag ? gridColor : "none"} stroke={gridColor} strokeWidth={0.5} />
-                  {asp && !isDiag ? (
+                  <rect x={cx} y={y} width={C} height={C} fill="none" stroke={gridColor} strokeWidth={0.5} />
+                  {asp ? (
                     <text
                       x={cx + C / 2} y={y + C * 0.72}
                       className="cs-t" fontSize={12} fill={AC[asp] ?? "#888"}
