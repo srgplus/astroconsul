@@ -11,7 +11,7 @@ const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
   Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
   Chiron: "\u26B7", Lilith: "\u26B8", "North Node": "\u260A", "South Node": "\u260B",
-  ASC: "AC", MC: "MC", Selena: "\u2BDB", "Part of Fortune": "\u2297", Vertex: "Vx",
+  ASC: "AC", MC: "MC", Selena: "\u263E", "Part of Fortune": "\u2297", Vertex: "Vx",
 }
 
 const ASPECT_GLYPHS: Record<string, string> = {

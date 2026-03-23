@@ -102,9 +102,9 @@ class SynastryService:
 def _person_summary(profile: dict, chart: dict) -> dict:
     """Build a summary dict for a person in synastry."""
     return {
-        "name": profile.get("display_name") or profile.get("handle", ""),
-        "handle": profile.get("handle", ""),
-        "profile_id": profile.get("id", ""),
+        "name": profile.get("profile_name") or profile.get("display_name") or profile.get("username", ""),
+        "handle": profile.get("username") or profile.get("handle", ""),
+        "profile_id": profile.get("profile_id") or profile.get("id", ""),
         "natal_summary": chart.get("natal_summary"),
     }
 
