@@ -38,6 +38,30 @@ ASPECT_WEIGHTS: dict[str, float] = {
 # Planets whose conjunction adds tension rather than harmony
 HARD_CONJUNCTION_PLANETS = {"Saturn", "Pluto", "Lilith", "South Node"}
 
+# ---------------------------------------------------------------------------
+# Planet importance weights — personal planets dominate scoring,
+# minor points barely affect it.
+# ---------------------------------------------------------------------------
+
+PLANET_IMPORTANCE: dict[str, float] = {
+    "Sun": 10, "Moon": 10,
+    "Venus": 8, "Mars": 8,
+    "Mercury": 6,
+    "ASC": 6, "MC": 4,
+    "Jupiter": 5, "Saturn": 5,
+    "Uranus": 3, "Neptune": 3, "Pluto": 4,
+    "North Node": 3, "South Node": 2,
+    "Chiron": 3, "Lilith": 2,
+    "Selena": 1, "Part of Fortune": 1, "Vertex": 1,
+}
+
+
+def _pair_importance(a_obj: str, b_obj: str) -> float:
+    """Geometric-mean importance of two objects (1.0–10.0)."""
+    wa = PLANET_IMPORTANCE.get(a_obj, 1)
+    wb = PLANET_IMPORTANCE.get(b_obj, 1)
+    return (wa * wb) ** 0.5
+
 
 def synastry_aspect_strength(orb: float) -> str:
     """Classify aspect strength by orb for synastry."""
@@ -128,11 +152,12 @@ def _categorize_aspect(a_obj: str, b_obj: str) -> list[str]:
     return categories if categories else ["general"]
 
 
-def _aspect_score(aspect: dict) -> float:
-    """Compute a raw score contribution for a single aspect.
+def _aspect_score(aspect: dict) -> tuple[float, float]:
+    """Compute a weighted score and importance for a single aspect.
 
-    Tighter orbs contribute more. Harmonious aspects add, tense subtract
-    (but tension also adds chemistry, so the penalty is mild).
+    Returns (weighted_score, importance) where weighted_score already
+    incorporates planet-pair importance so that Sun-Moon aspects dominate
+    over Selena-Vertex etc.
     """
     aspect_name = aspect["aspect"]
     orb = aspect["orb"]
@@ -153,11 +178,16 @@ def _aspect_score(aspect: dict) -> float:
     max_orb = 8.0
     orb_factor = max(0.0, 1.0 - (orb / max_orb))
 
-    return base * orb_factor
+    importance = _pair_importance(a_obj, b_obj)
+    return base * orb_factor * importance, importance
 
 
 def compute_synastry_scores(aspects: list[dict]) -> dict:
     """Compute overall and category compatibility scores.
+
+    Uses importance-weighted averaging so that aspects between personal
+    planets (Sun, Moon, Venus, Mars) dominate the score while minor
+    points (Selena, Part of Fortune, Vertex) barely move it.
 
     Returns
     -------
@@ -171,38 +201,36 @@ def compute_synastry_scores(aspects: list[dict]) -> dict:
         "karmic": 0.0,
         "general": 0.0,
     }
-    counts: dict[str, int] = {k: 0 for k in raw}
+    weights: dict[str, float] = {k: 0.0 for k in raw}
 
     for aspect in aspects:
-        score = _aspect_score(aspect)
+        score, importance = _aspect_score(aspect)
         categories = _categorize_aspect(
             aspect["person_a_object"], aspect["person_b_object"]
         )
         for cat in categories:
             raw[cat] += score
-            counts[cat] += 1
+            weights[cat] += importance
 
-    def _normalize(raw_score: float, count: int) -> int:
-        """Normalize a raw score to 0-100 range."""
-        if count == 0:
+    def _normalize(raw_score: float, weight_sum: float) -> int:
+        """Normalize an importance-weighted score to 0-100 range."""
+        if weight_sum == 0:
             return 50  # Neutral if no aspects in category
-        # Average score per aspect, then scale to 0-100
-        # Max possible single aspect score ≈ 8.0, min ≈ -3.0
-        # Average of 8.0 → 100, average of -3.0 → 0, average of 0 → 50
-        avg = raw_score / count
+        # Importance-weighted average: personal planet aspects dominate
+        avg = raw_score / weight_sum
         # Map avg from [-3, 8] to [0, 100]
         normalized = ((avg + 3.0) / 11.0) * 100.0
         return max(0, min(100, round(normalized)))
 
-    emotional = _normalize(raw["emotional"], counts["emotional"])
-    mental = _normalize(raw["mental"], counts["mental"])
-    physical = _normalize(raw["physical"], counts["physical"])
-    karmic = _normalize(raw["karmic"], counts["karmic"])
+    emotional = _normalize(raw["emotional"], weights["emotional"])
+    mental = _normalize(raw["mental"], weights["mental"])
+    physical = _normalize(raw["physical"], weights["physical"])
+    karmic = _normalize(raw["karmic"], weights["karmic"])
 
-    # Overall = weighted average of all categories + general
+    # Overall = importance-weighted average across all aspects
     total_raw = sum(raw.values())
-    total_count = sum(counts.values())
-    overall = _normalize(total_raw, total_count)
+    total_weight = sum(weights.values())
+    overall = _normalize(total_raw, total_weight)
 
     label = _score_label(overall)
 
