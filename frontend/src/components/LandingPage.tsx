@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { fetchFeaturedProfiles, fetchPublicProfileDetail } from "../api"
 import { useLanguage } from "../contexts/LanguageContext"
+import B3Logo from "./B3Logo"
 import { zoneColor, FEELS_EMOJI } from "../tii-zones"
 import type { ProfileSummary, ProfileDetailResponse, ActiveAspect } from "../types"
 
@@ -111,10 +112,15 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
     )
   }
 
+  const ZODIAC = ["\u2648","\u2649","\u264A","\u264B","\u264C","\u264D","\u264E","\u264F","\u2650","\u2651","\u2652","\u2653"]
+
   return (
     <div className="landing-page">
       <header className="landing-header">
-        <span className="landing-logo">{t("auth.logo")}</span>
+        <B3Logo size="md" />
+        <nav className="landing-nav">
+          <a href="/news/" className="landing-nav-link">News</a>
+        </nav>
         <div className="landing-header-actions">
           <button type="button" className="landing-auth-btn" onClick={onSignIn}>
             {t("landing.signIn")}
@@ -126,25 +132,51 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
       </header>
 
       <section className="landing-hero">
-        <h1 className="landing-hero-title">{t("landing.hero")}</h1>
-        <p className="landing-hero-subtitle">{t("landing.subtitle")}</p>
+        <div className="landing-zodiac-ring">
+          <div className="landing-zodiac-ring__inner">
+            {ZODIAC.map((g, i) => (
+              <span key={i} className="landing-zodiac-ring__glyph" style={{ "--i": i } as React.CSSProperties}>{g}</span>
+            ))}
+          </div>
+        </div>
+        <h1 className="landing-hero-title landing-fade-in">{t("landing.hero")}</h1>
+        <p className="landing-hero-subtitle landing-fade-in" style={{ animationDelay: "0.1s" }}>{t("landing.subtitle")}</p>
+        <div className="landing-hero-ctas landing-fade-in" style={{ animationDelay: "0.2s" }}>
+          <button type="button" className="landing-cta-btn" onClick={onSignUp}>
+            {t("landing.cta")}
+          </button>
+          <a href="/news/" className="landing-cta-btn landing-cta-btn--ghost">
+            Explore
+          </a>
+        </div>
+        <div className="landing-pills landing-fade-in" style={{ animationDelay: "0.3s" }}>
+          <span className="landing-pill">Transit Alerts</span>
+          <span className="landing-pill">Moon Phases</span>
+          <span className="landing-pill">Natal Chart</span>
+          <span className="landing-pill">Synastry</span>
+        </div>
       </section>
 
       {loading ? (
         <div className="landing-loading">{t("landing.loading")}</div>
-      ) : (
-        <section className="landing-grid">
-          {profiles.map((p) => (
-            <LandingCard key={p.profile_id} profile={p} onClick={() => setSelectedId(p.profile_id)} />
-          ))}
-        </section>
-      )}
+      ) : profiles.length > 0 ? (
+        <>
+          <div className="landing-section-label">Featured Charts</div>
+          <section className="landing-grid">
+            {profiles.map((p) => (
+              <LandingCard key={p.profile_id} profile={p} onClick={() => setSelectedId(p.profile_id)} />
+            ))}
+          </section>
+        </>
+      ) : null}
 
-      <section className="landing-cta">
-        <button type="button" className="landing-cta-btn" onClick={onSignUp}>
-          {t("landing.cta")}
-        </button>
-      </section>
+      <footer className="landing-footer">
+        <span className="landing-footer__copy">&copy; big3.me {new Date().getFullYear()}</span>
+        <span className="landing-footer__links">
+          <a href="/news/">News</a>
+          <a href="/legal">Terms</a>
+        </span>
+      </footer>
     </div>
   )
 }

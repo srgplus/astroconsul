@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.legacy import router as legacy_router
 from app.api.v1.router import router as api_v1_router
 from app.api.v1.routes.news import router as news_router
+from app.api.v1.routes.legal import router as legal_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -156,6 +157,8 @@ def create_app() -> FastAPI:
 
     # News routes: server-rendered Jinja2 HTML (SEO), mounted at /news
     app.include_router(news_router)
+    # Legal pages: Terms of Service, etc.
+    app.include_router(legal_router)
 
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     app.include_router(legacy_router)
