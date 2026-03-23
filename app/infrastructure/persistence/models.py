@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import date, datetime, time
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Time, UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, Time, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
@@ -123,3 +123,46 @@ class LocationCacheModel(Base):
     timezone: Mapped[str] = mapped_column(String(255), nullable=False)
     provider: Mapped[str] = mapped_column(String(255), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class NewsPostModel(Base):
+    __tablename__ = "news_posts"
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    slug: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    subtitle: Mapped[str | None] = mapped_column(Text, nullable=True)
+    date: Mapped[date] = mapped_column(Date, nullable=False)
+    author: Mapped[str] = mapped_column(String(255), nullable=False, default="Victoria")
+    status: Mapped[str] = mapped_column(String(64), nullable=False, default="draft")
+
+    # Content
+    intro: Mapped[str] = mapped_column(Text, nullable=False)
+    sections: Mapped[dict[str, Any] | None] = mapped_column(JSONType, nullable=True)
+    conclusion: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Celebrity (nullable for non-celebrity posts)
+    celebrity_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    celebrity_profile_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    celebrity_event: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # SEO
+    meta_title: Mapped[str | None] = mapped_column(Text, nullable=True)
+    meta_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    keywords: Mapped[str | None] = mapped_column(Text, nullable=True)  # comma-separated
+    og_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Tags (comma-separated for SQLite compat, ARRAY on PostgreSQL)
+    tags: Mapped[str | None] = mapped_column(Text, nullable=True)  # comma-separated
+
+    # Images
+    hero_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Reddit cross-post tracking
+    reddit_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    reddit_subreddit: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

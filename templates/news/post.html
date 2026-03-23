@@ -1,0 +1,69 @@
+{% extends "news/base_news.html" %}
+
+{% set seo_title = post.meta_title or (post.title + " | big3.me") %}
+{% set seo_description = post.meta_description or post.intro[:160] %}
+{% set og_image = post.og_image_url or "https://big3.me/og-image.png" %}
+{% set slug = post.slug %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{ post.title }}",
+    "datePublished": "{{ post.date }}",
+    "author": {"@type": "Person", "name": "{{ post.author }}"},
+    "publisher": {"@type": "Organization", "name": "big3.me", "url": "https://big3.me"},
+    "image": "{{ post.og_image_url or 'https://big3.me/og-image.png' }}",
+    "mainEntityOfPage": "https://big3.me/news/{{ post.slug }}"
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article>
+    <h1 class="post-title">{{ post.title }}</h1>
+    {% if post.subtitle %}
+    <p class="post-subtitle">{{ post.subtitle }}</p>
+    {% endif %}
+
+    <div class="post-meta">
+        <span>{{ post.author }}</span>
+        <span>{{ post.date.strftime('%B %d, %Y') }}</span>
+        <div class="feed-tags">
+        {% for tag in post.tags %}
+            <a href="/news?tag={{ tag }}" class="post-tag">{{ tag }}</a>
+        {% endfor %}
+        </div>
+    </div>
+
+    {% if post.hero_image_url %}
+    <img src="{{ post.hero_image_url }}" alt="{{ post.celebrity_name or post.title }}" class="post-hero">
+    {% endif %}
+
+    <div class="post-body">
+        <p>{{ post.intro }}</p>
+
+        {% for section in post.sections %}
+        <h2>{{ section.heading }}</h2>
+        <p>{{ section.body }}</p>
+        {% if section.image_url %}
+        <img src="{{ section.image_url }}" alt="{{ section.image_alt | default('Transit chart from big3.me') }}">
+        {% endif %}
+        {% endfor %}
+
+        {% if post.conclusion %}
+        <p>{{ post.conclusion }}</p>
+        {% endif %}
+    </div>
+
+    <div class="post-cta">
+        <p>Want to check your own transits?</p>
+        <a href="/">Open big3.me</a>
+    </div>
+</article>
+
+<div style="margin-top: 24px;">
+    <a href="/news" style="color: var(--muted); text-decoration: none; font-size: 0.9rem;">&larr; Back to News</a>
+</div>
+{% endblock %}
