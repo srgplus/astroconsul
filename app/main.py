@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.api.legacy import router as legacy_router
@@ -78,13 +78,48 @@ def create_app() -> FastAPI:
     @app.get("/favicon.svg", include_in_schema=False)
     @app.get("/apple-touch-icon.png", include_in_schema=False)
     @app.get("/robots.txt", include_in_schema=False)
-    @app.get("/sitemap.xml", include_in_schema=False)
     def serve_root_static(request: Request):
         fname = request.url.path.lstrip("/")
         fpath = _root_static / fname
         if fpath.exists():
             return FileResponse(str(fpath))
         raise HTTPException(status_code=404)
+
+    @app.get("/sitemap.xml", include_in_schema=False)
+    def dynamic_sitemap():
+        """Sitemap index: static pages + news sitemap."""
+        from app.api.v1.routes.news import _get_published_posts
+
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+        # Static pages
+        xml += "  <url>\n"
+        xml += "    <loc>https://big3.me/</loc>\n"
+        xml += "    <changefreq>daily</changefreq>\n"
+        xml += "    <priority>1.0</priority>\n"
+        xml += "  </url>\n"
+        xml += "  <url>\n"
+        xml += "    <loc>https://big3.me/news/</loc>\n"
+        xml += "    <changefreq>daily</changefreq>\n"
+        xml += "    <priority>0.9</priority>\n"
+        xml += "  </url>\n"
+
+        # News posts
+        try:
+            posts = _get_published_posts(limit=500)
+            for post in posts:
+                xml += "  <url>\n"
+                xml += f"    <loc>https://big3.me/news/{post['slug']}</loc>\n"
+                xml += f"    <lastmod>{post['date']}</lastmod>\n"
+                xml += "    <changefreq>monthly</changefreq>\n"
+                xml += "    <priority>0.7</priority>\n"
+                xml += "  </url>\n"
+        except Exception:
+            logging.getLogger(__name__).warning("Could not load news posts for sitemap")
+
+        xml += "</urlset>"
+        return Response(content=xml, media_type="application/xml")
 
     canonical_host = settings.canonical_host.strip().lower() if settings.canonical_host else None
 

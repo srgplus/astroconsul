@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://big3.me/sitemap.xml
+Sitemap: https://big3.me/news/sitemap-news.xml

@@ -153,6 +153,52 @@ def news_feed(request: Request, tag: str | None = None, page: int = 1):
         raise
 
 
+@router.get("/feed.xml", response_class=Response)
+def news_rss_feed():
+    """Generate RSS 2.0 feed for news posts."""
+    posts = _get_published_posts(limit=20)
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+    xml += "<channel>\n"
+    xml += "  <title>big3.me Astrology News</title>\n"
+    xml += "  <link>https://big3.me/news/</link>\n"
+    xml += "  <description>Daily astrology transit analysis and cosmic weather updates.</description>\n"
+    xml += "  <language>en</language>\n"
+    xml += '  <atom:link href="https://big3.me/news/feed.xml" rel="self" type="application/rss+xml"/>\n'
+
+    for post in posts:
+        xml += "  <item>\n"
+        xml += f"    <title>{_xml_escape(post['title'])}</title>\n"
+        xml += f"    <link>https://big3.me/news/{post['slug']}</link>\n"
+        xml += f"    <guid isPermaLink=\"true\">https://big3.me/news/{post['slug']}</guid>\n"
+        if post.get("subtitle"):
+            xml += f"    <description>{_xml_escape(post['subtitle'])}</description>\n"
+        xml += f"    <pubDate>{_rfc822_date(post['date'])}</pubDate>\n"
+        if post.get("tags"):
+            for tag in post["tags"]:
+                xml += f"    <category>{_xml_escape(tag)}</category>\n"
+        xml += "  </item>\n"
+
+    xml += "</channel>\n</rss>"
+    return Response(content=xml, media_type="application/rss+xml; charset=utf-8")
+
+
+def _xml_escape(text: str) -> str:
+    """Escape XML special characters."""
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
+
+def _rfc822_date(date_str: str) -> str:
+    """Convert YYYY-MM-DD to RFC 822 date format for RSS."""
+    from datetime import datetime
+    try:
+        dt = datetime.strptime(str(date_str), "%Y-%m-%d")
+        return dt.strftime("%a, %d %b %Y 00:00:00 +0000")
+    except (ValueError, TypeError):
+        return str(date_str)
+
+
 @router.get("/sitemap-news.xml", response_class=Response)
 def news_sitemap():
     """Generate XML sitemap for news posts."""

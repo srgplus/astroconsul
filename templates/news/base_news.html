@@ -23,6 +23,9 @@
     <!-- Canonical -->
     <link rel="canonical" href="https://big3.me/news/{{ slug | default('') }}">
 
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="big3.me Astrology News" href="https://big3.me/news/feed.xml">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -30,8 +33,16 @@
 
     {% block head_extra %}{% endblock %}
 
+    <script>
+        // Sync theme with main app (localStorage "theme")
+        (function() {
+            var t = localStorage.getItem("theme") || "system";
+            var dark = t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        })();
+    </script>
     <style>
-        :root {
+        :root, [data-theme="dark"] {
             --bg: #0a0a0a;
             --surface: #141414;
             --text: #e8e8e8;
@@ -39,6 +50,19 @@
             --accent: #6c63ff;
             --border: rgba(255,255,255,0.08);
             --radius: 16px;
+            --tag-bg: rgba(108, 99, 255, 0.15);
+            --tag-hover: rgba(108, 99, 255, 0.25);
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f5f5f7;
+            --text: #1d1d1f;
+            --muted: #6e6e73;
+            --accent: #5b52e0;
+            --border: rgba(0,0,0,0.08);
+            --tag-bg: rgba(91, 82, 224, 0.1);
+            --tag-hover: rgba(91, 82, 224, 0.18);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -107,7 +131,7 @@
         }
 
         .post-tag {
-            background: rgba(108, 99, 255, 0.15);
+            background: var(--tag-bg);
             color: var(--accent);
             padding: 2px 10px;
             border-radius: 12px;
@@ -115,7 +139,7 @@
             text-decoration: none;
         }
 
-        .post-tag:hover { background: rgba(108, 99, 255, 0.25); }
+        .post-tag:hover { background: var(--tag-hover); }
 
         .post-body p {
             margin-bottom: 20px;
@@ -223,6 +247,24 @@
 
         footer.news-footer a:hover { color: var(--text); }
 
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: background 0.15s;
+        }
+        .theme-toggle:hover { background: var(--border); }
+
+        [data-theme="dark"] .theme-icon-light { display: none; }
+        [data-theme="light"] .theme-icon-dark { display: none; }
+
         @media (max-width: 600px) {
             .post-title { font-size: 1.5rem; }
             .news-container { padding: 24px 16px; }
@@ -233,6 +275,11 @@
     <nav class="news-nav">
         <a href="/" class="logo">big3.me</a>
         <a href="/news">News</a>
+        <span style="flex:1"></span>
+        <button type="button" class="theme-toggle" onclick="toggleNewsTheme()" title="Toggle theme" aria-label="Toggle theme">
+            <span class="theme-icon-dark">☀️</span>
+            <span class="theme-icon-light">🌙</span>
+        </button>
     </nav>
 
     <main class="news-container">
@@ -242,5 +289,13 @@
     <footer class="news-footer">
         <p><a href="/">big3.me</a> &middot; Apple Weather for Astrology</p>
     </footer>
+    <script>
+        function toggleNewsTheme() {
+            var current = document.documentElement.getAttribute("data-theme");
+            var next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+        }
+    </script>
 </body>
 </html>
