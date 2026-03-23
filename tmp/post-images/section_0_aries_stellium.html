@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Aries Stellium — Section 0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: #faf9f7;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #1a1a1f;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Glows (light theme — halved opacity) */
+  .glow-tr {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-bl {
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(251,146,60,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Orbital rings */
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.03);
+    pointer-events: none;
+  }
+  .ring-1 { width: 480px; height: 480px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .ring-2 { width: 700px; height: 700px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  /* Stars */
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.12);
+    pointer-events: none;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 52px 44px;
+    z-index: 1;
+  }
+
+  /* Header strip */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .logo {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #1a1a1f;
+  }
+  .logo-tagline {
+    font-size: 9px;
+    font-weight: 400;
+    color: #6e6e76;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Strength badge */
+  .badge-exact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    color: #16a34a;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+  }
+
+  /* Section tag */
+  .section-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #6e6e76;
+    margin-bottom: 12px;
+  }
+
+  /* Main title */
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 42px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #1a1a1f;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Aspect name */
+  .aspect-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #7c3aed;
+    margin-bottom: 40px;
+    letter-spacing: 0.01em;
+  }
+
+  /* Aspect visual box */
+  .aspect-box {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px;
+    padding: 36px 44px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  /* Triple conjunction header */
+  .triple-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6e6e76;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  /* Planet circles row */
+  .planets-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 24px;
+  }
+
+  .planet-circle {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .pc-sun {
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(251,191,36,0.04));
+    border: 1.5px solid rgba(251,191,36,0.35);
+  }
+  .pc-neptune {
+    background: linear-gradient(135deg, rgba(129,140,248,0.18), rgba(129,140,248,0.04));
+    border: 1.5px solid rgba(129,140,248,0.35);
+  }
+  .pc-saturn {
+    background: linear-gradient(135deg, rgba(142,142,150,0.18), rgba(142,142,150,0.04));
+    border: 1.5px solid rgba(142,142,150,0.30);
+  }
+
+  .pc-symbol {
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .pc-name {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6e6e76;
+  }
+
+  /* Connector */
+  .connector {
+    flex: 1;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+    position: relative;
+    min-width: 40px;
+    max-width: 60px;
+  }
+  .connector::after {
+    content: 'conj';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 500;
+    color: #6e6e76;
+    letter-spacing: 0.5px;
+    background: #ffffff;
+    padding: 0 4px;
+  }
+
+  /* Positions under circles */
+  .positions-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+  }
+  .pos-item {
+    text-align: center;
+    min-width: 88px;
+  }
+  .pos-degree {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1f;
+    margin-bottom: 2px;
+  }
+  .pos-sign {
+    font-size: 16px;
+    color: #7c3aed;
+  }
+  .pos-label {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6e6e76;
+    margin-top: 4px;
+  }
+
+  /* Orb chip */
+  .orb-chips {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .orb-chip {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6e6e76;
+    background: #f2f0ed;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 20px;
+    padding: 5px 14px;
+  }
+  .orb-chip .orb-exact { color: #16a34a; font-weight: 600; }
+  .orb-chip .orb-strong { color: #d97706; font-weight: 600; }
+
+  /* Description */
+  .description {
+    font-size: 15px;
+    font-weight: 400;
+    color: #6e6e76;
+    line-height: 1.65;
+    margin-bottom: 0;
+    flex: 1;
+  }
+  .description strong {
+    color: #1a1a1f;
+    font-weight: 600;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 28px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    margin-top: auto;
+  }
+  .page-indicator {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6e6e76;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+  <div class="glow-tr"></div>
+  <div class="glow-bl"></div>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+
+  <div class="star" style="width:2px;height:2px;top:9%;left:80%;opacity:0.18;"></div>
+  <div class="star" style="width:3px;height:3px;top:18%;left:5%;opacity:0.14;"></div>
+  <div class="star" style="width:2px;height:2px;top:72%;left:93%;opacity:0.16;"></div>
+  <div class="star" style="width:2px;height:2px;top:85%;left:12%;opacity:0.12;"></div>
+  <div class="star" style="width:3px;height:3px;top:45%;left:96%;opacity:0.10;"></div>
+
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="logo">big<span style="color:#7c3aed">3</span>.me</div>
+        <div class="logo-tagline">Transit Astrology</div>
+      </div>
+    </div>
+
+    <div class="badge-exact">
+      <div class="badge-dot"></div>
+      EXACT · 0.98°
+    </div>
+
+    <div class="section-tag">The Sky Today</div>
+    <div class="main-title">Aries Stellium:<br>Triple Conjunction</div>
+    <div class="aspect-name">☉ Sun · ♆ Neptune · ♄ Saturn — all in early ♈ Aries</div>
+
+    <div class="aspect-box">
+      <div class="triple-label">Triple Conjunction in Aries — March 23, 2026</div>
+      <div class="planets-row">
+        <div class="planet-circle pc-neptune">
+          <span class="pc-symbol" style="color:#818cf8;">♆</span>
+          <span class="pc-name">Neptune</span>
+        </div>
+        <div class="connector"></div>
+        <div class="planet-circle pc-sun">
+          <span class="pc-symbol" style="color:#fbbf24;">☉</span>
+          <span class="pc-name">Sun</span>
+        </div>
+        <div class="connector"></div>
+        <div class="planet-circle pc-saturn">
+          <span class="pc-symbol" style="color:#8e8e96;">♄</span>
+          <span class="pc-name">Saturn</span>
+        </div>
+      </div>
+      <div class="positions-row">
+        <div class="pos-item">
+          <div class="pos-degree">1°52' <span class="pos-sign">♈</span></div>
+          <div class="pos-label">Neptune</div>
+        </div>
+        <div class="pos-item">
+          <div class="pos-degree">2°51' <span class="pos-sign">♈</span></div>
+          <div class="pos-label">Sun</div>
+        </div>
+        <div class="pos-item">
+          <div class="pos-degree">4°29' <span class="pos-sign">♈</span></div>
+          <div class="pos-label">Saturn</div>
+        </div>
+      </div>
+      <div class="orb-chips">
+        <div class="orb-chip">☉ conj ♆ — <span class="orb-exact">0.98° EXACT</span></div>
+        <div class="orb-chip">☉ conj ♄ — <span class="orb-strong">1.62° STRONG</span></div>
+        <div class="orb-chip">♄ conj ♆ — <span class="orb-strong">2.60° STRONG</span></div>
+      </div>
+    </div>
+
+    <div class="description">
+      The Sun illuminates the <strong>Saturn–Neptune conjunction</strong> that forms once every 36 years.
+      Ideals collide with reality. Dreams meet discipline. The first degree of Aries amplifies
+      this as a <strong>new beginning</strong> — the zodiac's most initiatory point.
+      What structures are you ready to dissolve, and which do you choose to build?
+    </div>
+
+    <div class="footer">
+      <div class="logo" style="font-size:13px;">big<span style="color:#7c3aed">3</span>.me</div>
+      <div class="page-indicator">2 / 5</div>
+    </div>
+  </div>
+</body>
+</html>

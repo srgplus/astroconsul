@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Saturn Sextile Pluto — Section 1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e8e8ec;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .glow-tr {
+    position: absolute; top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(142,142,150,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-bl {
+    position: absolute; bottom: -80px; left: -80px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(192,132,252,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03);
+    pointer-events: none;
+  }
+  .ring-1 { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .ring-2 { width: 760px; height: 760px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .ring-3 { width: 980px; height: 980px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  .star {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.25); pointer-events: none;
+  }
+
+  .card {
+    position: relative; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 48px 52px 44px;
+    z-index: 1;
+  }
+
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .logo {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 600; font-size: 15px; color: #e8e8ec;
+  }
+  .logo-tagline {
+    font-size: 9px; font-weight: 400; color: #8e8e96;
+    letter-spacing: 3px; text-transform: uppercase; margin-top: 2px;
+  }
+
+  .badge-exact {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    color: #34d399;
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+
+  .section-tag {
+    font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #8e8e96; margin-bottom: 12px;
+  }
+
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 42px; font-weight: 400; line-height: 1.1;
+    color: #e8e8ec; margin-bottom: 10px; letter-spacing: -0.01em;
+  }
+
+  .aspect-name {
+    font-size: 13px; font-weight: 500; color: #8e8e96;
+    margin-bottom: 44px; letter-spacing: 0.01em;
+  }
+  .aspect-name .accent { color: #a78bfa; }
+
+  /* Aspect visual box */
+  .aspect-box {
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 40px 52px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  .aspect-inner-label {
+    font-size: 9px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #8e8e96;
+    text-align: center; margin-bottom: 32px;
+  }
+
+  .planets-visual {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+  }
+
+  .planet-circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .pc-saturn {
+    background: linear-gradient(135deg, rgba(142,142,150,0.2), rgba(142,142,150,0.04));
+    border: 1.5px solid rgba(142,142,150,0.35);
+  }
+  .pc-pluto {
+    background: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(192,132,252,0.05));
+    border: 1.5px solid rgba(192,132,252,0.3);
+  }
+
+  .pc-symbol { font-size: 28px; line-height: 1; margin-bottom: 4px; }
+  .pc-name { font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8e8e96; }
+
+  /* Sextile connector — dashed with symbol */
+  .sxt-connector {
+    flex: 1; min-width: 80px; max-width: 120px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    position: relative;
+  }
+  .sxt-line {
+    width: 100%; height: 1px;
+    background: repeating-linear-gradient(
+      to right,
+      rgba(142,142,150,0.4) 0px, rgba(142,142,150,0.4) 5px,
+      transparent 5px, transparent 10px
+    );
+  }
+  .sxt-label {
+    font-size: 10px; font-weight: 600; color: #8e8e96;
+    letter-spacing: 1px; text-transform: uppercase;
+    background: #131316; padding: 2px 6px;
+  }
+
+  .positions-row {
+    display: flex; justify-content: space-between;
+    margin-top: 24px; padding: 0 8px;
+  }
+  .pos-item { text-align: center; }
+  .pos-degree { font-size: 15px; font-weight: 600; color: #e8e8ec; margin-bottom: 2px; }
+  .pos-sign { font-size: 16px; color: #a78bfa; }
+  .pos-label { font-size: 9px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: #8e8e96; margin-top: 4px; }
+
+  /* Highlight pill */
+  .gen-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(192,132,252,0.06);
+    border: 1px solid rgba(192,132,252,0.15);
+    border-radius: 20px; padding: 8px 16px;
+    font-size: 11px; font-weight: 500; color: #c084fc;
+    margin-bottom: 28px;
+  }
+
+  .description {
+    font-size: 15px; font-weight: 400; color: #8e8e96;
+    line-height: 1.65; flex: 1;
+  }
+  .description strong { color: #e8e8ec; font-weight: 600; }
+
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: auto;
+  }
+  .page-indicator { font-size: 11px; font-weight: 500; color: #8e8e96; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+  <div class="glow-tr"></div>
+  <div class="glow-bl"></div>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+
+  <div class="star" style="width:3px;height:3px;top:7%;left:18%;opacity:0.25;"></div>
+  <div class="star" style="width:2px;height:2px;top:14%;left:75%;opacity:0.20;"></div>
+  <div class="star" style="width:2px;height:2px;top:26%;left:90%;opacity:0.22;"></div>
+  <div class="star" style="width:3px;height:3px;top:70%;left:8%;opacity:0.18;"></div>
+  <div class="star" style="width:2px;height:2px;top:82%;left:88%;opacity:0.20;"></div>
+  <div class="star" style="width:2px;height:2px;top:91%;left:45%;opacity:0.15;"></div>
+  <div class="star" style="width:2px;height:2px;top:40%;left:3%;opacity:0.18;"></div>
+
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="logo">big<span style="color:#a78bfa">3</span>.me</div>
+        <div class="logo-tagline">Transit Astrology</div>
+      </div>
+    </div>
+
+    <div class="badge-exact">
+      <div class="badge-dot"></div>
+      EXACT · 0.58°
+    </div>
+
+    <div class="section-tag">Saturn Sextile Pluto</div>
+    <div class="main-title">Structural<br>Renewal</div>
+    <div class="aspect-name">♄ Saturn <span class="accent">sxt</span> ♇ Pluto — Once-in-a-generation aspect</div>
+
+    <div class="aspect-box">
+      <div class="aspect-inner-label">Sextile — 60° aspect · Orb 0.58° EXACT</div>
+      <div class="planets-visual">
+        <div class="planet-circle pc-saturn">
+          <span class="pc-symbol" style="color:#8e8e96;">♄</span>
+          <span class="pc-name">Saturn</span>
+        </div>
+        <div class="sxt-connector">
+          <div class="sxt-line"></div>
+          <div class="sxt-label">sxt 60°</div>
+          <div class="sxt-line"></div>
+        </div>
+        <div class="planet-circle pc-pluto">
+          <span class="pc-symbol" style="color:#c084fc;">♇</span>
+          <span class="pc-name">Pluto</span>
+        </div>
+      </div>
+      <div class="positions-row">
+        <div class="pos-item">
+          <div class="pos-degree">4°29' <span class="pos-sign">♈</span></div>
+          <div class="pos-label">Saturn · Aries</div>
+        </div>
+        <div class="pos-item">
+          <div class="pos-degree">5°03' <span class="pos-sign">♒</span></div>
+          <div class="pos-label">Pluto · Aquarius</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gen-pill">
+      ✦ Once-in-a-generation — structural transformation at societal scale
+    </div>
+
+    <div class="description">
+      Saturn in Aries forms a <strong>precise sextile to Pluto in Aquarius</strong>.
+      The planet of structure cooperates with the planet of deep transformation —
+      building <strong>new foundations</strong> from the ruins of what no longer works.
+      Old hierarchies soften; new systems are architected with intention.
+      At 0.58°, this is virtually exact — the rebuilding is happening <strong>right now</strong>.
+    </div>
+
+    <div class="footer">
+      <div class="logo" style="font-size:13px;">big<span style="color:#a78bfa">3</span>.me</div>
+      <div class="page-indicator">3 / 5</div>
+    </div>
+  </div>
+</body>
+</html>

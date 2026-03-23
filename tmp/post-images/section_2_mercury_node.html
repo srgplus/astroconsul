@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Mercury Conjunct North Node — Section 2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: #faf9f7;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #1a1a1f;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .glow-tr {
+    position: absolute; top: -60px; right: -60px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-bl {
+    position: absolute; bottom: -60px; left: -60px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(124,58,237,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.03); pointer-events: none;
+  }
+  .ring-1 { width: 460px; height: 460px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .ring-2 { width: 700px; height: 700px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  .star {
+    position: absolute; border-radius: 50%;
+    background: rgba(0,0,0,0.10); pointer-events: none;
+  }
+
+  .card {
+    position: relative; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 48px 52px 44px;
+    z-index: 1;
+  }
+
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .logo {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 600; font-size: 15px; color: #1a1a1f;
+  }
+  .logo-tagline {
+    font-size: 9px; font-weight: 400; color: #6e6e76;
+    letter-spacing: 3px; text-transform: uppercase; margin-top: 2px;
+  }
+
+  .badge-exact {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.22);
+    color: #16a34a;
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+
+  .section-tag {
+    font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #6e6e76; margin-bottom: 12px;
+  }
+
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 42px; font-weight: 400; line-height: 1.1;
+    color: #1a1a1f; margin-bottom: 10px; letter-spacing: -0.01em;
+  }
+
+  .aspect-name {
+    font-size: 13px; font-weight: 500; color: #7c3aed;
+    margin-bottom: 44px;
+  }
+
+  /* Aspect visual box */
+  .aspect-box {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px;
+    padding: 40px 52px;
+    margin-bottom: 36px;
+  }
+
+  .aspect-inner-label {
+    font-size: 9px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #6e6e76;
+    text-align: center; margin-bottom: 32px;
+  }
+
+  .planets-visual {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+  }
+
+  .planet-circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .pc-mercury {
+    background: linear-gradient(135deg, rgba(96,165,250,0.18), rgba(96,165,250,0.04));
+    border: 1.5px solid rgba(96,165,250,0.35);
+  }
+  .pc-node {
+    background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(167,139,250,0.04));
+    border: 1.5px solid rgba(167,139,250,0.30);
+  }
+
+  .pc-symbol { font-size: 28px; line-height: 1; margin-bottom: 4px; }
+  .pc-name { font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #6e6e76; }
+
+  .conj-connector {
+    flex: 1; min-width: 80px; max-width: 120px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .conj-line {
+    width: 100%; height: 1px; background: rgba(0,0,0,0.12);
+  }
+  .conj-label {
+    font-size: 10px; font-weight: 600; color: #6e6e76;
+    letter-spacing: 1px; text-transform: uppercase;
+    background: #ffffff; padding: 2px 6px;
+  }
+
+  .positions-row {
+    display: flex; justify-content: space-between;
+    margin-top: 24px; padding: 0 8px;
+  }
+  .pos-item { text-align: center; }
+  .pos-degree { font-size: 15px; font-weight: 600; color: #1a1a1f; margin-bottom: 2px; }
+  .pos-sign { font-size: 16px; color: #7c3aed; }
+  .pos-label { font-size: 9px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: #6e6e76; margin-top: 4px; }
+
+  /* Fate pill */
+  .fate-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(167,139,250,0.06);
+    border: 1px solid rgba(167,139,250,0.15);
+    border-radius: 20px; padding: 8px 16px;
+    font-size: 11px; font-weight: 500; color: #7c3aed;
+    margin-bottom: 28px;
+  }
+
+  .description {
+    font-size: 15px; font-weight: 400; color: #6e6e76;
+    line-height: 1.65; flex: 1;
+  }
+  .description strong { color: #1a1a1f; font-weight: 600; }
+
+  .footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 28px; border-top: 1px solid rgba(0,0,0,0.06);
+    margin-top: auto;
+  }
+  .page-indicator { font-size: 11px; font-weight: 500; color: #6e6e76; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+  <div class="glow-tr"></div>
+  <div class="glow-bl"></div>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+
+  <div class="star" style="width:2px;height:2px;top:10%;left:78%;opacity:0.16;"></div>
+  <div class="star" style="width:3px;height:3px;top:20%;left:6%;opacity:0.13;"></div>
+  <div class="star" style="width:2px;height:2px;top:68%;left:92%;opacity:0.14;"></div>
+  <div class="star" style="width:2px;height:2px;top:83%;left:14%;opacity:0.11;"></div>
+  <div class="star" style="width:2px;height:2px;top:50%;left:95%;opacity:0.10;"></div>
+
+  <div class="card">
+    <div class="header">
+      <div>
+        <div class="logo">big<span style="color:#7c3aed">3</span>.me</div>
+        <div class="logo-tagline">Transit Astrology</div>
+      </div>
+    </div>
+
+    <div class="badge-exact">
+      <div class="badge-dot"></div>
+      EXACT · 0.07°
+    </div>
+
+    <div class="section-tag">Mercury Conjunct North Node</div>
+    <div class="main-title">Fated<br>Messages</div>
+    <div class="aspect-name">☿ Mercury conj ☊ North Node — Destined conversations</div>
+
+    <div class="aspect-box">
+      <div class="aspect-inner-label">Conjunction · Orb 0.07° — Near-perfect alignment</div>
+      <div class="planets-visual">
+        <div class="planet-circle pc-mercury">
+          <span class="pc-symbol" style="color:#60a5fa;">☿</span>
+          <span class="pc-name">Mercury</span>
+        </div>
+        <div class="conj-connector">
+          <div class="conj-line"></div>
+          <div class="conj-label">conj</div>
+          <div class="conj-line"></div>
+        </div>
+        <div class="planet-circle pc-node">
+          <span class="pc-symbol" style="color:#a78bfa;">☊</span>
+          <span class="pc-name">N. Node</span>
+        </div>
+      </div>
+      <div class="positions-row">
+        <div class="pos-item">
+          <div class="pos-degree">8°50' <span class="pos-sign">♓</span></div>
+          <div class="pos-label">Mercury · Pisces</div>
+        </div>
+        <div class="pos-item">
+          <div class="pos-degree">8°45' <span class="pos-sign">♓</span></div>
+          <div class="pos-label">North Node · Pisces</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fate-pill">
+      ☊ North Node contact — karmic significance, soul-level direction
+    </div>
+
+    <div class="description">
+      Mercury aligns with the North Node at <strong>0.07° orb</strong> — one of the closest
+      aspects in today's sky. Words spoken today carry <strong>karmic weight</strong>.
+      Conversations may arrive as if by fate. Information you receive points
+      directly toward your <strong>soul's path</strong>. In Pisces, messages come
+      through intuition, dreams, and unexpected channels.
+    </div>
+
+    <div class="footer">
+      <div class="logo" style="font-size:13px;">big<span style="color:#7c3aed">3</span>.me</div>
+      <div class="page-indicator">4 / 5</div>
+    </div>
+  </div>
+</body>
+</html>
