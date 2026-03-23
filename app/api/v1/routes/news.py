@@ -135,39 +135,6 @@ def _get_post_by_slug(slug: str):
         }
 
 
-@router.get("/debug-templates", include_in_schema=False)
-def debug_templates(request: Request):
-    """Temporary debug endpoint — tries actual template render."""
-    import traceback
-
-    tdir = Path(__file__).resolve().parents[4] / "templates"
-    result = {
-        "templates_dir": str(tdir),
-        "exists": tdir.exists(),
-        "files": [],
-        "render_error": None,
-    }
-    if tdir.exists():
-        result["files"] = [str(f.relative_to(tdir)) for f in tdir.rglob("*") if f.is_file()]
-
-    try:
-        posts = _get_published_posts(limit=1)
-        result["posts_count"] = len(posts)
-
-        # Actually try to render the template
-        tpl = _get_templates()
-        resp = tpl.TemplateResponse(
-            request=request,
-            name="news/feed.html",
-            context={"posts": posts, "tag": None, "page": 1},
-        )
-        result["render_ok"] = True
-        result["render_status"] = resp.status_code
-    except Exception:
-        result["render_error"] = traceback.format_exc()
-
-    return result
-
 
 @router.get("/", response_class=HTMLResponse)
 def news_feed(request: Request, tag: str | None = None, page: int = 1):
