@@ -16,3 +16,4 @@ profiles/*.json
 charts/*.json
 
 *.egg-info/
+tmp/
