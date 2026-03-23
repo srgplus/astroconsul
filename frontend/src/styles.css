@@ -6446,10 +6446,14 @@ button.natal-pos__row--clickable {
   height: 140px;
 }
 
+.syn-gauge-track {
+  stroke: rgba(255,255,255,0.08);
+}
+
 .syn-gauge-number {
   font-size: 40px;
   font-weight: 700;
-  fill: #fff;
+  fill: var(--text, #fff);
 }
 
 .syn-gauge-label {
@@ -6614,6 +6618,30 @@ button.natal-pos__row--clickable {
 .syn-mode-btn--active {
   background: rgba(168, 85, 247, 0.2);
   color: #c084fc;
+}
+
+/* Synastry — light theme */
+:root[data-theme="light"] .syn-gauge-track,
+:root:not([data-theme="dark"]) .syn-gauge-track {
+  stroke: rgba(0,0,0,0.08);
+}
+:root[data-theme="light"] .syn-cat,
+:root:not([data-theme="dark"]) .syn-cat {
+  background: rgba(0,0,0,0.03);
+}
+:root[data-theme="light"] .syn-cat-bar,
+:root:not([data-theme="dark"]) .syn-cat-bar {
+  background: rgba(0,0,0,0.08);
+}
+:root[data-theme="light"] .syn-mode-toggle,
+:root:not([data-theme="dark"]) .syn-mode-toggle {
+  border-color: rgba(0,0,0,0.15);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .syn-gauge-track { stroke: rgba(0,0,0,0.08); }
+  :root:not([data-theme="dark"]) .syn-cat { background: rgba(0,0,0,0.03); }
+  :root:not([data-theme="dark"]) .syn-cat-bar { background: rgba(0,0,0,0.08); }
+  :root:not([data-theme="dark"]) .syn-mode-toggle { border-color: rgba(0,0,0,0.15); }
 }
 
 /* Overall reading */

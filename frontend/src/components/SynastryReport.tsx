@@ -66,7 +66,7 @@ function ScoreGauge({ score, label, chemistryLabel }: { score: number; label: st
   return (
     <div className="syn-gauge">
       <svg viewBox="0 0 160 160" className="syn-gauge-svg">
-        <circle cx="80" cy="80" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+        <circle cx="80" cy="80" r={radius} fill="none" className="syn-gauge-track" strokeWidth="10" />
         <circle
           cx="80" cy="80" r={radius} fill="none"
           stroke="url(#synGrad)" strokeWidth="10"
@@ -81,7 +81,7 @@ function ScoreGauge({ score, label, chemistryLabel }: { score: number; label: st
             <stop offset="100%" stopColor="#ec4899" />
           </linearGradient>
         </defs>
-        <text x="80" y="88" textAnchor="middle" className="syn-gauge-number" fill="#fff">{score}</text>
+        <text x="80" y="88" textAnchor="middle" className="syn-gauge-number">{score}</text>
       </svg>
       <div className="syn-gauge-label">{chemistryLabel} <span className="syn-gauge-label-val">{label}</span></div>
     </div>
