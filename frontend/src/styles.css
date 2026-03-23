@@ -607,7 +607,6 @@ select {
   display: inline-flex;
   cursor: not-allowed;
 }
-.transit-locked-wrap button,
 .wheel-mode-toggle button:last-child,
 .wheel-mode-toggle span:last-child button {
   border-radius: 0 10px 10px 0;
@@ -1127,11 +1126,11 @@ select {
 }
 
 .wheel-fullscreen__logo {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: none;
+  border: none;
+  border-radius: 0;
   padding: 8px 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .wheel-fullscreen__toggle {
@@ -3097,7 +3096,7 @@ button.natal-pos__row--clickable {
   display: grid;
   place-items: center;
   min-height: 520px;
-  margin-top: 24px;
+  margin-top: 44px;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 28px;
