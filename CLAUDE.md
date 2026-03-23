@@ -31,6 +31,8 @@ To create and publish a blog post directly to big3.me/news (no deploy needed):
 4. Run: `python scripts/publish_post.py scripts/posts/my_post.py`
 5. Use `--upsert` flag to update an existing post by slug
 
+**If running in sandbox (no internet):** Create an Alembic migration instead of running publish_post.py. The migration will execute on Railway deploy.
+
 **Requires env vars:** `SUPABASE_URL` and `SUPABASE_KEY` (service_role key).
 See `.env.local.example` for values. If env vars are not set, generate SQL for manual paste into Supabase SQL Editor.
 
@@ -40,3 +42,25 @@ See `.env.local.example` for values. If env vars are not set, generate SQL for m
 - Use `prompt_block()` for copyable prompts
 - Tags: comma-separated (e.g. "educational,guide" or "celebrity,transit")
 - All transit claims must be verified against Swiss Ephemeris
+
+## Post Images (Automated Pipeline)
+
+Images for blog posts are generated and uploaded automatically via GitHub Action.
+
+**How it works:**
+1. Generate branded HTML cards in `tmp/post-images/` (cover.html + section_*.html)
+2. Create `tmp/post-images/slug.txt` with the post slug (one line, no spaces)
+3. Commit and push to your `claude/*` branch
+4. GitHub Action (`.github/workflows/upload-post-images.yml`) automatically:
+   - Renders HTML → PNG via Playwright
+   - Uploads PNGs to Supabase Storage (bucket: `news-images`)
+   - Updates the post record with image URLs
+
+**Image format:**
+- Size: 1080×1350 (4:5 portrait, Instagram-style)
+- Style: social media cards (bold text, gradients, cosmic theme) — NOT web pages
+- Reference: `.claude/skills/big3me-content-design/SKILL.md`
+
+**Manual upload (fallback):** `python scripts/render_and_upload_images.py <slug> tmp/post-images/`
+
+**Daily post prompt template:** See `.ai/prompts/daily-post.md`

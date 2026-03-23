@@ -838,6 +838,39 @@ Each entry has:
 
 ---
 
+## 14. News & Blog Post Pipeline
+
+### Publishing Posts
+- Post files live in `scripts/posts/` (see `example_post.py` for template)
+- Publish via: `python scripts/publish_post.py scripts/posts/<slug>.py`
+- If in sandbox (no internet): create an Alembic migration with INSERT INTO news_posts
+- Author is always "Victoria"
+- All transit claims must be verified against Swiss Ephemeris
+
+### Image Pipeline (Automated)
+Blog post images are generated and uploaded via GitHub Action — no manual steps needed.
+
+**Workflow:**
+1. Generate branded HTML cards in `tmp/post-images/`:
+   - `cover.html` → hero_image_url + og_image_url
+   - `section_0_*.html` → sections[0].image_url
+   - `section_1_*.html` → sections[1].image_url (etc.)
+2. Create `tmp/post-images/slug.txt` with the post slug (one line, no spaces)
+3. Commit and push to `claude/*` branch
+4. GitHub Action (`.github/workflows/upload-post-images.yml`):
+   - Renders HTML → PNG via Playwright (1080×1350, 4:5 portrait)
+   - Uploads to Supabase Storage bucket `news-images`
+   - Updates post record with image URLs via Supabase REST API
+
+**Image style:** Instagram-style social media cards (bold text, gradients, cosmic theme). NOT web page screenshots. Reference: `.claude/skills/big3me-content-design/SKILL.md`
+
+**Manual fallback:** `python scripts/render_and_upload_images.py <slug> tmp/post-images/`
+
+### Daily Post Prompt
+See `.ai/prompts/daily-post.md` for a ready-to-paste prompt template.
+
+---
+
 ## Worklog
 
 ### 2026-03-16 — UI/UX Polish & Bug Fixes
