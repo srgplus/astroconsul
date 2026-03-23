@@ -22,7 +22,7 @@ import os
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException
 
 from app.core.config import get_settings
 
@@ -136,24 +136,6 @@ def _update_post_image(slug: str, filename: str, image_url: str):
 
         logger.info("Updated post %s with image %s", slug, filename)
 
-
-@router.post("/upload")
-async def upload_image(
-    file: UploadFile = File(...),
-    slug: str = Form(...),
-    filename: str = Form(None),
-) -> dict[str, str]:
-    """Upload a PNG image for a blog post (multipart form)."""
-    fname = filename or file.filename or "image.png"
-    data = await file.read()
-
-    if len(data) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="File too large (max 5MB)")
-
-    url = _upload_to_storage(data, slug, fname)
-    _update_post_image(slug, fname, url)
-
-    return {"url": url, "slug": slug, "filename": fname}
 
 
 @router.post("/upload-base64")

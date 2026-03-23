@@ -10,5 +10,6 @@ httpx
 pydantic
 email-validator
 python-dotenv
+python-multipart
 PyJWT
 cryptography
