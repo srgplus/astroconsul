@@ -7,6 +7,7 @@ on:
       - 'claude/**'
     paths:
       - 'tmp/post-images/**/*.html'
+      - 'scripts/fix_html_unicode.py'
 
 jobs:
   render-and-upload:
@@ -26,26 +27,14 @@ jobs:
           playwright install chromium
 
       - name: Fix Unicode escape sequences in HTML files
-        run: |
-          python3 -c "
-import re
-from pathlib import Path
-for f in Path('tmp/post-images').glob('*.html'):
-    content = f.read_text()
-    fixed = re.sub(r'\\\\u([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), content)
-    if fixed != content:
-        f.write_text(fixed)
-        print(f'Fixed Unicode escapes in {f.name}')
-"
+        run: python scripts/fix_html_unicode.py tmp/post-images/
 
       - name: Detect slug from HTML files
         id: detect
         run: |
-          # Look for a slug.txt marker, or extract from directory structure
           if [ -f tmp/post-images/slug.txt ]; then
             SLUG=$(cat tmp/post-images/slug.txt | tr -d '[:space:]')
           else
-            # Try to get slug from the most recent commit message
             SLUG=$(git log -1 --pretty=%B | grep -oP 'slug[=: ]+\K[\w-]+' || echo "")
           fi
 
