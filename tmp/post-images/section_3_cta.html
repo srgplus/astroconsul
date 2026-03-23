@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1080px; height: 1350px;
+  background: #0a0a0b; color: #e8e8ec;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow: hidden; position: relative;
+}
+.ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.ring-1 { width: 600px; height: 600px; }
+.ring-2 { width: 450px; height: 450px; }
+.ring-3 { width: 300px; height: 300px; }
+.glow-center {
+  position: absolute; width: 400px; height: 400px;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.star {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+.content {
+  position: relative; z-index: 10;
+  padding: 48px 52px; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.logo-big { font-size: 20px; font-weight: 600; color: #e8e8ec; margin-bottom: 8px; }
+.logo-big .three { color: #a78bfa; }
+.tagline {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: #8e8e96; margin-bottom: 60px;
+}
+.cta-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 38px; font-weight: 400; text-align: center;
+  line-height: 1.3; margin-bottom: 16px;
+}
+.cta-subtitle {
+  font-size: 15px; color: #8e8e96; text-align: center;
+  line-height: 1.6; max-width: 650px; margin-bottom: 48px;
+}
+.cta-button {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  border-radius: 50px; padding: 18px 48px;
+  color: white; font-weight: 600; font-size: 16px;
+  letter-spacing: 0.5px; margin-bottom: 48px; border: none;
+}
+.features {
+  display: flex; flex-direction: column; gap: 16px; max-width: 500px;
+}
+.feature {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: #8e8e96;
+}
+.feature-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #a78bfa; flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+  <div class="glow-center"></div>
+  <div class="star" style="width:2px;height:2px;top:150px;left:200px;opacity:0.2"></div>
+  <div class="star" style="width:3px;height:3px;top:300px;right:200px;opacity:0.15"></div>
+  <div class="star" style="width:2px;height:2px;bottom:250px;left:300px;opacity:0.2"></div>
+  <div class="star" style="width:2px;height:2px;bottom:400px;right:250px;opacity:0.25"></div>
+  <div class="star" style="width:3px;height:3px;top:500px;left:150px;opacity:0.15"></div>
+  <div class="content">
+    <div class="logo-big">big<span class="three">3</span>.me</div>
+    <div class="tagline">TRANSIT ASTROLOGY</div>
+    <h2 class="cta-title">How Is This Transit<br>Affecting You?</h2>
+    <p class="cta-subtitle">The Saturn–Neptune conjunction activates different areas of your chart. See your personal transit report.</p>
+    <div class="cta-button">Check Your Transits</div>
+    <div class="features">
+      <div class="feature">
+        <span class="feature-dot"></span>
+        <span>Personal transit report based on your birth chart</span>
+      </div>
+      <div class="feature">
+        <span class="feature-dot"></span>
+        <span>Real-time planetary positions via Swiss Ephemeris</span>
+      </div>
+      <div class="feature">
+        <span class="feature-dot"></span>
+        <span>Free chart creation — no signup required</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

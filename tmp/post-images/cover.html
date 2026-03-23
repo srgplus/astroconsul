@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1080px;
+  height: 1350px;
+  background: #0a0a0b;
+  color: #e8e8ec;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.ring-1 { width: 600px; height: 600px; top: -100px; right: -150px; }
+.ring-2 { width: 450px; height: 450px; bottom: -80px; left: -120px; }
+.ring-3 { width: 350px; height: 350px; top: 40%; left: 50%; transform: translate(-50%, -50%); }
+.glow-purple {
+  position: absolute; width: 350px; height: 350px;
+  top: 60px; right: 80px;
+  background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.glow-gold {
+  position: absolute; width: 300px; height: 300px;
+  bottom: 200px; left: 60px;
+  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.star {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+.content {
+  position: relative; z-index: 10;
+  padding: 48px 52px; height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 48px;
+}
+.logo { font-size: 13px; font-weight: 600; color: #e8e8ec; }
+.logo .three { color: #a78bfa; }
+.tag {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #fbbf24;
+  background: rgba(251,191,36,0.1); padding: 6px 16px;
+  border-radius: 20px; border: 1px solid rgba(251,191,36,0.2);
+}
+.date-badge {
+  text-align: center; margin-bottom: 36px;
+}
+.date-badge span {
+  font-size: 12px; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: #a78bfa;
+  background: rgba(167,139,250,0.08); padding: 8px 24px;
+  border-radius: 20px; border: 1px solid rgba(167,139,250,0.15);
+}
+.planet-icons {
+  display: flex; justify-content: center; gap: 20px;
+  margin-bottom: 44px;
+}
+.planet-circle {
+  width: 84px; height: 84px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+}
+.sun-circle {
+  background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.05));
+  border: 1.5px solid rgba(251,191,36,0.3); color: #fbbf24;
+}
+.saturn-circle {
+  background: linear-gradient(135deg, rgba(142,142,147,0.2), rgba(142,142,147,0.05));
+  border: 1.5px solid rgba(142,142,147,0.3); color: #8e8e96;
+}
+.neptune-circle {
+  background: linear-gradient(135deg, rgba(129,140,248,0.2), rgba(129,140,248,0.05));
+  border: 1.5px solid rgba(129,140,248,0.3); color: #818cf8;
+}
+.connector {
+  display: flex; align-items: center;
+  font-size: 10px; letter-spacing: 2px; color: #8e8e96;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 40px; font-weight: 400; text-align: center;
+  line-height: 1.2; margin-bottom: 16px;
+}
+.subtitle {
+  font-size: 15px; font-weight: 400; text-align: center;
+  color: #8e8e96; line-height: 1.6;
+  max-width: 720px; margin: 0 auto 40px;
+}
+.transit-list {
+  display: flex; flex-direction: column; gap: 12px;
+  margin: 0 auto 40px; max-width: 700px; width: 100%;
+}
+.transit-row {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px; padding: 14px 20px;
+}
+.transit-planets {
+  font-size: 13px; font-weight: 500; color: #e8e8ec; flex: 1;
+}
+.transit-aspect {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: #8e8e96;
+}
+.transit-orb {
+  font-size: 10px; font-weight: 600; padding: 4px 10px;
+  border-radius: 12px;
+}
+.orb-exact { color: #34d399; background: rgba(52,211,153,0.12); }
+.orb-strong { color: #fb923c; background: rgba(251,146,60,0.12); }
+.positions {
+  display: flex; justify-content: center; gap: 40px;
+  margin-top: auto; margin-bottom: 48px;
+}
+.position-item { text-align: center; }
+.position-planet {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #8e8e96; margin-bottom: 4px;
+}
+.position-sign { font-size: 14px; font-weight: 500; color: #a78bfa; }
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.tagline {
+  font-size: 10px; letter-spacing: 3px; color: #8e8e96; opacity: 0.5;
+}
+.swipe {
+  font-size: 10px; letter-spacing: 2px; color: #8e8e96; opacity: 0.5;
+}
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+  <div class="glow-purple"></div>
+  <div class="glow-gold"></div>
+  <div class="star" style="width:3px;height:3px;top:120px;left:200px;opacity:0.25"></div>
+  <div class="star" style="width:2px;height:2px;top:300px;right:180px;opacity:0.15"></div>
+  <div class="star" style="width:3px;height:3px;top:500px;left:80px;opacity:0.2"></div>
+  <div class="star" style="width:2px;height:2px;bottom:400px;right:100px;opacity:0.3"></div>
+  <div class="star" style="width:2px;height:2px;top:200px;left:600px;opacity:0.15"></div>
+  <div class="star" style="width:3px;height:3px;bottom:300px;left:400px;opacity:0.2"></div>
+
+  <div class="content">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="tag">Cosmic Weather</span>
+    </div>
+
+    <div class="date-badge"><span>March 23, 2026</span></div>
+
+    <div class="planet-icons">
+      <div class="planet-circle sun-circle">☉</div>
+      <div class="connector">conj</div>
+      <div class="planet-circle neptune-circle">♆</div>
+      <div class="connector">conj</div>
+      <div class="planet-circle saturn-circle">♄</div>
+    </div>
+
+    <h1 class="title">The Sun Lights Up the<br>Saturn–Neptune Conjunction</h1>
+    <p class="subtitle">When dreams get a deadline and reality gets a vision.<br>All planets direct.</p>
+
+    <div class="transit-list">
+      <div class="transit-row">
+        <span class="transit-planets">☉ Sun conj ♆ Neptune</span>
+        <span class="transit-aspect">♈ 2°51′ / 1°52′</span>
+        <span class="transit-orb orb-exact">0.98°</span>
+      </div>
+      <div class="transit-row">
+        <span class="transit-planets">☉ Sun conj ♄ Saturn</span>
+        <span class="transit-aspect">♈ 2°51′ / 4°29′</span>
+        <span class="transit-orb orb-strong">1.62°</span>
+      </div>
+      <div class="transit-row">
+        <span class="transit-planets">♄ Saturn sxt ♇ Pluto</span>
+        <span class="transit-aspect">♈ 4°29′ / ♒ 5°03′</span>
+        <span class="transit-orb orb-exact">0.58°</span>
+      </div>
+      <div class="transit-row">
+        <span class="transit-planets">♂ Mars tri ♃ Jupiter</span>
+        <span class="transit-aspect">♓ 16°27′ / ♋ 15°20′</span>
+        <span class="transit-orb orb-strong">1.12°</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <span class="logo">big<span class="three">3</span>.me</span>
+        <span class="tagline" style="margin-left:12px">TRANSIT ASTROLOGY</span>
+      </div>
+      <span class="swipe">SWIPE →</span>
+    </div>
+  </div>
+</body>
+</html>

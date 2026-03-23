@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1080px; height: 1350px;
+  background: #faf9f7; color: #1a1a1f;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow: hidden; position: relative;
+}
+.ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.02);
+}
+.ring-1 { width: 500px; height: 500px; top: -120px; right: -100px; }
+.ring-2 { width: 400px; height: 400px; bottom: -80px; left: -100px; }
+.glow {
+  position: absolute; width: 300px; height: 300px;
+  top: 100px; right: 100px;
+  background: radial-gradient(circle, rgba(129,140,248,0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.content {
+  position: relative; z-index: 10;
+  padding: 48px 52px; height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 48px;
+}
+.logo { font-size: 13px; font-weight: 600; color: #1a1a1f; }
+.logo .three { color: #7c3aed; }
+.badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; padding: 6px 14px; border-radius: 20px;
+}
+.badge-exact {
+  color: #34d399; background: rgba(52,211,153,0.1);
+  border: 1px solid rgba(52,211,153,0.2);
+}
+.section-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #6e6e76; opacity: 0.5;
+  margin-bottom: 12px;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 34px; font-weight: 400; line-height: 1.2;
+  margin-bottom: 8px;
+}
+.subtitle {
+  font-size: 14px; color: #7c3aed; font-weight: 500;
+  margin-bottom: 36px;
+}
+.aspect-box {
+  background: #ffffff; border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px; padding: 32px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 28px; margin-bottom: 36px;
+}
+.planet-circle {
+  width: 96px; height: 96px; border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.planet-symbol { font-size: 30px; }
+.planet-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; margin-top: 4px;
+}
+.planet-pos { font-size: 11px; color: #6e6e76; margin-top: 2px; }
+.transit-planet {
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.03));
+  border: 1.5px solid rgba(251,191,36,0.25);
+}
+.transit-planet .planet-symbol { color: #fbbf24; }
+.transit-planet .planet-label { color: #b8860b; }
+.natal-planet {
+  background: linear-gradient(135deg, rgba(129,140,248,0.15), rgba(129,140,248,0.03));
+  border: 1.5px solid rgba(129,140,248,0.25);
+}
+.natal-planet .planet-symbol { color: #818cf8; }
+.natal-planet .planet-label { color: #5b21b6; }
+.aspect-connector {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.aspect-line { width: 50px; height: 1px; background: rgba(0,0,0,0.1); }
+.aspect-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px; color: #6e6e76;
+}
+.description {
+  font-size: 14px; font-weight: 400; line-height: 1.75;
+  color: #6e6e76; margin-bottom: 32px;
+}
+.key-theme {
+  background: #ffffff; border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px; padding: 24px 32px;
+  margin-top: auto; margin-bottom: 48px;
+}
+.key-theme-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #6e6e76; opacity: 0.5;
+  margin-bottom: 12px;
+}
+.key-theme-items { display: flex; flex-wrap: wrap; gap: 10px; }
+.theme-tag {
+  font-size: 13px; font-weight: 500; color: #7c3aed;
+  background: rgba(124,58,237,0.06); padding: 8px 18px;
+  border-radius: 20px; border: 1px solid rgba(124,58,237,0.1);
+}
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.page { font-size: 11px; color: #6e6e76; font-weight: 500; }
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="glow"></div>
+  <div class="content">
+    <div class="header">
+      <span class="badge badge-exact">EXACT 0.98°</span>
+      <span class="logo">big<span class="three">3</span>.me</span>
+    </div>
+    <div class="section-label">Sun Conjunct Neptune</div>
+    <h2 class="title">The Vision Comes<br>Into Focus</h2>
+    <div class="subtitle">Sun conjunct Neptune at early Aries</div>
+    <div class="aspect-box">
+      <div class="planet-circle transit-planet">
+        <span class="planet-symbol">☉</span>
+        <span class="planet-label">Sun</span>
+        <span class="planet-pos">♈ 2°51′</span>
+      </div>
+      <div class="aspect-connector">
+        <span class="aspect-label">CONJ</span>
+        <div class="aspect-line"></div>
+      </div>
+      <div class="planet-circle natal-planet">
+        <span class="planet-symbol">♆</span>
+        <span class="planet-label">Neptune</span>
+        <span class="planet-pos">♈ 1°52′</span>
+      </div>
+    </div>
+    <p class="description">
+      Neptune in Aries does not drift — it pioneers. The Sun meeting Neptune is a spiritual ignition: creative projects feel divinely guided, conversations carry unusual depth. The boundaries between what you want and what you dream dissolve. The risk is self-deception — Aries confidence plus Neptune illusion can produce grand plans built on sand.
+    </p>
+    <div class="key-theme">
+      <div class="key-theme-label">Key Themes</div>
+      <div class="key-theme-items">
+        <span class="theme-tag">Spiritual ignition</span>
+        <span class="theme-tag">Creative flow</span>
+        <span class="theme-tag">Dissolving boundaries</span>
+        <span class="theme-tag">Watch for self-deception</span>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="page">2 / 5</span>
+    </div>
+  </div>
+</body>
+</html>
