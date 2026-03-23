@@ -155,11 +155,12 @@ python scripts/render_and_upload_images.py <slug> tmp/post-images/
 ### Supported Dimensions
 | Format | Pixels | Ratio | Use |
 |--------|--------|-------|-----|
-| Instagram Feed | 1080 x 1080 | 1:1 | Feed posts, X/Twitter |
-| Instagram Portrait | 1080 x 1350 | 4:5 | Carousel slides, portrait |
+| **Blog + Instagram (DEFAULT)** | **1080 x 1350** | **4:5** | **Blog post images, Instagram feed, carousels** |
 | Instagram Story | 1080 x 1920 | 9:16 | Stories, Reels, TikTok |
-| Blog Hero | 1200 x 630 | ~1.9:1 | OG images, blog headers |
-| X/Twitter | 1200 x 675 | 16:9 | Twitter cards |
+| OG / Social Share | 1200 x 630 | ~1.9:1 | og_image_url, Twitter cards |
+| Instagram Square | 1080 x 1080 | 1:1 | Feed posts, X/Twitter |
+
+**IMPORTANT: Default format is 1080x1350 (4:5 portrait/vertical).** All blog post images and section images use this format unless explicitly requested otherwise. This allows reuse on Instagram without re-rendering. HTML body must be `width: 1080px; height: 1350px`.
 ### Display Sizes (for HTML prototyping at 0.4x)
 | Format | Display W x H |
 |--------|---------------|
