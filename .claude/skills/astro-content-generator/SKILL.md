@@ -206,3 +206,45 @@ POST = {
 - Slug format: `topic-keyword-YYYY` or `topic-keyword-month-YYYY`
 - No duplicate slugs — check before publishing
 - Intro should be compelling — it shows as preview in the feed
+
+## Data Verification Checklist
+
+Before publishing ANY post, verify each of these:
+
+### 1. Retrograde status (CRITICAL — common error source)
+The cosmic-weather API returns retrograde data. ALWAYS check:
+- Which planets are currently retrograde?
+- Is any planet stationing (about to go Rx or direct)?
+- NEVER say "no retrogrades" without confirming ALL planets are direct
+- Mercury retrogrades ~3x/year — always double-check Mercury's status
+- A stationing planet (speed near 0) is NOT the same as direct — call it "stationary"
+
+### 2. Planet positions
+- Cross-check ALL degree positions against the cosmic-weather API response
+- Positions should match to within ~0.5° (planets move during the day)
+- For slow planets (Jupiter–Pluto): positions change < 0.1°/day
+- For fast planets (Moon): position changes ~13°/day — specify the date/time
+
+### 3. Aspect claims
+- Verify orbs by calculating: |planet1_longitude - planet2_longitude|
+- Account for aspect angle (0° conjunction, 60° sextile, 90° square, 120° trine, 180° opposition)
+- EXACT = orb < 1°, STRONG = 1-3°, APPLYING = 3-5°
+- If you say "tightest aspect of the week" — confirm no other aspect has a smaller orb
+
+### 4. Moon phase
+- New Moon = Sun-Moon conjunction (0°)
+- Waxing Crescent = 1-3 days after New Moon
+- First Quarter = ~7 days after New Moon
+- Full Moon = Sun-Moon opposition (180°)
+- Moon sign changes every ~2.5 days — verify for the specific date
+
+### 5. Timing claims
+- "Building all week" — confirm the aspect is applying (orb decreasing) not separating
+- "Exact on Friday" — verify the exact date from the API
+- Station dates (Rx/direct) — use the `retrograde_index` data from the API
+
+### 6. Self-review before publish
+Re-read the final post and ask:
+- Did I make any blanket claims ("no retrogrades", "only trine this month") that need verification?
+- Are all degree positions sourced from the API, not hallucinated?
+- Would a professional astrologer find factual errors?
