@@ -1161,8 +1161,8 @@ select {
 
 .wheel-fullscreen__content {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-end;
   justify-content: center;
   gap: 0;
   height: 100vh;
@@ -1174,11 +1174,9 @@ select {
 
 .wheel-fullscreen__ring {
   position: relative;
-  flex-shrink: 1;
-  min-height: 0;
-  width: 100%;
-  max-width: min(100%, 60vh);
-  aspect-ratio: 1;
+  flex-shrink: 0;
+  width: min(calc(100vh - 60px), calc(100vw - 60px));
+  height: min(calc(100vh - 60px), calc(100vw - 60px));
 }
 
 .wheel-fullscreen__ring svg {
@@ -1188,52 +1186,76 @@ select {
 }
 
 .wheel-fullscreen__positions {
-  flex-shrink: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 4px 0 0;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 12px 8px;
+  align-self: flex-end;
 }
 
-/* ===== Chart Sidebar (aspect pyramid) ===== */
-.cs-title {
-  font-weight: 700;
-  font-size: 0.75rem;
+/* ===== Chart Sidebar (aspect table) ===== */
+.cs { font-size: 0.72rem; }
+.cs-table {
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+.cs-tr { height: 22px; }
+.cs-td-glyph {
+  padding: 0 2px;
+  text-align: center;
+  font-size: 0.8rem;
   color: var(--text);
-  padding: 0 0 2px;
-  letter-spacing: 0.03em;
+}
+.cs-td-name {
+  padding: 0 4px 0 1px;
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.68rem;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cs-td-sign {
+  padding: 0 2px;
+  text-align: center;
+  font-size: 0.75rem;
+}
+.cs-td-deg {
+  padding: 0 3px;
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-align: right;
+}
+.cs-td-house {
+  padding: 0 4px 0 1px;
+  color: var(--muted);
+  font-size: 0.65rem;
   text-align: center;
 }
-
-/* Aspect pyramid — cells use CSS var for responsive sizing */
-.cs-pyramid {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  --cell: clamp(16px, 2.2vw, 28px);
+.cs-td-asp {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid rgba(128, 128, 128, 0.12);
+  font-size: 0.7rem;
+  padding: 0;
 }
-.cs-pyr-row { display: flex; align-items: center; gap: 0; }
-.cs-pyr-cell {
-  width: var(--cell);
-  height: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(128, 128, 128, 0.15);
-  font-size: clamp(9px, 1.4vw, 14px);
-}
-.cs-pyr-label {
-  width: var(--cell);
-  height: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(8px, 1.2vw, 13px);
-  color: var(--text);
+.cs-td-diag {
+  padding: 0 2px;
+  text-align: center;
   font-weight: 600;
+  color: var(--text);
+  font-size: 0.75rem;
 }
-.cs-pyr-row--labels { margin-top: 0; }
+.cs-td-foot {
+  text-align: center;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.7rem;
+  padding: 2px 0 0;
+}
 
 .sidebar {
   position: fixed;
@@ -4840,14 +4862,28 @@ button.natal-pos__row--clickable {
 
   /* Fullscreen wheel */
   .wheel-fullscreen__content {
-    padding: 50px 4px 4px;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 2px 2px;
   }
   .wheel-fullscreen__ring {
-    max-width: 100%;
+    width: 100%;
+    max-width: min(calc(100vw - 8px), 52vh);
+    height: auto;
+    aspect-ratio: 1;
+    flex-shrink: 1;
   }
-  .cs-pyramid {
-    --cell: clamp(14px, calc((100vw - 16px) / 20), 24px);
+  .wheel-fullscreen__positions {
+    padding: 0;
+    overflow-x: auto;
+    align-self: center;
+    max-width: 100vw;
   }
+  .cs-td-asp { width: 16px; height: 16px; font-size: 0.6rem; }
+  .cs-td-name { font-size: 0.6rem; max-width: 40px; }
+  .cs-td-glyph { font-size: 0.7rem; }
+  .cs-td-deg { font-size: 0.58rem; }
+  .cs-tr { height: 18px; }
 
   /* Profile list items */
   .pli-tii { font-size: 1.8rem; }

@@ -1659,7 +1659,13 @@ export function App() {
             </div>
             {natalPositions.length ? (
               <div className="wheel-fullscreen__positions">
-                <ChartSidebar positions={natalPositions} aspects={natalAspects} />
+                <ChartSidebar
+                  positions={natalPositions}
+                  natalAspects={natalAspects}
+                  mode={wheelMode}
+                  transitPositions={transitReport?.transit_positions ?? undefined}
+                  transitAspects={transitReport?.active_aspects ?? undefined}
+                />
               </div>
             ) : null}
           </div>
