@@ -969,7 +969,7 @@ export function NatalZodiacRing({
                   x={midX} y={midY}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={8}
+                  fontSize={10}
                   fill={style.color}
                   opacity={style.opacity}
                   pointerEvents="none"
@@ -1079,7 +1079,7 @@ export function NatalZodiacRing({
                   x={midX} y={midY}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={8}
+                  fontSize={10}
                   fill={style.color}
                   opacity={style.opacity}
                   pointerEvents="none"

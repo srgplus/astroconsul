@@ -18,6 +18,10 @@ const AG: Record<string, string> = {
   conjunction: "\u260C", sextile: "\u26B9", square: "\u25A1", trine: "\u25B3", opposition: "\u260D",
 }
 
+const AN: Record<string, string> = {
+  conjunction: "Conjunction", sextile: "Sextile", square: "Square", trine: "Trine", opposition: "Opposition",
+}
+
 const AC: Record<string, string> = {
   conjunction: "#8b8b8b", sextile: "#3b82f6", trine: "#3b82f6",
   square: "#ef4444", opposition: "#ef4444",
@@ -52,6 +56,7 @@ type Props = {
   transitAspects?: ActiveAspect[]
   synastryPositions?: SynastryPosition[]
   synastryAspects?: SynastryAspect[]
+  houseSystem?: string
   textColor?: string
   mutedColor?: string
   gridColor?: string
@@ -59,15 +64,18 @@ type Props = {
 
 export default function ChartSidebar({
   positions, natalAspects, mode, transitPositions, transitAspects,
-  synastryPositions, synastryAspects,
+  synastryPositions, synastryAspects, houseSystem,
   textColor = "currentColor", mutedColor = "#8e8e93", gridColor = "rgba(128,128,128,0.18)",
 }: Props) {
   const byId = new Map(positions.map((p) => [p.id, p]))
 
   const natalMap = new Map<string, string>()
+  const orbMap = new Map<string, number>()
   for (const a of natalAspects) {
     natalMap.set(`${a.p1}|${a.p2}`, a.aspect)
     natalMap.set(`${a.p2}|${a.p1}`, a.aspect)
+    orbMap.set(`${a.p1}|${a.p2}`, a.orb)
+    orbMap.set(`${a.p2}|${a.p1}`, a.orb)
   }
 
   const transitMap = new Map<string, string>()
@@ -75,6 +83,7 @@ export default function ChartSidebar({
     for (const a of transitAspects) {
       if (!a.is_within_orb) continue
       transitMap.set(`${a.transit_object}|${a.natal_object}`, a.aspect)
+      orbMap.set(`${a.transit_object}|${a.natal_object}`, a.orb)
     }
   }
 
@@ -82,6 +91,7 @@ export default function ChartSidebar({
   if (synastryAspects) {
     for (const a of synastryAspects) {
       synastryMap.set(`${a.person_b_object}|${a.person_a_object}`, a.aspect)
+      orbMap.set(`${a.person_b_object}|${a.person_a_object}`, a.orb)
     }
   }
 
@@ -96,13 +106,14 @@ export default function ChartSidebar({
   if (cols.length < 2) return null
 
   // SVG grid dimensions
-  const C = 28        // cell size
+  const C = 32        // cell size
   const INFO_W = 155  // left info section width
   const LABEL_H = C
   const nCols = cols.length
   const nRows = rows.length
+  const FOOTER_H = houseSystem ? 18 : 0
   const totalW = INFO_W + nCols * C  // no right label column
-  const totalH = nRows * C + LABEL_H
+  const totalH = nRows * C + LABEL_H + FOOTER_H
 
   const fmtDeg = (deg: number | null, min: number | null) => {
     if (deg == null || min == null) return "—"
@@ -158,17 +169,22 @@ export default function ChartSidebar({
               const cx = INFO_W + ci * C
               const isDiag = rowP === colP && !isTransit && !isSynastry
               if (isDiag) return null
-              const asp = aspMap.get(`${rowP}|${colP}`)
+              const key = `${rowP}|${colP}`
+              const asp = aspMap.get(key)
+              const orb = orbMap.get(key)
+              const tip = asp ? `${AN[asp] ?? asp} ${rowP} – ${colP}${orb != null ? ` (${orb.toFixed(2)}°)` : ""}` : undefined
               return (
                 <g key={colP}>
-                  <rect x={cx} y={y} width={C} height={C} fill="none" stroke={gridColor} strokeWidth={0.5} />
+                  <rect x={cx} y={y} width={C} height={C} fill="none" stroke={gridColor} strokeWidth={0.5} style={{ cursor: asp ? "pointer" : undefined }} />
                   {asp ? (
                     <text
                       x={cx + C / 2} y={y + C * 0.72}
-                      className="cs-t" fontSize={12} fill={AC[asp] ?? "#888"}
+                      className="cs-t" fontSize={15} fill={AC[asp] ?? "#888"}
                       textAnchor="middle" fontWeight={500}
+                      style={{ cursor: "pointer" }}
                     >
                       {AG[asp] ?? ""}
+                      <title>{tip}</title>
                     </text>
                   ) : null}
                 </g>
@@ -184,12 +200,23 @@ export default function ChartSidebar({
           key={p}
           x={INFO_W + ci * C + C / 2}
           y={nRows * C + LABEL_H * 0.78}
-          className="cs-t" fontSize={10} fill={textColor}
+          className="cs-t" fontSize={12} fill={textColor}
           textAnchor="middle" fontWeight={600}
         >
           {G[p] ?? ""}
         </text>
       ))}
+
+      {houseSystem ? (
+        <text
+          x={totalW / 2}
+          y={nRows * C + LABEL_H + FOOTER_H - 3}
+          className="cs-t" fontSize={9} fill={mutedColor}
+          textAnchor="middle" opacity={0.7}
+        >
+          House system: {houseSystem}
+        </text>
+      ) : null}
     </svg>
   )
 }

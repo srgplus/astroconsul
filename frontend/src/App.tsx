@@ -1756,6 +1756,7 @@ export function App() {
                   transitAspects={transitReport?.active_aspects ?? undefined}
                   synastryPositions={synastryReport?.positions_b ?? undefined}
                   synastryAspects={synastryReport?.aspects ?? undefined}
+                  houseSystem={activeDetail?.chart.house_system ?? undefined}
                 />
               </div>
             ) : null}
