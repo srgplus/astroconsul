@@ -1089,7 +1089,7 @@ select {
   justify-content: center;
   animation: wheel-fs-in 0.3s ease-out;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pinch-zoom;
 }
 
 @keyframes wheel-fs-in {
@@ -1196,68 +1196,8 @@ select {
   margin-right: auto;
 }
 
-/* ===== Chart Sidebar (aspect table) ===== */
-.cs { font-size: 0.72rem; }
-.cs-table {
-  border-collapse: collapse;
-  white-space: nowrap;
-}
-.cs-tr { height: 22px; }
-.cs-td-glyph {
-  padding: 0 2px;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--text);
-}
-.cs-td-name {
-  padding: 0 4px 0 1px;
-  font-weight: 500;
-  color: var(--text);
-  font-size: 0.68rem;
-  max-width: 52px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.cs-td-sign {
-  padding: 0 2px;
-  text-align: center;
-  font-size: 0.75rem;
-}
-.cs-td-deg {
-  padding: 0 3px;
-  color: var(--muted);
-  font-size: 0.65rem;
-  text-align: right;
-}
-.cs-td-house {
-  padding: 0 4px 0 1px;
-  color: var(--muted);
-  font-size: 0.65rem;
-  text-align: center;
-}
-.cs-td-asp {
-  width: 20px;
-  height: 20px;
-  text-align: center;
-  vertical-align: middle;
-  border: 1px solid rgba(128, 128, 128, 0.12);
-  font-size: 0.7rem;
-  padding: 0;
-}
-.cs-td-diag {
-  padding: 0 2px;
-  text-align: center;
-  font-weight: 600;
-  color: var(--text);
-  font-size: 0.75rem;
-}
-.cs-td-foot {
-  text-align: center;
-  font-weight: 600;
-  color: var(--text);
-  font-size: 0.7rem;
-  padding: 2px 0 0;
-}
+/* ===== Chart Sidebar (SVG aspect grid) ===== */
+.cs-svg { color: var(--text); }
 
 .sidebar {
   position: fixed;
@@ -4882,16 +4822,6 @@ button.natal-pos__row--clickable {
     margin-right: 0;
     max-width: 100vw;
   }
-  .cs-td-asp { width: 15px; height: 15px; font-size: 0.55rem; }
-  .cs-td-name { display: none; }
-  .cs-td-glyph { font-size: 0.65rem; padding: 0 1px; }
-  .cs-td-sign { font-size: 0.6rem; padding: 0 1px; }
-  .cs-td-deg { font-size: 0.5rem; padding: 0 1px; }
-  .cs-td-house { font-size: 0.5rem; padding: 0 1px; }
-  .cs-td-diag { font-size: 0.6rem; }
-  .cs-td-foot { font-size: 0.55rem; }
-  .cs-tr { height: 16px; }
-
   /* Profile list items */
   .pli-tii { font-size: 1.8rem; }
 
