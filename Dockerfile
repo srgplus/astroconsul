@@ -37,6 +37,10 @@ COPY ephe/ ./ephe/
 # Copy Alembic migration files
 COPY alembic.ini ./
 COPY alembic/ ./alembic/
+
+# Copy Jinja2 templates (news SSR pages)
+COPY templates/ ./templates/
+
 COPY start.sh ./
 RUN chmod +x start.sh
 
