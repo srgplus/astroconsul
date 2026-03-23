@@ -2,6 +2,7 @@ export const ru: Record<string, string> = {
   // Wheel toggle
   "wheel.natal": "Натал",
   "wheel.transit": "Транзит",
+  "wheel.synastry": "Синастрия",
   // Auth
   "auth.logo": "big3.me",
   "auth.signIn": "Войти",
@@ -136,6 +137,8 @@ export const ru: Record<string, string> = {
   "widget.natalAspects": "Натальные аспекты",
   "widget.planetsHouses": "Планеты и дома",
   "widget.edit": "Ред.",
+  "widget.synastry": "Синастрия",
+  "widget.addSynastryFirst": "Добавьте партнёра для синастрии",
   "widget.followForTransit": "Подпишитесь для транзитов",
   "widget.followToUnlock": "Подпишитесь для прогноза",
   "widget.followToSeeTransits": "Подпишитесь для транзитов",

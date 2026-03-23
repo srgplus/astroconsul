@@ -1097,10 +1097,17 @@ select {
   to   { opacity: 1; transform: scale(1); }
 }
 
-.wheel-fullscreen__close {
-  position: absolute;
+.wheel-fullscreen__top-left {
+  position: fixed;
   top: 16px;
   left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.wheel-fullscreen__close {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -1112,12 +1119,19 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .wheel-fullscreen__close:hover {
   background: var(--line);
+}
+
+.wheel-fullscreen__logo {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .wheel-fullscreen__toggle {

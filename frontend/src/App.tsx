@@ -31,6 +31,12 @@ const OBJECT_GLYPHS: Record<string, string> = {
   ASC: "AC", MC: "MC",
 }
 
+const SIGN_OFFSETS: Record<string, number> = {
+  Aries: 0, Taurus: 30, Gemini: 60, Cancer: 90,
+  Leo: 120, Virgo: 150, Libra: 180, Scorpio: 210,
+  Sagittarius: 240, Capricorn: 270, Aquarius: 300, Pisces: 330,
+}
+
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648", Taurus: "\u2649", Gemini: "\u264A", Cancer: "\u264B",
   Leo: "\u264C", Virgo: "\u264D", Libra: "\u264E", Scorpio: "\u264F",
@@ -253,7 +259,7 @@ export function App() {
     } catch {}
     return "list"
   })
-  const [wheelMode, setWheelMode] = useState<"natal" | "transit">("transit")
+  const [wheelMode, setWheelMode] = useState<"natal" | "transit" | "synastry">("transit")
   const [unfollowPopup, setUnfollowPopup] = useState<{ id: string; name: string; username: string } | null>(null)
   const [tiiMap, setTiiMap] = useState<Record<string, ProfileTiiData>>(() => {
     try {
@@ -1394,6 +1400,9 @@ export function App() {
                     <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
                       <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("widget.transit")}</button>
                     </span>
+                    <span className={!synastryReport ? "transit-locked-wrap" : ""} data-tooltip={!synastryReport ? t("widget.addSynastryFirst") : undefined}>
+                      <button type="button" className={`${wheelMode === "synastry" ? "active" : ""} ${!synastryReport ? "disabled" : ""}`} disabled={!synastryReport} onClick={() => setWheelMode("synastry")}>{t("widget.synastry")}</button>
+                    </span>
                   </div>
                     )
                   })()}
@@ -1414,12 +1423,23 @@ export function App() {
                         id: p.id,
                         longitude: p.longitude,
                         glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                      })) : wheelMode === "synastry" ? (synastryReport?.positions_b ?? [])
+                      .map((p) => ({
+                        id: p.id,
+                        longitude: (SIGN_OFFSETS[p.sign] ?? 0) + p.degree + p.minute / 60,
+                        glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                       })) : []}
                     transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
                       .filter((a) => a.is_within_orb)
                       .map((a) => ({
                         transit_object: a.transit_object,
                         natal_object: a.natal_object,
+                        aspect: a.aspect,
+                        orb: a.orb,
+                        strength: a.strength,
+                      })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? []).map((a) => ({
+                        transit_object: a.person_b_object,
+                        natal_object: a.person_a_object,
                         aspect: a.aspect,
                         orb: a.orb,
                         strength: a.strength,
@@ -1606,7 +1626,10 @@ export function App() {
       {/* ===== Fullscreen wheel overlay ===== */}
       {wheelExpanded && activeDetail ? (
         <div className="wheel-fullscreen" onClick={() => setWheelExpanded(false)}>
-          <button type="button" className="wheel-fullscreen__close" onClick={() => setWheelExpanded(false)}>&times;</button>
+          <div className="wheel-fullscreen__top-left" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="wheel-fullscreen__close" onClick={() => setWheelExpanded(false)}>&times;</button>
+            <B3Logo size="sm" className="wheel-fullscreen__logo" />
+          </div>
           {(() => {
             const canTransit = profiles.some((p) => p.profile_id === activeProfileId)
             return (
@@ -1614,6 +1637,9 @@ export function App() {
             <button type="button" className={wheelMode === "natal" ? "active" : ""} onClick={() => setWheelMode("natal")}>{t("wheel.natal")}</button>
             <span className={!canTransit ? "transit-locked-wrap" : ""} data-tooltip={!canTransit ? t("widget.followForTransit") : undefined}>
               <button type="button" className={`${wheelMode === "transit" ? "active" : ""} ${!canTransit ? "disabled" : ""}`} disabled={!canTransit} onClick={() => setWheelMode("transit")}>{t("wheel.transit")}</button>
+            </span>
+            <span className={!synastryReport ? "transit-locked-wrap" : ""} data-tooltip={!synastryReport ? t("widget.addSynastryFirst") : undefined}>
+              <button type="button" className={`${wheelMode === "synastry" ? "active" : ""} ${!synastryReport ? "disabled" : ""}`} disabled={!synastryReport} onClick={() => setWheelMode("synastry")}>{t("wheel.synastry")}</button>
             </span>
           </div>
             )
@@ -1637,12 +1663,23 @@ export function App() {
                     id: p.id,
                     longitude: p.longitude,
                     glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                  })) : wheelMode === "synastry" ? (synastryReport?.positions_b ?? [])
+                  .map((p) => ({
+                    id: p.id,
+                    longitude: (SIGN_OFFSETS[p.sign] ?? 0) + p.degree + p.minute / 60,
+                    glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
                   })) : []}
                 transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
                   .filter((a) => a.is_within_orb)
                   .map((a) => ({
                     transit_object: a.transit_object,
                     natal_object: a.natal_object,
+                    aspect: a.aspect,
+                    orb: a.orb,
+                    strength: a.strength,
+                  })) : wheelMode === "synastry" ? (synastryReport?.aspects ?? []).map((a) => ({
+                    transit_object: a.person_b_object,
+                    natal_object: a.person_a_object,
                     aspect: a.aspect,
                     orb: a.orb,
                     strength: a.strength,
@@ -1665,6 +1702,8 @@ export function App() {
                   mode={wheelMode}
                   transitPositions={transitReport?.transit_positions ?? undefined}
                   transitAspects={transitReport?.active_aspects ?? undefined}
+                  synastryPositions={synastryReport?.positions_b ?? undefined}
+                  synastryAspects={synastryReport?.aspects ?? undefined}
                 />
               </div>
             ) : null}

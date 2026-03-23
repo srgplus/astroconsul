@@ -2,6 +2,7 @@ export const en: Record<string, string> = {
   // Wheel toggle
   "wheel.natal": "Natal",
   "wheel.transit": "Transit",
+  "wheel.synastry": "Synastry",
   // Auth
   "auth.logo": "big3.me",
   "auth.signIn": "Sign In",
@@ -136,6 +137,8 @@ export const en: Record<string, string> = {
   "widget.natalAspects": "Natal Aspects",
   "widget.planetsHouses": "Planets & Houses",
   "widget.edit": "Edit",
+  "widget.synastry": "Synastry",
+  "widget.addSynastryFirst": "Add a partner for synastry",
   "widget.followForTransit": "Follow to unlock transits",
   "widget.followToUnlock": "Follow to see daily forecast",
   "widget.followToSeeTransits": "Follow to see active transits",

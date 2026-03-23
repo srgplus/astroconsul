@@ -1,4 +1,4 @@
-import type { NatalPosition, NatalAspect, ActiveAspect, TransitPosition } from "../types"
+import type { NatalPosition, NatalAspect, ActiveAspect, TransitPosition, SynastryPosition, SynastryAspect } from "../types"
 
 const G: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
@@ -47,9 +47,11 @@ const SN: Record<string, string> = {
 type Props = {
   positions: NatalPosition[]
   natalAspects: NatalAspect[]
-  mode: "natal" | "transit"
+  mode: "natal" | "transit" | "synastry"
   transitPositions?: TransitPosition[]
   transitAspects?: ActiveAspect[]
+  synastryPositions?: SynastryPosition[]
+  synastryAspects?: SynastryAspect[]
   textColor?: string
   mutedColor?: string
   gridColor?: string
@@ -57,6 +59,7 @@ type Props = {
 
 export default function ChartSidebar({
   positions, natalAspects, mode, transitPositions, transitAspects,
+  synastryPositions, synastryAspects,
   textColor = "currentColor", mutedColor = "#8e8e93", gridColor = "rgba(128,128,128,0.18)",
 }: Props) {
   const byId = new Map(positions.map((p) => [p.id, p]))
@@ -75,11 +78,20 @@ export default function ChartSidebar({
     }
   }
 
+  const synastryMap = new Map<string, string>()
+  if (synastryAspects) {
+    for (const a of synastryAspects) {
+      synastryMap.set(`${a.person_b_object}|${a.person_a_object}`, a.aspect)
+    }
+  }
+
+  const synastryById = new Map((synastryPositions ?? []).map((p) => [p.id, p]))
   const transitById = new Map((transitPositions ?? []).map((p) => [p.id, p]))
   const cols = PLANET_ORDER.filter((id) => byId.has(id))
+  const isSynastry = mode === "synastry" && synastryPositions && synastryPositions.length > 0
   const isTransit = mode === "transit" && transitPositions && transitPositions.length > 0
-  const rows = isTransit ? PLANET_ORDER.filter((id) => transitById.has(id)) : cols
-  const aspMap = isTransit ? transitMap : natalMap
+  const rows = isSynastry ? PLANET_ORDER.filter((id) => synastryById.has(id)) : isTransit ? PLANET_ORDER.filter((id) => transitById.has(id)) : cols
+  const aspMap = isSynastry ? synastryMap : isTransit ? transitMap : natalMap
 
   if (cols.length < 2) return null
 
@@ -110,7 +122,7 @@ export default function ChartSidebar({
 
       {rows.map((rowP, ri) => {
         const y = ri * C
-        const pos = isTransit ? transitById.get(rowP) : byId.get(rowP)
+        const pos = isSynastry ? synastryById.get(rowP) : isTransit ? transitById.get(rowP) : byId.get(rowP)
         if (!pos) return null
         const sign = pos.sign
         const elColor = EC[EL[sign] ?? ""] ?? "#888"
@@ -144,7 +156,7 @@ export default function ChartSidebar({
             {/* Aspect cells */}
             {cols.map((colP, ci) => {
               const cx = INFO_W + ci * C
-              const isDiag = rowP === colP && !isTransit
+              const isDiag = rowP === colP && !isTransit && !isSynastry
               if (isDiag) return null
               const asp = aspMap.get(`${rowP}|${colP}`)
               return (
