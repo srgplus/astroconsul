@@ -136,8 +136,8 @@ def _get_post_by_slug(slug: str):
 
 
 @router.get("/debug-templates", include_in_schema=False)
-def debug_templates():
-    """Temporary debug endpoint to check template resolution."""
+def debug_templates(request: Request):
+    """Temporary debug endpoint — tries actual template render."""
     import traceback
 
     tdir = Path(__file__).resolve().parents[4] / "templates"
@@ -150,17 +150,20 @@ def debug_templates():
     if tdir.exists():
         result["files"] = [str(f.relative_to(tdir)) for f in tdir.rglob("*") if f.is_file()]
 
-    # Try rendering
     try:
-        from starlette.requests import Request as StarletteRequest
-        from starlette.datastructures import URL
-
-        tpl = _get_templates()
         posts = _get_published_posts(limit=1)
         result["posts_count"] = len(posts)
-        if posts:
-            result["first_post_keys"] = list(posts[0].keys())
-            result["first_post_date_type"] = str(type(posts[0].get("date")))
+
+        # Actually try to render the template
+        tpl = _get_templates()
+        resp = tpl.TemplateResponse("news/feed.html", {
+            "request": request,
+            "posts": posts,
+            "tag": None,
+            "page": 1,
+        })
+        result["render_ok"] = True
+        result["render_status"] = resp.status_code
     except Exception:
         result["render_error"] = traceback.format_exc()
 
