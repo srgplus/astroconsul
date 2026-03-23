@@ -83,16 +83,19 @@ export default function ChartSidebar({
 
   if (cols.length < 2) return null
 
-  // SVG grid dimensions — generous sizes for clarity
+  // SVG grid dimensions
   const C = 28        // cell size
   const INFO_W = 155  // left info section width
   const LABEL_H = C
   const nCols = cols.length
   const nRows = rows.length
-  const totalW = INFO_W + nCols * C + C
+  const totalW = INFO_W + nCols * C  // no right label column
   const totalH = nRows * C + LABEL_H
 
-  const fmtDeg = (deg: number, min: number) => `${deg}°${String(min).padStart(2, "0")}′`
+  const fmtDeg = (deg: number | null, min: number | null) => {
+    if (deg == null || min == null) return "—"
+    return `${deg}°${String(min).padStart(2, "0")}′`
+  }
 
   return (
     <svg
@@ -146,7 +149,7 @@ export default function ChartSidebar({
               return (
                 <g key={colP}>
                   <rect x={cx} y={y} width={C} height={C} fill={isDiag ? gridColor : "none"} stroke={gridColor} strokeWidth={0.5} />
-                  {asp ? (
+                  {asp && !isDiag ? (
                     <text
                       x={cx + C / 2} y={y + C * 0.72}
                       className="cs-t" fontSize={12} fill={AC[asp] ?? "#888"}
@@ -154,27 +157,10 @@ export default function ChartSidebar({
                     >
                       {AG[asp] ?? ""}
                     </text>
-                  ) : isDiag ? (
-                    <text
-                      x={cx + C / 2} y={y + C * 0.72}
-                      className="cs-t" fontSize={11} fill={textColor}
-                      textAnchor="middle" fontWeight={700}
-                    >
-                      {G[rowP] ?? ""}
-                    </text>
                   ) : null}
                 </g>
               )
             })}
-
-            {/* Right label */}
-            <text
-              x={INFO_W + nCols * C + C / 2} y={y + C * 0.7}
-              className="cs-t" fontSize={11} fill={textColor}
-              textAnchor="middle" fontWeight={600}
-            >
-              {G[rowP] ?? ""}
-            </text>
           </g>
         )
       })}
