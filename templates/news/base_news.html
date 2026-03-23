@@ -265,9 +265,80 @@
         [data-theme="dark"] .theme-icon-light { display: none; }
         [data-theme="light"] .theme-icon-dark { display: none; }
 
+        /* Code blocks for prompt templates */
+        .prompt-block {
+            position: relative;
+            margin: 16px 0 24px;
+        }
+
+        .prompt-block pre {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            padding-top: 40px;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text);
+        }
+
+        .prompt-block .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            z-index: 1;
+        }
+
+        .prompt-block .copy-btn:hover {
+            background: var(--tag-bg);
+            color: var(--accent);
+        }
+
+        .prompt-block .copy-btn.copied {
+            color: #34c759;
+        }
+
+        /* Section divider for bilingual posts */
+        .lang-divider {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 48px 0 32px;
+        }
+
+        .lang-badge {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--accent);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Numbered steps */
+        .post-body .step-intro {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
         @media (max-width: 600px) {
             .post-title { font-size: 1.5rem; }
             .news-container { padding: 24px 16px; }
+            .prompt-block pre { font-size: 0.78rem; padding: 16px; padding-top: 36px; }
         }
     </style>
 </head>
@@ -295,6 +366,17 @@
             var next = current === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", next);
             localStorage.setItem("theme", next);
+        }
+        function copyPrompt(btn) {
+            var pre = btn.parentElement.querySelector("pre");
+            navigator.clipboard.writeText(pre.textContent).then(function() {
+                btn.textContent = "Copied!";
+                btn.classList.add("copied");
+                setTimeout(function() {
+                    btn.textContent = "Copy";
+                    btn.classList.remove("copied");
+                }, 2000);
+            });
         }
     </script>
 </body>

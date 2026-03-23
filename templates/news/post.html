@@ -46,7 +46,11 @@
 
         {% for section in post.sections %}
         <h2>{{ section.heading }}</h2>
+        {% if section.body_html %}
+        {{ section.body_html | safe }}
+        {% else %}
         <p>{{ section.body }}</p>
+        {% endif %}
         {% if section.image_url %}
         <img src="{{ section.image_url }}" alt="{{ section.image_alt | default('Transit chart from big3.me') }}">
         {% endif %}
