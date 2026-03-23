@@ -156,12 +156,11 @@ def debug_templates(request: Request):
 
         # Actually try to render the template
         tpl = _get_templates()
-        resp = tpl.TemplateResponse("news/feed.html", {
-            "request": request,
-            "posts": posts,
-            "tag": None,
-            "page": 1,
-        })
+        resp = tpl.TemplateResponse(
+            request=request,
+            name="news/feed.html",
+            context={"posts": posts, "tag": None, "page": 1},
+        )
         result["render_ok"] = True
         result["render_status"] = resp.status_code
     except Exception:
@@ -177,12 +176,11 @@ def news_feed(request: Request, tag: str | None = None, page: int = 1):
         offset = (page - 1) * 20
         posts = _get_published_posts(tag=tag, limit=20, offset=offset)
 
-        return _get_templates().TemplateResponse("news/feed.html", {
-            "request": request,
-            "posts": posts,
-            "tag": tag,
-            "page": page,
-        })
+        return _get_templates().TemplateResponse(
+            request=request,
+            name="news/feed.html",
+            context={"posts": posts, "tag": tag, "page": page},
+        )
     except Exception:
         logger.exception("Error rendering news feed")
         raise
@@ -214,10 +212,11 @@ def news_post(request: Request, slug: str):
         if post is None:
             raise HTTPException(status_code=404, detail="Post not found")
 
-        return _get_templates().TemplateResponse("news/post.html", {
-            "request": request,
-            "post": post,
-        })
+        return _get_templates().TemplateResponse(
+            request=request,
+            name="news/post.html",
+            context={"post": post},
+        )
     except HTTPException:
         raise
     except Exception:
