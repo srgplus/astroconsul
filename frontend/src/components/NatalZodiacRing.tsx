@@ -30,6 +30,7 @@ type NatalZodiacRingProps = {
   transitPlanets?: PlanetMarker[] | null
   transitAspects?: TransitAspect[] | null
   natalAspects?: NatalAspect[] | null
+  hideSpecialPoints?: boolean
   size?: number
   theme?: "dark" | "light"
   className?: string
@@ -343,6 +344,7 @@ export function NatalZodiacRing({
   transitPlanets,
   transitAspects,
   natalAspects,
+  hideSpecialPoints = false,
   size = 360,
   theme = "light",
   className,
@@ -379,10 +381,10 @@ export function NatalZodiacRing({
 
   // Compat aliases used by house dividers / outlines
   const houseOuterRadius = upperBandOuter
-  const houseInnerRadius = lowerBandInner
+  const houseInnerRadius = hideSpecialPoints ? upperBandInner : lowerBandInner
 
   // Transit upper band (planets) — large gap from natal
-  const tUpperBandOuter = lowerBandInner - pairSpacer
+  const tUpperBandOuter = houseInnerRadius - pairSpacer
   const tUpperBandInner = tUpperBandOuter - subBandWidth
   const tUpperBandMid = (tUpperBandOuter + tUpperBandInner) / 2
   const tUpperBandStroke = subBandWidth
@@ -394,7 +396,7 @@ export function NatalZodiacRing({
   const tLowerBandStroke = subBandWidth
 
   const transitOuterRadius = tUpperBandOuter
-  const transitInnerRadius = tLowerBandInner
+  const transitInnerRadius = hideSpecialPoints ? tUpperBandInner : tLowerBandInner
   const centerRadius = transitInnerRadius
 
   // Axis marker geometry — arrows span zodiac band only
@@ -552,13 +554,13 @@ export function NatalZodiacRing({
         strokeWidth={upperBandStroke}
       />
       {/* Lower band (special points) */}
-      <circle
+      {!hideSpecialPoints && <circle
         className="natal-zodiac-ring__house-band"
         cx={center}
         cy={center}
         r={lowerBandMid}
         strokeWidth={lowerBandStroke}
-      />
+      />}
       <circle className="natal-zodiac-ring__center" cx={center} cy={center} r={centerRadius} />
 
       {/* Natal per-band notches — ticks on both outer and inner edges of each band */}
@@ -649,11 +651,11 @@ export function NatalZodiacRing({
                 x1={upperOuter.x} y1={upperOuter.y}
                 x2={upperInner.x} y2={upperInner.y}
               />
-              <line
+              {!hideSpecialPoints && <line
                 className="natal-zodiac-ring__house-divider"
                 x1={lowerOuter.x} y1={lowerOuter.y}
                 x2={lowerInner.x} y2={lowerInner.y}
-              />
+              />}
             </g>
           )
         })}
@@ -661,8 +663,8 @@ export function NatalZodiacRing({
 
       <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={houseOuterRadius} />
       <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={upperBandInner} />
-      <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={lowerBandOuter} />
-      <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={houseInnerRadius} />
+      {!hideSpecialPoints && <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={lowerBandOuter} />}
+      {!hideSpecialPoints && <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={houseInnerRadius} />}
 
       {/* Transit bands */}
       {transitMarkers.length > 0 && (
@@ -671,8 +673,8 @@ export function NatalZodiacRing({
           <circle className="natal-zodiac-ring__transit-band"
             cx={center} cy={center} r={tUpperBandMid} strokeWidth={tUpperBandStroke} />
           {/* Lower transit band (special points) */}
-          <circle className="natal-zodiac-ring__transit-band"
-            cx={center} cy={center} r={tLowerBandMid} strokeWidth={tLowerBandStroke} />
+          {!hideSpecialPoints && <circle className="natal-zodiac-ring__transit-band"
+            cx={center} cy={center} r={tLowerBandMid} strokeWidth={tLowerBandStroke} />}
 
           {/* Transit per-band notches — ticks on both outer and inner edges of each band,
                plus aspect-anchor tick at tUpperBandOuter for lower-band objects */}
@@ -701,8 +703,8 @@ export function NatalZodiacRing({
           {/* Transit band outlines */}
           <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={transitOuterRadius} />
           <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={tUpperBandInner} />
-          <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={tLowerBandOuter} />
-          <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={transitInnerRadius} />
+          {!hideSpecialPoints && <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={tLowerBandOuter} />}
+          {!hideSpecialPoints && <circle className="natal-zodiac-ring__house-outline" cx={center} cy={center} r={transitInnerRadius} />}
 
           {/* Transit house dividers — two segments */}
           {houseValues.map((houseLongitude, index) => {
@@ -714,7 +716,7 @@ export function NatalZodiacRing({
             return (
               <g key={`transit-div-${index}`}>
                 <line className="natal-zodiac-ring__house-divider" x1={tuO.x} y1={tuO.y} x2={tuI.x} y2={tuI.y} />
-                <line className="natal-zodiac-ring__house-divider" x1={tlO.x} y1={tlO.y} x2={tlI.x} y2={tlI.y} />
+                {!hideSpecialPoints && <line className="natal-zodiac-ring__house-divider" x1={tlO.x} y1={tlO.y} x2={tlI.x} y2={tlI.y} />}
               </g>
             )
           })}
@@ -731,7 +733,7 @@ export function NatalZodiacRing({
               return (
                 <g key={`transit-axis-${lng}`}>
                   <line className="natal-zodiac-ring__house-divider" x1={tuO.x} y1={tuO.y} x2={tuI.x} y2={tuI.y} />
-                  <line className="natal-zodiac-ring__house-divider" x1={tlO.x} y1={tlO.y} x2={tlI.x} y2={tlI.y} />
+                  {!hideSpecialPoints && <line className="natal-zodiac-ring__house-divider" x1={tlO.x} y1={tlO.y} x2={tlI.x} y2={tlI.y} />}
                 </g>
               )
             })}
@@ -812,7 +814,7 @@ export function NatalZodiacRing({
           return (
             <g key={`axis-house-${lng}`}>
               <line className="natal-zodiac-ring__house-divider" x1={uo.x} y1={uo.y} x2={ui.x} y2={ui.y} />
-              <line className="natal-zodiac-ring__house-divider" x1={lo.x} y1={lo.y} x2={li.x} y2={li.y} />
+              {!hideSpecialPoints && <line className="natal-zodiac-ring__house-divider" x1={lo.x} y1={lo.y} x2={li.x} y2={li.y} />}
             </g>
           )
         })}

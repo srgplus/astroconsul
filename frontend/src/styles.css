@@ -570,6 +570,11 @@ select {
   top: 12px;
   left: 12px;
   z-index: 2;
+  flex-direction: row-reverse;
+}
+
+.widget--wheel-right svg {
+  margin-top: 20px;
 }
 
 .wheel-mode-toggle {
@@ -580,6 +585,7 @@ select {
   background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 10px;
+  overflow: hidden;
   z-index: 2;
 }
 
@@ -1156,6 +1162,7 @@ select {
   border-radius: 12px;
   padding: 6px 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-direction: row-reverse;
 }
 
 .wheel-fullscreen__toggle {
@@ -1163,6 +1170,7 @@ select {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -4807,7 +4815,10 @@ button.natal-pos__row--clickable {
   .widget:hover { transform: none; }
 
   .wheel-mode-toggle { top: 8px; right: 8px; }
-  .wheel-sp-toggle { top: 8px; left: 8px; }
+  .wheel-sp-toggle { top: 38px; left: 8px; }
+
+  .widget--wheel-right { padding-top: 68px; }
+  .widget--wheel-right svg { padding: 0 2px; }
 
   .ring-stage { min-height: 320px; padding: 10px; border-radius: 16px; }
   .natal-zodiac-ring__label { font-size: 10px; letter-spacing: 1.6px; }
@@ -4838,15 +4849,23 @@ button.natal-pos__row--clickable {
   .cw-pos-name { min-width: 50px; font-size: 0.72rem; }
 
   /* Fullscreen wheel */
+  .wheel-fullscreen__top-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .wheel-sp-toggle--fs {
+    order: 1;
+  }
   .wheel-fullscreen__content {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 46px 0 0;
+    padding: 80px 0 0;
   }
   .wheel-fullscreen__ring {
-    width: min(calc(100vw - 8px), 50vh);
-    height: min(calc(100vw - 8px), 50vh);
+    width: min(calc(100vw - 8px), 55vh);
+    height: min(calc(100vw - 8px), 55vh);
     margin-left: 0;
     flex-shrink: 0;
   }

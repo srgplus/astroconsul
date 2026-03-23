@@ -1478,6 +1478,7 @@ export function App() {
                       aspect: a.aspect,
                       orb: a.orb,
                     })) : []}
+                    hideSpecialPoints={!showSpecialPoints}
                     size={700}
                     theme="light"
                   />
@@ -1731,6 +1732,7 @@ export function App() {
                   aspect: a.aspect,
                   orb: a.orb,
                 })) : []}
+                hideSpecialPoints={!showSpecialPoints}
                 size={700}
                 theme="light"
               />
