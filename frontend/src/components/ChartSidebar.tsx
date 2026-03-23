@@ -26,6 +26,14 @@ const ASPECT_COLORS: Record<string, string> = {
   opposition: "#ef4444",
 }
 
+const DISPLAY_NAMES: Record<string, string> = {
+  ASC: "Ascendent",
+  MC: "Mid Heaven",
+  "North Node": "North Node",
+  "South Node": "South Node",
+  "Part of Fortune": "Part of Fortune",
+}
+
 const SIGN_ELEMENT: Record<string, string> = {
   Aries: "fire", Taurus: "earth", Gemini: "air", Cancer: "water",
   Leo: "fire", Virgo: "earth", Libra: "air", Scorpio: "water",
@@ -88,7 +96,7 @@ export default function ChartSidebar({ positions, aspects }: Props) {
               return (
                 <div key={p.id} className="cs-row">
                   <span className="cs-glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
-                  <span className="cs-name">{p.id}</span>
+                  <span className="cs-name">{DISPLAY_NAMES[p.id] ?? p.id}</span>
                   <span className="cs-sign">
                     <span className="cs-sign-name">{p.sign}</span>
                     <span className="cs-sign-glyph" style={{ color: elColor }}>{SIGN_GLYPHS[p.sign] ?? ""}</span>
