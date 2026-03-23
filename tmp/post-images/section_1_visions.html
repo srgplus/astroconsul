@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, height=630">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 630px;
+  background: #0a0a0b;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #e8e8ec;
+  overflow: hidden;
+  position: relative;
+}
+.ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.ring-1 { width: 400px; height: 400px; bottom: -150px; right: -100px; }
+.ring-2 { width: 280px; height: 280px; bottom: -85px; right: -35px; }
+.star { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.18); }
+.s1 { width: 2px; height: 2px; top: 60px; right: 180px; }
+.s2 { width: 3px; height: 3px; top: 200px; left: 80px; }
+.s3 { width: 2px; height: 2px; bottom: 120px; left: 300px; }
+.glow-top {
+  position: absolute; width: 350px; height: 350px;
+  top: -100px; right: 100px;
+  background: radial-gradient(circle, rgba(129,140,248,0.10) 0%, transparent 70%);
+}
+.glow-bottom {
+  position: absolute; width: 300px; height: 300px;
+  bottom: -80px; left: 50px;
+  background: radial-gradient(circle, rgba(251,191,36,0.06) 0%, transparent 70%);
+}
+.container {
+  position: relative; z-index: 1;
+  padding: 28px 40px;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px;
+}
+.logo { font-weight: 600; font-size: 14px; color: #e8e8ec; }
+.logo .three { color: #a78bfa; }
+.day-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #a78bfa;
+  background: rgba(167,139,250,0.12);
+  padding: 5px 14px; border-radius: 20px;
+}
+.content {
+  flex: 1; display: flex; gap: 40px;
+}
+.left { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 30px; font-weight: 400; line-height: 1.25;
+}
+.aspect-box {
+  background: #131316;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 20px 24px;
+}
+.aspect-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 12px;
+}
+.planet-circle {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.sun-circle {
+  background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.05));
+  border: 1.5px solid rgba(251,191,36,0.3);
+  color: #fbbf24;
+}
+.neptune-circle {
+  background: linear-gradient(135deg, rgba(129,140,248,0.2), rgba(129,140,248,0.05));
+  border: 1.5px solid rgba(129,140,248,0.3);
+  color: #818cf8;
+}
+.connector {
+  font-size: 11px; color: #8e8e96; font-weight: 500;
+  letter-spacing: 2px;
+}
+.badge-exact {
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(52,211,153,0.12); color: #34d399;
+  padding: 3px 10px; border-radius: 20px;
+  margin-left: auto;
+}
+.pos-row {
+  display: flex; gap: 24px;
+  font-size: 12px; color: #8e8e96;
+}
+.right { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.secondary-aspect {
+  background: #131316;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+.secondary-title {
+  font-size: 14px; font-weight: 600; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.secondary-desc {
+  font-size: 13px; color: #8e8e96; line-height: 1.6;
+}
+.badge-strong {
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(251,146,60,0.12); color: #fb923c;
+  padding: 3px 10px; border-radius: 20px;
+}
+.mercury-note {
+  background: rgba(96,165,250,0.06);
+  border: 1px solid rgba(96,165,250,0.12);
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-size: 12px; color: #60a5fa;
+  display: flex; align-items: center; gap: 10px;
+}
+.mercury-icon {
+  font-size: 20px; flex-shrink: 0;
+}
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 16px;
+}
+.page { font-size: 11px; color: #8e8e96; }
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="star s1"></div>
+  <div class="star s2"></div>
+  <div class="star s3"></div>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+  <div class="container">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="day-badge">Mon – Tue</span>
+    </div>
+    <div class="content">
+      <div class="left">
+        <div class="title">Visions at the Horizon</div>
+        <div class="aspect-box">
+          <div class="aspect-row">
+            <span class="planet-circle sun-circle">&#x2609;</span>
+            <span class="connector">CONJ</span>
+            <span class="planet-circle neptune-circle">&#x2646;</span>
+            <span class="badge-exact">Exact 0.98°</span>
+          </div>
+          <div class="pos-row">
+            <span>&#x2609; Sun 2°51' Aries</span>
+            <span>&#x2646; Neptune 1°52' Aries</span>
+          </div>
+        </div>
+        <div class="secondary-desc" style="color:#8e8e96; line-height:1.7; font-size:13px;">
+          Dreamtime energy wrapped in Aries fire. Intuition runs high — ideas that emerge from nowhere may carry real seeds of possibility. Excellent days for creative work and spiritual practice.
+        </div>
+      </div>
+      <div class="right">
+        <div class="secondary-aspect">
+          <div class="secondary-title">
+            <span style="color:#f472b6;">&#x2640;</span> Venus conjunct Chiron
+            <span class="badge-strong">Strong</span>
+          </div>
+          <div class="secondary-desc">Old wounds around love and self-worth surface gently — not to reopen, but to heal. Conversations held with sincerity close long-standing loops.</div>
+        </div>
+        <div class="secondary-aspect">
+          <div class="secondary-title">
+            <span style="color:#8e8e96;">&#x2644;</span> Saturn–Neptune in Aries
+          </div>
+          <div class="secondary-desc">Sun illuminates the defining conjunction of 2026. Neptune dissolves old forms; Saturn builds new ones. Aries fires the starting gun.</div>
+        </div>
+        <div class="mercury-note">
+          <span class="mercury-icon">&#x263F;</span>
+          Mercury stationing at 8°50' Pisces — communications need extra patience. Full clarity returns after March 27.
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="logo" style="font-size:12px; opacity:0.4;">big<span class="three">3</span>.me</span>
+      <span class="page">2 / 4</span>
+    </div>
+  </div>
+</body>
+</html>

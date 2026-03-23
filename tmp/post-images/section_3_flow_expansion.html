@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, height=630">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 630px;
+  background: #0a0a0b;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #e8e8ec;
+  overflow: hidden;
+  position: relative;
+}
+.ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.ring-1 { width: 450px; height: 450px; top: -100px; left: -120px; }
+.ring-2 { width: 320px; height: 320px; top: -30px; left: -50px; }
+.star { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.18); }
+.s1 { width: 2px; height: 2px; top: 100px; right: 250px; }
+.s2 { width: 3px; height: 3px; bottom: 150px; right: 100px; }
+.s3 { width: 2px; height: 2px; top: 300px; left: 500px; }
+.glow-mars {
+  position: absolute; width: 350px; height: 350px;
+  bottom: -80px; left: 200px;
+  background: radial-gradient(circle, rgba(248,113,113,0.08) 0%, transparent 70%);
+}
+.glow-jupiter {
+  position: absolute; width: 300px; height: 300px;
+  top: -60px; right: 100px;
+  background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+}
+.container {
+  position: relative; z-index: 1;
+  padding: 28px 40px;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.logo { font-weight: 600; font-size: 14px; color: #e8e8ec; }
+.logo .three { color: #a78bfa; }
+.day-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #34d399;
+  background: rgba(52,211,153,0.12);
+  padding: 5px 14px; border-radius: 20px;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 30px; font-weight: 400; margin-bottom: 6px;
+}
+.subtitle-text {
+  font-size: 14px; color: #8e8e96; margin-bottom: 20px;
+}
+.content { flex: 1; display: flex; gap: 32px; }
+.left { flex: 1.1; display: flex; flex-direction: column; gap: 16px; }
+.trine-visual {
+  background: #131316;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.trine-row {
+  display: flex; align-items: center; gap: 20px;
+}
+.planet-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-direction: column;
+}
+.planet-name {
+  font-size: 9px; margin-top: 2px; opacity: 0.7;
+}
+.mars-circle {
+  background: linear-gradient(135deg, rgba(248,113,113,0.2), rgba(248,113,113,0.05));
+  border: 1.5px solid rgba(248,113,113,0.3);
+  color: #f87171;
+}
+.jupiter-circle {
+  background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05));
+  border: 1.5px solid rgba(167,139,250,0.3);
+  color: #a78bfa;
+}
+.trine-connector {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.trine-line {
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, rgba(248,113,113,0.3), rgba(167,139,250,0.3));
+}
+.trine-label {
+  font-size: 10px; color: #8e8e96; letter-spacing: 2px; font-weight: 500;
+}
+.badge-strong {
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(251,146,60,0.12); color: #fb923c;
+  padding: 3px 10px; border-radius: 20px;
+}
+.positions { font-size: 12px; color: #8e8e96; }
+.water-tag {
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: #60a5fa; opacity: 0.7;
+}
+.right { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.mercury-box {
+  background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(52,211,153,0.02));
+  border: 1px solid rgba(52,211,153,0.15);
+  border-radius: 16px;
+  padding: 20px 24px;
+}
+.mercury-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.mercury-icon { font-size: 22px; color: #34d399; }
+.mercury-title { font-size: 15px; font-weight: 600; color: #34d399; }
+.mercury-desc { font-size: 13px; color: #8e8e96; line-height: 1.65; }
+.highlight-box {
+  background: #131316;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 18px 22px;
+}
+.highlight-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 17px; margin-bottom: 8px;
+}
+.highlight-text {
+  font-size: 13px; color: #8e8e96; line-height: 1.65;
+}
+.best-day {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+}
+.green-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #34d399;
+}
+.best-label { font-size: 12px; color: #34d399; font-weight: 500; }
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 12px;
+}
+.page { font-size: 11px; color: #8e8e96; }
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="star s1"></div>
+  <div class="star s2"></div>
+  <div class="star s3"></div>
+  <div class="glow-mars"></div>
+  <div class="glow-jupiter"></div>
+  <div class="container">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="day-badge">Fri – Weekend</span>
+    </div>
+    <div class="title">Flow and Expansion</div>
+    <div class="subtitle-text">The week's high point — Mars trine Jupiter meets Mercury direct</div>
+    <div class="content">
+      <div class="left">
+        <div class="trine-visual">
+          <div class="water-tag">Water Sign Trine</div>
+          <div class="trine-row">
+            <div class="planet-circle mars-circle">
+              &#x2642;
+            </div>
+            <div class="trine-connector">
+              <span class="trine-label">TRINE</span>
+              <div class="trine-line"></div>
+              <span class="badge-strong">Strong 1.1°</span>
+            </div>
+            <div class="planet-circle jupiter-circle">
+              &#x2643;
+            </div>
+          </div>
+          <div class="positions">&#x2642; Mars 16°27' Pisces — &#x2643; Jupiter 15°20' Cancer</div>
+        </div>
+        <div class="highlight-text" style="padding: 0 4px;">
+          Emotional generosity and fortunate timing for compassionate actions. Physical energy flows without aggression. The right things seem to find you.
+        </div>
+      </div>
+      <div class="right">
+        <div class="mercury-box">
+          <div class="mercury-header">
+            <span class="mercury-icon">&#x263F;</span>
+            <span class="mercury-title">Mercury Stations Direct</span>
+          </div>
+          <div class="mercury-desc">March 27 at 8°50' Pisces. The mental fog lifts. Communications that felt tangled start moving again. Decisions on hold can now be finalized with confidence.</div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">Weekend Energy</div>
+          <div class="highlight-text">A particular buoyancy — excellent for launches, collaborations, heartfelt conversations, and decisions that have been waiting for clarity.</div>
+          <div class="best-day">
+            <span class="green-dot"></span>
+            <span class="best-label">Best days of the week: Friday–Saturday</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="logo" style="font-size:12px; opacity:0.4;">big<span class="three">3</span>.me</span>
+      <span class="page">4 / 4</span>
+    </div>
+  </div>
+</body>
+</html>

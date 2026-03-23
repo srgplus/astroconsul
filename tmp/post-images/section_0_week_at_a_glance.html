@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, height=630">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 630px;
+  background: #faf9f7;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1a1a1f;
+  overflow: hidden;
+  position: relative;
+}
+.glow-tl {
+  position: absolute;
+  width: 300px; height: 300px;
+  top: -80px; left: -60px;
+  background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%);
+}
+.glow-br {
+  position: absolute;
+  width: 300px; height: 300px;
+  bottom: -80px; right: -60px;
+  background: radial-gradient(circle, rgba(244,114,182,0.04) 0%, transparent 70%);
+}
+.container {
+  position: relative; z-index: 1;
+  padding: 28px 40px;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.logo { font-weight: 600; font-size: 14px; color: #1a1a1f; }
+.logo .three { color: #7c3aed; }
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #7c3aed;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 28px; font-weight: 400; margin-bottom: 20px;
+  color: #1a1a1f;
+}
+.aspects-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+.aspect-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.aspect-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.aspect-name {
+  font-size: 14px; font-weight: 600; color: #1a1a1f;
+}
+.badge {
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+}
+.badge-exact { background: rgba(52,211,153,0.12); color: #059669; }
+.badge-strong { background: rgba(251,146,60,0.12); color: #ea580c; }
+.badge-applying { background: rgba(96,165,250,0.12); color: #2563eb; }
+.aspect-details {
+  display: flex; align-items: center; gap: 10px;
+}
+.planet-circle {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.transit-circle {
+  background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(124,58,237,0.05));
+  border: 1.5px solid rgba(124,58,237,0.25);
+  color: #7c3aed;
+}
+.natal-circle {
+  background: linear-gradient(135deg, rgba(219,39,119,0.12), rgba(219,39,119,0.04));
+  border: 1.5px solid rgba(219,39,119,0.2);
+  color: #db2777;
+}
+.connector {
+  font-size: 10px; color: #6e6e76; font-weight: 500;
+  letter-spacing: 1px;
+}
+.positions {
+  font-size: 11px; color: #6e6e76;
+}
+.aspect-desc {
+  font-size: 12px; color: #6e6e76; line-height: 1.5;
+}
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 12px;
+}
+.page { font-size: 11px; color: #6e6e76; }
+</style>
+</head>
+<body>
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="container">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="section-label">Week at a Glance</span>
+    </div>
+    <div class="title">Key Transits: March 23–29</div>
+    <div class="aspects-grid">
+      <!-- Sun conjunct Neptune -->
+      <div class="aspect-card">
+        <div class="aspect-header">
+          <span class="aspect-name">&#x2609; Sun conjunct &#x2646; Neptune</span>
+          <span class="badge badge-exact">Exact 0.98°</span>
+        </div>
+        <div class="aspect-details">
+          <span class="planet-circle transit-circle">&#x2609;</span>
+          <span class="connector">CONJ</span>
+          <span class="planet-circle natal-circle">&#x2646;</span>
+          <span class="positions">2°51' &#x2648; — 1°52' &#x2648;</span>
+        </div>
+        <div class="aspect-desc">Vision meets fire. Intuitive downloads and inspired ideas carry real seeds of possibility.</div>
+      </div>
+      <!-- Saturn sextile Pluto -->
+      <div class="aspect-card">
+        <div class="aspect-header">
+          <span class="aspect-name">&#x2644; Saturn sextile &#x2647; Pluto</span>
+          <span class="badge badge-exact">Exact 0.58°</span>
+        </div>
+        <div class="aspect-details">
+          <span class="planet-circle transit-circle">&#x2644;</span>
+          <span class="connector">SXT</span>
+          <span class="planet-circle natal-circle">&#x2647;</span>
+          <span class="positions">4°29' &#x2648; — 3°51' &#x2652;</span>
+        </div>
+        <div class="aspect-desc">Structural transformation of power. Slow, steady reformation building for months.</div>
+      </div>
+      <!-- Venus conjunct Chiron -->
+      <div class="aspect-card">
+        <div class="aspect-header">
+          <span class="aspect-name">&#x2640; Venus conjunct &#x26B7; Chiron</span>
+          <span class="badge badge-strong">Strong</span>
+        </div>
+        <div class="aspect-details">
+          <span class="planet-circle transit-circle">&#x2640;</span>
+          <span class="connector">CONJ</span>
+          <span class="planet-circle natal-circle">&#x26B7;</span>
+          <span class="positions">21°9' &#x2648; — &#x2648;</span>
+        </div>
+        <div class="aspect-desc">Healing in love and self-worth. Old identity wounds surface gently to close long-standing loops.</div>
+      </div>
+      <!-- Mars trine Jupiter -->
+      <div class="aspect-card">
+        <div class="aspect-header">
+          <span class="aspect-name">&#x2642; Mars trine &#x2643; Jupiter</span>
+          <span class="badge badge-strong">Strong 1.1°</span>
+        </div>
+        <div class="aspect-details">
+          <span class="planet-circle transit-circle">&#x2642;</span>
+          <span class="connector">TRI</span>
+          <span class="planet-circle natal-circle">&#x2643;</span>
+          <span class="positions">16°27' &#x2653; — 15°20' &#x264B;</span>
+        </div>
+        <div class="aspect-desc">Flowing water-sign trine. Emotional generosity, fortunate timing, compassionate action.</div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="logo" style="font-size:12px; opacity:0.5;">big<span class="three">3</span>.me</span>
+      <span class="page">1 / 4</span>
+    </div>
+  </div>
+</body>
+</html>

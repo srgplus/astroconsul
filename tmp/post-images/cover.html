@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, height=630">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 630px;
+  background: #0a0a0b;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #e8e8ec;
+  overflow: hidden;
+  position: relative;
+}
+/* Orbital rings */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.ring-1 { width: 500px; height: 500px; top: -120px; right: -100px; }
+.ring-2 { width: 350px; height: 350px; top: -45px; right: -25px; }
+.ring-3 { width: 600px; height: 600px; bottom: -200px; left: -150px; }
+/* Star dots */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+.s1 { width: 2px; height: 2px; top: 80px; left: 200px; }
+.s2 { width: 3px; height: 3px; top: 150px; right: 300px; }
+.s3 { width: 2px; height: 2px; top: 400px; left: 350px; }
+.s4 { width: 2px; height: 2px; bottom: 100px; right: 200px; }
+.s5 { width: 3px; height: 3px; top: 250px; left: 100px; }
+.s6 { width: 2px; height: 2px; top: 120px; right: 500px; }
+/* Glow effects */
+.glow-purple {
+  position: absolute;
+  width: 350px; height: 350px;
+  top: -80px; right: -50px;
+  background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-pink {
+  position: absolute;
+  width: 300px; height: 300px;
+  bottom: -60px; left: -40px;
+  background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* Content */
+.container {
+  position: relative;
+  z-index: 1;
+  padding: 28px 40px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #e8e8ec;
+}
+.logo .three { color: #a78bfa; }
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a78bfa;
+  background: rgba(167,139,250,0.12);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 0 60px;
+}
+.date-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8e8e96;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #e8e8ec;
+  max-width: 900px;
+}
+.subtitle {
+  font-size: 15px;
+  font-weight: 400;
+  color: #8e8e96;
+  line-height: 1.6;
+  max-width: 780px;
+}
+.planet-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.planet-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #e8e8ec;
+}
+.planet-pill .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tagline {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8e8e96;
+  opacity: 0.5;
+}
+</style>
+</head>
+<body>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+  <div class="star s1"></div>
+  <div class="star s2"></div>
+  <div class="star s3"></div>
+  <div class="star s4"></div>
+  <div class="star s5"></div>
+  <div class="star s6"></div>
+  <div class="glow-purple"></div>
+  <div class="glow-pink"></div>
+  <div class="container">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="tag">Weekly Outlook</span>
+    </div>
+    <div class="content">
+      <div class="date-label">March 23 – 29, 2026</div>
+      <div class="title">Where Dreams Meet Structure</div>
+      <div class="subtitle">Sun conjunct Neptune & Saturn in Aries &#x2022; Venus conjunct Chiron &#x2022; Mars trine Jupiter &#x2022; Mercury stations direct March 27</div>
+      <div class="planet-row">
+        <span class="planet-pill"><span class="dot" style="background:#fbbf24"></span>&#x2609; Sun 2°51' &#x2648;</span>
+        <span class="planet-pill"><span class="dot" style="background:#818cf8"></span>&#x2646; Neptune 1°52' &#x2648;</span>
+        <span class="planet-pill"><span class="dot" style="background:#8e8e96"></span>&#x2644; Saturn 4°29' &#x2648;</span>
+        <span class="planet-pill"><span class="dot" style="background:#f87171"></span>&#x2642; Mars 16°27' &#x2653;</span>
+        <span class="planet-pill"><span class="dot" style="background:#a78bfa"></span>&#x2643; Jupiter 15°20' &#x264B;</span>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="tagline">Transit Astrology</span>
+      <span class="logo" style="font-size:12px; opacity:0.4;">big<span class="three">3</span>.me</span>
+    </div>
+  </div>
+</body>
+</html>

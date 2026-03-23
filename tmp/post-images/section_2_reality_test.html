@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, height=630">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 1200px; height: 630px;
+  background: #faf9f7;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1a1a1f;
+  overflow: hidden;
+  position: relative;
+}
+.glow-tl {
+  position: absolute; width: 300px; height: 300px;
+  top: -100px; left: -60px;
+  background: radial-gradient(circle, rgba(142,142,150,0.05) 0%, transparent 70%);
+}
+.glow-br {
+  position: absolute; width: 300px; height: 300px;
+  bottom: -80px; right: -60px;
+  background: radial-gradient(circle, rgba(192,132,252,0.04) 0%, transparent 70%);
+}
+.container {
+  position: relative; z-index: 1;
+  padding: 28px 40px;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.logo { font-weight: 600; font-size: 14px; color: #1a1a1f; }
+.logo .three { color: #7c3aed; }
+.day-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #7c3aed;
+  background: rgba(124,58,237,0.08);
+  padding: 5px 14px; border-radius: 20px;
+}
+.title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 30px; font-weight: 400; margin-bottom: 20px;
+}
+.content { flex: 1; display: flex; gap: 32px; }
+.left { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.aspect-box {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.aspect-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: #6e6e76;
+}
+.aspect-main {
+  display: flex; align-items: center; gap: 14px;
+}
+.planet-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.saturn-circle {
+  background: linear-gradient(135deg, rgba(142,142,150,0.15), rgba(142,142,150,0.04));
+  border: 1.5px solid rgba(142,142,150,0.25);
+  color: #8e8e96;
+}
+.pluto-circle {
+  background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(192,132,252,0.04));
+  border: 1.5px solid rgba(192,132,252,0.25);
+  color: #c084fc;
+}
+.sun-circle-lt {
+  background: linear-gradient(135deg, rgba(202,138,4,0.12), rgba(202,138,4,0.04));
+  border: 1.5px solid rgba(202,138,4,0.2);
+  color: #ca8a04;
+}
+.connector {
+  font-size: 11px; color: #6e6e76; font-weight: 500; letter-spacing: 2px;
+}
+.badge {
+  font-size: 9px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+  margin-left: auto;
+}
+.badge-exact { background: rgba(52,211,153,0.12); color: #059669; }
+.badge-strong { background: rgba(251,146,60,0.12); color: #ea580c; }
+.positions { font-size: 12px; color: #6e6e76; }
+.desc { font-size: 13px; color: #6e6e76; line-height: 1.65; }
+.right {
+  flex: 1; display: flex; flex-direction: column; gap: 16px;
+}
+.insight-box {
+  background: #f2f0ed;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 16px;
+  padding: 20px 24px;
+  flex: 1;
+}
+.insight-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 18px; margin-bottom: 10px;
+}
+.insight-text {
+  font-size: 13px; color: #6e6e76; line-height: 1.7;
+}
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 12px;
+}
+.page { font-size: 11px; color: #6e6e76; }
+</style>
+</head>
+<body>
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="container">
+    <div class="header">
+      <span class="logo">big<span class="three">3</span>.me</span>
+      <span class="day-badge">Wed – Thu</span>
+    </div>
+    <div class="title">The Reality Test</div>
+    <div class="content">
+      <div class="left">
+        <div class="aspect-box">
+          <div class="aspect-label">Tightest aspect of the week</div>
+          <div class="aspect-main">
+            <span class="planet-circle saturn-circle">&#x2644;</span>
+            <span class="connector">SXT</span>
+            <span class="planet-circle pluto-circle">&#x2647;</span>
+            <span class="badge badge-exact">Exact 0.58°</span>
+          </div>
+          <div class="positions">&#x2644; Saturn 4°29' Aries — &#x2647; Pluto 3°51' Aquarius</div>
+          <div class="desc">Slow structural reformation of power and systems. Building for months — the week's mid-point brings it into focus.</div>
+        </div>
+        <div class="aspect-box">
+          <div class="aspect-label">Sun activates the pattern</div>
+          <div class="aspect-main">
+            <span class="planet-circle sun-circle-lt">&#x2609;</span>
+            <span class="connector">SXT</span>
+            <span class="planet-circle pluto-circle">&#x2647;</span>
+            <span class="badge badge-strong">Strong 2.2°</span>
+          </div>
+          <div class="positions">&#x2609; Sun 2°51' Aries — &#x2647; Pluto 3°51' Aquarius</div>
+          <div class="desc">Personal empowerment and quiet transformation. Who holds power, how it is used, what needs to be shed.</div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="insight-box">
+          <div class="insight-title">The Architect Arrives</div>
+          <div class="insight-text">Where Monday–Tuesday invited dreams, Wednesday–Thursday bring the architect. Saturn asks: is this vision viable? What structure does it need to endure?<br><br>Commitment to meaningful work is rewarded. If you've been avoiding a difficult but necessary decision, this passage gives you the resolve to address it.<br><br>The Saturn–Pluto sextile reinforces structural power themes at a deep, generational level. Not heavy — clarifying.</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="logo" style="font-size:12px; opacity:0.5;">big<span class="three">3</span>.me</span>
+      <span class="page">3 / 4</span>
+    </div>
+  </div>
+</body>
+</html>
