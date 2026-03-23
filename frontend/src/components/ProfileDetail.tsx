@@ -74,7 +74,12 @@ const GROUPS: ObjectGroup[] = [
   { labelKey: "transits.specialPoints", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
 
+function hasValidSign(p: NatalPosition): boolean {
+  return p.sign != null && p.sign !== ""
+}
+
 function formatPosition(p: NatalPosition): string {
+  if (!hasValidSign(p)) return "N/A"
   return `${p.sign} ${p.degree}\u00B0${String(p.minute).padStart(2, "0")}'${String(Math.round(p.second)).padStart(2, "0")}"`
 }
 
@@ -146,12 +151,12 @@ export function NatalPositionsTable({
                       {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
                     </span>
                     <span className="natal-pos__center">
-                      <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                      <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                      <span className="natal-pos__sign-name">{hasValidSign(p) ? t(`sign.${p.sign}`) : "N/A"}</span>
+                      <span className="natal-pos__sign">{hasValidSign(p) ? (SIGN_GLYPHS[p.sign] ?? "") : ""}</span>
                       <span className="natal-pos__house">△{p.house || "—"}</span>
                     </span>
                     <span className="natal-pos__right">
-                      <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                      <span className="natal-pos__deg">{hasValidSign(p) ? `${p.degree}°${String(p.minute).padStart(2, "0")}′` : ""}</span>
                     </span>
                   </button>
                   ) : (
@@ -162,12 +167,12 @@ export function NatalPositionsTable({
                       {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
                     </span>
                     <span className="natal-pos__center">
-                      <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                      <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                      <span className="natal-pos__sign-name">{hasValidSign(p) ? t(`sign.${p.sign}`) : "N/A"}</span>
+                      <span className="natal-pos__sign">{hasValidSign(p) ? (SIGN_GLYPHS[p.sign] ?? "") : ""}</span>
                       <span className="natal-pos__house">△{p.house || "—"}</span>
                     </span>
                     <span className="natal-pos__right">
-                      <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                      <span className="natal-pos__deg">{hasValidSign(p) ? `${p.degree}°${String(p.minute).padStart(2, "0")}′` : ""}</span>
                     </span>
                   </div>
                   )}
@@ -175,7 +180,7 @@ export function NatalPositionsTable({
                     <div className="natal-interp">
                       {cuspInterp?.meaning ? (
                         <div className="natal-interp__block">
-                          <div className="natal-interp__label">{SIGN_GLYPHS[p.sign] ?? ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {t(`sign.${p.sign}`)}</div>
+                          <div className="natal-interp__label">{hasValidSign(p) ? (SIGN_GLYPHS[p.sign!] ?? "") : ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {hasValidSign(p) ? t(`sign.${p.sign}`) : "N/A"}</div>
                           <div className="natal-interp__text">{cuspInterp.meaning}</div>
                           {cuspInterp.keywords?.length ? (
                             <div className="natal-interp__keywords">
@@ -188,7 +193,7 @@ export function NatalPositionsTable({
                       ) : null}
                       {inSign?.meaning ? (
                         <div className="natal-interp__block">
-                          <div className="natal-interp__label">{SIGN_GLYPHS[p.sign] ?? ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {t(`sign.${p.sign}`)}</div>
+                          <div className="natal-interp__label">{hasValidSign(p) ? (SIGN_GLYPHS[p.sign!] ?? "") : ""} {t(`planet.${p.id}`)} {t("interp.inSign")} {hasValidSign(p) ? t(`sign.${p.sign}`) : "N/A"}</div>
                           <div className="natal-interp__text">{inSign.meaning}</div>
                           {inSign.keywords?.length ? (
                             <div className="natal-interp__keywords">
@@ -391,9 +396,9 @@ export function NatalAspectsTable({
                               <div className="cw-pos-line">
                                 <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.p1]}</span>
                                 <span className="cw-pos-name">{t(`planet.${a.p1}`)}</span>
-                                <span className="cw-pos-deg">{p1pos.degree}°{String(p1pos.minute).padStart(2, "0")}′</span>
-                                <span className="cw-pos-sign">{SIGN_GLYPHS[p1pos.sign] ?? ""} {t(`sign.${p1pos.sign}`)}</span>
-                                <span className="cw-pos-house">△{p1pos.house}</span>
+                                <span className="cw-pos-deg">{hasValidSign(p1pos) ? `${p1pos.degree}°${String(p1pos.minute).padStart(2, "0")}′` : "N/A"}</span>
+                                <span className="cw-pos-sign">{hasValidSign(p1pos) ? `${SIGN_GLYPHS[p1pos.sign] ?? ""} ${t(`sign.${p1pos.sign}`)}` : ""}</span>
+                                <span className="cw-pos-house">△{p1pos.house || "—"}</span>
                                 {p1pos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
                               </div>
                             ) : null}
@@ -401,9 +406,9 @@ export function NatalAspectsTable({
                               <div className="cw-pos-line">
                                 <span className="cw-pos-glyph">{OBJECT_GLYPHS[a.p2]}</span>
                                 <span className="cw-pos-name">{t(`planet.${a.p2}`)}</span>
-                                <span className="cw-pos-deg">{p2pos.degree}°{String(p2pos.minute).padStart(2, "0")}′</span>
-                                <span className="cw-pos-sign">{SIGN_GLYPHS[p2pos.sign] ?? ""} {t(`sign.${p2pos.sign}`)}</span>
-                                <span className="cw-pos-house">△{p2pos.house}</span>
+                                <span className="cw-pos-deg">{hasValidSign(p2pos) ? `${p2pos.degree}°${String(p2pos.minute).padStart(2, "0")}′` : "N/A"}</span>
+                                <span className="cw-pos-sign">{hasValidSign(p2pos) ? `${SIGN_GLYPHS[p2pos.sign] ?? ""} ${t(`sign.${p2pos.sign}`)}` : ""}</span>
+                                <span className="cw-pos-house">△{p2pos.house || "—"}</span>
                                 {p2pos.retrograde ? <span className="cw-pos-retro">Ⓡ</span> : null}
                               </div>
                             ) : null}
@@ -484,7 +489,7 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
   return (
     <div className="profile-summary">
       <div className="profile-summary__signs">
-        {signItems.map(({ id, pos }) => pos ? (
+        {signItems.map(({ id, pos }) => pos && hasValidSign(pos) ? (
           <div key={id} className="profile-summary__sign-item">
             <span className="profile-summary__sign-icon">{SIGN_GLYPHS[pos.sign] ?? ""}</span>
             <div>
@@ -495,7 +500,7 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
         ) : null)}
       </div>
       <div className="profile-summary__signs profile-summary__signs--secondary">
-        {secondaryItems.map(({ id, pos }) => pos ? (
+        {secondaryItems.map(({ id, pos }) => pos && hasValidSign(pos) ? (
           <div key={id} className="profile-summary__sign-item">
             <span className="profile-summary__sign-icon">{SIGN_GLYPHS[pos.sign] ?? ""}</span>
             <div>

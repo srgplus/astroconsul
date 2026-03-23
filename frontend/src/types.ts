@@ -44,13 +44,13 @@ export type ProfileSummary = {
 
 export type NatalPosition = {
   id: string
-  longitude: number
-  degree: number
-  minute: number
-  second: number
-  sign: string
-  formatted_position: string
-  house: number
+  longitude: number | null
+  degree: number | null
+  minute: number | null
+  second: number | null
+  sign: string | null
+  formatted_position: string | null
+  house: number | null
   retrograde: boolean | null
   speed: number | null
 }

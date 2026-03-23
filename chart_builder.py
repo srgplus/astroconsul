@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import swisseph as swe
+
+logger = logging.getLogger(__name__)
 
 from aspect_engine import compute_natal_aspects
 from astro_utils import determine_house, hour_to_time_token, longitude_to_zodiac_position, normalize_longitude
@@ -205,6 +208,7 @@ def safe_calc_object(jd: float, swe_id: int) -> tuple[float, float] | None:
     try:
         values, _ = swe.calc_ut(jd, swe_id, FLAGS)
     except Exception:
+        logger.warning("Swiss Ephemeris calc failed for swe_id=%s jd=%.4f", swe_id, jd, exc_info=True)
         return None
 
     return normalize_degrees(values[0]), round(values[3], 6)
@@ -411,6 +415,16 @@ def chart_needs_upgrade(chart: dict[str, Any]) -> bool:
     )
     if not isinstance(vertex_position, dict) or vertex_position.get("house") is None:
         return True
+
+    # Check for null sign/degree on bodies that should always have values
+    must_have_sign = {"Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn",
+                      "Uranus", "Neptune", "Pluto", "ASC", "MC", "Chiron", "Lilith",
+                      "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"}
+    for pos in natal_positions:
+        if not isinstance(pos, dict):
+            continue
+        if str(pos.get("id")) in must_have_sign and pos.get("sign") is None:
+            return True
 
     # Check if natal_aspects include special points and ASC/MC
     natal_aspects = chart.get("natal_aspects", [])
