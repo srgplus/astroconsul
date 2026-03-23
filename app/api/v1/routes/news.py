@@ -16,8 +16,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/news", tags=["news"])
 
-_TEMPLATES_DIR = Path(__file__).resolve().parents[4] / "templates"
-templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
+
+def _get_templates() -> Jinja2Templates:
+    templates_dir = Path(__file__).resolve().parents[4] / "templates"
+    if not templates_dir.exists():
+        logger.error("Templates directory not found: %s", templates_dir)
+    return Jinja2Templates(directory=str(templates_dir))
 
 
 def _parse_tags(tags_str: str | None) -> list[str]:
@@ -128,15 +132,19 @@ def _get_post_by_slug(slug: str):
 @router.get("/", response_class=HTMLResponse)
 def news_feed(request: Request, tag: str | None = None, page: int = 1):
     """Render news feed with optional tag filter."""
-    offset = (page - 1) * 20
-    posts = _get_published_posts(tag=tag, limit=20, offset=offset)
+    try:
+        offset = (page - 1) * 20
+        posts = _get_published_posts(tag=tag, limit=20, offset=offset)
 
-    return templates.TemplateResponse("news/feed.html", {
-        "request": request,
-        "posts": posts,
-        "tag": tag,
-        "page": page,
-    })
+        return _get_templates().TemplateResponse("news/feed.html", {
+            "request": request,
+            "posts": posts,
+            "tag": tag,
+            "page": page,
+        })
+    except Exception:
+        logger.exception("Error rendering news feed")
+        raise
 
 
 @router.get("/sitemap-news.xml", response_class=Response)
@@ -160,11 +168,17 @@ def news_sitemap():
 @router.get("/{slug}", response_class=HTMLResponse)
 def news_post(request: Request, slug: str):
     """Render individual news post with full SEO meta tags."""
-    post = _get_post_by_slug(slug)
-    if post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+    try:
+        post = _get_post_by_slug(slug)
+        if post is None:
+            raise HTTPException(status_code=404, detail="Post not found")
 
-    return templates.TemplateResponse("news/post.html", {
-        "request": request,
-        "post": post,
-    })
+        return _get_templates().TemplateResponse("news/post.html", {
+            "request": request,
+            "post": post,
+        })
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error rendering news post: %s", slug)
+        raise
