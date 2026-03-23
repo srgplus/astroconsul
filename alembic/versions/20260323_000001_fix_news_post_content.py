@@ -1,36 +1,30 @@
-#!/usr/bin/env python3
-"""Seed 3 sample news posts into the database.
+"""Fix news post content with verified ephemeris data
 
-All transit claims verified against Swiss Ephemeris (pyswisseph) on 2026-03-23.
-Natal positions computed at noon (houses/Moon approximate without verified birth time).
+Revision ID: 20260323_000001
+Revises: 064db5df224a
+Create Date: 2026-03-23
+
+The original 3 seed posts contained fabricated transit claims.
+This migration updates them with data verified against Swiss Ephemeris.
 """
+from typing import Sequence, Union
 
-import sys
-import uuid
-from datetime import date, datetime, timezone
-from pathlib import Path
+from alembic import op
+import sqlalchemy as sa
+import json
+from datetime import datetime, timezone
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# revision identifiers, used by Alembic.
+revision: str = "20260323_000001"
+down_revision: str = "064db5df224a"
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
 
-from app.core.config import get_settings
-from app.infrastructure.persistence.models import NewsPostModel
-from app.infrastructure.persistence.session import database_is_enabled, session_scope
-
-
-SEED_POSTS = [
-    # ── Post 1: Zendaya ── verified against ephemeris for 2026-03-15
-    # Transit Saturn 3°29' Aries conjunct her natal Saturn 5°49' Aries (orb ~2.3°)
-    # Transit Pluto 4°53' Aquarius sextile natal Saturn 5°49' Aries (orb ~0.9°)
-    # Transit Mercury Rx 9°56' Pisces opposite natal Sun 9°19' Virgo (orb ~0.6°)
-    # Transit Mars 10°09' Pisces opposite natal Sun 9°19' Virgo (orb ~0.85°)
-    # Transit Neptune 1°34' Aries approaching natal Saturn 5°49' Aries (orb ~4.2°)
-    {
-        "slug": "zendaya-wedding-transits-2026",
+# Corrected post data (verified against Swiss Ephemeris 2026-03-23)
+CORRECTIONS = {
+    "zendaya-wedding-transits-2026": {
         "title": "Zendaya's Wedding Transits: Saturn Return and the Architecture of Commitment",
         "subtitle": "Her Saturn return in Aries coincides with one of Hollywood's biggest engagements",
-        "date": date(2026, 3, 15),
-        "author": "Victoria",
-        "status": "published",
         "intro": (
             "When Zendaya and Tom Holland's engagement made headlines, astrologers immediately "
             "noticed the timing. Transit Saturn at 3 degrees Aries is closing in on her natal "
@@ -38,7 +32,7 @@ SEED_POSTS = [
             "that asks: are you ready to commit to who you actually are? For Zendaya, the "
             "answer appears to be a resounding yes."
         ),
-        "sections": [
+        "sections": json.dumps([
             {
                 "heading": "Saturn Return in Aries: Building on Your Own Terms",
                 "body": (
@@ -75,7 +69,7 @@ SEED_POSTS = [
                     "truth. The Pisces-Virgo axis asks her to balance the dream with the details."
                 ),
             },
-        ],
+        ]),
         "conclusion": (
             "Zendaya's chart in March 2026 is defined by her approaching Saturn return in "
             "Aries, reinforced by Pluto's sextile and sharpened by Mercury retrograde and "
@@ -83,8 +77,6 @@ SEED_POSTS = [
             "one. Saturn return commitments tend to be the ones that last, precisely because "
             "they are made with open eyes."
         ),
-        "celebrity_name": "Zendaya",
-        "celebrity_event": "Engagement and wedding planning",
         "meta_title": "Zendaya Wedding Transits 2026: Saturn Return Analysis | big3.me",
         "meta_description": (
             "Astrology analysis of Zendaya's engagement transits in March 2026. "
@@ -92,23 +84,10 @@ SEED_POSTS = [
             "Full transit breakdown with verified ephemeris data."
         ),
         "keywords": "zendaya,wedding,transits,saturn return,aries,astrology,2026",
-        "tags": "celebrity,transit",
-        "published_at": datetime(2026, 3, 15, 9, 0, tzinfo=timezone.utc),
     },
-    # ── Post 2: Aries Season ── verified against ephemeris for 2026-03-20
-    # Sun 29°53' Pisces (ingress to Aries within hours)
-    # Mars 14°05' Pisces trine Jupiter 15°13' Cancer (orb 1.13°)
-    # Mercury Rx 8°29' Pisces (stationing direct ~Mar 27)
-    # Saturn 4°06' Aries conjunct Neptune 1°46' Aries (orb 2.34°)
-    # Venus 17°26' Aries conjunct Moon 18°51' Aries (orb 1.42°)
-    # Saturn sextile Pluto 5°00' Aquarius (orb 0.89°)
-    {
-        "slug": "aries-season-2026-what-to-expect",
+    "aries-season-2026-what-to-expect": {
         "title": "Aries Season 2026: Saturn Meets Neptune and Mercury Stations Direct",
         "subtitle": "The astrological new year begins March 20 with a rare Saturn-Neptune conjunction in Aries.",
-        "date": date(2026, 3, 20),
-        "author": "Victoria",
-        "status": "published",
         "intro": (
             "Aries season marks the astrological new year. The Sun reaches 29 degrees 53 "
             "minutes of Pisces on March 20 and crosses into Aries within hours. But this "
@@ -117,7 +96,7 @@ SEED_POSTS = [
             "in Pisces, and Mars in Pisces is forming a water trine to Jupiter in Cancer. "
             "This is not a simple fresh start. It is a recalibration."
         ),
-        "sections": [
+        "sections": json.dumps([
             {
                 "heading": "Saturn Conjunct Neptune in Aries: The Generational Shift",
                 "body": (
@@ -159,7 +138,7 @@ SEED_POSTS = [
                     "this trine hits your chart directly."
                 ),
             },
-        ],
+        ]),
         "conclusion": (
             "Aries season 2026 opens with rare energy. The Saturn-Neptune conjunction in "
             "Aries redefines the backdrop of the entire year. Mercury stationing direct "
@@ -173,26 +152,10 @@ SEED_POSTS = [
             "Mercury stations direct, Mars trine Jupiter. Verified transit analysis."
         ),
         "keywords": "aries season,2026,astrology,saturn,neptune,conjunction,mercury retrograde,transits",
-        "tags": "transit,educational",
-        "published_at": datetime(2026, 3, 20, 9, 0, tzinfo=timezone.utc),
     },
-    # ── Post 3: Michael B. Jordan ── verified against ephemeris for 2026-03-10
-    # His natal: Sun 20°11' Aquarius, Mercury 7°58' Pisces, Moon ~2° Cancer,
-    #   Mars 22°18' Aries, Jupiter 25°07' Pisces, Saturn 19°10' Sag,
-    #   Neptune 7°03' Cap, North Node 13°06' Aries
-    # Transit North Node 8°53' Pisces conjunct natal Mercury 7°58' Pisces (orb 0.92°)
-    # Transit Mars 6°13' Pisces conjunct natal Mercury 7°58' Pisces (orb 1.74°)
-    # Transit Neptune 1°23' Aries square natal Moon ~2° Cancer (orb ~0.6°)
-    # Transit Saturn 2°52' Aries square natal Moon ~2° Cancer (orb ~0.9°)
-    # Transit Mercury Rx 13°50' Pisces conjunct natal North Node 13°06' Aries? No, NN is Aries
-    # Actually transit Mercury Rx (343.84°) near natal Mercury (337.97°) → orb 5.87° (wide)
-    {
-        "slug": "michael-b-jordan-oscar-transits",
+    "michael-b-jordan-oscar-transits": {
         "title": "Michael B. Jordan's Oscar Nomination: North Node on Mercury and the Voice of a Director",
         "subtitle": "His directorial debut earned critical acclaim. The transits show why the timing was fated.",
-        "date": date(2026, 3, 10),
-        "author": "Victoria",
-        "status": "published",
         "intro": (
             "Michael B. Jordan's directorial debut receiving an Oscar nomination surprised "
             "some critics but not astrologers. In March 2026, the transit North Node at 8 "
@@ -201,7 +164,7 @@ SEED_POSTS = [
             "communication: a message the world was meant to hear. For a first-time "
             "director, this is the transit of finding your voice."
         ),
-        "sections": [
+        "sections": json.dumps([
             {
                 "heading": "North Node Conjunct Natal Mercury: A Destined Message",
                 "body": (
@@ -242,7 +205,7 @@ SEED_POSTS = [
                     "provides the vision. The Moon channels it into something audiences feel."
                 ),
             },
-        ],
+        ]),
         "conclusion": (
             "Michael B. Jordan's transits in March 2026 tell a clear story. The North Node "
             "and Mars converging on his natal Mercury activated his directorial voice at "
@@ -250,8 +213,6 @@ SEED_POSTS = [
             "emotional intensity that makes art resonate. This Oscar nomination is not a "
             "peak. It is a beginning. The North Node does not point backward."
         ),
-        "celebrity_name": "Michael B. Jordan",
-        "celebrity_event": "Oscar nomination for directing debut",
         "meta_title": "Michael B. Jordan Oscar Transits: North Node on Mercury Analysis | big3.me",
         "meta_description": (
             "Astrology analysis of Michael B. Jordan's Oscar nomination. North Node "
@@ -259,45 +220,27 @@ SEED_POSTS = [
             "Verified transit data from Swiss Ephemeris."
         ),
         "keywords": "michael b jordan,oscar,north node,mercury,transits,astrology,2026",
-        "tags": "celebrity,transit",
-        "published_at": datetime(2026, 3, 10, 9, 0, tzinfo=timezone.utc),
     },
-]
+}
 
 
-def main():
-    settings = get_settings()
-    if not database_is_enabled(settings):
-        print("Database not enabled. Set ASTRO_CONSUL_PERSISTENCE_BACKEND=database")
-        return
-
+def upgrade() -> None:
+    conn = op.get_bind()
     now = datetime.now(timezone.utc)
 
-    with session_scope(settings) as session:
-        for post_data in SEED_POSTS:
-            # Check if already exists
-            from sqlalchemy import select
-            existing = session.execute(
-                select(NewsPostModel).where(NewsPostModel.slug == post_data["slug"])
-            ).scalar_one_or_none()
+    for slug, fields in CORRECTIONS.items():
+        set_clauses = ", ".join(
+            f"{col} = :{col}" for col in fields
+        )
+        set_clauses += ", updated_at = :updated_at"
 
-            if existing:
-                print(f"  SKIP (exists): {post_data['slug']}")
-                continue
-
-            sections_list = post_data.pop("sections")
-            post = NewsPostModel(
-                id=str(uuid.uuid4()),
-                **post_data,
-                sections=sections_list,
-                created_at=now,
-                updated_at=now,
-            )
-            session.add(post)
-            print(f"  ADDED: {post_data['slug']}")
-
-    print("Done. Visit /news to see the posts.")
+        params = {**fields, "slug": slug, "updated_at": now}
+        conn.execute(
+            sa.text(f"UPDATE news_posts SET {set_clauses} WHERE slug = :slug"),
+            params,
+        )
 
 
-if __name__ == "__main__":
-    main()
+def downgrade() -> None:
+    # No downgrade — original content was incorrect
+    pass
