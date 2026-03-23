@@ -6418,7 +6418,7 @@ button.natal-pos__row--clickable {
 .syn-gauge-number {
   font-size: 40px;
   font-weight: 700;
-  fill: var(--text-primary);
+  fill: #fff;
 }
 
 .syn-gauge-label {

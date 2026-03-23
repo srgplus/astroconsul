@@ -51,18 +51,10 @@ type Props = {
   report: SynastryReportResponse
 }
 
-function Big3Badges({ summary }: { summary: Record<string, string> | null }) {
-  if (!summary) return null
-  const sun = summary.Sun || summary.sun
-  const moon = summary.Moon || summary.moon
-  const asc = summary.Ascendant || summary.ascendant || summary.ASC
-  return (
-    <div className="syn-big3">
-      {sun ? <span className="syn-sign-badge">{SIGN_GLYPHS[sun] || ""}</span> : null}
-      {moon ? <span className="syn-sign-badge">{SIGN_GLYPHS[moon] || ""}</span> : null}
-      {asc ? <span className="syn-sign-badge">{SIGN_GLYPHS[asc] || ""}</span> : null}
-    </div>
-  )
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+  return parts.map((w) => w.charAt(0).toUpperCase()).join("")
 }
 
 function ScoreGauge({ score, label }: { score: number; label: string }) {
@@ -88,7 +80,7 @@ function ScoreGauge({ score, label }: { score: number; label: string }) {
             <stop offset="100%" stopColor="#ec4899" />
           </linearGradient>
         </defs>
-        <text x="80" y="88" textAnchor="middle" className="syn-gauge-number">{score}</text>
+        <text x="80" y="88" textAnchor="middle" className="syn-gauge-number" fill="#fff">{score}</text>
       </svg>
       <div className="syn-gauge-label">Overall Chemistry: <span className="syn-gauge-label-val">{label}</span></div>
     </div>
@@ -189,15 +181,13 @@ export default function SynastryReport({ report }: Props) {
       <div className="syn-header">
         <div className="syn-header-persons">
           <div className="syn-person">
-            <div className="syn-avatar syn-avatar--a"><span>A</span></div>
+            <div className="syn-avatar syn-avatar--a"><span>{getInitials(report.person_a.name)}</span></div>
             <div className="syn-person-name">{report.person_a.name}</div>
-            <Big3Badges summary={report.person_a.natal_summary} />
           </div>
           <span className="syn-header-x">&times;</span>
           <div className="syn-person">
-            <div className="syn-avatar syn-avatar--b"><span>B</span></div>
+            <div className="syn-avatar syn-avatar--b"><span>{getInitials(report.person_b.name)}</span></div>
             <div className="syn-person-name">{report.person_b.name}</div>
-            <Big3Badges summary={report.person_b.natal_summary} />
           </div>
         </div>
         <h2 className="syn-title">Synastry Report</h2>

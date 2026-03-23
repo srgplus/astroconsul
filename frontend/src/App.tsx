@@ -290,6 +290,13 @@ export function App() {
       try { localStorage.setItem("cachedTiiMap", JSON.stringify(tiiMap)) } catch {}
     }
   }, [tiiMap])
+  // Lock body scroll when widget popup overlay is open
+  useEffect(() => {
+    if (expandedWidget) {
+      document.body.style.overflow = "hidden"
+      return () => { document.body.style.overflow = "" }
+    }
+  }, [expandedWidget])
   const [guideOpen, setGuideOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
