@@ -47,7 +47,7 @@ export default function ChartSidebar({ positions, aspects }: Props) {
 
   return (
     <div className="cs">
-      <div className="cs-title">ASPECTS</div>
+      <div className="cs-title">ASPECT GRID</div>
       <div className="cs-pyramid">
         {pyramidPlanets.map((rowPlanet, ri) => {
           if (ri === 0) return null

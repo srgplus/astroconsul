@@ -1161,20 +1161,24 @@ select {
 
 .wheel-fullscreen__content {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 24px;
-  max-height: 100vh;
+  gap: 0;
+  height: 100vh;
   width: 100%;
-  padding: 60px 20px 20px;
+  padding: 50px 8px 8px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .wheel-fullscreen__ring {
   position: relative;
-  width: min(calc(100vh - 100px), 55vw);
-  height: min(calc(100vh - 100px), 55vw);
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: min(100%, 60vh);
+  aspect-ratio: 1;
 }
 
 .wheel-fullscreen__ring svg {
@@ -1184,40 +1188,48 @@ select {
 }
 
 .wheel-fullscreen__positions {
-  flex: 0 1 340px;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-  scrollbar-width: thin;
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
 }
 
 /* ===== Chart Sidebar (aspect pyramid) ===== */
 .cs-title {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text);
-  padding: 8px 0 4px;
+  padding: 0 0 2px;
   letter-spacing: 0.03em;
+  text-align: center;
 }
 
-/* Aspect pyramid */
-.cs-pyramid { display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin-top: 4px; }
+/* Aspect pyramid — cells use CSS var for responsive sizing */
+.cs-pyramid {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  --cell: clamp(16px, 2.2vw, 28px);
+}
 .cs-pyr-row { display: flex; align-items: center; gap: 0; }
 .cs-pyr-cell {
-  width: 24px;
-  height: 24px;
+  width: var(--cell);
+  height: var(--cell);
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(128, 128, 128, 0.15);
-  font-size: 0.75rem;
+  font-size: clamp(9px, 1.4vw, 14px);
 }
 .cs-pyr-label {
-  width: 24px;
-  height: 24px;
+  width: var(--cell);
+  height: var(--cell);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: clamp(8px, 1.2vw, 13px);
   color: var(--text);
   font-weight: 600;
 }
@@ -4828,22 +4840,13 @@ button.natal-pos__row--clickable {
 
   /* Fullscreen wheel */
   .wheel-fullscreen__content {
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-    padding: 60px 0 20px;
+    padding: 50px 4px 4px;
   }
   .wheel-fullscreen__ring {
-    width: min(calc(100vw - 16px), 50vh);
-    height: auto;
-    aspect-ratio: 1;
-    flex-shrink: 0;
+    max-width: 100%;
   }
-  .wheel-fullscreen__positions {
-    width: 100%;
-    max-width: 420px;
-    max-height: none;
-    padding: 0 12px 24px;
+  .cs-pyramid {
+    --cell: clamp(14px, calc((100vw - 16px) / 20), 24px);
   }
 
   /* Profile list items */
