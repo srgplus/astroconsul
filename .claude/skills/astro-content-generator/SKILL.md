@@ -140,23 +140,29 @@ Celebrity posts are high-engagement content. Follow this workflow:
 3. **Check if profile exists** — query Supabase: `GET /rest/v1/profiles?display_name=ilike.*Celebrity Name*`
 
 ### Adding celebrity to big3.me
-If profile doesn't exist, create it via the big3.me API:
-```bash
-curl -s -X POST "https://big3.me/api/v1/profiles" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
-  -d '{
-    "display_name": "Celebrity Name",
+Create a file `scripts/celebrities/<name>.py`:
+```python
+CELEBRITY = {
+    "name": "Zendaya",
     "birth_date": "1996-09-01",
     "birth_time": "18:55",
     "timezone": "America/Los_Angeles",
     "location_name": "Oakland, CA",
     "latitude": 37.8044,
-    "longitude": -122.2712
-  }'
+    "longitude": -122.2712,
+    "rodden_rating": "AA",
+    "astro_databank_url": "https://www.astro.com/astro-databank/Zendaya",
+}
 ```
-Or insert directly via Supabase REST API (profiles + natal_charts tables).
-Celebrity profiles should be linked to user `hi@srgplus.com` and set `is_featured: true`.
+Then run:
+```bash
+python scripts/add_celebrity.py scripts/celebrities/<name>.py
+```
+This will:
+- Compute natal chart via Swiss Ephemeris
+- Insert into `natal_charts` + `profiles` tables via Supabase REST API
+- Link to `hi@srgplus.com` user, set `is_featured: true`
+- Print the profile ID and transits API URL
 
 ### Fetching celebrity transits
 Once the profile exists, get their personal transits:
