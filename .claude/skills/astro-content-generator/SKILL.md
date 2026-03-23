@@ -7,6 +7,16 @@ Generate and publish astrology blog posts for big3.me/news.
 - **Image generation** (HTML/CSS, Playwright screenshots): **Sonnet** is sufficient — delegate to big3me-content-design skill
 - **Data operations** (publish, upload, Supabase queries): **Sonnet** is sufficient
 
+## Agent Delegation
+When creating a post WITH images, use a subagent for image generation:
+- **Main agent**: writes post content → publishes via publish_post.py
+- **Subagent** (launch via Agent tool, model: sonnet): generates HTML files using big3me-content-design skill → runs render_and_upload_images.py
+
+This runs in parallel, keeps the main context clean (HTML/CSS is hundreds of lines), and is faster.
+
+Example delegation prompt for the subagent:
+"Generate branded HTML images for the blog post '<slug>' using .claude/skills/big3me-content-design/SKILL.md. Post title: '<title>', sections: [list headings]. Save HTML files to tmp/post-images/ with naming: cover.html, section_0_name.html, section_1_name.html. Then run: python scripts/render_and_upload_images.py <slug> tmp/post-images/"
+
 ## Voice & Style
 - Author: **Victoria** — warm, knowledgeable astrologer who makes complex transits accessible
 - Tone: confident but not preachy, practical, grounded
