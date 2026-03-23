@@ -8,6 +8,29 @@ Generate branded visual content from big3.me blog posts and transit data. All vi
 ## Model Recommendation
 This skill works well with **Sonnet** — the task is template-based HTML/CSS generation following exact specs below. Use Sonnet for cost/speed efficiency. Opus is not required for visual generation.
 
+## Image Generation Workflow
+Claude generates HTML files → script renders to PNG → uploads to Supabase.
+
+**Step 1: Claude generates HTML files** in `tmp/post-images/`:
+- `cover.html` — 1200x630 Blog Hero (always dark theme)
+- `section_0_<name>.html` — 1200x630 for each key section
+- `section_1_<name>.html` — alternate dark/light themes
+- Follow ALL design specs below exactly (colors, fonts, spacing, glows)
+- Load Google Fonts: Instrument Serif + DM Sans
+- Each HTML must be self-contained (inline styles, no external CSS)
+
+**Step 2: Render and upload:**
+```bash
+python scripts/render_and_upload_images.py <slug> tmp/post-images/
+```
+This screenshots HTML → PNG via Playwright, uploads to Supabase Storage,
+and updates the post with image URLs automatically.
+
+**File naming convention:**
+- `cover.html` → becomes hero_image_url + og_image_url
+- `section_N_<name>.html` → becomes sections[N].image_url
+- N must match the section index in the post
+
 ---
 ## 1. Brand Foundation
 ### Color System
