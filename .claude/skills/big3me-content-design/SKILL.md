@@ -4,6 +4,10 @@ description: Generate branded visual content cards for big3.me blog posts, Insta
 ---
 # big3.me Content Design System
 Generate branded visual content from big3.me blog posts and transit data. All visuals follow the big3.me design system and can be repurposed across platforms.
+
+## Model Recommendation
+This skill works well with **Sonnet** — the task is template-based HTML/CSS generation following exact specs below. Use Sonnet for cost/speed efficiency. Opus is not required for visual generation.
+
 ---
 ## 1. Brand Foundation
 ### Color System

@@ -2,6 +2,11 @@
 
 Generate and publish astrology blog posts for big3.me/news.
 
+## Model Recommendation
+- **Content writing** (post text, analysis, Victoria's voice): **Opus** preferred for nuance and quality
+- **Image generation** (HTML/CSS, Playwright screenshots): **Sonnet** is sufficient — delegate to big3me-content-design skill
+- **Data operations** (publish, upload, Supabase queries): **Sonnet** is sufficient
+
 ## Voice & Style
 - Author: **Victoria** — warm, knowledgeable astrologer who makes complex transits accessible
 - Tone: confident but not preachy, practical, grounded
