@@ -556,7 +556,7 @@ select {
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   border-radius: 20px;
-  padding: 4px;
+  padding: 30px 4px 4px;
 }
 
 .widget--wheel-right svg {
@@ -573,9 +573,6 @@ select {
   flex-direction: row-reverse;
 }
 
-.widget--wheel-right svg {
-  margin-top: 20px;
-}
 
 .wheel-mode-toggle {
   position: absolute;
@@ -599,9 +596,6 @@ select {
   transition: background 0.15s, color 0.15s;
 }
 
-.wheel-mode-toggle button:first-child {
-  border-radius: 10px 0 0 10px;
-}
 
 .wheel-mode-toggle button.active {
   background: var(--accent);
@@ -622,7 +616,7 @@ select {
 }
 .wheel-mode-toggle button:last-child,
 .wheel-mode-toggle span:last-child button {
-  border-radius: 0 10px 10px 0;
+  border-radius: 0;
 }
 .transit-locked-wrap::after {
   content: attr(data-tooltip);
@@ -1184,13 +1178,6 @@ select {
   transition: background 0.15s, color 0.15s;
 }
 
-.wheel-fullscreen__toggle button:first-child {
-  border-radius: 12px 0 0 12px;
-}
-.wheel-fullscreen__toggle button:last-child,
-.wheel-fullscreen__toggle span:last-child button {
-  border-radius: 0 12px 12px 0;
-}
 
 .wheel-fullscreen__toggle button.active {
   background: var(--accent);
@@ -4815,10 +4802,10 @@ button.natal-pos__row--clickable {
   .widget:hover { transform: none; }
 
   .wheel-mode-toggle { top: 8px; right: 8px; }
-  .wheel-sp-toggle { top: 38px; left: 8px; }
+  .wheel-sp-toggle { top: 10px; left: 8px; }
 
-  .widget--wheel-right { padding-top: 68px; }
-  .widget--wheel-right svg { padding: 0 2px; }
+  .widget--wheel-right { padding: 32px 0 0; }
+  .widget--wheel-right svg { padding: 0; }
 
   .ring-stage { min-height: 320px; padding: 10px; border-radius: 16px; }
   .natal-zodiac-ring__label { font-size: 10px; letter-spacing: 1.6px; }
@@ -4856,6 +4843,10 @@ button.natal-pos__row--clickable {
   }
   .wheel-sp-toggle--fs {
     order: 1;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
   }
   .wheel-fullscreen__content {
     flex-direction: column;
