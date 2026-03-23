@@ -1088,6 +1088,8 @@ select {
   align-items: center;
   justify-content: center;
   animation: wheel-fs-in 0.3s ease-out;
+  overflow: hidden;
+  touch-action: none;
 }
 
 @keyframes wheel-fs-in {
@@ -1163,11 +1165,11 @@ select {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  padding: 50px 8px 8px;
+  padding: 50px 8px 12px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1175,8 +1177,9 @@ select {
 .wheel-fullscreen__ring {
   position: relative;
   flex-shrink: 0;
-  width: min(calc(100vh - 60px), calc(100vw - 60px));
-  height: min(calc(100vh - 60px), calc(100vw - 60px));
+  width: min(calc(100vh - 70px), 65vw);
+  height: min(calc(100vh - 70px), 65vw);
+  margin-left: auto;
 }
 
 .wheel-fullscreen__ring svg {
@@ -1188,10 +1191,9 @@ select {
 .wheel-fullscreen__positions {
   flex-shrink: 1;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0 0 12px 8px;
-  align-self: flex-end;
+  overflow: hidden;
+  padding: 0 0 0 4px;
+  margin-right: auto;
 }
 
 /* ===== Chart Sidebar (aspect table) ===== */
@@ -4864,26 +4866,31 @@ button.natal-pos__row--clickable {
   .wheel-fullscreen__content {
     flex-direction: column;
     align-items: center;
-    padding: 50px 2px 2px;
+    justify-content: flex-start;
+    padding: 46px 0 0;
   }
   .wheel-fullscreen__ring {
-    width: 100%;
-    max-width: min(calc(100vw - 8px), 52vh);
-    height: auto;
-    aspect-ratio: 1;
-    flex-shrink: 1;
+    width: min(calc(100vw - 8px), 50vh);
+    height: min(calc(100vw - 8px), 50vh);
+    margin-left: 0;
+    flex-shrink: 0;
   }
   .wheel-fullscreen__positions {
     padding: 0;
-    overflow-x: auto;
+    overflow: hidden;
     align-self: center;
+    margin-right: 0;
     max-width: 100vw;
   }
-  .cs-td-asp { width: 16px; height: 16px; font-size: 0.6rem; }
-  .cs-td-name { font-size: 0.6rem; max-width: 40px; }
-  .cs-td-glyph { font-size: 0.7rem; }
-  .cs-td-deg { font-size: 0.58rem; }
-  .cs-tr { height: 18px; }
+  .cs-td-asp { width: 15px; height: 15px; font-size: 0.55rem; }
+  .cs-td-name { display: none; }
+  .cs-td-glyph { font-size: 0.65rem; padding: 0 1px; }
+  .cs-td-sign { font-size: 0.6rem; padding: 0 1px; }
+  .cs-td-deg { font-size: 0.5rem; padding: 0 1px; }
+  .cs-td-house { font-size: 0.5rem; padding: 0 1px; }
+  .cs-td-diag { font-size: 0.6rem; }
+  .cs-td-foot { font-size: 0.55rem; }
+  .cs-tr { height: 16px; }
 
   /* Profile list items */
   .pli-tii { font-size: 1.8rem; }
