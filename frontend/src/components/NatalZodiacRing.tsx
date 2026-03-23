@@ -926,7 +926,7 @@ export function NatalZodiacRing({
             const midX = (p1.x + p2.x) / 2
             const midY = (p1.y + p2.y) / 2
 
-            const glyphR = 5
+            const glyphR = 7
             const dx = p2.x - p1.x
             const dy = p2.y - p1.y
             const len = Math.sqrt(dx * dx + dy * dy)
@@ -969,12 +969,12 @@ export function NatalZodiacRing({
                   x={midX} y={midY}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={10}
+                  fontSize={13}
                   fill={style.color}
                   opacity={style.opacity}
                   pointerEvents="none"
                   fontFamily="system-ui, sans-serif"
-                  fontWeight={400}
+                  fontWeight={500}
                 >
                   {style.glyph}
                 </text>
@@ -1031,7 +1031,7 @@ export function NatalZodiacRing({
             const midY = (p1.y + p2.y) / 2
 
             // Split line into two segments with a gap for the glyph
-            const glyphR = 5
+            const glyphR = 7
             const dx = p2.x - p1.x
             const dy = p2.y - p1.y
             const len = Math.sqrt(dx * dx + dy * dy)
@@ -1079,12 +1079,12 @@ export function NatalZodiacRing({
                   x={midX} y={midY}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={10}
+                  fontSize={13}
                   fill={style.color}
                   opacity={style.opacity}
                   pointerEvents="none"
                   fontFamily="system-ui, sans-serif"
-                  fontWeight={400}
+                  fontWeight={500}
                 >
                   {style.glyph}
                 </text>

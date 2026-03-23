@@ -106,7 +106,7 @@ export default function ChartSidebar({
   if (cols.length < 2) return null
 
   // SVG grid dimensions
-  const C = 32        // cell size
+  const C = 36        // cell size
   const INFO_W = 155  // left info section width
   const LABEL_H = C
   const nCols = cols.length
@@ -175,17 +175,20 @@ export default function ChartSidebar({
               const tip = asp ? `${AN[asp] ?? asp} ${rowP} – ${colP}${orb != null ? ` (${orb.toFixed(2)}°)` : ""}` : undefined
               return (
                 <g key={colP}>
-                  <rect x={cx} y={y} width={C} height={C} fill="none" stroke={gridColor} strokeWidth={0.5} style={{ cursor: asp ? "pointer" : undefined }} />
+                  <rect x={cx} y={y} width={C} height={C} fill="none" stroke={gridColor} strokeWidth={0.5} />
                   {asp ? (
-                    <text
-                      x={cx + C / 2} y={y + C * 0.72}
-                      className="cs-t" fontSize={15} fill={AC[asp] ?? "#888"}
-                      textAnchor="middle" fontWeight={500}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {AG[asp] ?? ""}
+                    <g style={{ cursor: "default" }}>
                       <title>{tip}</title>
-                    </text>
+                      <rect x={cx} y={y} width={C} height={C} fill="transparent" />
+                      <text
+                        x={cx + C / 2} y={y + C * 0.72}
+                        className="cs-t" fontSize={18} fill={AC[asp] ?? "#888"}
+                        textAnchor="middle" fontWeight={500}
+                        pointerEvents="none"
+                      >
+                        {AG[asp] ?? ""}
+                      </text>
+                    </g>
                   ) : null}
                 </g>
               )
