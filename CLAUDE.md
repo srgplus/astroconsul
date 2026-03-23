@@ -20,3 +20,23 @@ Read `.ai/SKILL.md` before any task for full project context.
 - Grey spinner (#8e8e93), never purple
 - Never silent-catch errors — always log
 - Check `.ai/CHANGELOG.ai.md` for recent changes before starting work
+
+## Publishing News Posts
+
+To create and publish a blog post directly to big3.me/news (no deploy needed):
+
+1. Create a post file in `scripts/posts/` (see `example_post.py` for template)
+2. Use `body_html` in sections for rich content (code blocks, HTML formatting)
+3. Use `prompt_block()` helper for copyable code blocks
+4. Run: `python scripts/publish_post.py scripts/posts/my_post.py`
+5. Use `--upsert` flag to update an existing post by slug
+
+**Requires env vars:** `SUPABASE_URL` and `SUPABASE_KEY` (service_role key).
+See `.env.local.example` for values. If env vars are not set, generate SQL for manual paste into Supabase SQL Editor.
+
+**Content rules:**
+- Author: Victoria
+- Don't reference specific AI brands (use "AI chatbot" not "Claude/ChatGPT")
+- Use `prompt_block()` for copyable prompts
+- Tags: comma-separated (e.g. "educational,guide" or "celebrity,transit")
+- All transit claims must be verified against Swiss Ephemeris
