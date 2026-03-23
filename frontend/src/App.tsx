@@ -1617,43 +1617,50 @@ export function App() {
           </div>
             )
           })()}
-          <div className="wheel-fullscreen__ring" onClick={(e) => e.stopPropagation()}>
-            <NatalZodiacRing
-              asc={coerceNumber(activeDetail.chart.asc)}
-              mc={coerceNumber(activeDetail.chart.mc)}
-              houses={activeDetail.chart.houses ?? null}
-              planets={(natalPositions)
-                .filter((p) => Number.isFinite(p.longitude))
-                .map((p) => ({
-                  id: p.id,
-                  longitude: p.longitude,
-                  glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-                }))}
-              transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
-                .filter((p) => Number.isFinite(p.longitude))
-                .map((p) => ({
-                  id: p.id,
-                  longitude: p.longitude,
-                  glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
-                })) : []}
-              transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
-                .filter((a) => a.is_within_orb)
-                .map((a) => ({
-                  transit_object: a.transit_object,
-                  natal_object: a.natal_object,
+          <div className="wheel-fullscreen__content" onClick={(e) => e.stopPropagation()}>
+            <div className="wheel-fullscreen__ring">
+              <NatalZodiacRing
+                asc={coerceNumber(activeDetail.chart.asc)}
+                mc={coerceNumber(activeDetail.chart.mc)}
+                houses={activeDetail.chart.houses ?? null}
+                planets={(natalPositions)
+                  .filter((p) => Number.isFinite(p.longitude))
+                  .map((p) => ({
+                    id: p.id,
+                    longitude: p.longitude,
+                    glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                  }))}
+                transitPlanets={wheelMode === "transit" ? (transitReport?.transit_positions ?? [])
+                  .filter((p) => Number.isFinite(p.longitude))
+                  .map((p) => ({
+                    id: p.id,
+                    longitude: p.longitude,
+                    glyph: OBJECT_GLYPHS[p.id] ?? p.id.slice(0, 2),
+                  })) : []}
+                transitAspects={wheelMode === "transit" ? (transitReport?.active_aspects ?? [])
+                  .filter((a) => a.is_within_orb)
+                  .map((a) => ({
+                    transit_object: a.transit_object,
+                    natal_object: a.natal_object,
+                    aspect: a.aspect,
+                    orb: a.orb,
+                    strength: a.strength,
+                  })) : []}
+                natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
+                  p1: a.p1,
+                  p2: a.p2,
                   aspect: a.aspect,
                   orb: a.orb,
-                  strength: a.strength,
                 })) : []}
-              natalAspects={wheelMode === "natal" ? natalAspects.map((a) => ({
-                p1: a.p1,
-                p2: a.p2,
-                aspect: a.aspect,
-                orb: a.orb,
-              })) : []}
-              size={700}
-              theme="light"
-            />
+                size={700}
+                theme="light"
+              />
+            </div>
+            {natalPositions.length ? (
+              <div className="wheel-fullscreen__positions">
+                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
