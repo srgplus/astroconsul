@@ -243,8 +243,23 @@ The cosmic-weather API returns retrograde data. ALWAYS check:
 - "Exact on Friday" — verify the exact date from the API
 - Station dates (Rx/direct) — use the `retrograde_index` data from the API
 
-### 6. Self-review before publish
+### 6. Completeness check (CRITICAL — common error: missing major aspects)
+The cosmic-weather API returns ALL active sky aspects with orb ≤ 3°. Before writing:
+- List ALL aspects from the API response, not just the 2-3 most obvious
+- Cross-reference with what professional astrologers are highlighting this week
+- Specifically check for these commonly missed aspects:
+  - **Sun aspects to outer planets** (Pluto, Uranus) — always newsworthy
+  - **Venus-Chiron conjunctions** — healing in relationships, highly discussed
+  - **Mercury aspects** (especially trines/sextiles to Jupiter) — communication themes
+  - **Saturn-Pluto aspects** (sextile, square, etc.) — generational power shifts
+- You don't need to give every aspect a full section, but MENTION all major ones
+- A weekly post should cover 5-7 aspects minimum, not just 3
+- Ask: "What would a professional astrologer criticize as missing?"
+
+### 7. Self-review before publish
 Re-read the final post and ask:
 - Did I make any blanket claims ("no retrogrades", "only trine this month") that need verification?
 - Are all degree positions sourced from the API, not hallucinated?
 - Would a professional astrologer find factual errors?
+- Did I check ALL aspects from the API, or did I cherry-pick only the obvious ones?
+- Compare against 2-3 astrology sites (cafeastrology.com, elsaelsa.com, Patrick Arundell) — am I missing something they all mention?
