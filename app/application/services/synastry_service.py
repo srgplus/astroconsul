@@ -35,16 +35,12 @@ class SynastryService:
         _, chart_b = chart_repository.load_chart(profile_b["chart_id"])
 
         # Extract positions (filter out unavailable ones with longitude=None)
+        # NOTE: natal_positions already include ASC, MC, Vertex — no need to pass angles separately
         a_positions = [p for p in chart_a.get("natal_positions", []) if p.get("longitude") is not None]
         b_positions = [p for p in chart_b.get("natal_positions", []) if p.get("longitude") is not None]
-        b_angles_raw = chart_b.get("angles") or {}
-        b_angles = {k: v for k, v in b_angles_raw.items() if k in ("asc", "mc") and v is not None}
 
-        a_angles_raw = chart_a.get("angles") or {}
-        a_angles = {k: v for k, v in a_angles_raw.items() if k in ("asc", "mc") and v is not None}
-
-        # Compute aspects both ways and merge (A→B and B→A with A's angles)
-        aspects_a_to_b = compute_synastry_aspects(a_positions, b_positions, b_angles)
+        # Compute inter-chart aspects (A's planets → B's planets incl. ASC/MC)
+        aspects_a_to_b = compute_synastry_aspects(a_positions, b_positions)
 
         # Enrich with interpretations
         for asp in aspects_a_to_b:
