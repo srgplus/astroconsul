@@ -42,6 +42,12 @@ def _get_supabase_creds() -> tuple[str, str]:
         or settings.supabase_anon_key
         or ""
     )
+    key_source = (
+        "SUPABASE_SERVICE_ROLE_KEY" if os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+        else "SUPABASE_KEY" if os.environ.get("SUPABASE_KEY")
+        else "settings.supabase_anon_key"
+    )
+    logger.info("Using Supabase key from: %s (first 20 chars: %s...)", key_source, key[:20] if key else "EMPTY")
     if not url or not key:
         raise HTTPException(status_code=500, detail="Supabase credentials not configured")
     return url, key
