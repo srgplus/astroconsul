@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from aspect_engine import ASPECTS, angular_delta
 
 # ---------------------------------------------------------------------------
@@ -166,9 +168,9 @@ def _aspect_score(aspect: dict) -> tuple[float, float]:
 
     base = ASPECT_WEIGHTS.get(aspect_name, 0.0)
 
-    # Conjunction with hard planets is more ambivalent
+    # Conjunction with hard planets is intense but not clearly harmonious
     if aspect_name == "conjunction" and ({a_obj, b_obj} & HARD_CONJUNCTION_PLANETS):
-        base = 3.0  # Still positive but reduced
+        base = 0.0  # Neutral — intensity without clear harmony
 
     # Opposition between lights/Venus can be magnetic (attraction)
     if aspect_name == "opposition" and ({a_obj, b_obj} & {"Sun", "Moon", "Venus", "Mars"}):
@@ -185,52 +187,52 @@ def _aspect_score(aspect: dict) -> tuple[float, float]:
 def compute_synastry_scores(aspects: list[dict]) -> dict:
     """Compute overall and category compatibility scores.
 
-    Uses importance-weighted averaging so that aspects between personal
-    planets (Sun, Moon, Venus, Mars) dominate the score while minor
-    points (Selena, Part of Fortune, Vertex) barely move it.
+    Only aspects between significant planets (pair importance >= 5) affect
+    the score.  Uses a harmony-ratio approach: the proportion of positive
+    weighted score to total, with a tension amplifier (×3) to counteract
+    the structural positive bias of aspect weights.
 
     Returns
     -------
     dict with keys: overall, overall_label, emotional, mental, physical, karmic
     All scores are 0–100.
     """
-    raw: dict[str, float] = {
-        "emotional": 0.0,
-        "mental": 0.0,
-        "physical": 0.0,
-        "karmic": 0.0,
-        "general": 0.0,
-    }
-    weights: dict[str, float] = {k: 0.0 for k in raw}
+    _IMPORTANCE_FLOOR = 5.0
+    _TENSION_AMPLIFIER = 3.0
+
+    cats = ("emotional", "mental", "physical", "karmic", "general")
+    pos: dict[str, float] = {c: 0.0 for c in cats}
+    neg: dict[str, float] = {c: 0.0 for c in cats}
 
     for aspect in aspects:
         score, importance = _aspect_score(aspect)
+        if importance < _IMPORTANCE_FLOOR:
+            continue
         categories = _categorize_aspect(
             aspect["person_a_object"], aspect["person_b_object"]
         )
         for cat in categories:
-            raw[cat] += score
-            weights[cat] += importance
+            if score >= 0:
+                pos[cat] += score
+            else:
+                neg[cat] += abs(score) * _TENSION_AMPLIFIER
 
-    def _normalize(raw_score: float, weight_sum: float) -> int:
-        """Normalize an importance-weighted score to 0-100 range."""
-        if weight_sum == 0:
-            return 50  # Neutral if no aspects in category
-        # Importance-weighted average: personal planet aspects dominate
-        avg = raw_score / weight_sum
-        # Map avg from [-3, 8] to [0, 100]
-        normalized = ((avg + 3.0) / 11.0) * 100.0
-        return max(0, min(100, round(normalized)))
+    def _harmony_score(positive: float, negative: float) -> int:
+        """Harmony ratio mapped to 5–95 range."""
+        total = positive + negative
+        if total < 1.0:
+            return 50
+        ratio = positive / total  # 0.0 – 1.0
+        return max(5, min(95, round(ratio * 90 + 5)))
 
-    emotional = _normalize(raw["emotional"], weights["emotional"])
-    mental = _normalize(raw["mental"], weights["mental"])
-    physical = _normalize(raw["physical"], weights["physical"])
-    karmic = _normalize(raw["karmic"], weights["karmic"])
+    emotional = _harmony_score(pos["emotional"], neg["emotional"])
+    mental = _harmony_score(pos["mental"], neg["mental"])
+    physical = _harmony_score(pos["physical"], neg["physical"])
+    karmic = _harmony_score(pos["karmic"], neg["karmic"])
 
-    # Overall = importance-weighted average across all aspects
-    total_raw = sum(raw.values())
-    total_weight = sum(weights.values())
-    overall = _normalize(total_raw, total_weight)
+    all_pos = sum(pos.values())
+    all_neg = sum(neg.values())
+    overall = _harmony_score(all_pos, all_neg)
 
     label = _score_label(overall)
 
