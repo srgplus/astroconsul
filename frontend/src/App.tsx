@@ -20,6 +20,7 @@ import { InviteModal } from "./components/InviteModal"
 import SynastryWidget from "./components/SynastryWidget"
 import ProfilePickerModal from "./components/ProfilePickerModal"
 import SynastryReport from "./components/SynastryReport"
+import ChartSidebar from "./components/ChartSidebar"
 import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, SynastryReportResponse, NatalPosition, PublicSearchResult } from "./types"
 
 const OBJECT_GLYPHS: Record<string, string> = {
@@ -1658,7 +1659,7 @@ export function App() {
             </div>
             {natalPositions.length ? (
               <div className="wheel-fullscreen__positions">
-                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
+                <ChartSidebar positions={natalPositions} aspects={natalAspects} />
               </div>
             ) : null}
           </div>
