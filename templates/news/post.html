@@ -12,7 +12,7 @@
     "@type": "Article",
     "headline": "{{ post.title }}",
     "datePublished": "{{ post.date }}",
-    "author": {"@type": "Person", "name": "{{ post.author }}"},
+    "author": {"@type": "Person", "name": "{{ post.author }} @astrolisha"},
     "publisher": {"@type": "Organization", "name": "big3.me", "url": "https://big3.me"},
     "image": "{{ post.og_image_url or 'https://big3.me/og-image.png' }}",
     "mainEntityOfPage": "https://big3.me/news/{{ post.slug }}"
@@ -28,7 +28,7 @@
     {% endif %}
 
     <div class="post-meta">
-        <span>{{ post.author }}</span>
+        <span>{{ post.author }} <span style="color: var(--accent); font-weight: 500;">@astrolisha</span></span>
         <span>{{ post.date.strftime('%B %d, %Y') }}</span>
         <div class="feed-tags">
         {% for tag in post.tags %}

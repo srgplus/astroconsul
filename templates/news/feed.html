@@ -20,7 +20,7 @@
         <h2>{{ post.title }}</h2>
         <p>{{ post.intro[:200] }}{% if post.intro|length > 200 %}...{% endif %}</p>
         <div class="post-meta">
-            <span>{{ post.author }}</span>
+            <span>{{ post.author }} <span style="color: var(--accent); font-weight: 500;">@astrolisha</span></span>
             <span>{{ post.date.strftime('%B %d, %Y') }}</span>
         </div>
         <div class="feed-tags">
