@@ -98,9 +98,21 @@ def publish(post: dict, upsert: bool = False):
     """Publish a post dict to Supabase."""
     load_env_file()
 
+    # Support multiple env var names for the key
+    if not os.environ.get("SUPABASE_KEY"):
+        for alt in ("SUPABASE_SERVICE_ROLE_KEY", "ASTRO_CONSUL_SUPABASE_SERVICE_ROLE_KEY"):
+            if os.environ.get(alt):
+                os.environ["SUPABASE_KEY"] = os.environ[alt]
+                break
+    if not os.environ.get("SUPABASE_URL"):
+        for alt in ("ASTRO_CONSUL_SUPABASE_URL",):
+            if os.environ.get(alt):
+                os.environ["SUPABASE_URL"] = os.environ[alt]
+                break
+
     if not os.environ.get("SUPABASE_URL") or not os.environ.get("SUPABASE_KEY"):
-        print("Set SUPABASE_URL and SUPABASE_KEY env vars (or create .env.local)")
-        print("SUPABASE_KEY should be the service_role key for write access")
+        print("Set SUPABASE_URL and SUPABASE_KEY (or SUPABASE_SERVICE_ROLE_KEY) env vars")
+        print("Or create .env.local (see .env.local.example)")
         sys.exit(1)
 
     now = datetime.now(timezone.utc).isoformat()
