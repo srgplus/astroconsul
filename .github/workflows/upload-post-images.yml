@@ -1,0 +1,52 @@
+name: Upload post images to Supabase Storage
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths:
+      - 'tmp/post-images/**/*.html'
+
+jobs:
+  render-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install chromium
+
+      - name: Detect slug from HTML files
+        id: detect
+        run: |
+          # Look for a slug.txt marker, or extract from directory structure
+          if [ -f tmp/post-images/slug.txt ]; then
+            SLUG=$(cat tmp/post-images/slug.txt | tr -d '[:space:]')
+          else
+            # Try to get slug from the most recent commit message
+            SLUG=$(git log -1 --pretty=%B | grep -oP 'slug[=: ]+\K[\w-]+' || echo "")
+          fi
+
+          if [ -z "$SLUG" ]; then
+            echo "ERROR: Could not detect slug. Create tmp/post-images/slug.txt with the post slug."
+            exit 1
+          fi
+
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "Detected slug: $SLUG"
+
+      - name: Render HTML to PNG and upload
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python scripts/render_and_upload_images.py "${{ steps.detect.outputs.slug }}" tmp/post-images/
