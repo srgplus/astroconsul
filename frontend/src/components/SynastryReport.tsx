@@ -1,5 +1,6 @@
 import { useState } from "react"
 import type { SynastryReportResponse, SynastryScoresBusiness, SynastryAspect, SynastryPosition } from "../types"
+import { useLanguage } from "../contexts/LanguageContext"
 
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648", Taurus: "\u2649", Gemini: "\u264A", Cancer: "\u264B",
@@ -57,7 +58,7 @@ function getInitials(name: string): string {
   return parts.map((w) => w.charAt(0).toUpperCase()).join("")
 }
 
-function ScoreGauge({ score, label }: { score: number; label: string }) {
+function ScoreGauge({ score, label, chemistryLabel }: { score: number; label: string; chemistryLabel: string }) {
   const radius = 70
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (score / 100) * circumference
@@ -82,7 +83,7 @@ function ScoreGauge({ score, label }: { score: number; label: string }) {
         </defs>
         <text x="80" y="88" textAnchor="middle" className="syn-gauge-number" fill="#fff">{score}</text>
       </svg>
-      <div className="syn-gauge-label">Overall Chemistry: <span className="syn-gauge-label-val">{label}</span></div>
+      <div className="syn-gauge-label">{chemistryLabel} <span className="syn-gauge-label-val">{label}</span></div>
     </div>
   )
 }
@@ -108,10 +109,17 @@ function CategoryScores({ categories }: { categories: CategoryDef[] }) {
 type SynMode = "love" | "business"
 
 export default function SynastryReport({ report }: Props) {
+  const { t } = useLanguage()
   const { scores, aspects } = report
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [mostImpact, setMostImpact] = useState(true)
   const [mode, setMode] = useState<SynMode>("love")
+
+  const groupLabels: Record<string, string> = {
+    personal: t("synastry.personalPlanets"),
+    outer: t("synastry.outerPlanets"),
+    special: t("synastry.specialPoints"),
+  }
 
   const hasBusiness = !!report.scores_business
   const activeScores = mode === "business" && report.scores_business
@@ -122,16 +130,16 @@ export default function SynastryReport({ report }: Props) {
     : report.overall_reading
 
   const loveCategories: CategoryDef[] = [
-    { key: "emotional", label: "EMOTIONAL", value: scores.emotional, color: "#ec4899" },
-    { key: "mental", label: "MENTAL", value: scores.mental, color: "#6366f1" },
-    { key: "physical", label: "PHYSICAL", value: scores.physical, color: "#f59e0b" },
-    { key: "karmic", label: "KARMIC", value: scores.karmic, color: "#8b5cf6" },
+    { key: "emotional", label: t("synastry.emotional"), value: scores.emotional, color: "#ec4899" },
+    { key: "mental", label: t("synastry.mental"), value: scores.mental, color: "#6366f1" },
+    { key: "physical", label: t("synastry.physical"), value: scores.physical, color: "#f59e0b" },
+    { key: "karmic", label: t("synastry.karmic"), value: scores.karmic, color: "#8b5cf6" },
   ]
   const businessCategories: CategoryDef[] = report.scores_business ? [
-    { key: "communication", label: "COMMUNICATION", value: report.scores_business.communication, color: "#6366f1" },
-    { key: "drive", label: "DRIVE", value: report.scores_business.drive, color: "#f59e0b" },
-    { key: "trust", label: "TRUST", value: report.scores_business.trust, color: "#10b981" },
-    { key: "vision", label: "VISION", value: report.scores_business.vision, color: "#8b5cf6" },
+    { key: "communication", label: t("synastry.communication"), value: report.scores_business.communication, color: "#6366f1" },
+    { key: "drive", label: t("synastry.drive"), value: report.scores_business.drive, color: "#f59e0b" },
+    { key: "trust", label: t("synastry.trust"), value: report.scores_business.trust, color: "#10b981" },
+    { key: "vision", label: t("synastry.vision"), value: report.scores_business.vision, color: "#8b5cf6" },
   ] : []
   const activeCategories = mode === "business" ? businessCategories : loveCategories
 
@@ -190,9 +198,9 @@ export default function SynastryReport({ report }: Props) {
             <div className="syn-person-name">{report.person_b.name}</div>
           </div>
         </div>
-        <h2 className="syn-title">Synastry Report</h2>
+        <h2 className="syn-title">{t("synastry.report")}</h2>
         <div className="syn-subtitle">
-          {report.aspect_count} inter-aspects found &middot; {report.exact_count} exact or tight
+          {report.aspect_count} {t("synastry.interAspects")} &middot; {report.exact_count} {t("synastry.exactOrTight")}
         </div>
       </div>
 
@@ -203,25 +211,25 @@ export default function SynastryReport({ report }: Props) {
             type="button"
             className={`syn-mode-btn${mode === "love" ? " syn-mode-btn--active" : ""}`}
             onClick={() => setMode("love")}
-          >Love</button>
+          >{t("synastry.love")}</button>
           <button
             type="button"
             className={`syn-mode-btn${mode === "business" ? " syn-mode-btn--active" : ""}`}
             onClick={() => setMode("business")}
-          >Business</button>
+          >{t("synastry.business")}</button>
         </div>
       )}
 
       {/* Score card */}
       <div className="syn-score-card">
-        <ScoreGauge score={activeScores.overall} label={activeScores.overall_label} />
+        <ScoreGauge score={activeScores.overall} label={activeScores.overall_label} chemistryLabel={t("synastry.overallChemistry")} />
         <CategoryScores categories={activeCategories} />
       </div>
 
       {/* Overall reading — ABOVE aspects */}
       {activeReading && (
         <div className="syn-reading">
-          <h3 className="syn-reading-title">Overall Reading</h3>
+          <h3 className="syn-reading-title">{t("synastry.overallReading")}</h3>
           <div className="syn-reading-text">{activeReading}</div>
         </div>
       )}
@@ -229,9 +237,9 @@ export default function SynastryReport({ report }: Props) {
       {/* Aspects table — natal style */}
       <div className="natal-asp">
         <div className="natal-asp__header">
-          <span className="natal-asp__title">SYNASTRY ASPECTS</span>
+          <span className="natal-asp__title">{t("synastry.aspects")}</span>
           <button type="button" className="cw-toggle-wrap" onClick={() => setMostImpact(!mostImpact)}>
-            <span className="cw-toggle-label">Most Impact</span>
+            <span className="cw-toggle-label">{t("synastry.mostImpact")}</span>
             <div className={`cw-toggle${mostImpact ? " cw-toggle--on" : ""}`}>
               <div className="cw-toggle-thumb" />
             </div>
@@ -239,7 +247,7 @@ export default function SynastryReport({ report }: Props) {
         </div>
         {groupedAspects.map((group) => (
           <div key={group.key} className="cw-transit-group">
-            <div className="cw-transit-group-label">{GROUP_LABELS[group.key]}</div>
+            <div className="cw-transit-group-label">{groupLabels[group.key]}</div>
             <div className="cw-transit-list">
               {group.aspects.map((a, i) => {
                 const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"

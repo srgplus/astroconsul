@@ -1591,7 +1591,7 @@ export function App() {
                 {expandedWidget === "planets" ? t("widget.planetPositions") : null}
                 {expandedWidget === "aspects" ? t("widget.natalAspects") : null}
                 {expandedWidget === "transits" ? `${t("transits.title")}${activeDetail ? ` — ${activeDetail.profile.profile_name}` : ""}` : null}
-                {expandedWidget === "synastry" ? "Synastry Report" : null}
+                {expandedWidget === "synastry" ? t("synastry.report") : null}
               </h3>
               <div className="widget-popup-head__actions">
                 {expandedWidget === "summary" && (() => {

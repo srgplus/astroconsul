@@ -1,4 +1,5 @@
 import type { ProfileDetailResponse } from "../types"
+import { useLanguage } from "../contexts/LanguageContext"
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -25,13 +26,14 @@ export default function SynastryWidget({
   onOpenReport,
   loading,
 }: Props) {
+  const { t } = useLanguage()
   if (!activeDetail) return null
 
   const hasPartner = !!partnerName
 
   return (
     <div className="widget widget--synastry">
-      <div className="synastry-widget-title">Synastry</div>
+      <div className="synastry-widget-title">{t("synastry.title")}</div>
       <div className="synastry-slots">
         {/* Person A — always the active profile */}
         <div className="synastry-slot synastry-slot--a">
@@ -46,7 +48,7 @@ export default function SynastryWidget({
         {/* Person B — partner or placeholder */}
         {hasPartner ? (
           <div className="synastry-slot synastry-slot--b synastry-slot--filled">
-            <button type="button" className="synastry-clear-btn" onClick={(e) => { e.stopPropagation(); onClearPartner() }} title="Remove partner">&times;</button>
+            <button type="button" className="synastry-clear-btn" onClick={(e) => { e.stopPropagation(); onClearPartner() }} title={t("synastry.removePartner")}>&times;</button>
             <button type="button" className="synastry-slot-inner" onClick={onPickPartner}>
               <div className="synastry-avatar synastry-avatar--b">
                 <span className="synastry-avatar-letter">{partnerName ? getInitials(partnerName) : "B"}</span>
@@ -59,7 +61,7 @@ export default function SynastryWidget({
             <div className="synastry-avatar synastry-avatar--plus">
               <span>+</span>
             </div>
-            <div className="synastry-slot-name synastry-slot-name--hint">Choose</div>
+            <div className="synastry-slot-name synastry-slot-name--hint">{t("synastry.choose")}</div>
           </button>
         )}
       </div>
@@ -71,7 +73,7 @@ export default function SynastryWidget({
           onClick={onOpenReport}
           disabled={loading}
         >
-          {loading ? <span className="cw-spinner" /> : "View Synastry"}
+          {loading ? <span className="cw-spinner" /> : t("synastry.viewSynastry")}
         </button>
       )}
     </div>
