@@ -19,12 +19,37 @@ Claude generates HTML files → script renders to PNG → uploads to Supabase.
 - Load Google Fonts: Instrument Serif + DM Sans
 - Each HTML must be self-contained (inline styles, no external CSS)
 
-**Step 2: Render and upload:**
+**Step 2: Render HTML to PNG** (Playwright is available in Claude Code cloud):
+```bash
+playwright screenshot --viewport-size 1200,630 file:///path/to/cover.html cover.png
+```
+
+**Step 3: Upload PNG via API** (works from any environment):
+```bash
+curl -X POST "https://big3.me/api/v1/images/upload-base64" \
+  -H "Content-Type: application/json" \
+  -d '{"slug": "<slug>", "filename": "cover.png", "data": "<base64_png>"}'
+```
+Or use Python:
+```python
+import base64, json
+from urllib.request import Request, urlopen
+with open("cover.png", "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+req = Request("https://big3.me/api/v1/images/upload-base64",
+    data=json.dumps({"slug": "<slug>", "filename": "cover.png", "data": b64}).encode(),
+    headers={"Content-Type": "application/json"}, method="POST")
+result = json.loads(urlopen(req).read())
+print(result["url"])
+```
+The endpoint uploads to Supabase Storage AND updates the post automatically.
+- `cover.png` → sets hero_image_url + og_image_url
+- `section_N_*.png` → sets sections[N].image_url
+
+**Alternative: Local script** (if you have env vars locally):
 ```bash
 python scripts/render_and_upload_images.py <slug> tmp/post-images/
 ```
-This screenshots HTML → PNG via Playwright, uploads to Supabase Storage,
-and updates the post with image URLs automatically.
 
 **File naming convention:**
 - `cover.html` → becomes hero_image_url + og_image_url
