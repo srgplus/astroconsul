@@ -12,9 +12,11 @@ This skill works well with **Sonnet** — the task is template-based HTML/CSS ge
 Claude generates HTML files → script renders to PNG → uploads to Supabase.
 
 **Step 1: Claude generates HTML files** in `tmp/post-images/`:
-- `cover.html` — 1200x630 Blog Hero (always dark theme)
-- `section_0_<name>.html` — 1200x630 for each key section
+- `cover.html` — 1080x1350 portrait 4:5 (always dark theme)
+- `section_0_<name>.html` — 1080x1350 portrait 4:5 for each key section
 - `section_1_<name>.html` — alternate dark/light themes
+- **Default format: 1080x1350 (4:5 portrait)** — used for blog post images AND Instagram
+- Blog Hero / OG image: 1200x630 only when explicitly requested
 - Follow ALL design specs below exactly (colors, fonts, spacing, glows)
 - Load Google Fonts: Instrument Serif + DM Sans
 - Each HTML must be self-contained (inline styles, no external CSS)

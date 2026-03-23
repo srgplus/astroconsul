@@ -157,7 +157,7 @@ def _create_bucket(name: str):
 
 # ── Playwright rendering ──
 
-def html_to_png(html_path: Path, png_path: Path, width: int = 1200, height: int = 630):
+def html_to_png(html_path: Path, png_path: Path, width: int = 1080, height: int = 1350):
     """Screenshot an HTML file to PNG using Playwright."""
     subprocess.run(
         [
