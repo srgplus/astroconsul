@@ -17,11 +17,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/news", tags=["news"])
 
 
+_templates_cache: Jinja2Templates | None = None
+
+
 def _get_templates() -> Jinja2Templates:
-    templates_dir = Path(__file__).resolve().parents[4] / "templates"
-    if not templates_dir.exists():
-        logger.error("Templates directory not found: %s", templates_dir)
-    return Jinja2Templates(directory=str(templates_dir))
+    global _templates_cache
+    if _templates_cache is None:
+        templates_dir = Path(__file__).resolve().parents[4] / "templates"
+        if not templates_dir.exists():
+            logger.error("Templates directory not found: %s", templates_dir)
+        _templates_cache = Jinja2Templates(directory=str(templates_dir))
+    return _templates_cache
 
 
 def _parse_tags(tags_str: str | None) -> list[str]:
@@ -132,14 +138,32 @@ def _get_post_by_slug(slug: str):
 @router.get("/debug-templates", include_in_schema=False)
 def debug_templates():
     """Temporary debug endpoint to check template resolution."""
+    import traceback
+
     tdir = Path(__file__).resolve().parents[4] / "templates"
     result = {
         "templates_dir": str(tdir),
         "exists": tdir.exists(),
         "files": [],
+        "render_error": None,
     }
     if tdir.exists():
         result["files"] = [str(f.relative_to(tdir)) for f in tdir.rglob("*") if f.is_file()]
+
+    # Try rendering
+    try:
+        from starlette.requests import Request as StarletteRequest
+        from starlette.datastructures import URL
+
+        tpl = _get_templates()
+        posts = _get_published_posts(limit=1)
+        result["posts_count"] = len(posts)
+        if posts:
+            result["first_post_keys"] = list(posts[0].keys())
+            result["first_post_date_type"] = str(type(posts[0].get("date")))
+    except Exception:
+        result["render_error"] = traceback.format_exc()
+
     return result
 
 
