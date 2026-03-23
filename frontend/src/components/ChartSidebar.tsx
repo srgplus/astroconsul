@@ -57,11 +57,10 @@ type Props = {
 
 export default function ChartSidebar({
   positions, natalAspects, mode, transitPositions, transitAspects,
-  textColor = "currentColor", mutedColor = "#8e8e93", gridColor = "rgba(128,128,128,0.15)",
+  textColor = "currentColor", mutedColor = "#8e8e93", gridColor = "rgba(128,128,128,0.18)",
 }: Props) {
   const byId = new Map(positions.map((p) => [p.id, p]))
 
-  // Aspect lookups
   const natalMap = new Map<string, string>()
   for (const a of natalAspects) {
     natalMap.set(`${a.p1}|${a.p2}`, a.aspect)
@@ -77,20 +76,20 @@ export default function ChartSidebar({
   }
 
   const transitById = new Map((transitPositions ?? []).map((p) => [p.id, p]))
-  const cols = PLANET_ORDER.filter((id) => byId.has(id)) // natal planets = columns
+  const cols = PLANET_ORDER.filter((id) => byId.has(id))
   const isTransit = mode === "transit" && transitPositions && transitPositions.length > 0
   const rows = isTransit ? PLANET_ORDER.filter((id) => transitById.has(id)) : cols
   const aspMap = isTransit ? transitMap : natalMap
 
   if (cols.length < 2) return null
 
-  // SVG dimensions
-  const C = 20 // cell size
-  const INFO_W = 120 // left info columns width
-  const LABEL_H = C // bottom labels row height
+  // SVG grid dimensions — generous sizes for clarity
+  const C = 28        // cell size
+  const INFO_W = 155  // left info section width
+  const LABEL_H = C
   const nCols = cols.length
   const nRows = rows.length
-  const totalW = INFO_W + nCols * C + C // +C for right diagonal label
+  const totalW = INFO_W + nCols * C + C
   const totalH = nRows * C + LABEL_H
 
   const fmtDeg = (deg: number, min: number) => `${deg}°${String(min).padStart(2, "0")}′`
@@ -99,14 +98,13 @@ export default function ChartSidebar({
     <svg
       viewBox={`0 0 ${totalW} ${totalH}`}
       width="100%"
-      style={{ display: "block", maxHeight: "100%" }}
+      style={{ display: "block" }}
       xmlns="http://www.w3.org/2000/svg"
     >
       <style>{`
         .cs-t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
       `}</style>
 
-      {/* Rows */}
       {rows.map((rowP, ri) => {
         const y = ri * C
         const pos = isTransit ? transitById.get(rowP) : byId.get(rowP)
@@ -120,23 +118,23 @@ export default function ChartSidebar({
         return (
           <g key={rowP}>
             {/* Planet glyph */}
-            <text x={2} y={y + C * 0.72} className="cs-t" fontSize={9} fill={textColor} fontWeight={600}>
+            <text x={3} y={y + C * 0.7} className="cs-t" fontSize={13} fill={textColor} fontWeight={600}>
               {G[rowP] ?? ""}
             </text>
             {/* Name */}
-            <text x={16} y={y + C * 0.72} className="cs-t" fontSize={7} fill={textColor} fontWeight={500}>
+            <text x={22} y={y + C * 0.7} className="cs-t" fontSize={10} fill={textColor} fontWeight={500}>
               {SN[rowP] ?? rowP}
             </text>
             {/* Sign glyph */}
-            <text x={62} y={y + C * 0.72} className="cs-t" fontSize={8} fill={elColor}>
+            <text x={82} y={y + C * 0.7} className="cs-t" fontSize={12} fill={elColor}>
               {SG[sign] ?? ""}
             </text>
             {/* Degree */}
-            <text x={74} y={y + C * 0.72} className="cs-t" fontSize={6.5} fill={mutedColor}>
+            <text x={98} y={y + C * 0.7} className="cs-t" fontSize={9.5} fill={mutedColor}>
               {fmtDeg(deg, min)}
             </text>
             {/* House */}
-            <text x={107} y={y + C * 0.72} className="cs-t" fontSize={6.5} fill={mutedColor} textAnchor="middle">
+            <text x={143} y={y + C * 0.7} className="cs-t" fontSize={9.5} fill={mutedColor} textAnchor="middle">
               {house || "—"}
             </text>
 
@@ -144,7 +142,6 @@ export default function ChartSidebar({
             {cols.map((colP, ci) => {
               const cx = INFO_W + ci * C
               const asp = aspMap.get(`${rowP}|${colP}`)
-              // Diagonal: same planet
               const isDiag = rowP === colP && !isTransit
               return (
                 <g key={colP}>
@@ -152,7 +149,7 @@ export default function ChartSidebar({
                   {asp ? (
                     <text
                       x={cx + C / 2} y={y + C * 0.72}
-                      className="cs-t" fontSize={8} fill={AC[asp] ?? "#888"}
+                      className="cs-t" fontSize={12} fill={AC[asp] ?? "#888"}
                       textAnchor="middle" fontWeight={500}
                     >
                       {AG[asp] ?? ""}
@@ -160,7 +157,7 @@ export default function ChartSidebar({
                   ) : isDiag ? (
                     <text
                       x={cx + C / 2} y={y + C * 0.72}
-                      className="cs-t" fontSize={8} fill={textColor}
+                      className="cs-t" fontSize={11} fill={textColor}
                       textAnchor="middle" fontWeight={700}
                     >
                       {G[rowP] ?? ""}
@@ -172,8 +169,8 @@ export default function ChartSidebar({
 
             {/* Right label */}
             <text
-              x={INFO_W + nCols * C + C / 2} y={y + C * 0.72}
-              className="cs-t" fontSize={8} fill={textColor}
+              x={INFO_W + nCols * C + C / 2} y={y + C * 0.7}
+              className="cs-t" fontSize={11} fill={textColor}
               textAnchor="middle" fontWeight={600}
             >
               {G[rowP] ?? ""}
@@ -187,8 +184,8 @@ export default function ChartSidebar({
         <text
           key={p}
           x={INFO_W + ci * C + C / 2}
-          y={nRows * C + LABEL_H * 0.75}
-          className="cs-t" fontSize={7} fill={textColor}
+          y={nRows * C + LABEL_H * 0.78}
+          className="cs-t" fontSize={10} fill={textColor}
           textAnchor="middle" fontWeight={600}
         >
           {G[p] ?? ""}
