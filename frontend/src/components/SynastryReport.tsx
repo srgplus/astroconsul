@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { SynastryReportResponse, SynastryAspect, SynastryPosition } from "../types"
+import type { SynastryReportResponse, SynastryScoresBusiness, SynastryAspect, SynastryPosition } from "../types"
 
 const SIGN_GLYPHS: Record<string, string> = {
   Aries: "\u2648", Taurus: "\u2649", Gemini: "\u264A", Cancer: "\u264B",
@@ -95,14 +95,9 @@ function ScoreGauge({ score, label }: { score: number; label: string }) {
   )
 }
 
-function CategoryScores({ scores }: { scores: SynastryReportResponse["scores"] }) {
-  const categories = [
-    { key: "emotional", label: "EMOTIONAL", value: scores.emotional, color: "#ec4899" },
-    { key: "mental", label: "MENTAL", value: scores.mental, color: "#6366f1" },
-    { key: "physical", label: "PHYSICAL", value: scores.physical, color: "#f59e0b" },
-    { key: "karmic", label: "KARMIC", value: scores.karmic, color: "#8b5cf6" },
-  ]
+type CategoryDef = { key: string; label: string; value: number; color: string }
 
+function CategoryScores({ categories }: { categories: CategoryDef[] }) {
   return (
     <div className="syn-categories">
       {categories.map((c) => (
@@ -118,10 +113,35 @@ function CategoryScores({ scores }: { scores: SynastryReportResponse["scores"] }
   )
 }
 
+type SynMode = "love" | "business"
+
 export default function SynastryReport({ report }: Props) {
   const { scores, aspects } = report
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [mostImpact, setMostImpact] = useState(true)
+  const [mode, setMode] = useState<SynMode>("love")
+
+  const hasBusiness = !!report.scores_business
+  const activeScores = mode === "business" && report.scores_business
+    ? report.scores_business
+    : scores
+  const activeReading = mode === "business"
+    ? report.overall_reading_business
+    : report.overall_reading
+
+  const loveCategories: CategoryDef[] = [
+    { key: "emotional", label: "EMOTIONAL", value: scores.emotional, color: "#ec4899" },
+    { key: "mental", label: "MENTAL", value: scores.mental, color: "#6366f1" },
+    { key: "physical", label: "PHYSICAL", value: scores.physical, color: "#f59e0b" },
+    { key: "karmic", label: "KARMIC", value: scores.karmic, color: "#8b5cf6" },
+  ]
+  const businessCategories: CategoryDef[] = report.scores_business ? [
+    { key: "communication", label: "COMMUNICATION", value: report.scores_business.communication, color: "#6366f1" },
+    { key: "drive", label: "DRIVE", value: report.scores_business.drive, color: "#f59e0b" },
+    { key: "trust", label: "TRUST", value: report.scores_business.trust, color: "#10b981" },
+    { key: "vision", label: "VISION", value: report.scores_business.vision, color: "#8b5cf6" },
+  ] : []
+  const activeCategories = mode === "business" ? businessCategories : loveCategories
 
   // Build position maps
   const posMapA = new Map((report.positions_a ?? []).map((p: SynastryPosition) => [p.id, p]))
@@ -171,11 +191,13 @@ export default function SynastryReport({ report }: Props) {
           <div className="syn-person">
             <div className="syn-avatar syn-avatar--a"><span>A</span></div>
             <div className="syn-person-name">{report.person_a.name}</div>
+            <Big3Badges summary={report.person_a.natal_summary} />
           </div>
           <span className="syn-header-x">&times;</span>
           <div className="syn-person">
             <div className="syn-avatar syn-avatar--b"><span>B</span></div>
             <div className="syn-person-name">{report.person_b.name}</div>
+            <Big3Badges summary={report.person_b.natal_summary} />
           </div>
         </div>
         <h2 className="syn-title">Synastry Report</h2>
@@ -184,17 +206,33 @@ export default function SynastryReport({ report }: Props) {
         </div>
       </div>
 
+      {/* Mode toggle: Love / Business */}
+      {hasBusiness && (
+        <div className="syn-mode-toggle">
+          <button
+            type="button"
+            className={`syn-mode-btn${mode === "love" ? " syn-mode-btn--active" : ""}`}
+            onClick={() => setMode("love")}
+          >Love</button>
+          <button
+            type="button"
+            className={`syn-mode-btn${mode === "business" ? " syn-mode-btn--active" : ""}`}
+            onClick={() => setMode("business")}
+          >Business</button>
+        </div>
+      )}
+
       {/* Score card */}
       <div className="syn-score-card">
-        <ScoreGauge score={scores.overall} label={scores.overall_label} />
-        <CategoryScores scores={scores} />
+        <ScoreGauge score={activeScores.overall} label={activeScores.overall_label} />
+        <CategoryScores categories={activeCategories} />
       </div>
 
       {/* Overall reading — ABOVE aspects */}
-      {report.overall_reading && (
+      {activeReading && (
         <div className="syn-reading">
           <h3 className="syn-reading-title">Overall Reading</h3>
-          <div className="syn-reading-text">{report.overall_reading}</div>
+          <div className="syn-reading-text">{activeReading}</div>
         </div>
       )}
 

@@ -305,6 +305,15 @@ export type SynastryScores = {
   karmic: number
 }
 
+export type SynastryScoresBusiness = {
+  overall: number
+  overall_label: string
+  communication: number
+  drive: number
+  trust: number
+  vision: number
+}
+
 export type SynastryAspect = {
   person_a_object: string
   person_b_object: string
@@ -337,11 +346,13 @@ export type SynastryReportResponse = {
   person_a: SynastryPersonSummary
   person_b: SynastryPersonSummary
   scores: SynastryScores
+  scores_business?: SynastryScoresBusiness
   aspects: SynastryAspect[]
   aspect_count: number
   exact_count: number
   strong_count?: number
   overall_reading: string | null
+  overall_reading_business?: string | null
   positions_a?: SynastryPosition[] | null
   positions_b?: SynastryPosition[] | null
 }

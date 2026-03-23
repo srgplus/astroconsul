@@ -268,3 +268,106 @@ def _score_label_ru(score: int) -> str:
     if score >= 31:
         return "Сложная связь"
     return "Вызов"
+
+
+# ---------------------------------------------------------------------------
+# Business synastry scoring
+# ---------------------------------------------------------------------------
+
+COMMUNICATION_PLANETS = {"Mercury", "Jupiter", "Moon"}
+DRIVE_PLANETS = {"Sun", "Mars", "MC"}
+TRUST_PLANETS = {"Saturn", "Pluto", "North Node", "South Node"}
+VISION_PLANETS = {"Jupiter", "Uranus", "Neptune"}
+
+
+def _categorize_aspect_business(a_obj: str, b_obj: str) -> list[str]:
+    """Return business scoring categories for an aspect."""
+    categories: list[str] = []
+    objects = {a_obj, b_obj}
+    if objects & COMMUNICATION_PLANETS:
+        categories.append("communication")
+    if objects & DRIVE_PLANETS:
+        categories.append("drive")
+    if objects & TRUST_PLANETS:
+        categories.append("trust")
+    if objects & VISION_PLANETS:
+        categories.append("vision")
+    return categories if categories else ["general"]
+
+
+def compute_synastry_scores_business(aspects: list[dict]) -> dict:
+    """Compute business-oriented synastry scores.
+
+    Same harmony-ratio algorithm as love scoring but with business categories:
+    communication, drive, trust, vision.
+    """
+    _IMPORTANCE_FLOOR = 5.0
+    _TENSION_AMPLIFIER = 3.0
+
+    cats = ("communication", "drive", "trust", "vision", "general")
+    pos: dict[str, float] = {c: 0.0 for c in cats}
+    neg: dict[str, float] = {c: 0.0 for c in cats}
+
+    for aspect in aspects:
+        score, importance = _aspect_score(aspect)
+        if importance < _IMPORTANCE_FLOOR:
+            continue
+        categories = _categorize_aspect_business(
+            aspect["person_a_object"], aspect["person_b_object"]
+        )
+        for cat in categories:
+            if score >= 0:
+                pos[cat] += score
+            else:
+                neg[cat] += abs(score) * _TENSION_AMPLIFIER
+
+    def _harmony_score(positive: float, negative: float) -> int:
+        total = positive + negative
+        if total < 1.0:
+            return 50
+        ratio = positive / total
+        return max(5, min(95, round(ratio * 90 + 5)))
+
+    communication = _harmony_score(pos["communication"], neg["communication"])
+    drive = _harmony_score(pos["drive"], neg["drive"])
+    trust = _harmony_score(pos["trust"], neg["trust"])
+    vision = _harmony_score(pos["vision"], neg["vision"])
+
+    all_pos = sum(pos.values())
+    all_neg = sum(neg.values())
+    overall = _harmony_score(all_pos, all_neg)
+
+    label = _score_label_business(overall)
+
+    return {
+        "overall": overall,
+        "overall_label": label,
+        "communication": communication,
+        "drive": drive,
+        "trust": trust,
+        "vision": vision,
+    }
+
+
+def _score_label_business(score: int) -> str:
+    if score >= 86:
+        return "Dream Team"
+    if score >= 71:
+        return "Strong Synergy"
+    if score >= 51:
+        return "Productive"
+    if score >= 31:
+        return "Challenging"
+    return "Friction"
+
+
+def _score_label_business_ru(score: int) -> str:
+    if score >= 86:
+        return "Команда мечты"
+    if score >= 71:
+        return "Сильная синергия"
+    if score >= 51:
+        return "Продуктивно"
+    if score >= 31:
+        return "Непросто"
+    return "Трение"

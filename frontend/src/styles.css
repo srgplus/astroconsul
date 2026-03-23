@@ -6499,6 +6499,34 @@ button.natal-pos__row--clickable {
   line-height: 1.5;
 }
 
+/* Mode toggle: Love / Business */
+.syn-mode-toggle {
+  display: flex;
+  gap: 0;
+  justify-content: center;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.syn-mode-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.syn-mode-btn--active {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+}
+
 /* Overall reading */
 .syn-reading {
   background: var(--bg-card);

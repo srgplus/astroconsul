@@ -7,9 +7,11 @@ from typing import Any
 
 from app.data.synastry_aspects_lookup import get_synastry_description
 from synastry_engine import (
+    _score_label_business_ru,
     _score_label_ru,
     compute_synastry_aspects,
     compute_synastry_scores,
+    compute_synastry_scores_business,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,12 +55,16 @@ class SynastryService:
             asp["meaning"] = desc["meaning"]
             asp["keywords"] = desc["keywords"]
 
-        # Compute scores
+        # Compute scores — both love and business modes
         scores = compute_synastry_scores(aspects_a_to_b)
+        scores_business = compute_synastry_scores_business(aspects_a_to_b)
 
-        # Localize label
+        # Localize labels
         if lang == "ru":
             scores["overall_label"] = _score_label_ru(scores["overall"])
+            scores_business["overall_label"] = _score_label_business_ru(
+                scores_business["overall"]
+            )
 
         # Count exact/strong
         exact_count = sum(1 for a in aspects_a_to_b if a["strength"] == "exact")
@@ -68,8 +74,11 @@ class SynastryService:
         person_a = _person_summary(profile_a, chart_a)
         person_b = _person_summary(profile_b, chart_b)
 
-        # Overall reading
+        # Overall readings for both modes
         overall_reading = _generate_overall_reading(aspects_a_to_b, scores, lang)
+        overall_reading_business = _generate_business_reading(
+            aspects_a_to_b, scores_business, lang
+        )
 
         # Lightweight positions for display in aspect cards
         def _slim_positions(positions: list[dict]) -> list[dict]:
@@ -89,11 +98,13 @@ class SynastryService:
             "person_a": person_a,
             "person_b": person_b,
             "scores": scores,
+            "scores_business": scores_business,
             "aspects": aspects_a_to_b,
             "aspect_count": len(aspects_a_to_b),
             "exact_count": exact_count,
             "strong_count": strong_count,
             "overall_reading": overall_reading,
+            "overall_reading_business": overall_reading_business,
             "positions_a": _slim_positions(a_positions),
             "positions_b": _slim_positions(b_positions),
         }
@@ -226,5 +237,122 @@ def _reading_ru(overall: int, scores: dict, top_aspects: list[dict]) -> str:
             for a in top_aspects[:3]
         ]
         parts.append(f"Ключевые аспекты: {'; '.join(aspect_names)}.")
+
+    return " ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Business reading generators
+# ---------------------------------------------------------------------------
+
+
+def _generate_business_reading(
+    aspects: list[dict], scores: dict, lang: str
+) -> str:
+    overall = scores["overall"]
+    top_aspects = [a for a in aspects if a["strength"] in ("exact", "strong")][:5]
+    if lang == "ru":
+        return _business_reading_ru(overall, scores, top_aspects)
+    return _business_reading_en(overall, scores, top_aspects)
+
+
+def _business_reading_en(overall: int, scores: dict, top_aspects: list[dict]) -> str:
+    parts: list[str] = []
+
+    if overall >= 86:
+        parts.append(
+            "An exceptional professional match. Communication flows effortlessly, "
+            "ambitions align, and mutual trust forms naturally. A true power duo."
+        )
+    elif overall >= 71:
+        parts.append(
+            "Strong professional synergy. These charts support productive collaboration "
+            "with complementary strengths and shared drive."
+        )
+    elif overall >= 51:
+        parts.append(
+            "A solid working relationship with enough alignment to be productive. "
+            "Clear communication and defined roles will maximize this partnership."
+        )
+    elif overall >= 31:
+        parts.append(
+            "A challenging but potentially transformative business dynamic. "
+            "Different approaches can spark innovation — or friction."
+        )
+    else:
+        parts.append(
+            "A difficult professional pairing that requires significant effort. "
+            "Mismatched communication styles and competing visions need constant management."
+        )
+
+    highlights: list[str] = []
+    if scores.get("communication", 0) >= 75:
+        highlights.append("communication flow")
+    if scores.get("drive", 0) >= 75:
+        highlights.append("shared ambition")
+    if scores.get("trust", 0) >= 75:
+        highlights.append("deep trust")
+    if scores.get("vision", 0) >= 75:
+        highlights.append("aligned vision")
+    if highlights:
+        parts.append(f"Key strengths: {', '.join(highlights)}.")
+
+    if top_aspects:
+        aspect_names = [
+            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
+            for a in top_aspects[:3]
+        ]
+        parts.append(f"Defining aspects: {'; '.join(aspect_names)}.")
+
+    return " ".join(parts)
+
+
+def _business_reading_ru(overall: int, scores: dict, top_aspects: list[dict]) -> str:
+    parts: list[str] = []
+
+    if overall >= 86:
+        parts.append(
+            "Исключительная профессиональная совместимость. Коммуникация течёт естественно, "
+            "амбиции совпадают, доверие формируется органично. Настоящий тандем."
+        )
+    elif overall >= 71:
+        parts.append(
+            "Сильная профессиональная синергия. Карты поддерживают продуктивное сотрудничество "
+            "с взаимодополняющими сильными сторонами."
+        )
+    elif overall >= 51:
+        parts.append(
+            "Крепкие рабочие отношения с достаточным совпадением для продуктивности. "
+            "Чёткая коммуникация и распределение ролей усилят партнёрство."
+        )
+    elif overall >= 31:
+        parts.append(
+            "Непростая, но потенциально трансформирующая бизнес-динамика. "
+            "Разные подходы могут порождать инновации — или конфликты."
+        )
+    else:
+        parts.append(
+            "Сложное профессиональное сочетание, требующее значительных усилий. "
+            "Несовпадение стилей коммуникации и конкурирующие видения нуждаются в постоянном управлении."
+        )
+
+    highlights: list[str] = []
+    if scores.get("communication", 0) >= 75:
+        highlights.append("коммуникация")
+    if scores.get("drive", 0) >= 75:
+        highlights.append("общие амбиции")
+    if scores.get("trust", 0) >= 75:
+        highlights.append("глубокое доверие")
+    if scores.get("vision", 0) >= 75:
+        highlights.append("единое видение")
+    if highlights:
+        parts.append(f"Сильные стороны: {', '.join(highlights)}.")
+
+    if top_aspects:
+        aspect_names = [
+            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
+            for a in top_aspects[:3]
+        ]
+        parts.append(f"Определяющие аспекты: {'; '.join(aspect_names)}.")
 
     return " ".join(parts)
