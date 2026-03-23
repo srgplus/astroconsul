@@ -171,13 +171,11 @@ export default function SynastryReport({ report }: Props) {
           <div className="syn-person">
             <div className="syn-avatar syn-avatar--a"><span>A</span></div>
             <div className="syn-person-name">{report.person_a.name}</div>
-            <Big3Badges summary={report.person_a.natal_summary} />
           </div>
           <span className="syn-header-x">&times;</span>
           <div className="syn-person">
             <div className="syn-avatar syn-avatar--b"><span>B</span></div>
             <div className="syn-person-name">{report.person_b.name}</div>
-            <Big3Badges summary={report.person_b.natal_summary} />
           </div>
         </div>
         <h2 className="syn-title">Synastry Report</h2>
