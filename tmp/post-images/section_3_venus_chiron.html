@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Section 3 – Venus Conjunct Chiron</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1350px;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e8e8ec;
+    overflow: hidden;
+    position: relative;
+  }
+  .glow-top-right {
+    position: absolute; top: -90px; right: -90px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(244,114,182,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-bottom-left {
+    position: absolute; bottom: -70px; left: -70px;
+    width: 360px; height: 360px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-mid {
+    position: absolute; top: 40%; left: 30%;
+    width: 340px; height: 340px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .star { position: absolute; border-radius: 50%; background: #e8e8ec; }
+  .card {
+    position: relative;
+    width: 1080px; height: 1350px;
+    padding: 52px 56px 44px;
+    display: flex; flex-direction: column;
+    z-index: 1;
+  }
+  .logo { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; color: #e8e8ec; }
+  .badge-strong {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #fb923c;
+    background: rgba(251,146,60,0.12);
+    border: 1px solid rgba(251,146,60,0.28);
+    border-radius: 20px;
+    padding: 6px 14px;
+    margin-top: 36px; margin-bottom: 18px;
+  }
+  .badge-strong::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #fb923c;
+  }
+  .section-tag {
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: #8e8e96; margin-bottom: 8px;
+  }
+  .title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 46px; font-weight: 400; line-height: 1.10;
+    color: #e8e8ec; margin-bottom: 8px;
+  }
+  .subtitle-label {
+    font-size: 14px; color: #f472b6; font-weight: 400;
+    margin-bottom: 48px;
+    font-style: italic;
+  }
+
+  /* Aspect visual box */
+  .aspect-box {
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 44px 52px;
+    margin-bottom: 36px;
+  }
+  .planets-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .planet-circle {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .planet-venus {
+    background: linear-gradient(135deg, rgba(244,114,182,0.18), rgba(244,114,182,0.04));
+    border: 2px solid rgba(244,114,182,0.38);
+  }
+  .planet-chiron {
+    background: linear-gradient(135deg, rgba(251,146,60,0.15), rgba(251,146,60,0.04));
+    border: 2px solid rgba(251,146,60,0.35);
+  }
+  .planet-symbol { font-size: 38px; line-height: 1; margin-bottom: 4px; }
+  .planet-name { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+  .connector {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .connector-line {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, rgba(244,114,182,0.4), rgba(251,146,60,0.4));
+  }
+  .connector-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #fb923c;
+    background: rgba(251,146,60,0.10);
+    border: 1px solid rgba(251,146,60,0.22);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+  .positions-row {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .pos-item { text-align: center; }
+  .pos-sign { font-size: 22px; margin-bottom: 4px; }
+  .pos-degree { font-size: 16px; font-weight: 600; color: #e8e8ec; }
+  .pos-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #8e8e96; margin-top: 2px; }
+  .orb-center {
+    text-align: center; align-self: center;
+    font-size: 13px; color: #8e8e96;
+  }
+  .orb-center strong { color: #fb923c; }
+
+  /* Meaning points */
+  .meaning-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .meaning-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .meaning-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(244,114,182,0.10);
+    border: 1px solid rgba(244,114,182,0.20);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .meaning-text { font-size: 15px; color: #8e8e96; line-height: 1.55; }
+  .meaning-text strong { color: #e8e8ec; font-weight: 500; }
+
+  .footer {
+    margin-top: auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-logo { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px; color: #e8e8ec; }
+  .page-indicator { font-size: 11px; letter-spacing: 1px; color: #8e8e96; }
+</style>
+</head>
+<body>
+  <div class="glow-top-right"></div>
+  <div class="glow-bottom-left"></div>
+  <div class="glow-mid"></div>
+  <div class="star" style="width:2px;height:2px;top:10%;left:18%;opacity:0.22;"></div>
+  <div class="star" style="width:3px;height:3px;top:22%;left:78%;opacity:0.18;"></div>
+  <div class="star" style="width:2px;height:2px;top:62%;left:7%;opacity:0.20;"></div>
+  <div class="star" style="width:2px;height:2px;top:80%;left:86%;opacity:0.16;"></div>
+  <div class="star" style="width:3px;height:3px;top:91%;left:44%;opacity:0.15;"></div>
+  <div class="star" style="width:2px;height:2px;top:38%;left:94%;opacity:0.18;"></div>
+
+  <div class="card">
+    <div class="logo">big<span style="color:#a78bfa">3</span>.me</div>
+
+    <div class="badge-strong">STRONG · 1.70°</div>
+
+    <div class="section-tag">Where Love Meets the Wound</div>
+    <div class="title">Venus Conjunct Chiron</div>
+    <div class="subtitle-label">"Where Love Meets the Wound"</div>
+
+    <div class="aspect-box">
+      <div class="planets-row">
+        <div class="planet-circle planet-venus">
+          <div class="planet-symbol" style="color:#f472b6;">♀</div>
+          <div class="planet-name" style="color:#f472b6;">Venus</div>
+        </div>
+        <div class="connector">
+          <div class="connector-label">conj</div>
+          <div class="connector-line"></div>
+        </div>
+        <div class="planet-circle planet-chiron">
+          <div class="planet-symbol" style="color:#fb923c;">⚷</div>
+          <div class="planet-name" style="color:#fb923c;">Chiron</div>
+        </div>
+      </div>
+      <div class="positions-row">
+        <div class="pos-item">
+          <div class="pos-sign">♈</div>
+          <div class="pos-degree">23°37'</div>
+          <div class="pos-label">Venus · Aries</div>
+        </div>
+        <div class="orb-center">
+          Orb: <strong>1.70°</strong>
+        </div>
+        <div class="pos-item">
+          <div class="pos-sign">♈</div>
+          <div class="pos-degree">25°19'</div>
+          <div class="pos-label">Chiron · Aries</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meaning-list">
+      <div class="meaning-item">
+        <div class="meaning-icon">♀</div>
+        <div class="meaning-text"><strong>Venus in Aries</strong> craves direct love — bold, honest, unfiltered. The heart leads with action here, not words.</div>
+      </div>
+      <div class="meaning-item">
+        <div class="meaning-icon">⚷</div>
+        <div class="meaning-text"><strong>Chiron, the wounded healer</strong>, exposes where love has hurt before. In Aries, the wound is often about being seen and valued as a separate self.</div>
+      </div>
+      <div class="meaning-item">
+        <div class="meaning-icon">✦</div>
+        <div class="meaning-text">Conjunction: <strong>the meeting is the medicine.</strong> Showing up with courage in love today has healing power — not despite the vulnerability, but through it.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-logo">big<span style="color:#a78bfa">3</span>.me</div>
+      <div class="page-indicator">4 / 5</div>
+    </div>
+  </div>
+</body>
+</html>
