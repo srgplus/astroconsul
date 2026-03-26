@@ -8,142 +8,114 @@
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    width: 1080px;
-    height: 1350px;
-    overflow: hidden;
-    margin: 0;
+    width: 1080px; height: 1350px; overflow: hidden; margin: 0;
     background: #faf9f7;
     font-family: 'DM Sans', system-ui, sans-serif;
-    color: #1a1a1f;
-    position: relative;
+    color: #1a1a1f; position: relative;
   }
   .glow-tr {
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 320px; height: 320px;
+    position: absolute; top: -80px; right: -70px;
+    width: 340px; height: 340px;
     background: radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%);
     pointer-events: none; z-index: 0;
   }
   .glow-bl {
-    position: absolute;
-    bottom: -80px; left: -60px;
-    width: 360px; height: 360px;
-    background: radial-gradient(circle, rgba(244,114,182,0.05) 0%, transparent 70%);
+    position: absolute; bottom: -80px; left: -60px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(124,58,237,0.04) 0%, transparent 70%);
     pointer-events: none; z-index: 0;
   }
   .card {
     position: relative; z-index: 2;
     width: 100%; height: 100%;
     padding: 52px 56px;
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column; justify-content: space-between;
   }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 40px;
-  }
-  .logo { font-weight: 600; font-size: 13px; color: #1a1a1f; letter-spacing: 0.01em; }
+  .header { margin-bottom: 28px; }
+  .logo { font-weight: 600; font-size: 13px; color: #1a1a1f; }
   .logo span { color: #7c3aed; }
-  .tag {
+  .logo-tagline { font-size: 9px; font-weight: 400; color: #6e6e76; letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+  .section-label {
     font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
-    color: #60a5fa;
-    background: rgba(96,165,250,0.10);
-    border: 1px solid rgba(96,165,250,0.20);
-    border-radius: 20px;
-    padding: 7px 16px;
+    color: #60a5fa; background: rgba(96,165,250,0.09);
+    border: 1px solid rgba(96,165,250,0.20); border-radius: 20px;
+    padding: 5px 14px; display: inline-block; margin-bottom: 20px;
   }
-  h2 {
+  h1 {
     font-family: 'Instrument Serif', Georgia, serif;
-    font-weight: 400;
-    font-size: 44px;
-    line-height: 1.15;
-    color: #1a1a1f;
-    margin-bottom: 8px;
+    font-weight: 400; font-size: 44px; line-height: 1.12;
+    color: #1a1a1f; letter-spacing: -0.01em; margin-bottom: 10px;
   }
   .section-sub {
-    font-size: 14px; font-weight: 400;
-    color: #6e6e76;
-    margin-bottom: 48px;
+    font-size: 14px; font-weight: 400; color: #6e6e76; line-height: 1.55; margin-bottom: 32px;
   }
-  .trine-visual {
+  /* Trine triangle visual */
+  .trine-container {
+    background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px; padding: 36px 40px; margin-bottom: 32px;
     position: relative;
-    width: 680px;
-    height: 600px;
-    margin: 0 auto 40px;
   }
-  .trine-line {
-    position: absolute;
-    background: rgba(124,58,237,0.12);
-    height: 1.5px;
-    transform-origin: left center;
+  .trine-label {
+    text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: #6e6e76; margin-bottom: 28px;
+  }
+  /* Triangle layout — top planet, bottom-left, bottom-right */
+  .trine-visual {
+    position: relative; height: 280px;
+  }
+  .trine-lines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   }
   .planet-node {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transform: translate(-50%, -50%);
   }
+  .planet-node-top { top: 10%; left: 50%; }
+  .planet-node-bl { top: 90%; left: 18%; }
+  .planet-node-br { top: 90%; left: 82%; }
   .node-circle {
-    width: 88px; height: 88px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    line-height: 1;
+    width: 80px; height: 80px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   }
-  .moon-node {
-    background: linear-gradient(135deg, rgba(232,232,236,0.35) 0%, rgba(232,232,236,0.10) 100%);
-    border: 1.5px solid rgba(142,142,150,0.30);
-    color: #6e6e76;
+  .node-symbol { font-size: 30px; line-height: 1; }
+  .node-name { font-size: 8px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.70; }
+  .moon-node { background: linear-gradient(135deg, rgba(100,100,110,0.14) 0%, rgba(100,100,110,0.04) 100%); border: 1.5px solid rgba(100,100,110,0.28); color: #4a4a58; }
+  .mars-node { background: linear-gradient(135deg, rgba(248,113,113,0.14) 0%, rgba(248,113,113,0.04) 100%); border: 1.5px solid rgba(248,113,113,0.30); color: #f87171; }
+  .mercury-node { background: linear-gradient(135deg, rgba(96,165,250,0.14) 0%, rgba(96,165,250,0.04) 100%); border: 1.5px solid rgba(96,165,250,0.30); color: #60a5fa; }
+  .node-pos { font-size: 11px; font-weight: 500; color: #6e6e76; white-space: nowrap; }
+  .node-sign { font-size: 10px; font-weight: 600; color: #7c3aed; }
+  /* Planet list rows */
+  .planet-rows { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+  .planet-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 18px;
+    background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px;
   }
-  .mars-node {
-    background: linear-gradient(135deg, rgba(248,113,113,0.15) 0%, rgba(248,113,113,0.04) 100%);
-    border: 1.5px solid rgba(248,113,113,0.30);
-    color: #f87171;
+  .row-dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .moon-dot { background: rgba(100,100,110,0.12); border: 1px solid rgba(100,100,110,0.22); color: #4a4a58; }
+  .mars-dot { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.22); color: #f87171; }
+  .mercury-dot { background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.22); color: #60a5fa; }
+  .row-info { flex: 1; }
+  .row-title { font-size: 14px; font-weight: 600; color: #1a1a1f; margin-bottom: 3px; }
+  .row-sub { font-size: 12px; font-weight: 400; color: #6e6e76; }
+  .row-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 10px;
+    background: rgba(96,165,250,0.10); color: #60a5fa;
+    border: 1px solid rgba(96,165,250,0.20);
   }
-  .mercury-node {
-    background: linear-gradient(135deg, rgba(96,165,250,0.15) 0%, rgba(96,165,250,0.04) 100%);
-    border: 1.5px solid rgba(96,165,250,0.30);
-    color: #60a5fa;
-  }
-  .node-name { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #1a1a1f; }
-  .node-pos { font-size: 10px; font-weight: 400; color: #6e6e76; }
-  .node-sign { font-size: 10px; font-weight: 500; color: #7c3aed; }
-  .orb-label {
-    position: absolute;
-    font-size: 9px; font-weight: 500;
-    color: #6e6e76;
-    background: #faf9f7;
-    padding: 2px 8px;
-    border-radius: 10px;
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-  .description {
-    font-size: 15px;
-    font-weight: 400;
-    color: #6e6e76;
-    line-height: 1.70;
-    max-width: 820px;
-    flex: 1;
+  .trine-note {
+    font-size: 13px; font-weight: 400; color: #4a4a58; line-height: 1.65;
+    background: rgba(96,165,250,0.06); border-left: 3px solid rgba(96,165,250,0.4);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 0;
   }
   .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.06);
   }
-  .page { font-size: 11px; font-weight: 500; color: #6e6e76; letter-spacing: 1px; }
-  /* SVG trine triangle */
-  .trine-svg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-  }
+  .footer-logo { font-weight: 600; font-size: 13px; color: #1a1a1f; }
+  .footer-logo span { color: #7c3aed; }
+  .page-indicator { font-size: 11px; font-weight: 500; color: #6e6e76; }
 </style>
 </head>
 <body>
@@ -152,52 +124,49 @@
 <div class="card">
   <div class="header">
     <div class="logo">big<span>3</span>.me</div>
-    <div class="tag">Water Element</div>
+    <div class="logo-tagline">Transit Astrology</div>
   </div>
+  <div style="flex:1;display:flex;flex-direction:column;">
+    <div class="section-label">&#9810; &#9801; &#9803; Water Signs</div>
+    <h1>Water Sign Emphasis</h1>
+    <p class="section-sub">Moon in Cancer, Mars &amp; Mercury in Pisces form a quiet Grand Trine &mdash; emotional intelligence and intuitive action aligned</p>
 
-  <h2>Water Sign Emphasis</h2>
-  <div class="section-sub">The quiet grand trine forming in Cancer and Pisces</div>
+    <!-- Planet rows -->
+    <div class="planet-rows">
+      <div class="planet-row">
+        <div class="row-dot moon-dot">&#9789;</div>
+        <div class="row-info">
+          <div class="row-title">Moon in Cancer</div>
+          <div class="row-sub">&#9803; Cancer &middot; 14&deg;54&prime; &middot; Domicile</div>
+        </div>
+        <div class="row-badge">Water &#9803;</div>
+      </div>
+      <div class="planet-row">
+        <div class="row-dot mars-dot">&#9794;</div>
+        <div class="row-info">
+          <div class="row-title">Mars in Pisces</div>
+          <div class="row-sub">&#9801; Pisces &middot; 18&deg;48&prime; &middot; Action flows</div>
+        </div>
+        <div class="row-badge">Water &#9801;</div>
+      </div>
+      <div class="planet-row">
+        <div class="row-dot mercury-dot">&#9791;</div>
+        <div class="row-info">
+          <div class="row-title">Mercury in Pisces</div>
+          <div class="row-sub">&#9801; Pisces &middot; 9&deg;57&prime; &middot; Intuitive mind</div>
+        </div>
+        <div class="row-badge">Water &#9801;</div>
+      </div>
+    </div>
 
-  <div class="trine-visual">
-    <svg class="trine-svg" viewBox="0 0 680 600">
-      <!-- Triangle connecting three planets -->
-      <line x1="340" y1="40" x2="80" y2="500" stroke="rgba(124,58,237,0.15)" stroke-width="1.5" stroke-dasharray="8,6"/>
-      <line x1="340" y1="40" x2="600" y2="500" stroke="rgba(124,58,237,0.15)" stroke-width="1.5" stroke-dasharray="8,6"/>
-      <line x1="80" y1="500" x2="600" y2="500" stroke="rgba(124,58,237,0.15)" stroke-width="1.5" stroke-dasharray="8,6"/>
-    </svg>
-    <!-- Moon — top -->
-    <div class="planet-node" style="top: 0; left: 50%; transform: translateX(-50%);">
-      <div class="node-circle moon-node">☽</div>
-      <div class="node-name">Moon</div>
-      <div class="node-sign">♋ Cancer</div>
-      <div class="node-pos">14°54'</div>
+    <!-- Trine note -->
+    <div class="trine-note">
+      Three planets in water signs create a loosely orbed Grand Trine &mdash; a circuit of emotional fluency. Logic takes a back seat today; what you feel knows more than what you think.
     </div>
-    <!-- Mars — bottom left -->
-    <div class="planet-node" style="bottom: 30px; left: 30px;">
-      <div class="node-circle mars-node">♂</div>
-      <div class="node-name">Mars</div>
-      <div class="node-sign">♓ Pisces</div>
-      <div class="node-pos">18°48'</div>
-    </div>
-    <!-- Mercury — bottom right -->
-    <div class="planet-node" style="bottom: 30px; right: 30px;">
-      <div class="node-circle mercury-node">☿</div>
-      <div class="node-name">Mercury</div>
-      <div class="node-sign">♓ Pisces</div>
-      <div class="node-pos">9°57'</div>
-    </div>
-    <!-- Orb labels on edges -->
-    <div class="orb-label" style="top: 280px; left: 130px;">3.9° tri</div>
-    <div class="orb-label" style="top: 280px; right: 130px;">4.95° tri</div>
   </div>
-
-  <div class="description">
-    Four planets in water signs. The Moon trines Mars and Mercury across Cancer-Pisces. Intuition leads, creative flow comes easily, and emotional conversations carry depth. Mars trine Moon gives feelings <em>direction</em> — you can act on what you sense, not just sit with it.
-  </div>
-
   <div class="footer">
-    <div class="logo">big<span>3</span>.me</div>
-    <div class="page">4 / 5</div>
+    <div class="footer-logo">big<span>3</span>.me</div>
+    <div class="page-indicator">4 / 5</div>
   </div>
 </div>
 </body>
