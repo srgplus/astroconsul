@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>CTA Slide — big3.me</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1080px;
+    height: 1350px;
+    overflow: hidden;
+    margin: 0;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e8e8ec;
+    position: relative;
+  }
+  .glow-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .orbital-rings {
+    position: absolute;
+    top: 50%; left: 50%;
+    pointer-events: none; z-index: 0;
+  }
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .ring-1 { width: 400px; height: 400px; top: -200px; left: -200px; }
+  .ring-2 { width: 650px; height: 650px; top: -325px; left: -325px; }
+  .ring-3 { width: 950px; height: 950px; top: -475px; left: -475px; }
+  .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .star { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.18); }
+  .card {
+    position: relative; z-index: 2;
+    width: 100%; height: 100%;
+    padding: 52px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .logo-big { font-weight: 600; font-size: 28px; color: #e8e8ec; letter-spacing: 0.01em; margin-bottom: 8px; }
+  .logo-big span { color: #a78bfa; }
+  .logo-tagline {
+    font-size: 10px; font-weight: 400; color: #8e8e96;
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 72px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
+    font-size: 48px;
+    line-height: 1.15;
+    color: #e8e8ec;
+    margin-bottom: 20px;
+    max-width: 700px;
+  }
+  .cta-sub {
+    font-size: 15px; font-weight: 400;
+    color: #8e8e96;
+    line-height: 1.65;
+    max-width: 600px;
+    margin-bottom: 52px;
+  }
+  .cta-button {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    border-radius: 50px;
+    padding: 18px 52px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    border: none;
+    margin-bottom: 64px;
+  }
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #8e8e96;
+  }
+  .feature-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #a78bfa;
+    flex-shrink: 0;
+  }
+  .footer-logo {
+    position: absolute;
+    bottom: 52px;
+    font-weight: 600; font-size: 13px; color: #e8e8ec; letter-spacing: 0.01em;
+  }
+  .footer-logo span { color: #a78bfa; }
+</style>
+</head>
+<body>
+<div class="glow-center"></div>
+<div class="orbital-rings">
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+</div>
+<div class="stars">
+  <div class="star" style="width:2px;height:2px;top:6%;left:18%;opacity:0.22;"></div>
+  <div class="star" style="width:3px;height:3px;top:14%;left:82%;opacity:0.16;"></div>
+  <div class="star" style="width:2px;height:2px;top:35%;left:5%;opacity:0.18;"></div>
+  <div class="star" style="width:2px;height:2px;top:60%;left:92%;opacity:0.15;"></div>
+  <div class="star" style="width:3px;height:3px;top:88%;left:25%;opacity:0.20;"></div>
+  <div class="star" style="width:2px;height:2px;top:78%;left:70%;opacity:0.14;"></div>
+</div>
+<div class="card">
+  <div class="logo-big">big<span>3</span>.me</div>
+  <div class="logo-tagline">Transit Astrology</div>
+
+  <h2>Track Your Personal Transits</h2>
+  <div class="cta-sub">See how today's Moon-Jupiter conjunction and Saturn-Pluto sextile hit your natal chart — with exact degrees and real-time intensity scores.</div>
+
+  <div class="cta-button">Create Your Free Chart</div>
+
+  <div class="features">
+    <div class="feature">
+      <div class="feature-dot"></div>
+      Swiss Ephemeris precision — real astronomy, not approximations
+    </div>
+    <div class="feature">
+      <div class="feature-dot"></div>
+      Personal transit timeline with intensity scoring
+    </div>
+    <div class="feature">
+      <div class="feature-dot"></div>
+      Daily cosmic weather matched to your natal placements
+    </div>
+  </div>
+</div>
+<div class="footer-logo">big<span>3</span>.me</div>
+</body>
+</html>
