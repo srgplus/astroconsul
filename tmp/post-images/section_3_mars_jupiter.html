@@ -6,7 +6,7 @@
 <title>Section 3 — Today's Transit Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -18,24 +18,20 @@
     color: #e8e8ec;
     position: relative;
   }
-  .glow-purple {
+  .glow-top-right {
     position: absolute;
-    top: -80px; right: -60px;
+    top: -60px; right: -60px;
     width: 400px; height: 400px;
+    border-radius: 50%;
     background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
     pointer-events: none;
   }
-  .glow-orange {
+  .glow-bottom-left {
     position: absolute;
-    bottom: -80px; left: -60px;
+    bottom: -60px; left: -60px;
     width: 380px; height: 380px;
-    background: radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .star {
-    position: absolute;
     border-radius: 50%;
-    background: #e8e8ec;
+    background: radial-gradient(circle, rgba(52,211,153,0.08) 0%, transparent 70%);
     pointer-events: none;
   }
   .orbital-ring {
@@ -46,166 +42,185 @@
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
   }
-  .header {
-    padding: 32px 36px 0;
+  .star { position: absolute; border-radius: 50%; pointer-events: none; }
+  .card {
+    position: relative;
+    width: 100%; height: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    padding: 48px 52px;
+    z-index: 1;
+  }
+  .top-row {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
   }
   .logo {
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px;
     color: #e8e8ec;
   }
   .logo-3 { color: #a78bfa; }
-  .date-tag {
+  .all-direct-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(167,139,250,0.10);
+    border: 1px solid rgba(167,139,250,0.22);
+    border-radius: 20px;
+    padding: 7px 14px;
+  }
+  .all-direct-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #a78bfa;
+  }
+  .all-direct-text {
     font-size: 10px;
-    font-weight: 500;
-    color: #8e8e96;
-    letter-spacing: 2px;
+    font-weight: 600;
+    color: #a78bfa;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
   }
-  .title-block {
-    padding: 28px 36px 0;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-  }
-  .main-title {
+  .section-title {
     font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 38px;
     font-weight: 400;
-    color: #e8e8ec;
+    font-size: 42px;
     line-height: 1.15;
-    letter-spacing: -0.3px;
+    color: #e8e8ec;
+    margin-bottom: 8px;
   }
-  .moon-phase-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 10px;
-    font-weight: 500;
+  .section-date {
+    font-size: 13px;
+    font-weight: 400;
     color: #8e8e96;
-    letter-spacing: 1px;
-    white-space: nowrap;
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
   }
+  /* Transit rows */
   .transit-list {
-    padding: 28px 36px 0;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 10px;
+    margin-bottom: 28px;
   }
   .transit-row {
     display: flex;
     align-items: center;
-    padding: 18px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 16px;
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px 20px;
   }
-  .transit-row:last-child { border-bottom: none; }
-  .tr-planet-circle {
-    width: 42px;
-    height: 42px;
+  .transit-planets {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+  .planet-dot {
+    width: 28px; height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 13px;
     flex-shrink: 0;
-    margin-right: 16px;
   }
-  .tr-info {
+  .transit-info {
     flex: 1;
-    min-width: 0;
   }
-  .tr-name {
-    font-size: 15px;
-    font-weight: 500;
+  .transit-name {
+    font-size: 14px;
+    font-weight: 600;
     color: #e8e8ec;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
-  .tr-detail {
+  .transit-orb {
     font-size: 11px;
     font-weight: 400;
     color: #8e8e96;
-    letter-spacing: 0.3px;
   }
-  .tr-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    flex-shrink: 0;
-    margin-left: 12px;
-  }
-  .tr-badge-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-  }
-  .badge-exact {
-    background: rgba(52,211,153,0.12);
-    border: 1px solid rgba(52,211,153,0.22);
-    color: #34d399;
-  }
-  .badge-exact .tr-badge-dot { background: #34d399; }
-  .badge-strong {
-    background: rgba(251,146,60,0.12);
-    border: 1px solid rgba(251,146,60,0.22);
-    color: #fb923c;
-  }
-  .badge-strong .tr-badge-dot { background: #fb923c; }
-
-  /* Planet circle colors */
-  .pc-saturn { background: linear-gradient(135deg, rgba(142,142,150,0.18), rgba(142,142,150,0.05)); border: 1.5px solid rgba(142,142,150,0.25); color: #8e8e96; }
-  .pc-moon { background: linear-gradient(135deg, rgba(232,232,236,0.18), rgba(232,232,236,0.05)); border: 1.5px solid rgba(232,232,236,0.25); color: #e8e8ec; }
-  .pc-venus { background: linear-gradient(135deg, rgba(244,114,182,0.18), rgba(244,114,182,0.05)); border: 1.5px solid rgba(244,114,182,0.25); color: #f472b6; }
-  .pc-sun { background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(251,191,36,0.05)); border: 1.5px solid rgba(251,191,36,0.25); color: #fbbf24; }
-
-  .status-row {
-    margin: 20px 36px 0;
-    display: flex;
-    gap: 12px;
-  }
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 8px 16px;
+  .strength-pill {
     font-size: 10px;
-    font-weight: 500;
-    color: #8e8e96;
+    font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
+    border-radius: 10px;
+    padding: 4px 10px;
+    flex-shrink: 0;
   }
-  .status-dot-green {
-    width: 6px; height: 6px;
+  .pill-exact {
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.25);
+    color: #34d399;
+  }
+  .pill-strong {
+    background: rgba(251,146,60,0.12);
+    border: 1px solid rgba(251,146,60,0.25);
+    color: #fb923c;
+  }
+  /* Moon phase row */
+  .moon-phase-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 0;
+  }
+  .moon-phase-icon {
+    width: 36px; height: 36px;
     border-radius: 50%;
-    background: #34d399;
+    background: linear-gradient(135deg, rgba(232,232,236,0.15), rgba(232,232,236,0.04));
+    border: 1.5px solid rgba(232,232,236,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #e8e8ec;
+    flex-shrink: 0;
+  }
+  .moon-phase-info { flex: 1; }
+  .moon-phase-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e8e8ec;
+    margin-bottom: 2px;
+  }
+  .moon-phase-sub {
+    font-size: 11px;
+    color: #8e8e96;
+  }
+  .moon-phase-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #e8e8ec;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 4px 10px;
   }
   .footer {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 0 36px 32px;
+    margin-top: auto;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.05);
   }
   .footer-logo {
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
     color: #e8e8ec;
   }
   .footer-logo-3 { color: #a78bfa; }
@@ -218,103 +233,143 @@
 </style>
 </head>
 <body>
+  <div class="glow-top-right"></div>
+  <div class="glow-bottom-left"></div>
+  <div class="orbital-ring" style="width:600px;height:600px;"></div>
+  <div class="orbital-ring" style="width:900px;height:900px;"></div>
 
-<div class="glow-purple"></div>
-<div class="glow-orange"></div>
+  <!-- Star dots -->
+  <div class="star" style="width:2px;height:2px;top:8%;left:75%;background:#a78bfa;opacity:0.25;"></div>
+  <div class="star" style="width:3px;height:3px;top:16%;left:5%;background:#e8e8ec;opacity:0.20;"></div>
+  <div class="star" style="width:2px;height:2px;top:88%;left:88%;background:#34d399;opacity:0.22;"></div>
+  <div class="star" style="width:2px;height:2px;top:92%;left:20%;background:#e8e8ec;opacity:0.18;"></div>
 
-<div class="orbital-ring" style="width:600px;height:600px;"></div>
-<div class="orbital-ring" style="width:800px;height:800px;"></div>
-
-<div class="star" style="width:3px;height:3px;top:8%;left:14%;opacity:0.22;"></div>
-<div class="star" style="width:2px;height:2px;top:15%;left:85%;opacity:0.16;"></div>
-<div class="star" style="width:2px;height:2px;top:70%;left:92%;opacity:0.20;"></div>
-<div class="star" style="width:3px;height:3px;top:88%;left:20%;opacity:0.18;"></div>
-<div class="star" style="width:2px;height:2px;top:40%;left:4%;opacity:0.14;"></div>
-
-<div class="header">
-  <div class="logo">big<span class="logo-3">3</span>.me</div>
-  <div class="date-tag">March 27, 2026</div>
-</div>
-
-<div class="title-block">
-  <div class="main-title">Today's Transit Map</div>
-  <div class="moon-phase-badge">◑ First Quarter Moon</div>
-</div>
-
-<div class="transit-list">
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-saturn">♄</div>
-    <div class="tr-info">
-      <div class="tr-name">Saturn sextile Pluto</div>
-      <div class="tr-detail">♄ Aries 4°59' — ♇ Aquarius 5°08'</div>
+  <div class="card">
+    <div class="top-row">
+      <div class="logo">big<span class="logo-3">3</span>.me</div>
+      <div class="all-direct-badge">
+        <div class="all-direct-dot"></div>
+        <span class="all-direct-text">All Planets Direct</span>
+      </div>
     </div>
-    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.15°</div>
-  </div>
 
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-moon">☽</div>
-    <div class="tr-info">
-      <div class="tr-name">Moon sextile Uranus</div>
-      <div class="tr-detail">☽ Cancer 28°45' — ♅ Taurus 28°34'</div>
+    <div class="section-title">Today's Transit Map</div>
+    <div class="section-date">March 27, 2026</div>
+
+    <div class="transit-list">
+      <!-- Saturn sxt Pluto -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(142,142,150,0.15);border:1.5px solid rgba(142,142,150,0.28);color:#8e8e96;">♄</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">sxt</div>
+          <div class="planet-dot" style="background:rgba(192,132,252,0.15);border:1.5px solid rgba(192,132,252,0.28);color:#c084fc;">♇</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Saturn sxt Pluto</div>
+          <div class="transit-orb">♄ Aries 4°59' — ♇ Aquarius 5°08'</div>
+        </div>
+        <div class="strength-pill pill-exact">0.15° EXACT</div>
+      </div>
+
+      <!-- Moon sxt Uranus -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(232,232,236,0.12);border:1.5px solid rgba(232,232,236,0.25);color:#e8e8ec;">☽</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">sxt</div>
+          <div class="planet-dot" style="background:rgba(52,211,153,0.15);border:1.5px solid rgba(52,211,153,0.28);color:#34d399;">♅</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Moon sxt Uranus</div>
+          <div class="transit-orb">☽ Cancer 28°45' — ♅ Taurus 28°34'</div>
+        </div>
+        <div class="strength-pill pill-exact">0.19° EXACT</div>
+      </div>
+
+      <!-- Venus conj Chiron -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(244,114,182,0.15);border:1.5px solid rgba(244,114,182,0.28);color:#f472b6;">♀</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">cnj</div>
+          <div class="planet-dot" style="background:rgba(167,139,250,0.15);border:1.5px solid rgba(167,139,250,0.28);color:#a78bfa;">⚷</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Venus conj Chiron</div>
+          <div class="transit-orb">♀ Aries 26°05' — ⚷ Aries 25°26'</div>
+        </div>
+        <div class="strength-pill pill-exact">0.65° EXACT</div>
+      </div>
+
+      <!-- Sun sxt Pluto -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(251,191,36,0.15);border:1.5px solid rgba(251,191,36,0.28);color:#fbbf24;">☉</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">sxt</div>
+          <div class="planet-dot" style="background:rgba(192,132,252,0.15);border:1.5px solid rgba(192,132,252,0.28);color:#c084fc;">♇</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Sun sxt Pluto</div>
+          <div class="transit-orb">☉ Aries — ♇ Aquarius</div>
+        </div>
+        <div class="strength-pill pill-strong">1.69° STRONG</div>
+      </div>
+
+      <!-- Sun conj Saturn -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(251,191,36,0.15);border:1.5px solid rgba(251,191,36,0.28);color:#fbbf24;">☉</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">cnj</div>
+          <div class="planet-dot" style="background:rgba(142,142,150,0.15);border:1.5px solid rgba(142,142,150,0.28);color:#8e8e96;">♄</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Sun conj Saturn</div>
+          <div class="transit-orb">☉ Aries — ♄ Aries</div>
+        </div>
+        <div class="strength-pill pill-strong">1.84° STRONG</div>
+      </div>
+
+      <!-- Moon sq Venus -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(232,232,236,0.12);border:1.5px solid rgba(232,232,236,0.25);color:#e8e8ec;">☽</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">sq</div>
+          <div class="planet-dot" style="background:rgba(244,114,182,0.15);border:1.5px solid rgba(244,114,182,0.28);color:#f472b6;">♀</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Moon sq Venus</div>
+          <div class="transit-orb">☽ Cancer — ♀ Aries</div>
+        </div>
+        <div class="strength-pill pill-strong">2.66° STRONG</div>
+      </div>
+
+      <!-- Saturn conj Neptune -->
+      <div class="transit-row">
+        <div class="transit-planets">
+          <div class="planet-dot" style="background:rgba(142,142,150,0.15);border:1.5px solid rgba(142,142,150,0.28);color:#8e8e96;">♄</div>
+          <div style="font-size:10px;color:#8e8e96;font-weight:600;">cnj</div>
+          <div class="planet-dot" style="background:rgba(129,140,248,0.15);border:1.5px solid rgba(129,140,248,0.28);color:#818cf8;">♆</div>
+        </div>
+        <div class="transit-info">
+          <div class="transit-name">Saturn conj Neptune</div>
+          <div class="transit-orb">♄ Aries — ♆ Aries</div>
+        </div>
+        <div class="strength-pill pill-strong">2.95° STRONG</div>
+      </div>
     </div>
-    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.19°</div>
-  </div>
 
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-venus">♀</div>
-    <div class="tr-info">
-      <div class="tr-name">Venus conjunct Chiron</div>
-      <div class="tr-detail">♀ Aries 26°05' — ⚷ Aries 25°26'</div>
+    <!-- Moon Phase -->
+    <div class="moon-phase-box">
+      <div class="moon-phase-icon">🌓</div>
+      <div class="moon-phase-info">
+        <div class="moon-phase-name">First Quarter Moon</div>
+        <div class="moon-phase-sub">Waxing — building momentum</div>
+      </div>
+      <div class="moon-phase-badge">Waxing</div>
     </div>
-    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.65°</div>
-  </div>
 
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-sun">☉</div>
-    <div class="tr-info">
-      <div class="tr-name">Sun sextile Pluto</div>
-      <div class="tr-detail">☉ Aries 6°49' — ♇ Aquarius 5°08'</div>
+    <div class="footer">
+      <div class="footer-logo">big<span class="footer-logo-3">3</span>.me</div>
+      <div class="page-indicator">4 / 4</div>
     </div>
-    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>1.69°</div>
   </div>
-
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-sun">☉</div>
-    <div class="tr-info">
-      <div class="tr-name">Sun conjunct Saturn</div>
-      <div class="tr-detail">☉ Aries 6°49' — ♄ Aries 4°59'</div>
-    </div>
-    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>1.84°</div>
-  </div>
-
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-moon">☽</div>
-    <div class="tr-info">
-      <div class="tr-name">Moon square Venus</div>
-      <div class="tr-detail">☽ Cancer 28°45' — ♀ Aries 26°05'</div>
-    </div>
-    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>2.66°</div>
-  </div>
-
-  <div class="transit-row">
-    <div class="tr-planet-circle pc-saturn">♄</div>
-    <div class="tr-info">
-      <div class="tr-name">Saturn conjunct Neptune</div>
-      <div class="tr-detail">♄ Aries 4°59' — ♆ Aries 2°02'</div>
-    </div>
-    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>2.95°</div>
-  </div>
-</div>
-
-<div class="status-row">
-  <div class="status-pill"><div class="status-dot-green"></div>All planets direct</div>
-  <div class="status-pill">◑ Waxing · First Quarter</div>
-</div>
-
-<div class="footer">
-  <div class="footer-logo">big<span class="footer-logo-3">3</span>.me</div>
-  <div class="page-indicator">4 / 4</div>
-</div>
-
 </body>
 </html>
