@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Section 1 — Moon Sextile Uranus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px;
+    height: 1350px;
+    overflow: hidden;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e8e8ec;
+    position: relative;
+  }
+  .glow-teal {
+    position: absolute;
+    top: -70px; right: -50px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(52,211,153,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-silver {
+    position: absolute;
+    bottom: -70px; left: -50px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(232,232,236,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #e8e8ec;
+    pointer-events: none;
+  }
+  .orbital-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03);
+    pointer-events: none;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .header {
+    padding: 32px 36px 0;
+    display: flex;
+    align-items: center;
+  }
+  .logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #e8e8ec;
+  }
+  .logo-3 { color: #a78bfa; }
+  .badge-wrap { padding: 36px 36px 0; }
+  .strength-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.24);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #34d399;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+  }
+  .title-block { padding: 24px 36px 0; }
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 46px;
+    font-weight: 400;
+    color: #e8e8ec;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .sub-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #34d399;
+    letter-spacing: 0.2px;
+  }
+  .aspect-box {
+    margin: 32px 36px 0;
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .planet-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+  .planet-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .pc-moon {
+    background: linear-gradient(135deg, rgba(232,232,236,0.18), rgba(232,232,236,0.05));
+    border: 1.5px solid rgba(232,232,236,0.28);
+    color: #e8e8ec;
+  }
+  .pc-uranus {
+    background: linear-gradient(135deg, rgba(52,211,153,0.18), rgba(52,211,153,0.05));
+    border: 1.5px solid rgba(52,211,153,0.28);
+    color: #34d399;
+  }
+  .planet-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8e8e96;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .planet-pos {
+    font-size: 12px;
+    font-weight: 400;
+    color: #e8e8ec;
+    letter-spacing: 0.3px;
+  }
+  .aspect-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .aspect-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(232,232,236,0.30), rgba(52,211,153,0.30));
+  }
+  .aspect-symbol {
+    font-size: 10px;
+    font-weight: 600;
+    color: #8e8e96;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .description {
+    margin: 32px 36px 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: #8e8e96;
+    line-height: 1.70;
+    max-width: 940px;
+  }
+  .footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 0 36px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .footer-logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #e8e8ec;
+  }
+  .footer-logo-3 { color: #a78bfa; }
+  .page-indicator {
+    font-size: 11px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-teal"></div>
+<div class="glow-silver"></div>
+
+<div class="orbital-ring" style="width:520px;height:520px;"></div>
+<div class="orbital-ring" style="width:700px;height:700px;"></div>
+<div class="orbital-ring" style="width:900px;height:900px;"></div>
+
+<div class="star" style="width:3px;height:3px;top:12%;left:18%;opacity:0.25;"></div>
+<div class="star" style="width:2px;height:2px;top:22%;left:82%;opacity:0.18;"></div>
+<div class="star" style="width:2px;height:2px;top:75%;left:90%;opacity:0.22;"></div>
+<div class="star" style="width:3px;height:3px;top:82%;left:12%;opacity:0.20;"></div>
+<div class="star" style="width:2px;height:2px;top:45%;left:7%;opacity:0.15;"></div>
+<div class="star" style="width:2px;height:2px;top:6%;left:60%;opacity:0.18;"></div>
+
+<div class="header">
+  <div class="logo">big<span class="logo-3">3</span>.me</div>
+</div>
+
+<div class="badge-wrap">
+  <div class="strength-badge">
+    <div class="badge-dot"></div>
+    EXACT 0.19°
+  </div>
+</div>
+
+<div class="title-block">
+  <div class="main-title">Moon Sextile Uranus</div>
+  <div class="sub-title">Emotional Lightning in Late Cancer</div>
+</div>
+
+<div class="aspect-box">
+  <div class="planet-side">
+    <div class="planet-circle pc-moon">☽</div>
+    <div class="planet-name">Moon</div>
+    <div class="planet-pos">☽ Cancer 28°45'</div>
+  </div>
+  <div class="aspect-center">
+    <div class="aspect-line"></div>
+    <div class="aspect-symbol">sxt</div>
+    <div class="aspect-line"></div>
+  </div>
+  <div class="planet-side">
+    <div class="planet-circle pc-uranus">♅</div>
+    <div class="planet-name">Uranus</div>
+    <div class="planet-pos">♅ Taurus 28°34'</div>
+  </div>
+</div>
+
+<div class="description">
+  The Moon reaches her final degrees in Cancer — home territory — and forms a near-perfect sextile to Uranus in Taurus. This is the sky's way of jolting you out of emotional autopilot. Not a shock, but an insight: something you've felt in the background suddenly clicks into focus. The comfort zone you've been clinging to may be the very thing holding you back. Moon-Uranus says the breakthrough lives on the other side of what feels familiar.
+</div>
+
+<div class="footer">
+  <div class="footer-logo">big<span class="footer-logo-3">3</span>.me</div>
+  <div class="page-indicator">2 / 4</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Section 3 — Today's Transit Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px;
+    height: 1350px;
+    overflow: hidden;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: #e8e8ec;
+    position: relative;
+  }
+  .glow-purple {
+    position: absolute;
+    top: -80px; right: -60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-orange {
+    position: absolute;
+    bottom: -80px; left: -60px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #e8e8ec;
+    pointer-events: none;
+  }
+  .orbital-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03);
+    pointer-events: none;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .header {
+    padding: 32px 36px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #e8e8ec;
+  }
+  .logo-3 { color: #a78bfa; }
+  .date-tag {
+    font-size: 10px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .title-block {
+    padding: 28px 36px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 38px;
+    font-weight: 400;
+    color: #e8e8ec;
+    line-height: 1.15;
+    letter-spacing: -0.3px;
+  }
+  .moon-phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .transit-list {
+    padding: 28px 36px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .transit-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .transit-row:last-child { border-bottom: none; }
+  .tr-planet-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-right: 16px;
+  }
+  .tr-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .tr-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e8e8ec;
+    margin-bottom: 3px;
+  }
+  .tr-detail {
+    font-size: 11px;
+    font-weight: 400;
+    color: #8e8e96;
+    letter-spacing: 0.3px;
+  }
+  .tr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .tr-badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+  }
+  .badge-exact {
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.22);
+    color: #34d399;
+  }
+  .badge-exact .tr-badge-dot { background: #34d399; }
+  .badge-strong {
+    background: rgba(251,146,60,0.12);
+    border: 1px solid rgba(251,146,60,0.22);
+    color: #fb923c;
+  }
+  .badge-strong .tr-badge-dot { background: #fb923c; }
+
+  /* Planet circle colors */
+  .pc-saturn { background: linear-gradient(135deg, rgba(142,142,150,0.18), rgba(142,142,150,0.05)); border: 1.5px solid rgba(142,142,150,0.25); color: #8e8e96; }
+  .pc-moon { background: linear-gradient(135deg, rgba(232,232,236,0.18), rgba(232,232,236,0.05)); border: 1.5px solid rgba(232,232,236,0.25); color: #e8e8ec; }
+  .pc-venus { background: linear-gradient(135deg, rgba(244,114,182,0.18), rgba(244,114,182,0.05)); border: 1.5px solid rgba(244,114,182,0.25); color: #f472b6; }
+  .pc-sun { background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(251,191,36,0.05)); border: 1.5px solid rgba(251,191,36,0.25); color: #fbbf24; }
+
+  .status-row {
+    margin: 20px 36px 0;
+    display: flex;
+    gap: 12px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .status-dot-green {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+  }
+  .footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 0 36px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .footer-logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #e8e8ec;
+  }
+  .footer-logo-3 { color: #a78bfa; }
+  .page-indicator {
+    font-size: 11px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-purple"></div>
+<div class="glow-orange"></div>
+
+<div class="orbital-ring" style="width:600px;height:600px;"></div>
+<div class="orbital-ring" style="width:800px;height:800px;"></div>
+
+<div class="star" style="width:3px;height:3px;top:8%;left:14%;opacity:0.22;"></div>
+<div class="star" style="width:2px;height:2px;top:15%;left:85%;opacity:0.16;"></div>
+<div class="star" style="width:2px;height:2px;top:70%;left:92%;opacity:0.20;"></div>
+<div class="star" style="width:3px;height:3px;top:88%;left:20%;opacity:0.18;"></div>
+<div class="star" style="width:2px;height:2px;top:40%;left:4%;opacity:0.14;"></div>
+
+<div class="header">
+  <div class="logo">big<span class="logo-3">3</span>.me</div>
+  <div class="date-tag">March 27, 2026</div>
+</div>
+
+<div class="title-block">
+  <div class="main-title">Today's Transit Map</div>
+  <div class="moon-phase-badge">◑ First Quarter Moon</div>
+</div>
+
+<div class="transit-list">
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-saturn">♄</div>
+    <div class="tr-info">
+      <div class="tr-name">Saturn sextile Pluto</div>
+      <div class="tr-detail">♄ Aries 4°59' — ♇ Aquarius 5°08'</div>
+    </div>
+    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.15°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-moon">☽</div>
+    <div class="tr-info">
+      <div class="tr-name">Moon sextile Uranus</div>
+      <div class="tr-detail">☽ Cancer 28°45' — ♅ Taurus 28°34'</div>
+    </div>
+    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.19°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-venus">♀</div>
+    <div class="tr-info">
+      <div class="tr-name">Venus conjunct Chiron</div>
+      <div class="tr-detail">♀ Aries 26°05' — ⚷ Aries 25°26'</div>
+    </div>
+    <div class="tr-badge badge-exact"><div class="tr-badge-dot"></div>0.65°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-sun">☉</div>
+    <div class="tr-info">
+      <div class="tr-name">Sun sextile Pluto</div>
+      <div class="tr-detail">☉ Aries 6°49' — ♇ Aquarius 5°08'</div>
+    </div>
+    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>1.69°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-sun">☉</div>
+    <div class="tr-info">
+      <div class="tr-name">Sun conjunct Saturn</div>
+      <div class="tr-detail">☉ Aries 6°49' — ♄ Aries 4°59'</div>
+    </div>
+    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>1.84°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-moon">☽</div>
+    <div class="tr-info">
+      <div class="tr-name">Moon square Venus</div>
+      <div class="tr-detail">☽ Cancer 28°45' — ♀ Aries 26°05'</div>
+    </div>
+    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>2.66°</div>
+  </div>
+
+  <div class="transit-row">
+    <div class="tr-planet-circle pc-saturn">♄</div>
+    <div class="tr-info">
+      <div class="tr-name">Saturn conjunct Neptune</div>
+      <div class="tr-detail">♄ Aries 4°59' — ♆ Aries 2°02'</div>
+    </div>
+    <div class="tr-badge badge-strong"><div class="tr-badge-dot"></div>2.95°</div>
+  </div>
+</div>
+
+<div class="status-row">
+  <div class="status-pill"><div class="status-dot-green"></div>All planets direct</div>
+  <div class="status-pill">◑ Waxing · First Quarter</div>
+</div>
+
+<div class="footer">
+  <div class="footer-logo">big<span class="footer-logo-3">3</span>.me</div>
+  <div class="page-indicator">4 / 4</div>
+</div>
+
+</body>
+</html>
