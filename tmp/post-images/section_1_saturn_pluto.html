@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: #0a0a0b;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .glow-top-right {
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(192,132,252,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-bottom-left {
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(142,142,150,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-center {
+    position: absolute;
+    top: 44%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse, rgba(52,211,153,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .orbital-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.03);
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    pointer-events: none;
+  }
+
+  .header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 32px 36px 0;
+  }
+
+  .logo { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; color: #e8e8ec; }
+  .logo span { color: #a78bfa; }
+  .logo-tagline { font-size: 9px; color: #8e8e96; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
+
+  .section-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #8e8e96;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .content {
+    position: absolute;
+    top: 110px; left: 0; right: 0; bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 60px;
+  }
+
+  /* EXACT badge */
+  .exact-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(52,211,153,0.10);
+    border: 1px solid rgba(52,211,153,0.35);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #34d399;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .exact-dot { width: 7px; height: 7px; background: #34d399; border-radius: 50%; box-shadow: 0 0 8px rgba(52,211,153,0.6); }
+
+  .section-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 38px;
+    font-weight: 400;
+    color: #e8e8ec;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .section-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: #8e8e96;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  /* Aspect visual */
+  .aspect-box {
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 44px 48px;
+    width: 900px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .planets-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    margin-bottom: 28px;
+  }
+
+  .planet-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .planet-orb {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  .planet-orb.saturn {
+    background: linear-gradient(135deg, rgba(142,142,150,0.22), rgba(142,142,150,0.06));
+    border: 2px solid rgba(142,142,150,0.4);
+    color: #8e8e96;
+    box-shadow: 0 0 30px rgba(142,142,150,0.08);
+  }
+
+  .planet-orb.pluto {
+    background: linear-gradient(135deg, rgba(192,132,252,0.22), rgba(192,132,252,0.06));
+    border: 2px solid rgba(192,132,252,0.4);
+    color: #c084fc;
+    box-shadow: 0 0 30px rgba(192,132,252,0.10);
+  }
+
+  .planet-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .planet-name.saturn { color: #8e8e96; }
+  .planet-name.pluto { color: #c084fc; }
+
+  .planet-pos {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e8e8ec;
+  }
+
+  .planet-sign {
+    font-size: 12px;
+    color: #8e8e96;
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+
+  /* Connector */
+  .connector {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+  }
+
+  .connector-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(142,142,150,0.4), rgba(52,211,153,0.8), rgba(192,132,252,0.4));
+    position: relative;
+  }
+
+  .connector-line::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    background: #34d399;
+    border-radius: 50%;
+    box-shadow: 0 0 16px rgba(52,211,153,0.7);
+  }
+
+  .aspect-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #34d399;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .orb-display {
+    font-size: 22px;
+    font-weight: 700;
+    color: #34d399;
+    font-variant-numeric: tabular-nums;
+    margin-top: 4px;
+    text-shadow: 0 0 20px rgba(52,211,153,0.4);
+  }
+
+  .orb-sub {
+    font-size: 10px;
+    color: #8e8e96;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Divider */
+  .aspect-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 20px;
+  }
+
+  .aspect-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .meta-item { text-align: center; }
+  .meta-value { font-size: 14px; font-weight: 600; color: #e8e8ec; margin-bottom: 2px; }
+  .meta-label { font-size: 10px; color: #8e8e96; letter-spacing: 1.5px; text-transform: uppercase; }
+  .meta-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.07); }
+
+  /* Description */
+  .description {
+    font-size: 15px;
+    color: #8e8e96;
+    text-align: center;
+    line-height: 1.7;
+    max-width: 820px;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 36px 28px;
+  }
+  .footer-logo { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px; color: #e8e8ec; }
+  .footer-logo span { color: #a78bfa; }
+  .page-num { font-size: 10px; color: #8e8e96; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div class="glow-top-right"></div>
+<div class="glow-bottom-left"></div>
+<div class="glow-center"></div>
+
+<div class="orbital-ring" style="width:600px;height:600px;top:44%;left:50%;transform:translate(-50%,-50%);"></div>
+<div class="orbital-ring" style="width:860px;height:860px;top:44%;left:50%;transform:translate(-50%,-50%);"></div>
+
+<div class="star" style="width:2px;height:2px;top:9%;left:6%;opacity:0.25;"></div>
+<div class="star" style="width:3px;height:3px;top:14%;left:85%;opacity:0.22;"></div>
+<div class="star" style="width:2px;height:2px;top:78%;left:93%;opacity:0.20;"></div>
+<div class="star" style="width:3px;height:3px;top:87%;left:8%;opacity:0.18;"></div>
+<div class="star" style="width:2px;height:2px;top:52%;left:3%;opacity:0.15;"></div>
+<div class="star" style="width:2px;height:2px;top:32%;left:96%;opacity:0.20;"></div>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="logo">big<span>3</span>.me</div>
+    <div class="logo-tagline">Transit Astrology</div>
+  </div>
+  <div class="section-tag">Saturn ⚹ Pluto · Section 2</div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="exact-badge">
+    <div class="exact-dot"></div>
+    EXACT · 0.17° Orb · Day 6
+  </div>
+  <h2 class="section-title">Saturn Sextile Pluto</h2>
+  <p class="section-sub">Structure meets transformation — at near-perfect precision</p>
+
+  <div class="aspect-box">
+    <div class="planets-row">
+      <div class="planet-circle">
+        <div class="planet-orb saturn">♄</div>
+        <div class="planet-name saturn">Saturn</div>
+        <div class="planet-pos">5°21' ♈</div>
+        <div class="planet-sign">Aries · Direct</div>
+      </div>
+
+      <div class="connector">
+        <div class="orb-display">0.17°</div>
+        <div class="connector-line"></div>
+        <div class="aspect-label">Sextile ⚹</div>
+        <div class="orb-sub">Near-Exact Orb</div>
+      </div>
+
+      <div class="planet-circle">
+        <div class="planet-orb pluto">♇</div>
+        <div class="planet-name pluto">Pluto</div>
+        <div class="planet-pos">5°11' ♒</div>
+        <div class="planet-sign">Aquarius · Direct</div>
+      </div>
+    </div>
+
+    <div class="aspect-divider"></div>
+
+    <div class="aspect-meta">
+      <div class="meta-item">
+        <div class="meta-value" style="color:#34d399;">0.17°</div>
+        <div class="meta-label">Orb</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <div class="meta-value">60°</div>
+        <div class="meta-label">Aspect Angle</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <div class="meta-value" style="color:#34d399;">EXACT</div>
+        <div class="meta-label">Strength</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <div class="meta-value">Day 6</div>
+        <div class="meta-label">Duration</div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <div class="meta-value">♈ ♒</div>
+        <div class="meta-label">Signs</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="description">
+    A sextile this precise — just 0.17° — is rare and potent. Saturn in Aries lends discipline and structure; Pluto in Aquarius drives systemic transformation. Their 60° harmony opens a doorway: what you're ready to build now can reshape structures that last decades.
+  </p>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-logo">big<span>3</span>.me</div>
+  <div class="page-num">2 / 5</div>
+</div>
+
+</body>
+</html>

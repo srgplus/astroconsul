@@ -2,277 +2,293 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1080">
-<title>Cover — Venus Conjunct Chiron in Aries</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     width: 1080px;
     height: 1350px;
-    overflow: hidden;
     background: #0a0a0b;
     font-family: 'DM Sans', system-ui, sans-serif;
-    color: #e8e8ec;
+    overflow: hidden;
     position: relative;
   }
+
+  /* Glow effects */
   .glow-top-right {
     position: absolute;
     top: -80px; right: -80px;
     width: 420px; height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(167,139,250,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
     pointer-events: none;
   }
   .glow-bottom-left {
     position: absolute;
     bottom: -80px; left: -80px;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(244,114,182,0.10) 0%, transparent 70%);
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, transparent 70%);
     pointer-events: none;
   }
+  .glow-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Orbital rings */
   .orbital-ring {
     position: absolute;
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.03);
     pointer-events: none;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
   }
-  .ring-1 { width: 540px; height: 540px; }
-  .ring-2 { width: 740px; height: 740px; }
-  .ring-3 { width: 960px; height: 960px; }
-  .star { position: absolute; border-radius: 50%; pointer-events: none; }
-  .card {
-    position: relative;
-    width: 100%; height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 52px 56px;
-    z-index: 1;
+
+  /* Stars */
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    pointer-events: none;
   }
+
+  /* Header */
   .header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
+    align-items: center;
+    padding: 32px 36px 0;
   }
+
   .logo {
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
     color: #e8e8ec;
+    letter-spacing: 0.02em;
   }
-  .logo-3 { color: #a78bfa; }
+
+  .logo span { color: #a78bfa; }
+
   .logo-tagline {
     font-size: 9px;
-    font-weight: 400;
     color: #8e8e96;
     letter-spacing: 3px;
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 3px;
   }
-  .tag-pill {
-    font-size: 10px;
-    font-weight: 600;
-    color: #a78bfa;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    background: rgba(167,139,250,0.10);
-    border: 1px solid rgba(167,139,250,0.22);
-    border-radius: 20px;
-    padding: 7px 16px;
-  }
-  .center-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  .planet-group {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 56px;
-  }
-  .planet-icon {
-    width: 108px; height: 108px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-  }
-  .planet-venus {
-    background: linear-gradient(135deg, rgba(244,114,182,0.22), rgba(244,114,182,0.05));
-    border: 1.5px solid rgba(244,114,182,0.35);
-    color: #f472b6;
-    box-shadow: 0 0 40px rgba(244,114,182,0.14);
-  }
-  .planet-chiron {
-    background: linear-gradient(135deg, rgba(167,139,250,0.22), rgba(167,139,250,0.05));
-    border: 1.5px solid rgba(167,139,250,0.35);
-    color: #a78bfa;
-    box-shadow: 0 0 40px rgba(167,139,250,0.14);
-  }
-  .conj-connector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-  .conj-line {
-    width: 44px; height: 1px;
-    background: linear-gradient(90deg, rgba(244,114,182,0.45), rgba(167,139,250,0.45));
-  }
-  .conj-symbol {
-    font-size: 11px;
-    color: #8e8e96;
-    font-weight: 500;
-    letter-spacing: 1px;
-  }
+
   .date-tag {
     font-size: 10px;
     font-weight: 600;
     color: #8e8e96;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 22px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
   }
-  .slide-title {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-weight: 400;
-    font-size: 56px;
-    line-height: 1.12;
-    color: #e8e8ec;
-    margin-bottom: 20px;
-    max-width: 740px;
+
+  /* Main content */
+  .main {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    text-align: center;
+    width: 900px;
   }
-  .slide-subtitle {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-weight: 400;
-    font-size: 30px;
+
+  .venus-symbol {
+    font-size: 96px;
     color: #f472b6;
-    margin-bottom: 52px;
-  }
-  .key-data-box {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 18px;
-    padding: 18px 32px;
     margin-bottom: 24px;
+    display: block;
+    text-shadow: 0 0 40px rgba(244,114,182,0.4);
+    line-height: 1;
   }
-  .kd-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-  .kd-symbol { font-size: 26px; }
-  .kd-degree {
+
+  .degree-label {
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .kd-label {
-    font-size: 10px;
-    font-weight: 400;
-    color: #8e8e96;
-    letter-spacing: 0.5px;
-  }
-  .kd-sep {
-    width: 1px;
-    height: 48px;
-    background: rgba(255,255,255,0.10);
-  }
-  .kd-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: #34d399;
-    letter-spacing: 1px;
+    color: #f472b6;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    background: rgba(52,211,153,0.10);
-    border: 1px solid rgba(52,211,153,0.22);
-    border-radius: 10px;
-    padding: 5px 12px;
+    margin-bottom: 20px;
+    opacity: 0.9;
   }
-  .bottom-date {
-    font-size: 13px;
+
+  .main-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 68px;
     font-weight: 400;
+    color: #e8e8ec;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .main-title .accent { color: #f472b6; }
+
+  .subtitle {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
     color: #8e8e96;
-    letter-spacing: 1px;
+    line-height: 1.5;
+    max-width: 740px;
+    margin: 0 auto 36px;
+  }
+
+  /* Transit pill row */
+  .pills-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #8e8e96;
+    letter-spacing: 0.03em;
+  }
+
+  .pill.venus { border-color: rgba(244,114,182,0.3); color: #f472b6; background: rgba(244,114,182,0.08); }
+  .pill.all-direct { border-color: rgba(52,211,153,0.3); color: #34d399; background: rgba(52,211,153,0.08); }
+
+  /* Bottom strip */
+  .bottom-strip {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 36px 32px;
+  }
+
+  .author-block {
+    font-size: 12px;
+    color: #8e8e96;
+  }
+  .author-block strong {
+    display: block;
+    font-weight: 600;
+    color: #e8e8ec;
+    font-size: 13px;
+  }
+
+  .swipe-cta {
+    font-size: 10px;
+    font-weight: 600;
+    color: #8e8e96;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* Planet dot accent */
+  .planet-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .pdot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  /* Decorative threshold line */
+  .threshold-line {
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(244,114,182,0.12) 30%, rgba(167,139,250,0.15) 50%, rgba(244,114,182,0.12) 70%, transparent);
+    transform: translateX(-50%);
+    pointer-events: none;
   }
 </style>
 </head>
 <body>
-  <div class="glow-top-right"></div>
-  <div class="glow-bottom-left"></div>
-  <div class="orbital-ring ring-1"></div>
-  <div class="orbital-ring ring-2"></div>
-  <div class="orbital-ring ring-3"></div>
 
-  <!-- Star dots -->
-  <div class="star" style="width:3px;height:3px;top:11%;left:19%;background:#e8e8ec;opacity:0.25;"></div>
-  <div class="star" style="width:2px;height:2px;top:21%;left:74%;background:#a78bfa;opacity:0.30;"></div>
-  <div class="star" style="width:2px;height:2px;top:37%;left:7%;background:#e8e8ec;opacity:0.18;"></div>
-  <div class="star" style="width:3px;height:3px;top:54%;left:89%;background:#f472b6;opacity:0.25;"></div>
-  <div class="star" style="width:2px;height:2px;top:67%;left:13%;background:#e8e8ec;opacity:0.20;"></div>
-  <div class="star" style="width:3px;height:3px;top:76%;left:81%;background:#a78bfa;opacity:0.22;"></div>
-  <div class="star" style="width:2px;height:2px;top:86%;left:56%;background:#e8e8ec;opacity:0.18;"></div>
-  <div class="star" style="width:2px;height:2px;top:29%;left:93%;background:#f472b6;opacity:0.20;"></div>
+<!-- Decorative glows -->
+<div class="glow-top-right"></div>
+<div class="glow-bottom-left"></div>
+<div class="glow-center"></div>
 
-  <div class="card">
-    <div class="header">
-      <div>
-        <div class="logo">big<span class="logo-3">3</span>.me</div>
-        <div class="logo-tagline">Transit Astrology</div>
-      </div>
-      <div class="tag-pill">Daily Cosmic Weather</div>
-    </div>
+<!-- Threshold line -->
+<div class="threshold-line"></div>
 
-    <div class="center-content">
-      <div class="planet-group">
-        <div class="planet-icon planet-venus">♀</div>
-        <div class="conj-connector">
-          <div class="conj-line"></div>
-          <div class="conj-symbol">conj</div>
-          <div class="conj-line"></div>
-        </div>
-        <div class="planet-icon planet-chiron">⚷</div>
-      </div>
+<!-- Orbital rings -->
+<div class="orbital-ring" style="width:520px;height:520px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+<div class="orbital-ring" style="width:720px;height:720px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+<div class="orbital-ring" style="width:920px;height:920px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
 
-      <div class="date-tag">March 27, 2026</div>
-      <div class="slide-title">Venus Conjunct Chiron in Aries</div>
-      <div class="slide-subtitle">Love Where It Hurts</div>
+<!-- Stars -->
+<div class="star" style="width:3px;height:3px;top:12%;left:8%;opacity:0.28;"></div>
+<div class="star" style="width:2px;height:2px;top:18%;left:82%;opacity:0.22;"></div>
+<div class="star" style="width:3px;height:3px;top:72%;left:91%;opacity:0.20;"></div>
+<div class="star" style="width:2px;height:2px;top:85%;left:14%;opacity:0.25;"></div>
+<div class="star" style="width:2px;height:2px;top:38%;left:4%;opacity:0.18;"></div>
+<div class="star" style="width:3px;height:3px;top:55%;left:94%;opacity:0.22;"></div>
+<div class="star" style="width:2px;height:2px;top:28%;left:57%;opacity:0.15;"></div>
 
-      <div class="key-data-box">
-        <div class="kd-item">
-          <span class="kd-symbol" style="color:#f472b6;">♀</span>
-          <span class="kd-degree" style="color:#f472b6;">26°05'</span>
-          <span class="kd-label">Venus · Aries</span>
-        </div>
-        <div class="kd-sep"></div>
-        <div class="kd-item">
-          <span class="kd-badge">EXACT · 0.65°</span>
-          <span class="kd-label" style="margin-top:6px;">Conjunction</span>
-        </div>
-        <div class="kd-sep"></div>
-        <div class="kd-item">
-          <span class="kd-symbol" style="color:#a78bfa;">⚷</span>
-          <span class="kd-degree" style="color:#a78bfa;">25°26'</span>
-          <span class="kd-label">Chiron · Aries</span>
-        </div>
-      </div>
-
-      <div class="bottom-date">March 27, 2026</div>
-    </div>
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="logo">big<span>3</span>.me</div>
+    <div class="logo-tagline">Transit Astrology</div>
   </div>
+  <div class="date-tag">March 30, 2026</div>
+</div>
+
+<!-- Main content -->
+<div class="main">
+  <span class="venus-symbol">♀</span>
+  <div class="degree-label">Anaretic Degree · 29°47' Aries</div>
+  <h1 class="main-title">Venus at <span class="accent">29°</span> Aries</h1>
+  <p class="subtitle">The Last Degree Before Home</p>
+
+  <div class="planet-dots">
+    <div class="pdot" style="background:#f472b6;"></div>
+    <div class="pdot" style="background:#8e8e96;"></div>
+    <div class="pdot" style="background:#c084fc;"></div>
+    <div class="pdot" style="background:#60a5fa;"></div>
+    <div class="pdot" style="background:#a78bfa;"></div>
+    <div class="pdot" style="background:#e8e8ec;"></div>
+  </div>
+
+  <div class="pills-row">
+    <div class="pill venus">♀ Venus entering Taurus</div>
+    <div class="pill all-direct">All Planets Direct</div>
+    <div class="pill">Waxing Gibbous Moon ♍</div>
+  </div>
+</div>
+
+<!-- Bottom strip -->
+<div class="bottom-strip">
+  <div class="author-block">
+    <strong>Victoria</strong>
+    Cosmic Weather
+  </div>
+  <div class="swipe-cta">Swipe to explore →</div>
+</div>
+
 </body>
 </html>
