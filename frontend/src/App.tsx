@@ -18,6 +18,7 @@ import { SettingsModal } from "./components/SettingsModal"
 import { InviteAcceptPage } from "./components/InviteAcceptPage"
 import { InviteModal } from "./components/InviteModal"
 import SynastryWidget from "./components/SynastryWidget"
+import { useSubscription } from "./hooks/useSubscription"
 import ProfilePickerModal from "./components/ProfilePickerModal"
 import SynastryReport from "./components/SynastryReport"
 import ChartSidebar from "./components/ChartSidebar"
@@ -193,6 +194,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { t, lang } = useLanguage()
+  const { isPro } = useSubscription()
   const [theme, setTheme] = useTheme()
   const [showAuth, setShowAuth] = useState(false)
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -1651,6 +1653,7 @@ export function App() {
                     }
                   }}
                   initialReport={transitReport}
+                  isPro={isPro}
                 />
               ) : null}
               {expandedWidget === "synastry" && synastryReport ? (

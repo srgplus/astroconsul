@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { getAuthHeaders } from "../api"
 
 interface SubscriptionStatus {
   plan: "free" | "pro_monthly" | "pro_annual" | "lifetime"
@@ -14,7 +15,6 @@ export function useSubscription() {
 
   const refresh = useCallback(async () => {
     try {
-      const { getAuthHeaders } = await import("../api")
       const headers = await getAuthHeaders()
       if (!headers.Authorization) {
         setIsPro(false)

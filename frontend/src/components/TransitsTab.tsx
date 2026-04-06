@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { fetchTransitReport, fetchTransitTimeline, resolveLocation } from "../api"
+import { Paywall } from "./Paywall"
 import type {
   ActiveAspect,
   NatalPosition,
@@ -18,6 +19,7 @@ type TransitsTabProps = {
   activeDetail: ProfileDetailResponse | null
   onTransitReport?: (report: TransitReportResponse) => void
   initialReport?: TransitReportResponse | null
+  isPro?: boolean
 }
 
 const ASPECT_GLYPHS: Record<string, string> = {
@@ -134,8 +136,8 @@ function formatDuration(hours: number | null | undefined, t?: (key: string) => s
   return `${Math.round(hours / 24)} d`
 }
 
-export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, initialReport }: TransitsTabProps) {
-  const { t } = useLanguage()
+export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, initialReport, isPro = false }: TransitsTabProps) {
+  const { t, lang } = useLanguage()
   const tap = useMobileTap()
   const [transitDate, setTransitDate] = useState(todayDate)
   const [transitTime, setTransitTime] = useState(nowTime)
@@ -444,10 +446,22 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
 
           {sortedAspects.length ? (
             <div className="aspect-cards-wrapper">
-              {groupedAspects.map((group) => (
+              {(() => {
+                const FREE_LIMIT = 3
+                let totalIdx = 0
+                let paywallShown = false
+                return groupedAspects.map((group) => (
                 <div key={group.label} className="aspect-group">
                   <div className="aspect-group-label">{t(GROUP_LABEL_KEYS[group.label] ?? group.label).toUpperCase()} <span className="aspect-group-count">{group.aspects.length}</span></div>
                   {group.aspects.map((a, i) => {
+                    totalIdx++
+                    if (!isPro && totalIdx > FREE_LIMIT) {
+                      if (!paywallShown) {
+                        paywallShown = true
+                        return <Paywall key="paywall" t={t} lang={lang} feature={t("pro.feature.details")} />
+                      }
+                      return null
+                    }
                     const tp = transitMap[a.transit_object]
                     const np = natalMap[a.natal_object]
                     const cardKey = `${a.transit_object}-${a.aspect}-${a.natal_object}-${i}`
@@ -536,7 +550,8 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                     )
                   })}
                 </div>
-              ))}
+              ))
+              })()}
             </div>
           ) : (
             <div className="transit-empty">
