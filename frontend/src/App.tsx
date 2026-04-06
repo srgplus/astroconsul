@@ -847,6 +847,11 @@ export function App() {
 
   const handleOpenSynastryReport = useCallback(async () => {
     if (!activeProfileId || !synastryPartnerId) return
+    // Free users see paywall immediately
+    if (!isPro) {
+      setExpandedWidget("synastry")
+      return
+    }
     if (synastryReport) {
       setExpandedWidget("synastry")
       return
@@ -1327,13 +1332,7 @@ export function App() {
               {/* Cosmic Climate widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
-                  {isPro ? (
-                    <CosmicClimateWidget transitReport={transitReport} />
-                  ) : (
-                    <div className="pro-blur" style={{ minHeight: 120, borderRadius: 16, overflow: "hidden", position: "relative" }}>
-                      <CosmicClimateWidget transitReport={transitReport} />
-                    </div>
-                  )}
+                  <CosmicClimateWidget transitReport={transitReport} isPro={isPro} />
                 </div>
               ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={3} />
@@ -1426,7 +1425,7 @@ export function App() {
                 <SkeletonWidget rows={5} />
               ) : null}
               {activeDetail ? (
-                <div className="widget widget--chart widget--wheel-right" onClick={() => setWheelExpanded(true)}>
+                <div className="widget widget--chart widget--wheel-right" onClick={() => isPro ? setWheelExpanded(true) : setExpandedWidget("transits")}>
                   <button type="button" className="cw-toggle-wrap wheel-sp-toggle" onClick={(e) => { e.stopPropagation(); toggleSpecialPoints() }}>
                     <span className="cw-toggle-label">{t("wheel.specialPoints")}</span>
                     <div className={`cw-toggle${showSpecialPoints ? " cw-toggle--on" : ""}`}>
@@ -1634,10 +1633,18 @@ export function App() {
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
-                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
+                isPro ? (
+                  <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
+                ) : (
+                  <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
+                )
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
-                <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} />
+                isPro ? (
+                  <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} />
+                ) : (
+                  <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
+                )
               ) : null}
               {expandedWidget === "transits" ? (
                 <TransitsTab
@@ -1663,12 +1670,12 @@ export function App() {
                   isPro={isPro}
                 />
               ) : null}
-              {expandedWidget === "synastry" && synastryReport ? (
-                isPro ? (
+              {expandedWidget === "synastry" ? (
+                isPro && synastryReport ? (
                   <SynastryReport report={synastryReport} />
-                ) : (
+                ) : !isPro ? (
                   <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
-                )
+                ) : null
               ) : null}
             </div>
           </div>

@@ -13,13 +13,22 @@ interface PaywallProps {
 export function Paywall({ t, lang, feature }: PaywallProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
+  const [error, setError] = useState<string | null>(null)
+
   const handleCheckout = async (plan: string) => {
     setLoading(plan)
+    setError(null)
     try {
       const { checkout_url } = await createCheckoutSession(plan)
-      window.location.href = checkout_url
+      if (checkout_url) {
+        window.location.href = checkout_url
+      } else {
+        setError("Could not create checkout session. Please try again.")
+        setLoading(null)
+      }
     } catch (err) {
       console.error("[Paywall] checkout error:", err)
+      setError(err instanceof Error ? err.message : "Payment system error. Please try again later.")
       setLoading(null)
     }
   }
@@ -90,6 +99,7 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
           </button>
         </div>
 
+        {error && <p style={{ color: "#ff453a", fontSize: "0.8rem", marginBottom: 8 }}>{error}</p>}
         <p className="paywall-compare">
           {isRu
             ? "$7.99/мес vs $5.00/мес при годовой подписке"

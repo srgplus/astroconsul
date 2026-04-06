@@ -502,8 +502,9 @@ function ClimateProgressBar({ timing, nowDate, transitObject }: {
   )
 }
 
-export function CosmicClimateWidget({ transitReport }: {
+export function CosmicClimateWidget({ transitReport, isPro = true }: {
   transitReport: TransitReportResponse
+  isPro?: boolean
 }) {
   const { t } = useLanguage()
   const climateAspects = transitReport.cosmic_climate ?? []
@@ -532,9 +533,19 @@ export function CosmicClimateWidget({ transitReport }: {
               </div>
               {dateRange ? <span className="cc-card-date">{dateRange}</span> : null}
             </div>
-            {a.meaning ? <p className="cc-card-desc">{a.meaning}</p> : null}
-            {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
-            <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
+            {isPro ? (
+              <>
+                {a.meaning ? <p className="cc-card-desc">{a.meaning}</p> : null}
+                {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
+                <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
+              </>
+            ) : (
+              <div className="pro-blur" style={{ position: "relative", overflow: "hidden", borderRadius: 8 }}>
+                {a.meaning ? <p className="cc-card-desc">{a.meaning}</p> : null}
+                {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
+                <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
+              </div>
+            )}
           </div>
         )
       })}
