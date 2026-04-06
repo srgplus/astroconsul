@@ -81,16 +81,25 @@ function formatPosition(p: NatalPosition): string {
 export function NatalPositionsTable({
   positions,
   interpretations,
+  isPro = true,
+  onPaywall,
 }: {
   positions: NatalPosition[]
   interpretations?: NatalInterpretations | null
+  isPro?: boolean
+  onPaywall?: () => void
 }) {
   const { t } = useLanguage()
   const tap = useMobileTap()
+  const FREE_LIMIT = 3
   const byId = new Map(positions.map((p) => [p.id, p]))
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-  const toggle = (id: string) => {
+  const toggle = (id: string, globalIndex: number) => {
+    if (!isPro && globalIndex >= FREE_LIMIT) {
+      onPaywall?.()
+      return
+    }
     setExpanded((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
@@ -117,6 +126,8 @@ export function NatalPositionsTable({
     return !!(inSign?.meaning || inHouse?.meaning || cuspInterp?.meaning)
   }
 
+  let globalClickableIdx = 0
+
   return (
     <div className="natal-pos">
       <div className="natal-pos__header">
@@ -130,6 +141,8 @@ export function NatalPositionsTable({
             <div className="natal-pos__group">{t(group.labelKey)}</div>
             {rows.map((p) => {
               const clickable = hasInterp(p.id)
+              const idx = clickable ? globalClickableIdx++ : -1
+              const isLocked = clickable && !isPro && idx >= FREE_LIMIT
               const isOpen = expanded.has(p.id)
               const { inSign, inHouse, cuspInterp } = getInterps(p)
               return (
@@ -137,8 +150,8 @@ export function NatalPositionsTable({
                   {clickable ? (
                   <button
                     type="button"
-                    className="natal-pos__row natal-pos__row--clickable"
-                    {...tap(() => toggle(p.id))}
+                    className={`natal-pos__row natal-pos__row--clickable${isLocked ? " cw-transit-item--locked" : ""}`}
+                    {...tap(() => toggle(p.id, idx))}
                   >
                     <span className="natal-pos__left">
                       <span className="natal-pos__glyph">{OBJECT_GLYPHS[p.id] ?? ""}</span>
@@ -151,7 +164,13 @@ export function NatalPositionsTable({
                       <span className="natal-pos__house">△{p.house || "—"}</span>
                     </span>
                     <span className="natal-pos__right">
-                      <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                      {isLocked ? (
+                        <span className="cw-lock-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </span>
+                      ) : (
+                        <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                      )}
                     </span>
                   </button>
                   ) : (

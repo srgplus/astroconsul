@@ -1629,12 +1629,12 @@ export function App() {
               {expandedWidget === "summary" && activeDetail ? (
                 <div>
                   <ProfileSummaryCard detail={activeDetail} />
-                  {natalPositions.length ? <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
+                  {natalPositions.length ? <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} isPro={isPro} onPaywall={() => setPaywallOpen(true)} /> : null}
                   {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} isPro={isPro} onPaywall={() => setPaywallOpen(true)} /> : null}
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
-                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
+                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
                 <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
