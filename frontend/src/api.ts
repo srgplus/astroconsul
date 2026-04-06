@@ -38,7 +38,7 @@ function waitForToken(timeoutMs = 3000): Promise<string | null> {
   })
 }
 
-async function getAuthHeaders(): Promise<Record<string, string>> {
+export async function getAuthHeaders(): Promise<Record<string, string>> {
   // Wait for the auth listener to populate the cached token
   let token = await waitForToken()
 
@@ -320,4 +320,26 @@ export function fetchFeaturedProfiles(): Promise<{ profiles: ProfileSummary[] }>
 export function fetchPublicProfileDetail(profileId: string, lang?: string): Promise<ProfileDetailResponse> {
   const l = lang || localStorage.getItem("lang") || "en"
   return fetch(`/api/v1/public/profiles/${encodeURIComponent(profileId)}?lang=${l}`).then(json<ProfileDetailResponse>)
+}
+
+// ── Subscriptions & Payments ────────────────────────────────────────
+
+export async function fetchSubscriptionStatus(): Promise<{
+  plan: string
+  is_pro: boolean
+  expires_at: string | null
+}> {
+  const auth = await getAuthHeaders()
+  return fetch("/api/v1/subscriptions/status", { headers: auth }).then(
+    json<{ plan: string; is_pro: boolean; expires_at: string | null }>
+  )
+}
+
+export async function createCheckoutSession(plan: string): Promise<{ checkout_url: string }> {
+  const auth = await getAuthHeaders()
+  return fetch("/api/v1/payments/create-checkout", {
+    method: "POST",
+    headers: { ...auth, "Content-Type": "application/json" },
+    body: JSON.stringify({ plan }),
+  }).then(json<{ checkout_url: string }>)
 }

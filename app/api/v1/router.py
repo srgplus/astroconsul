@@ -10,6 +10,8 @@ from app.api.v1.routes.profiles import router as profiles_router
 from app.api.v1.routes.invites import router as invites_router
 from app.api.v1.routes.public import router as public_router
 from app.api.v1.routes.images import router as images_router
+from app.api.v1.routes.subscriptions import router as subscriptions_router
+from app.api.v1.routes.payments import router as payments_router
 
 router = APIRouter()
 router.include_router(auth_router)
@@ -20,3 +22,5 @@ router.include_router(profiles_router)
 router.include_router(invites_router)
 router.include_router(public_router)
 router.include_router(images_router)
+router.include_router(subscriptions_router)
+router.include_router(payments_router)

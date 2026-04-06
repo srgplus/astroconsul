@@ -46,6 +46,31 @@ def get_repositories():
     return get_repository_bundle(get_settings())
 
 
+def require_pro(user: dict = None):
+    """FastAPI dependency that checks Pro subscription status.
+
+    Usage: user = Depends(require_pro) in route signature.
+    Returns user dict if Pro, raises 403 if free.
+    """
+    from typing import Any
+
+    from fastapi import Depends, HTTPException
+
+    from app.api.auth import get_current_user
+    from app.api.v1.routes.subscriptions import get_user_subscription
+
+    async def _check(user: dict[str, Any] = Depends(get_current_user)):
+        status = get_user_subscription(user["user_id"])
+        if not status["is_pro"]:
+            raise HTTPException(
+                status_code=403,
+                detail={"error": "pro_required", "plan": status["plan"]},
+            )
+        return user
+
+    return _check
+
+
 def clear_dependency_caches() -> None:
     get_chart_service.cache_clear()
     get_profile_service.cache_clear()
