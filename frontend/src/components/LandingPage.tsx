@@ -145,9 +145,6 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
           <button type="button" className="landing-cta-btn" onClick={onSignUp}>
             {t("landing.cta")}
           </button>
-          <a href="/news/" className="landing-cta-btn landing-cta-btn--ghost">
-            Explore
-          </a>
         </div>
         <div className="landing-pills landing-fade-in" style={{ animationDelay: "0.3s" }}>
           <span className="landing-pill">Transit Alerts</span>

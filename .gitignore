@@ -16,3 +16,7 @@ profiles/*.json
 charts/*.json
 
 *.egg-info/
+
+# Capacitor native projects
+frontend/ios/
+frontend/android/
