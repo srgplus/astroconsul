@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Moon Trine Saturn</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;
+  background: #faf9f7;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1a1a1f;
+  position: relative;
+}
+
+/* Light theme glows */
+.glow-purple {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-green {
+  position: absolute;
+  bottom: 100px;
+  left: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(52,211,153,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.layout {
+  padding: 32px 48px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+.logo .three { color: #7c3aed; }
+
+/* Badge */
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.badge-exact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(52,211,153,0.10);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #059669;
+  text-transform: uppercase;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+.orb-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6e6e76;
+}
+
+/* Title */
+.slide-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #1a1a1f;
+  margin-bottom: 6px;
+}
+.slide-subtitle {
+  font-size: 15px;
+  font-weight: 400;
+  color: #6e6e76;
+  margin-bottom: 40px;
+}
+
+/* Aspect visual box */
+.aspect-box {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 36px 40px;
+  margin-bottom: 36px;
+  position: relative;
+  z-index: 1;
+}
+
+.aspect-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.planet-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.planet-circle.transit {
+  background: linear-gradient(135deg, rgba(167,139,250,0.20), rgba(167,139,250,0.05));
+  border: 1.5px solid rgba(167,139,250,0.30);
+}
+.planet-circle.natal {
+  background: linear-gradient(135deg, rgba(244,114,182,0.20), rgba(244,114,182,0.05));
+  border: 1.5px solid rgba(244,114,182,0.30);
+}
+.planet-sym {
+  font-size: 36px;
+  line-height: 1;
+}
+.planet-pos {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6e6e76;
+}
+.planet-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #6e6e76;
+  margin-top: 2px;
+}
+
+.aspect-connector {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+}
+.connector-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(52,211,153,0.4), rgba(52,211,153,0.8), rgba(52,211,153,0.4));
+}
+.connector-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #059669;
+}
+.connector-orb {
+  font-size: 10px;
+  color: #6e6e76;
+}
+
+/* Aspect data row */
+.aspect-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.data-item {
+  text-align: center;
+}
+.data-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6e6e76;
+  margin-bottom: 4px;
+}
+.data-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+.data-val.green { color: #059669; }
+.data-sub {
+  font-size: 11px;
+  color: #6e6e76;
+  margin-top: 2px;
+}
+
+/* Description */
+.description {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #1a1a1f;
+  flex: 1;
+}
+.description .highlight {
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  margin-top: auto;
+}
+.footer-logo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+.footer-logo .three { color: #7c3aed; }
+.footer-page {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6e6e76;
+  letter-spacing: 0.5px;
+}
+</style>
+</head>
+<body>
+
+<div class="glow-purple"></div>
+<div class="glow-green"></div>
+
+<div class="layout">
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">big<span class="three">3</span>.me</span>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge-row">
+    <div class="badge-exact">
+      <div class="badge-dot"></div>
+      Exact
+    </div>
+    <span class="orb-label">0.02° orb · Moon Trine Saturn · Fire Signs</span>
+  </div>
+
+  <!-- Title -->
+  <div class="slide-title">Moon Trine Saturn:<br>The Day's<br>Emotional Anchor</div>
+  <div class="slide-subtitle">A near-perfect trine between Sagittarius Moon and Aries Saturn</div>
+
+  <!-- Aspect box -->
+  <div class="aspect-box">
+    <div class="aspect-visual">
+      <div class="planet-circle transit">
+        <div class="planet-sym" style="color:#e8e8ec; text-shadow: 0 0 8px rgba(232,232,236,0.8);">☽</div>
+        <div class="planet-pos" style="color:#7c3aed;">♐ 6°12'</div>
+        <div class="planet-name">Moon</div>
+      </div>
+
+      <div class="aspect-connector">
+        <div class="connector-line"></div>
+        <div class="connector-label">Trine (tri)</div>
+        <div class="connector-orb">0.02° · EXACT</div>
+        <div class="connector-line"></div>
+      </div>
+
+      <div class="planet-circle natal">
+        <div class="planet-sym" style="color:#8e8e96;">♄</div>
+        <div class="planet-pos" style="color:#7c3aed;">♈ 6°13'</div>
+        <div class="planet-name">Saturn</div>
+      </div>
+    </div>
+
+    <div class="aspect-data-row">
+      <div class="data-item">
+        <div class="data-label">Orb</div>
+        <div class="data-val green">0.02°</div>
+        <div class="data-sub">Near-perfect</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Aspect Type</div>
+        <div class="data-val">Trine</div>
+        <div class="data-sub">120° · Harmonious</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Element</div>
+        <div class="data-val">Fire</div>
+        <div class="data-sub">♐ · ♈</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Strength</div>
+        <div class="data-val green">EXACT</div>
+        <div class="data-sub">Peak power</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="description">
+    When Moon and Saturn form a trine this close, emotions crystallize into <span class="highlight">structure and resolve</span>. Both in fire signs, this aspect gifts focus without rigidity — the kind of clarity that lets you act on what you feel without second-guessing yourself. A rare window for <span class="highlight">productive discipline</span>.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-logo">big<span class="three">3</span>.me</span>
+    <span class="footer-page">2 / 6</span>
+  </div>
+</div>
+
+</body>
+</html>

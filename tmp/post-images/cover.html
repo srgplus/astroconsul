@@ -2,293 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1080">
+<title>Cover</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    width: 1080px;
-    height: 1350px;
-    background: #0a0a0b;
-    font-family: 'DM Sans', system-ui, sans-serif;
-    overflow: hidden;
-    position: relative;
-  }
+body {
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;
+  background: #0a0a0b;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #e8e8ec;
+  position: relative;
+}
 
-  /* Glow effects */
-  .glow-top-right {
-    position: absolute;
-    top: -80px; right: -80px;
-    width: 420px; height: 420px;
-    background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .glow-bottom-left {
-    position: absolute;
-    bottom: -80px; left: -80px;
-    width: 380px; height: 380px;
-    background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .glow-center {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 65%);
-    pointer-events: none;
-  }
+/* Glows */
+.glow-purple {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(167,139,250,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-orange {
+  position: absolute;
+  bottom: 80px;
+  left: -80px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(251,146,60,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-pink {
+  position: absolute;
+  bottom: 300px;
+  right: -40px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(244,114,182,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
 
-  /* Orbital rings */
-  .orbital-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.03);
-    pointer-events: none;
-  }
+/* Orbital rings */
+.orbital-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+  pointer-events: none;
+}
+.ring-1 {
+  width: 680px; height: 680px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+}
+.ring-2 {
+  width: 480px; height: 480px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+}
+.ring-3 {
+  width: 280px; height: 280px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+}
 
-  /* Stars */
-  .star {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-    pointer-events: none;
-  }
+/* Star dots */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #e8e8ec;
+  pointer-events: none;
+}
 
-  /* Header */
-  .header {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 32px 36px 0;
-  }
+/* Layout */
+.header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 32px 0;
+}
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.logo .three { color: #a78bfa; }
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8e8e96;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
 
-  .logo {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    color: #e8e8ec;
-    letter-spacing: 0.02em;
-  }
+.center-content {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -54%);
+  width: 900px;
+  text-align: center;
+}
 
-  .logo span { color: #a78bfa; }
+.planet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  padding: 8px 20px;
+  background: rgba(167,139,250,0.10);
+  border: 1px solid rgba(167,139,250,0.20);
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #a78bfa;
+  letter-spacing: 0.03em;
+}
+.planet-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 6px rgba(167,139,250,0.6);
+}
 
-  .logo-tagline {
-    font-size: 9px;
-    color: #8e8e96;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
+.main-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 76px;
+  font-weight: 400;
+  line-height: 1.08;
+  color: #e8e8ec;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+.main-title .accent { color: #a78bfa; }
 
-  .date-tag {
-    font-size: 10px;
-    font-weight: 600;
-    color: #8e8e96;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 6px 14px;
-    border-radius: 20px;
-  }
+.orb-badge {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  background: rgba(52,211,153,0.12);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
 
-  /* Main content */
-  .main {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -52%);
-    text-align: center;
-    width: 900px;
-  }
+.subtitle {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #8e8e96;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
 
-  .venus-symbol {
-    font-size: 96px;
-    color: #f472b6;
-    margin-bottom: 24px;
-    display: block;
-    text-shadow: 0 0 40px rgba(244,114,182,0.4);
-    line-height: 1;
-  }
+.aspect-pill-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+.aspect-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e8e8ec;
+}
+.aspect-pill .sym { font-size: 15px; }
 
-  .degree-label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f472b6;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    opacity: 0.9;
-  }
+.date-row {
+  position: absolute;
+  z-index: 10;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.date-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #8e8e96;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.by-line {
+  font-size: 12px;
+  color: rgba(142,142,150,0.6);
+  letter-spacing: 0.05em;
+}
 
-  .main-title {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 68px;
-    font-weight: 400;
-    color: #e8e8ec;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    letter-spacing: -0.5px;
-  }
-
-  .main-title .accent { color: #f472b6; }
-
-  .subtitle {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-style: italic;
-    font-size: 22px;
-    color: #8e8e96;
-    line-height: 1.5;
-    max-width: 740px;
-    margin: 0 auto 36px;
-  }
-
-  /* Transit pill row */
-  .pills-row {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-
-  .pill {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 6px 16px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #8e8e96;
-    letter-spacing: 0.03em;
-  }
-
-  .pill.venus { border-color: rgba(244,114,182,0.3); color: #f472b6; background: rgba(244,114,182,0.08); }
-  .pill.all-direct { border-color: rgba(52,211,153,0.3); color: #34d399; background: rgba(52,211,153,0.08); }
-
-  /* Bottom strip */
-  .bottom-strip {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 0 36px 32px;
-  }
-
-  .author-block {
-    font-size: 12px;
-    color: #8e8e96;
-  }
-  .author-block strong {
-    display: block;
-    font-weight: 600;
-    color: #e8e8ec;
-    font-size: 13px;
-  }
-
-  .swipe-cta {
-    font-size: 10px;
-    font-weight: 600;
-    color: #8e8e96;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    opacity: 0.6;
-  }
-
-  /* Planet dot accent */
-  .planet-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 32px;
-  }
-  .pdot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-  }
-
-  /* Decorative threshold line */
-  .threshold-line {
-    position: absolute;
-    left: 50%; top: 0; bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, rgba(244,114,182,0.12) 30%, rgba(167,139,250,0.15) 50%, rgba(244,114,182,0.12) 70%, transparent);
-    transform: translateX(-50%);
-    pointer-events: none;
-  }
+.swipe {
+  position: absolute;
+  z-index: 10;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(142,142,150,0.5);
+}
 </style>
 </head>
 <body>
 
-<!-- Decorative glows -->
-<div class="glow-top-right"></div>
-<div class="glow-bottom-left"></div>
-<div class="glow-center"></div>
-
-<!-- Threshold line -->
-<div class="threshold-line"></div>
+<!-- Glows -->
+<div class="glow-purple"></div>
+<div class="glow-orange"></div>
+<div class="glow-pink"></div>
 
 <!-- Orbital rings -->
-<div class="orbital-ring" style="width:520px;height:520px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
-<div class="orbital-ring" style="width:720px;height:720px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
-<div class="orbital-ring" style="width:920px;height:920px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+<div class="orbital-ring ring-1"></div>
+<div class="orbital-ring ring-2"></div>
+<div class="orbital-ring ring-3"></div>
 
-<!-- Stars -->
-<div class="star" style="width:3px;height:3px;top:12%;left:8%;opacity:0.28;"></div>
-<div class="star" style="width:2px;height:2px;top:18%;left:82%;opacity:0.22;"></div>
-<div class="star" style="width:3px;height:3px;top:72%;left:91%;opacity:0.20;"></div>
-<div class="star" style="width:2px;height:2px;top:85%;left:14%;opacity:0.25;"></div>
-<div class="star" style="width:2px;height:2px;top:38%;left:4%;opacity:0.18;"></div>
-<div class="star" style="width:3px;height:3px;top:55%;left:94%;opacity:0.22;"></div>
-<div class="star" style="width:2px;height:2px;top:28%;left:57%;opacity:0.15;"></div>
+<!-- Star dots -->
+<div class="star" style="width:3px;height:3px;top:12%;left:18%;opacity:0.28;"></div>
+<div class="star" style="width:2px;height:2px;top:8%;left:62%;opacity:0.18;"></div>
+<div class="star" style="width:3px;height:3px;top:22%;right:14%;opacity:0.22;"></div>
+<div class="star" style="width:2px;height:2px;top:55%;left:7%;opacity:0.20;"></div>
+<div class="star" style="width:2px;height:2px;top:78%;right:10%;opacity:0.15;"></div>
+<div class="star" style="width:3px;height:3px;top:88%;left:28%;opacity:0.18;"></div>
+<div class="star" style="width:2px;height:2px;top:34%;right:6%;opacity:0.25;"></div>
+<div class="star" style="width:2px;height:2px;top:68%;left:55%;opacity:0.16;"></div>
 
 <!-- Header -->
 <div class="header">
-  <div>
-    <div class="logo">big<span>3</span>.me</div>
-    <div class="logo-tagline">Transit Astrology</div>
-  </div>
-  <div class="date-tag">March 30, 2026</div>
+  <span class="logo">big<span class="three">3</span>.me</span>
+  <span class="tag">Daily Transit</span>
 </div>
 
-<!-- Main content -->
-<div class="main">
-  <span class="venus-symbol">♀</span>
-  <div class="degree-label">Anaretic Degree · 29°47' Aries</div>
-  <h1 class="main-title">Venus at <span class="accent">29°</span> Aries</h1>
-  <p class="subtitle">The Last Degree Before Home</p>
-
-  <div class="planet-dots">
-    <div class="pdot" style="background:#f472b6;"></div>
-    <div class="pdot" style="background:#8e8e96;"></div>
-    <div class="pdot" style="background:#c084fc;"></div>
-    <div class="pdot" style="background:#60a5fa;"></div>
-    <div class="pdot" style="background:#a78bfa;"></div>
-    <div class="pdot" style="background:#e8e8ec;"></div>
+<!-- Center content -->
+<div class="center-content">
+  <div class="planet-badge">
+    <div class="planet-dot"></div>
+    Fire Trine · Pluto Stationary · April 6 2026
   </div>
 
-  <div class="pills-row">
-    <div class="pill venus">♀ Venus entering Taurus</div>
-    <div class="pill all-direct">All Planets Direct</div>
-    <div class="pill">Waxing Gibbous Moon ♍</div>
+  <div class="main-title">
+    Moon Trine<br>Saturn at <span class="accent">0.02°</span>
+  </div>
+
+  <div class="orb-badge">EXACT ASPECT · 0.02° ORB</div>
+
+  <div class="subtitle">
+    The sky's tightest aspect today is a near-perfect fire trine between<br>
+    Moon and Saturn — a rare moment of emotional certainty<br>
+    while Pluto slows to a crawl before retrograde
+  </div>
+
+  <div class="aspect-pill-row">
+    <div class="aspect-pill">
+      <span class="sym" style="color:#e8e8ec;">☽</span>
+      <span>♐ 6°12'</span>
+      <span style="color:#8e8e96;font-size:11px;">tri</span>
+      <span class="sym" style="color:#8e8e96;">♄</span>
+      <span>♈ 6°13'</span>
+    </div>
+    <div class="aspect-pill">
+      <span class="sym" style="color:#c084fc;">♇</span>
+      <span style="color:#c084fc;">Stationary</span>
+      <span style="color:#8e8e96;font-size:11px;">0.01°/day</span>
+    </div>
+    <div class="aspect-pill">
+      <span class="sym" style="color:#fbbf24;">☉</span>
+      <span>♈ 16°41'</span>
+      <span style="color:#8e8e96;font-size:11px;">sq</span>
+      <span class="sym" style="color:#a78bfa;">♃</span>
+      <span>♋ 16°10'</span>
+    </div>
   </div>
 </div>
 
-<!-- Bottom strip -->
-<div class="bottom-strip">
-  <div class="author-block">
-    <strong>Victoria</strong>
-    Cosmic Weather
-  </div>
-  <div class="swipe-cta">Swipe to explore →</div>
+<!-- Date row -->
+<div class="date-row">
+  <div class="date-text">April 6, 2026</div>
+  <div class="by-line">by Victoria</div>
 </div>
+
+<!-- Swipe -->
+<div class="swipe">SWIPE →</div>
 
 </body>
 </html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Sun Square Jupiter</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;
+  background: #0a0a0b;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #e8e8ec;
+  position: relative;
+}
+
+/* Glows */
+.glow-gold {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 330px;
+  height: 330px;
+  background: radial-gradient(circle, rgba(251,191,36,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-purple {
+  position: absolute;
+  bottom: 120px;
+  left: -60px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(167,139,250,0.09) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Star dots */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #e8e8ec;
+  pointer-events: none;
+}
+
+.layout {
+  padding: 32px 48px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e8ec;
+}
+.logo .three { color: #a78bfa; }
+
+/* Badge */
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.badge-exact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(52,211,153,0.10);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #34d399;
+  text-transform: uppercase;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+.orb-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8e8e96;
+}
+
+/* Tension badge */
+.tension-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(251,146,60,0.10);
+  border: 1px solid rgba(251,146,60,0.20);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #fb923c;
+  text-transform: uppercase;
+}
+
+/* Title */
+.slide-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #e8e8ec;
+  margin-bottom: 6px;
+}
+.slide-subtitle {
+  font-size: 15px;
+  font-weight: 400;
+  color: #8e8e96;
+  margin-bottom: 40px;
+}
+
+/* Aspect visual box */
+.aspect-box {
+  background: #131316;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 36px 40px;
+  margin-bottom: 36px;
+  position: relative;
+  z-index: 1;
+}
+
+.aspect-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.planet-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.planet-circle.transit {
+  background: linear-gradient(135deg, rgba(167,139,250,0.20), rgba(167,139,250,0.05));
+  border: 1.5px solid rgba(167,139,250,0.30);
+}
+.planet-circle.natal {
+  background: linear-gradient(135deg, rgba(244,114,182,0.20), rgba(244,114,182,0.05));
+  border: 1.5px solid rgba(244,114,182,0.30);
+}
+.planet-sym {
+  font-size: 36px;
+  line-height: 1;
+}
+.planet-pos {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8e8e96;
+}
+.planet-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8e8e96;
+  margin-top: 2px;
+}
+
+.aspect-connector {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+}
+.connector-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(251,146,60,0.3), rgba(251,146,60,0.7), rgba(251,146,60,0.3));
+}
+.connector-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fb923c;
+}
+.connector-orb {
+  font-size: 10px;
+  color: #8e8e96;
+}
+
+/* Aspect data row */
+.aspect-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.data-item {
+  text-align: center;
+}
+.data-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #8e8e96;
+  margin-bottom: 4px;
+}
+.data-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e8e8ec;
+}
+.data-val.green { color: #34d399; }
+.data-val.orange { color: #fb923c; }
+.data-sub {
+  font-size: 11px;
+  color: #8e8e96;
+  margin-top: 2px;
+}
+
+/* Tension visual */
+.tension-viz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 0;
+  margin-bottom: 20px;
+}
+.tension-side {
+  text-align: center;
+}
+.tension-planet {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+.tension-keyword {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.tension-desc {
+  font-size: 11px;
+  color: #8e8e96;
+  margin-top: 2px;
+}
+.tension-arrow {
+  font-size: 32px;
+  color: #fb923c;
+  opacity: 0.8;
+}
+
+/* Description */
+.description {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #e8e8ec;
+  flex: 1;
+}
+.description .highlight-gold { color: #fbbf24; }
+.description .highlight-purple { color: #a78bfa; }
+.description .highlight-orange { color: #fb923c; }
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: auto;
+}
+.footer-logo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e8ec;
+}
+.footer-logo .three { color: #a78bfa; }
+.footer-page {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8e8e96;
+}
+</style>
+</head>
+<body>
+
+<div class="glow-gold"></div>
+<div class="glow-purple"></div>
+
+<div class="star" style="width:2px;height:2px;top:15%;left:10%;opacity:0.22;"></div>
+<div class="star" style="width:3px;height:3px;top:25%;right:8%;opacity:0.18;"></div>
+<div class="star" style="width:2px;height:2px;top:60%;left:5%;opacity:0.15;"></div>
+<div class="star" style="width:2px;height:2px;top:80%;right:15%;opacity:0.20;"></div>
+<div class="star" style="width:3px;height:3px;top:45%;right:5%;opacity:0.16;"></div>
+
+<div class="layout">
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">big<span class="three">3</span>.me</span>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge-row">
+    <div class="badge-exact">
+      <div class="badge-dot"></div>
+      Exact
+    </div>
+    <span class="tension-tag">⚡ Tension</span>
+    <span class="orb-label">0.51° orb · Sun Square Jupiter · Cardinal Signs</span>
+  </div>
+
+  <!-- Title -->
+  <div class="slide-title">Sun Square Jupiter:<br>The Tension<br>That Matters</div>
+  <div class="slide-subtitle">Ambition meets overreach — Aries Sun challenges Cancer Jupiter</div>
+
+  <!-- Aspect box -->
+  <div class="aspect-box">
+    <!-- Tension visualization -->
+    <div class="tension-viz">
+      <div class="tension-side">
+        <div class="tension-planet" style="color:#fbbf24;">☉</div>
+        <div class="tension-keyword" style="color:#fbbf24;">Initiative</div>
+        <div class="tension-desc">♈ 16°41'</div>
+      </div>
+      <div class="tension-arrow">⊞</div>
+      <div class="tension-side">
+        <div class="tension-planet" style="color:#a78bfa;">♃</div>
+        <div class="tension-keyword" style="color:#a78bfa;">Expansion</div>
+        <div class="tension-desc">♋ 16°10'</div>
+      </div>
+    </div>
+
+    <div class="aspect-visual">
+      <div class="planet-circle transit">
+        <div class="planet-sym" style="color:#fbbf24;">☉</div>
+        <div class="planet-pos">♈ 16°41'</div>
+        <div class="planet-name">Sun</div>
+      </div>
+
+      <div class="aspect-connector">
+        <div class="connector-line"></div>
+        <div class="connector-label">Square (sq)</div>
+        <div class="connector-orb">0.51° · EXACT</div>
+        <div class="connector-line"></div>
+      </div>
+
+      <div class="planet-circle natal">
+        <div class="planet-sym" style="color:#a78bfa;">♃</div>
+        <div class="planet-pos">♋ 16°10'</div>
+        <div class="planet-name">Jupiter</div>
+      </div>
+    </div>
+
+    <div class="aspect-data-row">
+      <div class="data-item">
+        <div class="data-label">Orb</div>
+        <div class="data-val green">0.51°</div>
+        <div class="data-sub">Very close</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Aspect Type</div>
+        <div class="data-val">Square</div>
+        <div class="data-sub">90° · Friction</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Mode</div>
+        <div class="data-val">Cardinal</div>
+        <div class="data-sub">♈ · ♋</div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Strength</div>
+        <div class="data-val green">EXACT</div>
+        <div class="data-sub">High pressure</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="description">
+    <span class="highlight-gold">Sun in Aries</span> wants to charge forward while <span class="highlight-purple">Jupiter in Cancer</span> inflates every feeling and impulse. The square creates productive tension — <span class="highlight-orange">big ideas deserve scrutiny</span> before action. Channel this into ambitious but grounded steps rather than leaping without looking.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-logo">big<span class="three">3</span>.me</span>
+    <span class="footer-page">3 / 6</span>
+  </div>
+</div>
+
+</body>
+</html>

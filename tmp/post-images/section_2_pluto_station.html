@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Pluto Stationary</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;
+  background: #faf9f7;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1a1a1f;
+  position: relative;
+}
+
+/* Light glows */
+.glow-purple {
+  position: absolute;
+  top: -60px;
+  right: -40px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(192,132,252,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-blue {
+  position: absolute;
+  bottom: 60px;
+  left: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.layout {
+  padding: 32px 48px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+.logo .three { color: #7c3aed; }
+
+/* Stationary badge */
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.badge-station {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(192,132,252,0.10);
+  border: 1px solid rgba(192,132,252,0.30);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #7c3aed;
+  text-transform: uppercase;
+}
+.badge-retrograde {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(251,146,60,0.08);
+  border: 1px solid rgba(251,146,60,0.20);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #c2410c;
+  text-transform: uppercase;
+}
+
+/* Title */
+.slide-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #1a1a1f;
+  margin-bottom: 6px;
+}
+.slide-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6e6e76;
+  margin-bottom: 28px;
+}
+
+/* Pluto hero box */
+.pluto-box {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 28px 36px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.pluto-circle-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.pluto-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(192,132,252,0.20), rgba(192,132,252,0.05));
+  border: 2px solid rgba(192,132,252,0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.pluto-sym {
+  font-size: 42px;
+  color: #c084fc;
+  line-height: 1;
+}
+.pluto-pos {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c3aed;
+  margin-top: 4px;
+}
+
+.pluto-data {
+  flex: 1;
+}
+.pluto-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px;
+  color: #1a1a1f;
+  margin-bottom: 8px;
+}
+.pluto-position {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1f;
+  margin-bottom: 12px;
+}
+
+/* Speed gauge */
+.speed-section {
+  margin-bottom: 8px;
+}
+.speed-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6e6e76;
+  margin-bottom: 6px;
+}
+.speed-gauge {
+  position: relative;
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 50px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 280px;
+}
+.speed-fill {
+  height: 100%;
+  width: 2%;
+  background: linear-gradient(90deg, #c084fc, #7c3aed);
+  border-radius: 50px;
+}
+.speed-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-top: 4px;
+}
+.speed-desc {
+  font-size: 11px;
+  color: #6e6e76;
+  margin-top: 2px;
+}
+
+/* Aspects list */
+.aspects-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6e6e76;
+  margin-bottom: 14px;
+}
+
+.aspect-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.aspect-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 12px;
+}
+.aspect-planets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.asp-planet {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.asp-connector {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #6e6e76;
+  text-transform: uppercase;
+}
+.asp-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+.asp-orb {
+  font-size: 12px;
+  color: #6e6e76;
+}
+.asp-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.asp-badge.exact {
+  background: rgba(52,211,153,0.10);
+  color: #059669;
+}
+
+/* Description */
+.description {
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #1a1a1f;
+  flex: 1;
+}
+.description .highlight { color: #7c3aed; font-weight: 500; }
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  margin-top: auto;
+}
+.footer-logo { font-size: 13px; font-weight: 600; color: #1a1a1f; }
+.footer-logo .three { color: #7c3aed; }
+.footer-page { font-size: 12px; font-weight: 500; color: #6e6e76; }
+</style>
+</head>
+<body>
+
+<div class="glow-purple"></div>
+<div class="glow-blue"></div>
+
+<div class="layout">
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">big<span class="three">3</span>.me</span>
+  </div>
+
+  <!-- Badges -->
+  <div class="badge-row">
+    <div class="badge-station">♇ Stationary</div>
+    <div class="badge-retrograde">↩ Pre-Retrograde</div>
+  </div>
+
+  <!-- Title -->
+  <div class="slide-title">Pluto Stations<br>at 5° Aquarius</div>
+  <div class="slide-subtitle">Transformation holds its breath — 0.01°/day, nearly motionless</div>
+
+  <!-- Pluto hero box -->
+  <div class="pluto-box">
+    <div class="pluto-circle-wrap">
+      <div class="pluto-circle">
+        <div class="pluto-sym">♇</div>
+        <div class="pluto-pos">♒ 5°17'</div>
+      </div>
+    </div>
+
+    <div class="pluto-data">
+      <div class="pluto-name">Pluto in Aquarius</div>
+      <div class="pluto-position">5°17' Aquarius · Station Point</div>
+
+      <div class="speed-section">
+        <div class="speed-label">Daily Motion (Speed)</div>
+        <div class="speed-gauge">
+          <div class="speed-fill"></div>
+        </div>
+        <div class="speed-val">0.01°/day</div>
+        <div class="speed-desc">Near-zero velocity — stationary before retrograde</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connected aspects -->
+  <div class="aspects-heading">Connected Aspects to Pluto Today</div>
+
+  <div class="aspect-list">
+    <div class="aspect-row">
+      <div class="aspect-planets">
+        <div class="asp-planet" style="background:rgba(142,142,150,0.12);border:1px solid rgba(142,142,150,0.20);">
+          <span style="color:#8e8e96;font-size:18px;">♄</span>
+        </div>
+        <div class="asp-connector">sxt</div>
+        <div class="asp-planet" style="background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.20);">
+          <span style="color:#c084fc;font-size:18px;">♇</span>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div class="asp-name">Saturn sextile Pluto</div>
+        <div class="asp-orb">0.93° · ♈ sxt ♒</div>
+      </div>
+      <div class="asp-badge exact">EXACT</div>
+    </div>
+
+    <div class="aspect-row">
+      <div class="aspect-planets">
+        <div class="asp-planet" style="background:rgba(232,232,236,0.10);border:1px solid rgba(232,232,236,0.15);">
+          <span style="color:#e8e8ec;font-size:18px;">☽</span>
+        </div>
+        <div class="asp-connector">sxt</div>
+        <div class="asp-planet" style="background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.20);">
+          <span style="color:#c084fc;font-size:18px;">♇</span>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div class="asp-name">Moon sextile Pluto</div>
+        <div class="asp-orb">approx · ♐ sxt ♒</div>
+      </div>
+      <div class="asp-badge exact">EXACT</div>
+    </div>
+
+    <div class="aspect-row">
+      <div class="aspect-planets">
+        <div class="asp-planet" style="background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.20);">
+          <span style="color:#f472b6;font-size:18px;">♀</span>
+        </div>
+        <div class="asp-connector">sq</div>
+        <div class="asp-planet" style="background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.20);">
+          <span style="color:#c084fc;font-size:18px;">♇</span>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div class="asp-name">Venus square Pluto</div>
+        <div class="asp-orb">applying · ♉ sq ♒</div>
+      </div>
+      <div class="asp-badge" style="background:rgba(96,165,250,0.10);color:#2563eb;">APPLYING</div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="description">
+    A stationary Pluto amplifies everything it touches. While Pluto barely moves, its <span class="highlight">structural connections to Saturn</span> remain active — subtle reformation, not collapse. The station point is when Pluto's influence is at its most <span class="highlight">concentrated</span>.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-logo">big<span class="three">3</span>.me</span>
+    <span class="footer-page">4 / 6</span>
+  </div>
+</div>
+
+</body>
+</html>
