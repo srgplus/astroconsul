@@ -67,14 +67,13 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
             type="button"
             className="paywall-btn paywall-btn--primary"
             onClick={() => handleCheckout("pro_monthly")}
-            disabled={loading !== null}
           >
             {loading === "pro_monthly" ? (
               <span className="paywall-spinner" />
             ) : (
               <>
                 <span className="paywall-btn-price">$7.99<small>/mo</small></span>
-                <span className="paywall-btn-label">{isRu ? "Ежемесячно" : "Monthly"}</span>
+                <span className="paywall-btn-label">{isRu ? "Подписаться на месяц" : "Subscribe Monthly"}</span>
               </>
             )}
           </button>
@@ -83,7 +82,6 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
             type="button"
             className="paywall-btn paywall-btn--accent"
             onClick={() => handleCheckout("pro_annual")}
-            disabled={loading !== null}
           >
             {loading === "pro_annual" ? (
               <span className="paywall-spinner" />
@@ -91,7 +89,7 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
               <>
                 <span className="paywall-btn-price">$59.99<small>/yr</small></span>
                 <span className="paywall-btn-label">
-                  {isRu ? "Годовой (экономия 37%)" : "Annual (save 37%)"}
+                  {isRu ? "Подписаться на год (экономия 37%)" : "Subscribe Annual (save 37%)"}
                 </span>
                 <span className="paywall-badge">{isRu ? "Лучшая цена" : "Best value"}</span>
               </>

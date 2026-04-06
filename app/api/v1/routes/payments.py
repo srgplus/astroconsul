@@ -54,7 +54,8 @@ def _get_price_id(plan: str) -> str:
     }
     price_id = prices.get(plan)
     if not price_id:
-        raise HTTPException(status_code=400, detail=f"Unknown plan: {plan}")
+        logger.error("Stripe price not configured for plan %s. Check STRIPE_PRICE_PRO_MONTHLY/ANNUAL env vars.", plan)
+        raise HTTPException(status_code=500, detail=f"Payment not configured for plan: {plan}. Please contact support.")
     return price_id
 
 

@@ -560,31 +560,7 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                 </div>
               ))}
               {!isPro && sortedAspects.length > 3 && (
-                <>
-                  <div className="pro-blur" style={{ position: "relative", overflow: "hidden", borderRadius: 16, pointerEvents: "none" }}>
-                    {sortedAspects.slice(3, 6).map((a, i) => (
-                      <div key={`locked-${i}`} className="aspect-card" style={{ opacity: 0.6 }}>
-                        <div className="aspect-card-row1">
-                          <div className="aspect-card-left">
-                            <span className="aspect-card-glyphs">
-                              <span className="planet-glyph">{OBJECT_GLYPHS[a.transit_object] ?? ""}</span>
-                              <span className="aspect-glyph-symbol">{ASPECT_GLYPHS[a.aspect] ?? ""}</span>
-                              <span className="planet-glyph">{OBJECT_GLYPHS[a.natal_object] ?? ""}</span>
-                            </span>
-                            <span className="aspect-card-label">
-                              {t("planet." + a.transit_object)} {t("aspect." + a.aspect)} {t("planet." + a.natal_object)}
-                            </span>
-                          </div>
-                          <div className="aspect-card-right">
-                            <span className="aspect-orb">{a.orb.toFixed(2)}°</span>
-                            <span className={`strength-badge strength-${a.strength}`}>{t("strength." + a.strength)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
-                </>
+                <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
               )}
             </div>
           ) : (
