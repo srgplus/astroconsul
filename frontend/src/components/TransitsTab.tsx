@@ -313,6 +313,26 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
     if (groups[label]?.length) groupedAspects.push({ label, aspects: groups[label] })
   }
 
+  // For free users: limit visible aspects to FREE_LIMIT
+  const FREE_LIMIT = 3
+  const visibleAspects: typeof groupedAspects = []
+  if (isPro) {
+    visibleAspects.push(...groupedAspects)
+  } else {
+    let count = 0
+    for (const group of groupedAspects) {
+      if (count >= FREE_LIMIT) break
+      const remaining = FREE_LIMIT - count
+      if (group.aspects.length <= remaining) {
+        visibleAspects.push(group)
+        count += group.aspects.length
+      } else {
+        visibleAspects.push({ label: group.label, aspects: group.aspects.slice(0, remaining) })
+        count += remaining
+      }
+    }
+  }
+
   if (!activeProfileId) {
     return (
       <section className="card">
@@ -446,22 +466,10 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
 
           {sortedAspects.length ? (
             <div className="aspect-cards-wrapper">
-              {(() => {
-                const FREE_LIMIT = 3
-                let totalIdx = 0
-                let paywallShown = false
-                return groupedAspects.map((group) => (
+              {visibleAspects.map((group) => (
                 <div key={group.label} className="aspect-group">
                   <div className="aspect-group-label">{t(GROUP_LABEL_KEYS[group.label] ?? group.label).toUpperCase()} <span className="aspect-group-count">{group.aspects.length}</span></div>
                   {group.aspects.map((a, i) => {
-                    totalIdx++
-                    if (!isPro && totalIdx > FREE_LIMIT) {
-                      if (!paywallShown) {
-                        paywallShown = true
-                        return <Paywall key="paywall" t={t} lang={lang} feature={t("pro.feature.details")} />
-                      }
-                      return null
-                    }
                     const tp = transitMap[a.transit_object]
                     const np = natalMap[a.natal_object]
                     const cardKey = `${a.transit_object}-${a.aspect}-${a.natal_object}-${i}`
@@ -550,8 +558,10 @@ export function TransitsTab({ activeProfileId, activeDetail, onTransitReport, in
                     )
                   })}
                 </div>
-              ))
-              })()}
+              ))}
+              {!isPro && sortedAspects.length > 3 && (
+                <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
+              )}
             </div>
           ) : (
             <div className="transit-empty">
