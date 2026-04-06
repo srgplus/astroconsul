@@ -127,6 +127,7 @@ export const en: Record<string, string> = {
 
   // Cosmic Climate
   "climate.title": "Cosmic Climate",
+  "climate.unlock": "Unlock",
 
   // Widgets
   "widget.natal": "Natal",

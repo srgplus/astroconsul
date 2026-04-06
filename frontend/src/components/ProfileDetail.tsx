@@ -273,13 +273,18 @@ export function NatalAspectsTable({
   aspects,
   interpretations,
   positions,
+  isPro = true,
+  onPaywall,
 }: {
   aspects: NatalAspect[]
   interpretations?: NatalInterpretations | null
   positions?: NatalPosition[]
+  isPro?: boolean
+  onPaywall?: () => void
 }) {
   const { t } = useLanguage()
   const tap = useMobileTap()
+  const FREE_LIMIT = 3
   const [mostImpact, setMostImpact] = useState(true)
   const filtered = mostImpact
     ? aspects.filter((a) => aspectStrength(a.orb) === "exact" || aspectStrength(a.orb) === "strong")
@@ -298,7 +303,11 @@ export function NatalAspectsTable({
   )
   const posMap = new Map((positions ?? []).map((p) => [p.id, p]))
 
-  const toggle = (key: string) => {
+  const toggle = (key: string, globalIndex: number) => {
+    if (!isPro && globalIndex >= FREE_LIMIT) {
+      onPaywall?.()
+      return
+    }
     setExpanded((prev) => {
       const next = new Set(prev)
       next.has(key) ? next.delete(key) : next.add(key)
@@ -316,6 +325,8 @@ export function NatalAspectsTable({
   const groupedAspects = groupOrder
     .filter((key) => groups[key]?.length)
     .map((key) => ({ key, aspects: groups[key]! }))
+
+  let globalIdx = 0
 
   return (
     <div className="natal-asp">
@@ -336,19 +347,21 @@ export function NatalAspectsTable({
           <div className="cw-transit-group-label">{t(GROUP_LABEL_KEYS[group.key])}</div>
           <div className="cw-transit-list">
             {group.aspects.map((a, i) => {
+              const idx = globalIdx++
               const strength = aspectStrength(a.orb)
               const strengthColor = STRENGTH_COLORS[strength] ?? "#8E8E93"
               const aspKey = `${a.p1}_${a.aspect}_${a.p2}`
               const interp = interpMap.get(aspKey)
               const clickable = !!interp?.meaning
+              const isLocked = !isPro && idx >= FREE_LIMIT
               const isOpen = expanded.has(aspKey)
               return (
                 <div
                   key={`${aspKey}-${i}`}
-                  className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}`}
+                  className={`cw-transit-item${isOpen ? " cw-transit-item--expanded" : ""}${isLocked ? " cw-transit-item--locked" : ""}`}
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
-                  {clickable ? <button type="button" className="tap-target" {...tap(() => toggle(aspKey))} /> : null}
+                  {clickable ? <button type="button" className="tap-target" {...tap(() => toggle(aspKey, idx))} /> : null}
                   <div className="cw-transit-row">
                     <span className="cw-transit-left">
                       <span className="cw-transit-glyphs">
@@ -361,13 +374,21 @@ export function NatalAspectsTable({
                       </span>
                     </span>
                     <span className="cw-transit-right">
-                      <span className="cw-transit-orb">{a.orb.toFixed(2)}°</span>
-                      <span
-                        className="cw-transit-strength"
-                        style={{ background: `${strengthColor}18`, color: strengthColor }}
-                      >
-                        {t(`strength.${strength}`)}
-                      </span>
+                      {isLocked ? (
+                        <span className="cw-lock-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </span>
+                      ) : (
+                        <>
+                          <span className="cw-transit-orb">{a.orb.toFixed(2)}°</span>
+                          <span
+                            className="cw-transit-strength"
+                            style={{ background: `${strengthColor}18`, color: strengthColor }}
+                          >
+                            {t(`strength.${strength}`)}
+                          </span>
+                        </>
+                      )}
                     </span>
                   </div>
 

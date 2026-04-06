@@ -312,6 +312,7 @@ export function App() {
   }, [expandedWidget])
   const [guideOpen, setGuideOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [paywallOpen, setPaywallOpen] = useState(false)
   const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
   const [profileOrder, setProfileOrder] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem("profileOrder") ?? "[]") } catch { return [] }
@@ -1250,7 +1251,7 @@ export function App() {
               {/* Active Transits widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
-                  <ActiveTransitsWidget transitReport={transitReport} />
+                  <ActiveTransitsWidget transitReport={transitReport} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
                 </div>
               ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={4} />
@@ -1332,7 +1333,7 @@ export function App() {
               {/* Cosmic Climate widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
-                  <CosmicClimateWidget transitReport={transitReport} isPro={isPro} />
+                  <CosmicClimateWidget transitReport={transitReport} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
                 </div>
               ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={3} />
@@ -1425,7 +1426,7 @@ export function App() {
                 <SkeletonWidget rows={5} />
               ) : null}
               {activeDetail ? (
-                <div className="widget widget--chart widget--wheel-right" onClick={() => isPro ? setWheelExpanded(true) : setExpandedWidget("transits")}>
+                <div className="widget widget--chart widget--wheel-right" onClick={() => isPro ? setWheelExpanded(true) : setPaywallOpen(true)}>
                   <button type="button" className="cw-toggle-wrap wheel-sp-toggle" onClick={(e) => { e.stopPropagation(); toggleSpecialPoints() }}>
                     <span className="cw-toggle-label">{t("wheel.specialPoints")}</span>
                     <div className={`cw-toggle${showSpecialPoints ? " cw-toggle--on" : ""}`}>
@@ -1629,7 +1630,7 @@ export function App() {
                 <div>
                   <ProfileSummaryCard detail={activeDetail} />
                   {natalPositions.length ? <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} /> : null}
-                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} /> : null}
+                  {natalAspects.length ? <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} isPro={isPro} onPaywall={() => setPaywallOpen(true)} /> : null}
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
@@ -1640,11 +1641,7 @@ export function App() {
                 )
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
-                isPro ? (
-                  <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} />
-                ) : (
-                  <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
-                )
+                <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
               ) : null}
               {expandedWidget === "transits" ? (
                 <TransitsTab
@@ -1866,6 +1863,15 @@ export function App() {
         profiles={profiles}
         excludeProfileId={activeProfileId}
       />
+
+      {/* Paywall modal */}
+      {paywallOpen ? (
+        <div className="paywall-modal-backdrop" onClick={() => setPaywallOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <Paywall t={t} lang={lang} onClose={() => setPaywallOpen(false)} />
+          </div>
+        </div>
+      ) : null}
     </main>
   )
 }

@@ -127,6 +127,7 @@ export const ru: Record<string, string> = {
 
   // Cosmic Climate
   "climate.title": "Космический климат",
+  "climate.unlock": "Разблокировать",
 
   // Widgets
   "widget.natal": "Натал",

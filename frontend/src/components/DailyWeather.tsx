@@ -502,9 +502,10 @@ function ClimateProgressBar({ timing, nowDate, transitObject }: {
   )
 }
 
-export function CosmicClimateWidget({ transitReport, isPro = true }: {
+export function CosmicClimateWidget({ transitReport, isPro = true, onPaywall }: {
   transitReport: TransitReportResponse
   isPro?: boolean
+  onPaywall?: () => void
 }) {
   const { t } = useLanguage()
   const climateAspects = transitReport.cosmic_climate ?? []
@@ -539,16 +540,16 @@ export function CosmicClimateWidget({ transitReport, isPro = true }: {
                 {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
                 <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
               </>
-            ) : (
-              <div className="pro-blur" style={{ position: "relative", overflow: "hidden", borderRadius: 8 }}>
-                {a.meaning ? <p className="cc-card-desc">{a.meaning}</p> : null}
-                {a.insight ? <p className="cc-card-insight">{a.insight}</p> : null}
-                <ClimateProgressBar timing={a.timing} nowDate={nowDate} transitObject={a.transit_object} />
-              </div>
-            )}
+            ) : null}
           </div>
         )
       })}
+      {!isPro ? (
+        <button type="button" className="cc-unlock-btn" onClick={() => onPaywall?.()}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          {t("climate.unlock") || "Unlock"}
+        </button>
+      ) : null}
     </div>
   )
 }
@@ -568,14 +569,17 @@ const GROUP_LABEL_KEYS: Record<string, string> = {
   special: "transits.specialPoints",
 }
 
-export function ActiveTransitsWidget({ transitReport }: {
+export function ActiveTransitsWidget({ transitReport, isPro = true, onPaywall }: {
   transitReport: TransitReportResponse
+  isPro?: boolean
+  onPaywall?: () => void
 }) {
   const { t } = useLanguage()
   const tap = useMobileTap()
   const allAspects = transitReport.active_aspects ?? []
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set())
   const [mostImpact, setMostImpact] = useState(true)
+  const FREE_LIMIT = 3
   if (!allAspects.length) return null
 
   const aspects = mostImpact
@@ -625,6 +629,10 @@ export function ActiveTransitsWidget({ transitReport }: {
     .map((key) => ({ key, aspects: groups[key] }))
 
   const toggleCardIdx = (idx: number) => {
+    if (!isPro && idx >= FREE_LIMIT) {
+      onPaywall?.()
+      return
+    }
     setExpandedCards((prev) => {
       const next = new Set(prev)
       if (next.has(idx)) next.delete(idx)
@@ -661,13 +669,14 @@ export function ActiveTransitsWidget({ transitReport }: {
             {group.aspects.map((a) => {
               const idx = globalIdx++
               const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"
+              const isLocked = !isPro && idx >= FREE_LIMIT
               const isExpanded = expandedCards.has(idx)
               const tp = transitMap[a.transit_object]
               const np = natalMap[a.natal_object]
               return (
                 <div
                   key={`${a.transit_object}-${a.natal_object}-${idx}`}
-                  className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}`}
+                  className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}${isLocked ? " cw-transit-item--locked" : ""}`}
                   style={{ cursor: "pointer" }}
                 >
                   <button type="button" className="tap-target" {...tap(() => toggleCardIdx(idx))} />
@@ -684,13 +693,21 @@ export function ActiveTransitsWidget({ transitReport }: {
                       </span>
                     </span>
                     <span className="cw-transit-right">
-                      <span className="cw-transit-orb">{a.orb.toFixed(2)}&deg;</span>
-                      <span
-                        className="cw-transit-strength"
-                        style={{ background: `${strengthColor}18`, color: strengthColor }}
-                      >
-                        {t(`strength.${a.strength}`)}
-                      </span>
+                      {isLocked ? (
+                        <span className="cw-lock-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </span>
+                      ) : (
+                        <>
+                          <span className="cw-transit-orb">{a.orb.toFixed(2)}&deg;</span>
+                          <span
+                            className="cw-transit-strength"
+                            style={{ background: `${strengthColor}18`, color: strengthColor }}
+                          >
+                            {t(`strength.${a.strength}`)}
+                          </span>
+                        </>
+                      )}
                     </span>
                   </div>
                   {isExpanded ? (

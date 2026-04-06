@@ -8,18 +8,21 @@ interface PaywallProps {
   lang: string
   /** Optional: what feature is gated */
   feature?: string
+  /** Optional: close handler for modal usage */
+  onClose?: () => void
 }
 
-export function Paywall({ t, lang, feature }: PaywallProps) {
+export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
   const [loading, setLoading] = useState<string | null>(null)
-
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleCheckout = async (plan: string) => {
-    setLoading(plan)
+  const handleCheckout = async () => {
+    if (!selectedPlan) return
+    setLoading(selectedPlan)
     setError(null)
     try {
-      const { checkout_url } = await createCheckoutSession(plan)
+      const { checkout_url } = await createCheckoutSession(selectedPlan)
       if (checkout_url) {
         window.location.href = checkout_url
       } else {
@@ -38,6 +41,9 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
   return (
     <div className="paywall-overlay">
       <div className="paywall-card">
+        {onClose ? (
+          <button type="button" className="paywall-close" onClick={onClose}>&times;</button>
+        ) : null}
         <div className="paywall-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -65,37 +71,38 @@ export function Paywall({ t, lang, feature }: PaywallProps) {
         <div className="paywall-prices">
           <button
             type="button"
-            className="paywall-btn paywall-btn--primary"
-            onClick={() => handleCheckout("pro_monthly")}
+            className={`paywall-btn paywall-btn--primary${selectedPlan === "pro_monthly" ? " paywall-btn--selected" : ""}`}
+            onClick={() => setSelectedPlan("pro_monthly")}
           >
-            {loading === "pro_monthly" ? (
-              <span className="paywall-spinner" />
-            ) : (
-              <>
-                <span className="paywall-btn-price">$7.99<small>/mo</small></span>
-                <span className="paywall-btn-label">{isRu ? "Подписаться на месяц" : "Subscribe Monthly"}</span>
-              </>
-            )}
+            <span className="paywall-btn-price">$7.99<small>/mo</small></span>
+            <span className="paywall-btn-label">{isRu ? "Ежемесячно" : "Monthly"}</span>
           </button>
 
           <button
             type="button"
-            className="paywall-btn paywall-btn--accent"
-            onClick={() => handleCheckout("pro_annual")}
+            className={`paywall-btn paywall-btn--accent${selectedPlan === "pro_annual" ? " paywall-btn--selected" : ""}`}
+            onClick={() => setSelectedPlan("pro_annual")}
           >
-            {loading === "pro_annual" ? (
-              <span className="paywall-spinner" />
-            ) : (
-              <>
-                <span className="paywall-btn-price">$59.99<small>/yr</small></span>
-                <span className="paywall-btn-label">
-                  {isRu ? "Подписаться на год (экономия 37%)" : "Subscribe Annual (save 37%)"}
-                </span>
-                <span className="paywall-badge">{isRu ? "Лучшая цена" : "Best value"}</span>
-              </>
-            )}
+            <span className="paywall-btn-price">$59.99<small>/yr</small></span>
+            <span className="paywall-btn-label">
+              {isRu ? "Ежегодно (экономия 37%)" : "Annual (save 37%)"}
+            </span>
+            <span className="paywall-badge">{isRu ? "Лучшая цена" : "Best value"}</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          className="paywall-purchase-btn"
+          disabled={!selectedPlan || !!loading}
+          onClick={handleCheckout}
+        >
+          {loading ? (
+            <span className="paywall-spinner" />
+          ) : (
+            isRu ? "Оформить подписку" : "Purchase"
+          )}
+        </button>
 
         {error && <p style={{ color: "#ff453a", fontSize: "0.8rem", marginBottom: 8 }}>{error}</p>}
         <p className="paywall-compare">
