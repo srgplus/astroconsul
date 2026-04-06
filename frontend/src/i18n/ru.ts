@@ -582,4 +582,17 @@ export const ru: Record<string, string> = {
   "invite.copyLink": "Скопировать ссылку",
   "invite.sendError": "Не удалось отправить приглашение.",
   "invite.backToApp": "Перейти в приложение",
+
+  // Pro / Paywall
+  "pro.unlock": "Разблокируйте big3.me Pro",
+  "pro.monthly": "Ежемесячно",
+  "pro.annual": "Годовой (экономия 37%)",
+  "pro.bestValue": "Лучшая цена",
+  "pro.compare": "$7.99/мес vs $5.00/мес при годовой подписке",
+  "pro.feature.forecast": "Полный 10-дневный прогноз",
+  "pro.feature.details": "Детальные описания транзитов",
+  "pro.feature.climate": "Космический климат",
+  "pro.feature.timeline": "Таймлайн аспектов",
+  "pro.paymentSuccess": "Pro активирован! Наслаждайтесь космической погодой.",
+  "pro.paymentCancel": "Оплата отменена. Попробуйте снова в любое время.",
 }

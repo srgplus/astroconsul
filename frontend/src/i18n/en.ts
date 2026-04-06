@@ -582,4 +582,17 @@ export const en: Record<string, string> = {
   "invite.copyLink": "Copy Link",
   "invite.sendError": "Failed to send invitation.",
   "invite.backToApp": "Go to App",
+
+  // Pro / Paywall
+  "pro.unlock": "Unlock big3.me Pro",
+  "pro.monthly": "Monthly",
+  "pro.annual": "Annual (save 37%)",
+  "pro.bestValue": "Best value",
+  "pro.compare": "$7.99/mo vs $5.00/mo with annual plan",
+  "pro.feature.forecast": "Full 10-day forecast",
+  "pro.feature.details": "Detailed transit descriptions",
+  "pro.feature.climate": "Cosmic climate analysis",
+  "pro.feature.timeline": "Aspect timeline",
+  "pro.paymentSuccess": "Pro activated! Enjoy your cosmic weather.",
+  "pro.paymentCancel": "Payment cancelled. You can try again anytime.",
 }
