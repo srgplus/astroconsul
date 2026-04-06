@@ -850,7 +850,7 @@ export function App() {
     if (!activeProfileId || !synastryPartnerId) return
     // Free users see paywall immediately
     if (!isPro) {
-      setExpandedWidget("synastry")
+      setPaywallOpen(true)
       return
     }
     if (synastryReport) {
@@ -1634,16 +1634,7 @@ export function App() {
                 </div>
               ) : null}
               {expandedWidget === "planets" && natalPositions.length ? (
-                isPro ? (
-                  <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
-                ) : (
-                  <div className="paywall-inline-trigger">
-                    <button type="button" className="cc-unlock-btn" onClick={() => setPaywallOpen(true)}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      {t("climate.unlock")}
-                    </button>
-                  </div>
-                )
+                <NatalPositionsTable positions={natalPositions} interpretations={activeDetail?.chart.natal_interpretations} />
               ) : null}
               {expandedWidget === "aspects" && natalAspects.length ? (
                 <NatalAspectsTable aspects={natalAspects} interpretations={activeDetail?.chart.natal_interpretations} positions={natalPositions} isPro={isPro} onPaywall={() => setPaywallOpen(true)} />
@@ -1673,17 +1664,8 @@ export function App() {
                   onPaywall={() => setPaywallOpen(true)}
                 />
               ) : null}
-              {expandedWidget === "synastry" ? (
-                isPro && synastryReport ? (
-                  <SynastryReport report={synastryReport} />
-                ) : !isPro ? (
-                  <div className="paywall-inline-trigger">
-                    <button type="button" className="cc-unlock-btn" onClick={() => setPaywallOpen(true)}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      {t("climate.unlock")}
-                    </button>
-                  </div>
-                ) : null
+              {expandedWidget === "synastry" && isPro && synastryReport ? (
+                <SynastryReport report={synastryReport} />
               ) : null}
             </div>
           </div>

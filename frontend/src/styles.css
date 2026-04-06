@@ -1925,10 +1925,6 @@ select {
 .cc-unlock-btn:hover {
   background: rgba(108, 99, 255, 0.15);
 }
-.paywall-inline-trigger {
-  padding: 24px 16px;
-  text-align: center;
-}
 .cc-bar {
   margin-top: 12px;
 }
