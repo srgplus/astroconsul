@@ -19,6 +19,7 @@ import { InviteAcceptPage } from "./components/InviteAcceptPage"
 import { InviteModal } from "./components/InviteModal"
 import SynastryWidget from "./components/SynastryWidget"
 import { useSubscription } from "./hooks/useSubscription"
+import { Paywall } from "./components/Paywall"
 import ProfilePickerModal from "./components/ProfilePickerModal"
 import SynastryReport from "./components/SynastryReport"
 import ChartSidebar from "./components/ChartSidebar"
@@ -1326,7 +1327,13 @@ export function App() {
               {/* Cosmic Climate widget */}
               {transitReport ? (
                 <div className="widget widget--summary">
-                  <CosmicClimateWidget transitReport={transitReport} />
+                  {isPro ? (
+                    <CosmicClimateWidget transitReport={transitReport} />
+                  ) : (
+                    <div className="pro-blur" style={{ minHeight: 120, borderRadius: 16, overflow: "hidden", position: "relative" }}>
+                      <CosmicClimateWidget transitReport={transitReport} />
+                    </div>
+                  )}
                 </div>
               ) : isOwnProfile && (transitLoading || activeProfileId) && !transitReport ? (
                 <SkeletonWidget rows={3} />
@@ -1657,7 +1664,11 @@ export function App() {
                 />
               ) : null}
               {expandedWidget === "synastry" && synastryReport ? (
-                <SynastryReport report={synastryReport} />
+                isPro ? (
+                  <SynastryReport report={synastryReport} />
+                ) : (
+                  <Paywall t={t} lang={lang} feature={t("pro.feature.details")} />
+                )
               ) : null}
             </div>
           </div>
