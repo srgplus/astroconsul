@@ -886,12 +886,17 @@ export function App() {
     const onResize = () => {
       const el = mobileFooterRef.current
       if (!el) return
-      const offsetFromBottom = window.innerHeight - vv.height - vv.offsetTop
-      if (offsetFromBottom > 50) {
-        // Keyboard is open
-        el.style.bottom = `${offsetFromBottom}px`
+      const kbHeight = window.innerHeight - vv.height - vv.offsetTop
+      if (kbHeight > 50) {
+        // Keyboard is open — lift footer above it and shrink sidebar
+        el.style.bottom = `${kbHeight}px`
+        // Shrink sidebar so list items aren't hidden behind elevated footer
+        const sidebar = document.querySelector<HTMLElement>(".sidebar")
+        if (sidebar) sidebar.style.paddingBottom = `${kbHeight + 80}px`
       } else {
         el.style.bottom = ""
+        const sidebar = document.querySelector<HTMLElement>(".sidebar")
+        if (sidebar) sidebar.style.paddingBottom = ""
       }
     }
     vv.addEventListener("resize", onResize)
@@ -1547,11 +1552,12 @@ export function App() {
               setSearchQuery(e.target.value)
               setMobileView("list")
             }}
-            onFocus={() => {
+            onFocus={(e) => {
               setMobileView("list")
-              // Prevent iOS from scrolling page up when keyboard opens
-              setTimeout(() => window.scrollTo(0, 0), 100)
-              setTimeout(() => window.scrollTo(0, 0), 300)
+              // Ensure search input stays visible above iOS keyboard
+              setTimeout(() => {
+                e.target.scrollIntoView({ block: "center", behavior: "smooth" })
+              }, 300)
             }}
           />
         </div>
