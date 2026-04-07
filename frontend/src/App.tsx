@@ -920,8 +920,9 @@ export function App() {
   }
 
   if (!user) {
-    if (showAuth) {
-      return <AuthScreen onBack={() => setShowAuth(false)} />
+    const isIOSApp = navigator.userAgent.includes("big3me")
+    if (isIOSApp || showAuth) {
+      return <AuthScreen onBack={isIOSApp ? undefined : () => setShowAuth(false)} />
     }
     return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
   }
