@@ -12,7 +12,9 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     preferredContentMode: 'mobile',
     scheme: 'big3me',
+    backgroundColor: '#1c1c1e',
   },
+  backgroundColor: '#1c1c1e',
 };
 
 export default config;
