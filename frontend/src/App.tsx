@@ -240,7 +240,7 @@ export function App() {
     const tag = document.querySelector('meta[name="viewport"]')
     if (!tag) return
     if (wheelExpanded) {
-      tag.setAttribute("content", "width=device-width, initial-scale=1.0, viewport-fit=cover")
+      tag.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover")
     } else {
       tag.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover")
     }

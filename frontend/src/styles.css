@@ -4715,6 +4715,10 @@ button.natal-pos__row--clickable {
     justify-content: space-between;
     padding: 16px 20px 8px;
     padding-top: max(16px, env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
   }
   .mobile-list-title {
     font-family: "Space Grotesk", sans-serif;
@@ -4864,6 +4868,7 @@ button.natal-pos__row--clickable {
 
   /* Widget popup: nearly full screen on mobile */
   .widget-popup { width: calc(100vw - 16px); max-height: calc(100vh - 32px); border-radius: 16px; }
+  .widget-popup-head { padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)); }
   .widget-popup-body { padding: 12px; }
 
   /* Natal position rows */
