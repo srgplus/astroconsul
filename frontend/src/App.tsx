@@ -195,7 +195,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { t, lang } = useLanguage()
-  const { isPro, plan, expiresAt } = useSubscription()
+  const { isPro, plan, expiresAt, loading: subLoading } = useSubscription()
   const [theme, setTheme] = useTheme()
   const [showAuth, setShowAuth] = useState(false)
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -848,8 +848,8 @@ export function App() {
 
   const handleOpenSynastryReport = useCallback(async () => {
     if (!activeProfileId || !synastryPartnerId) return
-    // Free users see paywall immediately
-    if (!isPro) {
+    // Free users see paywall immediately (but wait for subscription check)
+    if (!isPro && !subLoading) {
       setPaywallOpen(true)
       return
     }
@@ -869,7 +869,7 @@ export function App() {
     } finally {
       setSynastryLoading(false)
     }
-  }, [activeProfileId, synastryPartnerId, synastryReport])
+  }, [activeProfileId, synastryPartnerId, synastryReport, isPro, subLoading])
 
   const natalPositions = activeDetail?.chart.natal_positions ?? []
   const natalAspects = activeDetail?.chart.natal_aspects ?? []
@@ -1861,7 +1861,7 @@ export function App() {
       />
 
       {/* Paywall modal */}
-      {paywallOpen ? (
+      {paywallOpen && !subLoading && !isPro ? (
         <div className="paywall-modal-backdrop" onClick={() => setPaywallOpen(false)}>
           <div onClick={(e) => e.stopPropagation()}>
             <Paywall t={t} lang={lang} onClose={() => setPaywallOpen(false)} />
