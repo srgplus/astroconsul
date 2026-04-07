@@ -879,6 +879,7 @@ export function App() {
   ).length
 
   // Keep mobile footer above iOS virtual keyboard via VisualViewport API
+  // Shrink entire layout to visual viewport so sidebar content stays visible
   const mobileFooterRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const vv = window.visualViewport
@@ -888,15 +889,14 @@ export function App() {
       if (!el) return
       const kbHeight = window.innerHeight - vv.height - vv.offsetTop
       if (kbHeight > 50) {
-        // Keyboard is open — lift footer above it and shrink sidebar
-        el.style.bottom = `${kbHeight}px`
-        // Shrink sidebar so list items aren't hidden behind elevated footer
-        const sidebar = document.querySelector<HTMLElement>(".sidebar")
-        if (sidebar) sidebar.style.paddingBottom = `${kbHeight + 80}px`
+        // Keyboard is open — shrink the root layout to visible area
+        const root = document.getElementById("root")
+        if (root) root.style.height = `${vv.height}px`
+        el.style.bottom = "0"
       } else {
+        const root = document.getElementById("root")
+        if (root) root.style.height = ""
         el.style.bottom = ""
-        const sidebar = document.querySelector<HTMLElement>(".sidebar")
-        if (sidebar) sidebar.style.paddingBottom = ""
       }
     }
     vv.addEventListener("resize", onResize)
