@@ -879,7 +879,6 @@ export function App() {
   ).length
 
   // Keep mobile footer above iOS virtual keyboard via VisualViewport API
-  // Shrink entire layout to visual viewport so sidebar content stays visible
   const mobileFooterRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const vv = window.visualViewport
@@ -889,13 +888,8 @@ export function App() {
       if (!el) return
       const kbHeight = window.innerHeight - vv.height - vv.offsetTop
       if (kbHeight > 50) {
-        // Keyboard is open — shrink the root layout to visible area
-        const root = document.getElementById("root")
-        if (root) root.style.height = `${vv.height}px`
-        el.style.bottom = "0"
+        el.style.bottom = `${kbHeight}px`
       } else {
-        const root = document.getElementById("root")
-        if (root) root.style.height = ""
         el.style.bottom = ""
       }
     }
@@ -1552,12 +1546,11 @@ export function App() {
               setSearchQuery(e.target.value)
               setMobileView("list")
             }}
-            onFocus={(e) => {
+            onFocus={() => {
               setMobileView("list")
-              // Ensure search input stays visible above iOS keyboard
-              setTimeout(() => {
-                e.target.scrollIntoView({ block: "center", behavior: "smooth" })
-              }, 300)
+              // Prevent iOS from scrolling page up when keyboard opens
+              setTimeout(() => window.scrollTo(0, 0), 100)
+              setTimeout(() => window.scrollTo(0, 0), 300)
             }}
           />
         </div>

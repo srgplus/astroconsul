@@ -109,18 +109,6 @@ body,
   min-height: 100%;
 }
 
-/* iOS / mobile: prevent body scroll so fixed elements don't shift */
-@media (max-width: 1024px) {
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
-  #root {
-    height: 100vh;
-    height: 100dvh; /* dynamic viewport height — accounts for iOS chrome */
-    overflow: hidden;
-  }
-}
 
 body {
   margin: 0;
@@ -4670,27 +4658,18 @@ button.natal-pos__row--clickable {
     width: 100%;
     padding: 0;
     margin-left: 0 !important;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
   .main-layout {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    display: block;
   }
 
   /* Home screen = profile list (sidebar) */
   .sidebar {
     position: static;
     width: 100%;
-    flex: 1;
-    min-height: 0;
+    height: 100vh;
+    max-height: none;
     border-radius: 0;
     border: none;
     padding: 0;
@@ -4828,11 +4807,6 @@ button.natal-pos__row--clickable {
     margin: 0 auto;
     padding: 0 16px 70px;
     padding-top: max(8px, env(safe-area-inset-top));
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: none;
   }
 
   /* View switching: list visible, detail hidden */
