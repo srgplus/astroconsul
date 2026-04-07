@@ -7102,6 +7102,26 @@ button.natal-pos__row--clickable {
   margin-top: 4px;
 }
 
+.paywall-contact-text {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+  margin: 8px 0 4px;
+}
+
+.paywall-contact-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.paywall-purchase-btn--secondary {
+  background: transparent;
+  border: 1px solid var(--border, #333) !important;
+  color: var(--text, #fff);
+}
+
 .paywall-spinner {
   width: 18px;
   height: 18px;

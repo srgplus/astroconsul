@@ -1,6 +1,11 @@
 import { useState } from "react"
 import { createCheckoutSession } from "../api"
 
+const isNativeApp = (): boolean =>
+  typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.()
+
+const CONTACT_EMAIL = "big3meapp@gmail.com"
+
 interface PaywallProps {
   /** Translation function */
   t: (key: string) => string
@@ -16,6 +21,7 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const native = isNativeApp()
 
   const handleCheckout = async () => {
     if (!selectedPlan) return
@@ -34,6 +40,12 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
       setError(err instanceof Error ? err.message : "Payment system error. Please try again later.")
       setLoading(null)
     }
+  }
+
+  const handleContactEmail = () => {
+    const subject = encodeURIComponent("big3.me Pro — Subscription Request")
+    const body = encodeURIComponent("Hi! I'd like to upgrade to big3.me Pro.\n\nPlease send me the details.")
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
   }
 
   const isRu = lang === "ru"
@@ -68,49 +80,69 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
           <li>{isRu ? "Таймлайн аспектов" : "Aspect timeline"}</li>
         </ul>
 
-        <div className="paywall-prices">
-          <button
-            type="button"
-            className={`paywall-btn paywall-btn--primary${selectedPlan === "pro_monthly" ? " paywall-btn--selected" : ""}`}
-            onClick={() => setSelectedPlan("pro_monthly")}
-          >
-            <span className="paywall-btn-price">$7.99<small>/mo</small></span>
-            <span className="paywall-btn-label">{isRu ? "Ежемесячно" : "Monthly"}</span>
-          </button>
+        {native ? (
+          <>
+            <p className="paywall-contact-text">
+              {isRu
+                ? "Чтобы оформить подписку, свяжитесь с нами:"
+                : "To subscribe, contact us:"}
+            </p>
 
-          <button
-            type="button"
-            className={`paywall-btn paywall-btn--accent${selectedPlan === "pro_annual" ? " paywall-btn--selected" : ""}`}
-            onClick={() => setSelectedPlan("pro_annual")}
-          >
-            <span className="paywall-btn-price">$59.99<small>/yr</small></span>
-            <span className="paywall-btn-label">
-              {isRu ? "Ежегодно (экономия 37%)" : "Annual (save 37%)"}
-            </span>
-            <span className="paywall-badge">{isRu ? "Лучшая цена" : "Best value"}</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              className="paywall-purchase-btn"
+              onClick={handleContactEmail}
+            >
+              {isRu ? "Связаться с нами" : "Contact Us"}
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="paywall-prices">
+              <button
+                type="button"
+                className={`paywall-btn paywall-btn--primary${selectedPlan === "pro_monthly" ? " paywall-btn--selected" : ""}`}
+                onClick={() => setSelectedPlan("pro_monthly")}
+              >
+                <span className="paywall-btn-price">$7.99<small>/mo</small></span>
+                <span className="paywall-btn-label">{isRu ? "Ежемесячно" : "Monthly"}</span>
+              </button>
 
-        <button
-          type="button"
-          className="paywall-purchase-btn"
-          disabled={!selectedPlan || !!loading}
-          onClick={handleCheckout}
-        >
-          {loading ? (
-            <span className="paywall-spinner" />
-          ) : (
-            isRu ? "Оформить подписку" : "Purchase"
-          )}
-        </button>
+              <button
+                type="button"
+                className={`paywall-btn paywall-btn--accent${selectedPlan === "pro_annual" ? " paywall-btn--selected" : ""}`}
+                onClick={() => setSelectedPlan("pro_annual")}
+              >
+                <span className="paywall-btn-price">$59.99<small>/yr</small></span>
+                <span className="paywall-btn-label">
+                  {isRu ? "Ежегодно (экономия 37%)" : "Annual (save 37%)"}
+                </span>
+                <span className="paywall-badge">{isRu ? "Лучшая цена" : "Best value"}</span>
+              </button>
+            </div>
 
-        {error && <p style={{ color: "#ff453a", fontSize: "0.8rem", marginBottom: 8 }}>{error}</p>}
-        <p className="paywall-compare">
-          {isRu
-            ? "$7.99/мес vs $5.00/мес при годовой подписке"
-            : "$7.99/mo vs $5.00/mo with annual plan"
-          }
-        </p>
+            <button
+              type="button"
+              className="paywall-purchase-btn"
+              disabled={!selectedPlan || !!loading}
+              onClick={handleCheckout}
+            >
+              {loading ? (
+                <span className="paywall-spinner" />
+              ) : (
+                isRu ? "Оформить подписку" : "Purchase"
+              )}
+            </button>
+
+            {error && <p style={{ color: "#ff453a", fontSize: "0.8rem", marginBottom: 8 }}>{error}</p>}
+            <p className="paywall-compare">
+              {isRu
+                ? "$7.99/мес vs $5.00/мес при годовой подписке"
+                : "$7.99/mo vs $5.00/mo with annual plan"
+              }
+            </p>
+          </>
+        )}
       </div>
     </div>
   )
