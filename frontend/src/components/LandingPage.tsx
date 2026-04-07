@@ -171,6 +171,7 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
         <span className="landing-footer__copy">&copy; big3.me {new Date().getFullYear()}</span>
         <span className="landing-footer__links">
           <a href="/news/">News</a>
+          <a href="/support">Support</a>
           <a href="/legal">Terms</a>
         </span>
       </footer>

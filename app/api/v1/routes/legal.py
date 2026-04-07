@@ -16,3 +16,9 @@ _templates = Jinja2Templates(directory=str(_templates_dir))
 def terms_page(request: Request):
     """Render Terms of Service page."""
     return _templates.TemplateResponse(request=request, name="legal/terms.html")
+
+
+@router.get("/support", response_class=HTMLResponse)
+def support_page(request: Request):
+    """Render Contact & Support page."""
+    return _templates.TemplateResponse(request=request, name="legal/support.html")
