@@ -18,6 +18,12 @@ def terms_page(request: Request):
     return _templates.TemplateResponse(request=request, name="legal/terms.html")
 
 
+@router.get("/privacy", response_class=HTMLResponse)
+def privacy_page(request: Request):
+    """Render Privacy Policy page."""
+    return _templates.TemplateResponse(request=request, name="legal/privacy.html")
+
+
 @router.get("/support", response_class=HTMLResponse)
 def support_page(request: Request):
     """Render Contact & Support page."""

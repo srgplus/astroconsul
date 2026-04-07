@@ -173,6 +173,7 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
           <a href="/news/">News</a>
           <a href="/support">Support</a>
           <a href="/legal">Terms</a>
+          <a href="/privacy">Privacy</a>
         </span>
       </footer>
     </div>
