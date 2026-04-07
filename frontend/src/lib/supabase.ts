@@ -4,3 +4,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Expose to native iOS for Apple Sign In
+(window as any).__supabase = supabase;
