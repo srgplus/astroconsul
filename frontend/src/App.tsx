@@ -195,7 +195,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { t, lang } = useLanguage()
-  const { isPro } = useSubscription()
+  const { isPro, plan, expiresAt } = useSubscription()
   const [theme, setTheme] = useTheme()
   const [showAuth, setShowAuth] = useState(false)
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -1846,6 +1846,9 @@ export function App() {
           localStorage.setItem("primaryProfileId", id)
           setPrimaryProfile(id).catch((err) => console.error("Failed to save primary profile:", err))
         }}
+        isPro={isPro}
+        plan={plan}
+        expiresAt={expiresAt}
       />
 
       {/* Profile picker for synastry */}

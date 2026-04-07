@@ -5610,13 +5610,36 @@ button.natal-pos__row--clickable {
 }
 
 .stg-val--badge {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
+  background: var(--card-bg, #f5f5f7);
+  color: var(--text-secondary, #8e8e93);
   opacity: 1;
   padding: 2px 10px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.stg-val--pro {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.stg-portal-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 16px;
+  border: 1px solid var(--line, #e0e0e0);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary, #8e8e93);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.stg-portal-link:hover {
+  background: var(--card-bg, #f5f5f7);
+  border-color: #667eea;
+  color: #667eea;
 }
 
 /* Theme cards */

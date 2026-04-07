@@ -1,6 +1,7 @@
 import { useState } from "react"
 import type { ProfileSummary, TransitReportResponse } from "../types"
 import { useLanguage, type Lang } from "../contexts/LanguageContext"
+import { getAuthHeaders } from "../api"
 
 type Theme = "light" | "dark" | "system"
 
@@ -16,6 +17,9 @@ type SettingsModalProps = {
   profiles: ProfileSummary[]
   primaryProfileId: string | null
   onPrimaryChange: (id: string) => void
+  isPro?: boolean
+  plan?: string
+  expiresAt?: string | null
 }
 
 type SettingsPage = "account" | "appearance" | "system" | "about"
@@ -44,6 +48,9 @@ export function SettingsModal({
   profiles,
   primaryProfileId,
   onPrimaryChange,
+  isPro = false,
+  plan = "free",
+  expiresAt = null,
 }: SettingsModalProps) {
   const [page, setPage] = useState<SettingsPage>("account")
   const { t, lang, setLang } = useLanguage()
@@ -128,12 +135,43 @@ export function SettingsModal({
                   <div className="stg-card-title">{t("settings.subscription")}</div>
                   <div className="stg-row">
                     <span className="stg-label">{t("settings.plan")}</span>
-                    <span className="stg-val stg-val--badge">{t("settings.freeBeta")}</span>
+                    <span className={`stg-val stg-val--badge${isPro ? " stg-val--pro" : ""}`}>
+                      {isPro ? "Pro" : t("settings.freeBeta")}
+                    </span>
                   </div>
+                  {isPro && expiresAt ? (
+                    <div className="stg-row">
+                      <span className="stg-label">{lang === "ru" ? "Действует до" : "Valid until"}</span>
+                      <span className="stg-val">{new Date(expiresAt).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                    </div>
+                  ) : null}
                   <div className="stg-row">
                     <span className="stg-label">{t("settings.transitReports")}</span>
                     <span className="stg-val">{t("settings.unlimited")}</span>
                   </div>
+                  {isPro ? (
+                    <button
+                      type="button"
+                      className="stg-portal-link"
+                      onClick={async () => {
+                        try {
+                          const auth = await getAuthHeaders()
+                          const res = await fetch("/api/v1/payments/customer-portal", {
+                            method: "POST",
+                            headers: auth,
+                          })
+                          if (res.ok) {
+                            const data = await res.json()
+                            if (data.portal_url) window.location.href = data.portal_url
+                          }
+                        } catch (err) {
+                          console.error("[Portal] error:", err)
+                        }
+                      }}
+                    >
+                      {lang === "ru" ? "Управление подпиской" : "Manage subscription"}
+                    </button>
+                  ) : null}
                 </div>
                 <div className="stg-mobile-signout">
                   <button type="button" className="stg-signout-btn" onClick={onSignOut}>

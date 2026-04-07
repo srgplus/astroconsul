@@ -229,3 +229,33 @@ async def bepaid_webhook(request: Request):
     )
 
     return {"status": "ok"}
+
+
+# ── Stripe Customer Portal ──────────────────────────────────────────
+
+@router.post("/customer-portal")
+def create_customer_portal(
+    user: dict[str, Any] = Depends(get_current_user),
+):
+    """Create a Stripe Customer Portal session for managing subscription."""
+    stripe = _get_stripe()
+    email = user.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="No email on account")
+
+    try:
+        # Find customer by email
+        customers = stripe.Customer.list(email=email, limit=1)
+        if not customers.data:
+            raise HTTPException(status_code=404, detail="No Stripe customer found")
+
+        session = stripe.billing_portal.Session.create(
+            customer=customers.data[0].id,
+            return_url="https://big3.me/",
+        )
+        return {"portal_url": session.url}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to create customer portal session")
+        raise HTTPException(status_code=500, detail="Failed to create portal session")
