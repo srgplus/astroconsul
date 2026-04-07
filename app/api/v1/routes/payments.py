@@ -144,61 +144,64 @@ async def stripe_webhook(request: Request):
     sig_header = request.headers.get("stripe-signature", "")
     webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-    logger.info("Stripe webhook received, sig present: %s, secret present: %s", bool(sig_header), bool(webhook_secret))
+    logger.info("Stripe webhook received, payload_len=%d, sig=%s, secret=%s",
+                len(payload), bool(sig_header), bool(webhook_secret))
 
     if not webhook_secret:
         logger.error("STRIPE_WEBHOOK_SECRET not configured")
         raise HTTPException(status_code=500, detail="Webhook not configured")
 
-    # Signature verification — handle both old (stripe.error.*) and new (stripe.*) SDK paths
+    # Verify signature
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-    except ValueError:
-        logger.error("Invalid Stripe webhook payload")
-        raise HTTPException(status_code=400, detail="Invalid payload")
+        stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
     except Exception as exc:
-        # stripe.error.SignatureVerificationError (SDK <6) or stripe.SignatureVerificationError (SDK >=6)
-        if "SignatureVerification" in type(exc).__name__:
-            logger.error("Invalid Stripe webhook signature: %s", exc)
-            raise HTTPException(status_code=400, detail="Invalid signature")
-        logger.exception("Unexpected error verifying Stripe webhook: %s", exc)
-        raise HTTPException(status_code=400, detail="Webhook verification failed")
+        logger.exception("Stripe webhook signature verification failed: %s", exc)
+        raise HTTPException(status_code=400, detail="Invalid signature")
 
-    event_type = event["type"] if isinstance(event, dict) else event.type
+    # Parse raw JSON — avoids all SDK version compatibility issues
+    try:
+        data = json.loads(payload)
+    except Exception:
+        logger.exception("Failed to parse webhook JSON payload")
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    event_type = data.get("type", "")
     logger.info("Stripe webhook event: %s", event_type)
 
-    if event_type == "checkout.session.completed":
-        session_obj = event["data"]["object"] if isinstance(event, dict) else event.data.object
-        user_id = session_obj.get("client_reference_id") or session_obj.get("metadata", {}).get("user_id")
-        plan = session_obj.get("metadata", {}).get("plan", "pro_monthly")
+    try:
+        if event_type == "checkout.session.completed":
+            session_obj = data.get("data", {}).get("object", {})
+            user_id = session_obj.get("client_reference_id") or session_obj.get("metadata", {}).get("user_id")
+            plan = session_obj.get("metadata", {}).get("plan", "pro_monthly")
+            session_id = session_obj.get("id", "")
 
-        logger.info("Checkout session: id=%s, user_id=%s, plan=%s", session_obj.get("id"), user_id, plan)
+            logger.info("Checkout session: id=%s, user_id=%s, plan=%s", session_id, user_id, plan)
 
-        if not user_id:
-            logger.error("No user_id in Stripe checkout session: %s", session_obj.get("id"))
-            return {"status": "error", "detail": "No user_id"}
+            if not user_id:
+                logger.error("No user_id in Stripe checkout session: %s", session_id)
+                return {"status": "error", "detail": "No user_id"}
 
-        amount = session_obj.get("amount_total", 0)
-        currency = session_obj.get("currency", "usd").upper()
+            amount = session_obj.get("amount_total", 0)
+            currency = (session_obj.get("currency") or "usd").upper()
 
-        try:
             _activate_subscription(
                 user_id=user_id,
                 plan=plan,
                 provider="stripe",
-                transaction_id=session_obj.get("id", ""),
+                transaction_id=session_id,
                 amount=amount,
                 currency=currency,
             )
-            logger.info("Stripe checkout completed — activated %s for user %s", plan, user_id)
-        except Exception:
-            logger.exception("Failed to activate subscription for user %s", user_id)
-            # Still return 200 so Stripe doesn't keep retrying
-            return {"status": "error", "detail": "Activation failed"}
+            logger.info("Activated %s for user %s (txn: %s)", plan, user_id, session_id)
 
-    elif event_type == "customer.subscription.deleted":
-        subscription = event["data"]["object"] if isinstance(event, dict) else event.data.object
-        logger.info("Stripe subscription cancelled: %s", subscription.get("id"))
+        elif event_type == "customer.subscription.deleted":
+            sub_id = data.get("data", {}).get("object", {}).get("id", "")
+            logger.info("Stripe subscription cancelled: %s", sub_id)
+
+    except Exception:
+        logger.exception("Failed to process Stripe webhook event %s", event_type)
+        # Return 200 so Stripe stops retrying — we log the error for debugging
+        return {"status": "error", "detail": "Processing failed"}
 
     return {"status": "ok"}
 
