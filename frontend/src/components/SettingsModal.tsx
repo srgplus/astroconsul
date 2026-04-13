@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { ProfileSummary, TransitReportResponse } from "../types"
 import { useLanguage, type Lang } from "../contexts/LanguageContext"
 import { deleteAccount, getAuthHeaders } from "../api"
+import { supabase } from "../lib/supabase"
 
 const isNativeApp = (): boolean =>
   typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.()
@@ -66,9 +67,28 @@ export function SettingsModal({
     setDeleting(true)
     try {
       await deleteAccount()
-      // Sign out locally to drop the now-invalid session, then reload.
-      onSignOut()
-      window.location.href = "/"
+      // Backend already deleted the Supabase Auth user. Clear the local
+      // session explicitly and AWAIT it before navigating, otherwise the
+      // reload can race the signOut and the stale session in localStorage
+      // gets rehydrated as a "logged in" user.
+      try {
+        await supabase.auth.signOut({ scope: "local" })
+      } catch (e) {
+        console.error("[Settings] local signOut after delete failed:", e)
+      }
+      // Best-effort: wipe any leftover supabase.* keys from localStorage so
+      // even a stale token can't rehydrate the session on next load.
+      try {
+        const keys: string[] = []
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const k = window.localStorage.key(i)
+          if (k && (k.startsWith("sb-") || k.includes("supabase"))) keys.push(k)
+        }
+        keys.forEach((k) => window.localStorage.removeItem(k))
+      } catch (e) {
+        console.error("[Settings] localStorage cleanup failed:", e)
+      }
+      window.location.replace("/")
     } catch (err) {
       console.error("[Settings] delete account error:", err)
       setDeleteError(t("settings.deleteAccountError"))

@@ -139,42 +139,51 @@ extension CustomViewController: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-              let identityTokenData = credential.identityToken,
-              let idToken = String(data: identityTokenData, encoding: .utf8) else {
+              let identityTokenData = credential.identityToken else {
             return
         }
 
-        // Pass the Apple ID token to Supabase via JS
+        // Base64-encode the token to avoid JS string escaping issues
+        let tokenBase64 = identityTokenData.base64EncodedString()
         let js = """
         (async () => {
             try {
-                const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-                // Use existing Supabase client from the app
-                const supabaseUrl = document.querySelector('meta[name="supabase-url"]')?.content;
-                const supabaseKey = document.querySelector('meta[name="supabase-key"]')?.content;
+                const token = atob('\(tokenBase64)');
+                console.log('[Apple Sign In] Token received, length:', token.length);
 
-                // Try using the global supabase instance
+                // Try using the global supabase instance first
                 if (window.__supabase) {
-                    await window.__supabase.auth.signInWithIdToken({
+                    console.log('[Apple Sign In] Using window.__supabase');
+                    const { data, error } = await window.__supabase.auth.signInWithIdToken({
                         provider: 'apple',
-                        token: '\(idToken)'
+                        token: token
                     });
-                    window.location.reload();
-                    return;
+                    if (error) {
+                        console.error('[Apple Sign In] signInWithIdToken error:', error.message);
+                    } else {
+                        console.log('[Apple Sign In] Success, reloading...');
+                        window.location.reload();
+                        return;
+                    }
                 }
 
                 // Fallback: post message for the React app to handle
+                console.log('[Apple Sign In] Falling back to postMessage');
                 window.postMessage({
                     type: 'APPLE_SIGN_IN',
-                    idToken: '\(idToken)'
+                    idToken: token
                 }, '*');
             } catch(e) {
-                console.error('[Apple Sign In] Error:', e);
+                console.error('[Apple Sign In] Error:', e.message || e);
             }
         })();
         """
         DispatchQueue.main.async { [weak self] in
-            self?.webView?.evaluateJavaScript(js, completionHandler: nil)
+            self?.webView?.evaluateJavaScript(js) { _, error in
+                if let error = error {
+                    print("[Apple Sign In] JS evaluation error: \(error.localizedDescription)")
+                }
+            }
         }
     }
 
