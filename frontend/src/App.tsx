@@ -865,7 +865,7 @@ export function App() {
     } catch (err: unknown) {
       console.error("Synastry report failed:", err)
       const msg = err instanceof Error ? err.message : String(err)
-      alert(`Synastry report error: ${msg}`)
+      alert(`Compatibility report error: ${msg}`)
     } finally {
       setSynastryLoading(false)
     }

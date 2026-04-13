@@ -429,7 +429,7 @@ export function NatalZodiacRing({
   if (!Number.isFinite(asc)) {
     return (
       <div className="ring-fallback">
-        <strong>Natal ring unavailable</strong>
+        <strong>Birth chart ring unavailable</strong>
         <span>ASC is missing for the active profile.</span>
       </div>
     )
@@ -483,7 +483,7 @@ export function NatalZodiacRing({
       className={ringClassName(theme, className)}
       viewBox={viewBox}
       role="img"
-      aria-label="Natal zodiac ring"
+      aria-label="Birth chart zodiac ring"
     >
       <defs>
         <clipPath id={`${idBase}-zodiac-band-clip`}>

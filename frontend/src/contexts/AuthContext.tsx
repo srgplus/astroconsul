@@ -39,7 +39,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for native Apple Sign In fallback (iOS WKWebView postMessage)
+    const handleAppleSignIn = async (e: MessageEvent) => {
+      if (e.data?.type === "APPLE_SIGN_IN" && e.data.idToken) {
+        console.log("[Auth] Native Apple Sign In token received");
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: "apple",
+          token: e.data.idToken,
+        });
+        if (error) console.error("[Auth] Apple signInWithIdToken error:", error.message);
+      }
+    };
+    window.addEventListener("message", handleAppleSignIn);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("message", handleAppleSignIn);
+    };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string): Promise<string | null> => {
