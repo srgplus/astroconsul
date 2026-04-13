@@ -67,15 +67,17 @@ Paste the block below into App Store Connect → Resolution Center → Reply to 
 >
 > **Guideline 2.1(b) — Business Model (App Review Information answers)**
 >
-> 1. Features that require subscription to function as intended: extended 10-day transit forecast, detailed transit descriptions/interpretations, cosmic climate analysis, aspect timeline, synastry compatibility report, and chart export. Free tier users receive a 3-day transit summary with basic aspect data and an interactive natal chart.
+> 1. Users who will use paid subscriptions: existing big3.me web users who want the full content depth that the free tier does not expose. Pro unlocks, on a signed-in account: the full set of daily transit aspects (free tier shows only the top 3 active aspects), the detailed transit interpretation text (the textual description and contextual insight for each aspect), the full cosmic climate analysis text, and the full set of natal chart interpretations (free tier shows interpretations for the top 3 natal positions and top 3 natal aspects only). Pro users are also the audience for new content additions we plan in the same areas.
 >
-> 2. Free features available: account creation and sign-in, natal chart calculation and interactive chart wheel, 3-day transit summary with up to 3 top active aspects, basic aspect data, viewing followed natal profiles, and news content.
+> 2. Where users can purchase subscriptions: only on our website, big3.me, via Stripe checkout. The iOS app does not offer any purchase path and does not display pricing or external payment links.
 >
-> 3. Paid features available: the extended features listed in answer (1). These are unlocked on a user's account after they subscribe.
+> 3. Previously purchased subscriptions accessible in the app: a Pro subscription activated on the big3.me website is tied to the user's account (not to the device). When the same user signs in to the iOS app with that account, Pro content unlocks in the iOS UI — the full transit aspect list, the interpretation text, the full cosmic climate text, and the full natal interpretation set.
 >
-> 4. Paid content, subscriptions, or features unlocked within the iOS app that do not use in-app purchase: **none from within the iOS app**. The iOS app does not offer any in-app purchase and does not display subscription pricing, plans, purchase buttons, or external payment links. big3.me is a cross-platform astrology service. Users who have subscribed to our service on our website (big3.me) can sign in to the iOS app with the same account and, because subscription state is tied to the account rather than the device, they retain access to the features they already paid for. We believe this is consistent with the Multiplatform Services principle in guideline 3.1.3(b). The iOS app itself does not encourage, link to, or provide pricing information about any external purchase method.
+> 4. Paid content, subscriptions, or features unlocked within the iOS app that do not use in-app purchase: Pro-gated content described in (1) becomes visible on iOS when the signed-in user is already a Pro subscriber. The iOS app itself does not offer any in-app purchase and does not display subscription pricing, plans, purchase buttons, or external payment links. big3.me is a cross-platform service; subscription state is tied to the account rather than the device. We believe this is consistent with the Multiplatform Services principle in guideline 3.1.3(b). The iOS app does not encourage, link to, or provide pricing information about any external purchase method.
 >
 > 5. Advertising revenue: the app does not display any third-party advertising.
+>
+> Free-tier features available without any subscription: account creation and sign-in, interactive natal chart wheel with precise planet positions, the top 3 active transit aspects with their core data (object, aspect, orb, strength), the TII (0–100 daily score) and Feels Like indicator, synastry compatibility analysis between the user and any other profile, follow/unfollow other users, view public profiles, invite friends via email, browse featured profiles, and news content.
 >
 > If Apple would prefer us to add an in-app purchase as an alternative way to subscribe from iOS, we can do so in a follow-up submission. Please confirm whether the current configuration (iOS app shows no subscription pricing or CTA; web-only subscription sync via account) is acceptable, or if IAP is required.
 >
@@ -157,7 +159,7 @@ Differentiators vs other social/lifestyle apps in the store:
 - Real-time astronomical computation: every data point is computed via Swiss Ephemeris (a professional-grade ephemeris used in academic astronomy software), not served from pre-written content
 - Transparent calculation parameters: users can see the house system, orb limits, and ephemeris version the app uses (Settings → System)
 
-Subscription model: big3.me offers a Pro tier (extended 10-day forecast, detailed transit descriptions, cosmic climate analysis, aspect timeline, chart export). Subscription is offered ONLY on our website (big3.me). The iOS app does NOT display subscription pricing, purchase buttons, or external payment links. Users who subscribe on the web retain their Pro access when signing in on iOS via the same account (multiplatform service, consistent with guideline 3.1.3(b)). The iOS app is free to download and use.
+Subscription model: big3.me offers a Pro tier that unlocks the full set of daily transit aspects (free tier shows the top 3), detailed transit and natal interpretation text, and full cosmic climate analysis. Subscription is offered ONLY on our website (big3.me). The iOS app does NOT display subscription pricing, purchase buttons, or external payment links. Users who subscribe on the web retain their Pro access when signing in on iOS via the same account (multiplatform service, consistent with guideline 3.1.3(b)). The iOS app is free to download and use.
 
 Demo account: (provided in the Demo Account section).
 ```

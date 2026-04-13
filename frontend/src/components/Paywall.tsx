@@ -88,10 +88,10 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
         ) : (
           <>
             <ul className="paywall-benefits">
-              <li>{isRu ? "Полный 10-дневный прогноз" : "Full 10-day forecast"}</li>
+              <li>{isRu ? "Все активные транзитные аспекты дня" : "All active daily transit aspects"}</li>
               <li>{isRu ? "Детальные описания транзитов" : "Detailed transit descriptions"}</li>
-              <li>{isRu ? "Космический климат" : "Cosmic climate analysis"}</li>
-              <li>{isRu ? "Таймлайн аспектов" : "Aspect timeline"}</li>
+              <li>{isRu ? "Полный космический климат" : "Full cosmic climate analysis"}</li>
+              <li>{isRu ? "Полные интерпретации натальной карты" : "Full natal chart interpretations"}</li>
             </ul>
             <div className="paywall-prices">
               <button
