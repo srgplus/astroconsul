@@ -56,7 +56,9 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
         </div>
 
         <h3 className="paywall-title">
-          {isRu ? "Разблокируйте big3.me Pro" : "Unlock big3.me Pro"}
+          {native
+            ? (isRu ? "Pro-возможность" : "Pro feature")
+            : (isRu ? "Разблокируйте big3.me Pro" : "Unlock big3.me Pro")}
         </h3>
 
         {feature && (
@@ -64,13 +66,6 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
             {isRu ? `${feature} — доступно в Pro` : `${feature} — available with Pro`}
           </p>
         )}
-
-        <ul className="paywall-benefits">
-          <li>{isRu ? "Полный 10-дневный прогноз" : "Full 10-day forecast"}</li>
-          <li>{isRu ? "Детальные описания транзитов" : "Detailed transit descriptions"}</li>
-          <li>{isRu ? "Космический климат" : "Cosmic climate analysis"}</li>
-          <li>{isRu ? "Таймлайн аспектов" : "Aspect timeline"}</li>
-        </ul>
 
         {native ? (
           <>
@@ -92,6 +87,12 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
           </>
         ) : (
           <>
+            <ul className="paywall-benefits">
+              <li>{isRu ? "Полный 10-дневный прогноз" : "Full 10-day forecast"}</li>
+              <li>{isRu ? "Детальные описания транзитов" : "Detailed transit descriptions"}</li>
+              <li>{isRu ? "Космический климат" : "Cosmic climate analysis"}</li>
+              <li>{isRu ? "Таймлайн аспектов" : "Aspect timeline"}</li>
+            </ul>
             <div className="paywall-prices">
               <button
                 type="button"

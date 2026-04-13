@@ -3,6 +3,9 @@ import type { ProfileSummary, TransitReportResponse } from "../types"
 import { useLanguage, type Lang } from "../contexts/LanguageContext"
 import { deleteAccount, getAuthHeaders } from "../api"
 
+const isNativeApp = (): boolean =>
+  typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.()
+
 type Theme = "light" | "dark" | "system"
 
 type SettingsModalProps = {
@@ -167,7 +170,7 @@ export function SettingsModal({
                     <span className="stg-label">{t("settings.transitReports")}</span>
                     <span className="stg-val">{t("settings.unlimited")}</span>
                   </div>
-                  {isPro ? (
+                  {isPro && !isNativeApp() ? (
                     <button
                       type="button"
                       className="stg-portal-link"
@@ -189,6 +192,12 @@ export function SettingsModal({
                     >
                       {lang === "ru" ? "Управление подпиской" : "Manage subscription"}
                     </button>
+                  ) : isPro && isNativeApp() ? (
+                    <p className="stg-card-desc" style={{ marginTop: 12, fontSize: "0.82rem" }}>
+                      {lang === "ru"
+                        ? "Подписка управляется через сайт, где она была оформлена."
+                        : "Subscription is managed from the website where it was purchased."}
+                    </p>
                   ) : null}
                 </div>
                 <div className="stg-card stg-card--danger">
