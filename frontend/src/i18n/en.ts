@@ -548,12 +548,12 @@ export const en: Record<string, string> = {
   "natal.house": "House",
 
   // Landing page
-  "landing.hero": "Explore Cosmic Weather",
-  "landing.subtitle": "See what the stars reveal about your favorite celebrities",
-  "landing.cta": "Create Your Natal Chart",
+  "landing.hero": "Your friends. One feed.",
+  "landing.subtitle": "A social network built around birth charts. Follow friends, compare charts, and discover compatibility — all powered by real-time Swiss Ephemeris calculations.",
+  "landing.cta": "Create Your Profile",
   "landing.signIn": "Sign In",
   "landing.signUp": "Sign Up",
-  "landing.signUpUnlock": "Sign up to unlock full features",
+  "landing.signUpUnlock": "Sign up to connect and compare",
   "landing.back": "Back",
   "landing.loading": "Loading...",
   // Moon phase

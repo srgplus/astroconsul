@@ -548,12 +548,12 @@ export const ru: Record<string, string> = {
   "natal.house": "Дом",
 
   // Landing page
-  "landing.hero": "Исследуй Космическую Погоду",
-  "landing.subtitle": "Узнай что звёзды говорят о твоих любимых знаменитостях",
-  "landing.cta": "Создай Свою Натальную Карту",
+  "landing.hero": "Твои друзья. Одна лента.",
+  "landing.subtitle": "Социальная сеть вокруг натальных карт. Следи за друзьями, сравнивай карты, открывай совместимость — всё на реальных вычислениях Swiss Ephemeris.",
+  "landing.cta": "Создать профиль",
   "landing.signIn": "Войти",
   "landing.signUp": "Регистрация",
-  "landing.signUpUnlock": "Зарегистрируйся для полного доступа",
+  "landing.signUpUnlock": "Зарегистрируйся чтобы подключаться и сравнивать",
   "landing.back": "Назад",
   "landing.loading": "Загрузка...",
   // Moon phase

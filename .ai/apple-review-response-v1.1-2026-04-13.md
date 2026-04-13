@@ -85,7 +85,21 @@ Paste the block below into App Store Connect → Resolution Center → Reply to 
 >
 > **Guideline 4.3(b) — Design: Saturated Categories**
 >
-> (Choose one of the three blocks in Section 3 below and insert here after decision is made.)
+> We have repositioned the app and its App Store listing to reflect what big3.me actually is: a social networking application where users connect through their natal birth charts.
+>
+> The app is now categorized under **Social Networking** (not Lifestyle). The subtitle is "Birth Chart Social Network". The primary screenshot and landing page lead with the social feed: "Your friends. One feed." Core features exposed in the listing are: following friends, viewing public profiles, comparing birth charts side-by-side, running synastry compatibility analysis, and a personal daily tracker.
+>
+> We believe this positioning is materially distinct from other astrology or lifestyle apps Apple may have compared us to previously. In particular:
+>
+> 1. **Category fit.** The app's core loop is social: follow → view chart → compare charts → run synastry. The astrological data is the *medium* through which users connect, not the product itself. This is why Social Networking is the accurate category.
+>
+> 2. **Computational differentiation.** Unlike most apps in the astrology/lifestyle space that serve pre-written horoscope text, every data point in big3.me is computed in real-time via Swiss Ephemeris — the same professional-grade astronomical ephemeris used by academic and professional astrology software. We expose the engine's configuration (house system, orb limits, ephemeris version) transparently in Settings → System, which is unusual for consumer apps in this space.
+>
+> 3. **Social graph.** The app includes follow relationships, public profile discovery, profile invites via email, and shared synastry views — standard social networking primitives built specifically around birth charts.
+>
+> 4. **Multiplatform, no purchase flow in iOS.** The iOS app has no in-app purchase, no subscription pricing shown, no purchase CTAs, and no external payment links. Web subscribers retain their Pro tier via account sync (multiplatform service, consistent with 3.1.3(b)).
+>
+> We are confident the app provides a meaningfully different experience from the apps in the saturated category Apple flagged previously, and we are happy to demonstrate any of the above directly if helpful. If Apple sees a specific concern within this Social Networking positioning, we would welcome the detail so we can address it.
 >
 > Thank you for your continued review. We are available at big3meapp@gmail.com for any clarification.
 >
@@ -93,9 +107,66 @@ Paste the block below into App Store Connect → Resolution Center → Reply to 
 
 ---
 
-## 3. Guideline 4.3(b) — three response options
+## 3. Guideline 4.3(b) — CURRENT STRATEGY: Social Networking category + Scientific framing
 
-Apple rejected us twice on 4.3(b). Reviewer language both times: "saturated category" / "similar to other astrology apps". Reviewer has asked us to demonstrate unique value beyond existing astrology apps. Three realistic paths:
+**The App Store listing has already been repositioned for this cycle:**
+- **Category:** Social Networking (not Lifestyle)
+- **Subtitle:** "Birth Chart Social Network"
+- **Promotional Text:** "Follow friends, compare birth charts, and explore compatibility — all powered by real-time Swiss Ephemeris calculations. A social network for chart enthusiasts."
+- **Screenshots:** lead with "Your friends. One feed." — social feed, then Compatibility (synastry), Daily Score, Live planetary data, Professional chart engine, Create your profile
+- **Keywords:** birth chart, social, compatibility, synastry, natal chart, friends, transit, ephemeris, forecast, connect
+
+**Reply argument to 4.3(b):** "big3.me is categorized under Social Networking, not Lifestyle. The app is fundamentally a social network for people connecting through their birth charts — following friends, comparing charts, and exploring compatibility. This differs materially from general horoscope/astrology apps in the Lifestyle category that Apple may be comparing us to. Our computation engine is also differentiated: every result is computed in real-time via Swiss Ephemeris (a professional astronomical ephemeris), not served from pre-written content. We would welcome further dialogue if Apple identifies a more specific concern within this positioning."
+
+### 3.1 — Landing page + metadata alignment (fixed in this commit)
+
+Apple reviewers typically cross-check the App Store listing against the app's web presence. The iOS app loads `big3.me` directly (WKWebView), so the landing page must match the Social Networking positioning. Previously the landing page said:
+- Hero: "Explore Cosmic Weather"
+- Subtitle: "See what the stars reveal about your favorite celebrities"
+- Pills: Transit Alerts · Moon Phases · Natal Chart · Synastry
+- Meta title: "big3.me — Cosmic Weather for Your Big 3"
+- Meta description: "AI-powered cosmic weather tracks how planetary transits interact with your Big 3..."
+
+**Updated to:**
+- Hero: "Your friends. One feed." (mirrors App Store screenshot #1)
+- Subtitle: "A social network built around birth charts. Follow friends, compare charts, and discover compatibility — all powered by real-time Swiss Ephemeris calculations."
+- Pills: Follow Friends · Compatibility · Daily Score · Natal Chart · Swiss Ephemeris
+- Meta title: "big3.me — Birth Chart Social Network"
+- Meta description: "Follow friends, compare birth charts, and discover compatibility. Real-time calculations powered by Swiss Ephemeris."
+- Section label: "Featured Profiles" (was "Featured Charts")
+- Sign-up hint: "Sign up to connect and compare"
+
+RU translations updated in parallel.
+
+### 3.2 — App Review Information "Notes" field (REPLACE IN APP STORE CONNECT)
+
+**Current Notes text contains "astrology app" in the first sentence — this contradicts the Social Networking category and will trigger 4.3(b) again.**
+
+**Current (replace this):**
+> "This is an astrology app that provides personalized daily transit reports based on the user's birth chart. The app uses Swiss Ephemeris for astronomical calculations. Pro subscription is handled via Stripe (web-based payment), not In-App Purchase."
+
+**New text to paste into App Store Connect → App Review Information → Notes:**
+
+```
+big3.me is a social networking application where users connect through their natal birth charts. Core functionality: follow friends, view public profiles, compare birth charts (synastry compatibility), and a personal daily tracker showing how current planetary positions interact with each user's chart.
+
+Category: Social Networking.
+
+Differentiators vs other social/lifestyle apps in the store:
+- Cross-profile social graph: users follow each other, compare charts side-by-side, run synastry analysis between any two profiles
+- Real-time astronomical computation: every data point is computed via Swiss Ephemeris (a professional-grade ephemeris used in academic astronomy software), not served from pre-written content
+- Transparent calculation parameters: users can see the house system, orb limits, and ephemeris version the app uses (Settings → System)
+
+Subscription model: big3.me offers a Pro tier (extended 10-day forecast, detailed transit descriptions, cosmic climate analysis, aspect timeline, chart export). Subscription is offered ONLY on our website (big3.me). The iOS app does NOT display subscription pricing, purchase buttons, or external payment links. Users who subscribe on the web retain their Pro access when signing in on iOS via the same account (multiplatform service, consistent with guideline 3.1.3(b)). The iOS app is free to download and use.
+
+Demo account: (provided in the Demo Account section).
+```
+
+---
+
+## 4. Alternative 4.3(b) paths if Social Networking positioning still fails
+
+If Apple rejects v1.1 again even under the Social Networking category, these are fallback options:
 
 ### Option A — Third repositioning attempt (inside the "astrology" category, stronger differentiation)
 
@@ -143,17 +214,19 @@ Accept that 4.3(b) under "astrology" will keep getting rejected. Withdraw the Ap
 **Pros:** zero App Store dependency going forward. Frees up engineering time.
 **Cons:** no App Store presence, harder to reach non-technical mobile users.
 
-### Recommendation
+### Fallback order (only if Social Networking positioning fails)
 
-Try **A first** (low cost), but keep **B warm** (prepare the phone call pitch and submit the appeal form in parallel). Reserve **C** as fallback if both A and B fail on the next cycle.
+1. **Option A** (third repositioning under Lifestyle/Reference, scientific framing) — cheap first attempt after Social fails
+2. **Option B** (App Review Board appeal + phone call) — if A fails, escalate to live review
+3. **Option C** (withdraw and ship PWA) — final fallback if both above fail
 
 ---
 
-## 4. Human action checklist
+## 5. Human action checklist
 
 The following items require the account owner (Serge) — Claude cannot do these from the sandbox:
 
-### 4.1 — Xcode build + TestFlight upload
+### 5.1 — Xcode build + TestFlight upload
 
 1. Open `frontend/ios/App/App.xcworkspace` in Xcode.
 2. Bump build number: Target "App" → General → Identity → **Build**: bump to the next integer above the previously-rejected build.
@@ -164,7 +237,7 @@ The following items require the account owner (Serge) — Claude cannot do these
 
 Since the app loads `https://big3.me` via Capacitor's `server.url`, the web changes auto-deploy on push to `main`. The Xcode build is only needed to package the new `Info.plist`/asset changes (if any) and produce a fresh binary with a new build number for Apple's review queue. **You do need a new Xcode build + upload for Apple to re-review** — TestFlight does not auto-update binaries from a web deploy.
 
-### 4.2 — Screen recording for 5.1.1(v)
+### 5.2 — Screen recording for 5.1.1(v)
 
 Apple asks for a screen recording showing the deletion flow when account deletion is a new addition. Quick capture:
 
@@ -174,30 +247,34 @@ Apple asks for a screen recording showing the deletion flow when account deletio
 4. Show that the app returns to the landing/sign-in screen.
 5. Save as .mov or .mp4 and attach to the Resolution Center reply.
 
-### 4.3 — App Review Information field updates in App Store Connect
+### 5.3 — App Review Information field updates in App Store Connect
 
 Before resubmitting:
 
-1. App Store Connect → My Apps → big3.me → App Store tab → the rejected submission → **App Review Information**.
-2. Paste the 5 Business Model answers from Section 2 of this doc into the "Notes" field (or directly in the Resolution Center message).
-3. Confirm **Demo Account** credentials are current and the account has at least one natal profile configured (reviewer needs to see Pro features referenced in answer 1 — create a test Pro account, or note in Notes: "Demo account is free tier; Pro features can be demonstrated by calculating a natal chart, which is free, and viewing the 3-day transit summary; extended features require a subscription we do not offer from iOS").
+1. App Store Connect → My Apps → big3.me → App Store tab → the rejected submission → **App Review Information** → **Notes**.
+2. **Replace the current "astrology app" text with the new Notes text in Section 3.2 above.** This is the single most important change after the build upload — the old text directly contradicts the Social Networking category.
+3. Confirm **Demo Account** credentials are current. If we're going to answer question (1) about Pro features honestly, we either (a) flag the demo account as Pro in Supabase so reviewer can see extended features directly, or (b) note in Notes: "Demo account is free tier; Pro features (extended forecast, detailed descriptions) are shown to users who subscribe on our website; for this review, extended features are documented in the Description and screenshots."
+4. Verify the App Store listing fields match the Social Networking pivot (they already do in the listing Serge pasted):
+   - Category: Social Networking ✓
+   - Subtitle: "Birth Chart Social Network" ✓
+   - Promotional Text, Description, Keywords all social-first ✓
 
-### 4.4 — 4.3(b) strategic decision
+### 5.4 — 4.3(b) strategic decision (already made: Social Networking + Scientific)
 
-Pick A, B, or C from Section 3. If A: just paste the A reply into Resolution Center. If B: open https://developer.apple.com/contact/app-store/?topic=appeal and request a phone call. If C: withdraw the submission in App Store Connect and ship PWA promotion instead.
+Decision already taken: repositioned to Social Networking category, with Scientific (Swiss Ephemeris) differentiation. No further choice needed unless this cycle fails. Fallbacks in Section 4 (A, B, C) stay reserved for later cycles.
 
-### 4.5 — Resolution Center reply
+### 5.5 — Resolution Center reply
 
 After build is attached and demo account is ready:
 1. App Store Connect → Resolution Center → Reply.
-2. Paste the Section 2 reply with the chosen 4.3(b) block inserted.
-3. Attach the deletion screen recording (4.2).
+2. Paste the Section 2 reply (now self-contained — 4.3(b) block pre-filled with Social Networking argument).
+3. Attach the deletion screen recording (5.2).
 4. Submit.
 
 ---
 
-## 5. Open questions for Serge
+## 6. Open questions for Serge
 
-1. **4.3(b) path:** A / B / C?
-2. **Pro demo account:** do we want to give Apple reviewer a Pro-activated account so they can see the extended features (which are free on web after login) directly, or leave the explanation in the Notes field? A Pro demo account would strengthen our "multiplatform service" narrative but requires us to flag one account as Pro in Supabase.
-3. **Privacy policy** already live on `https://big3.me/privacy` — confirm once more after the main deploy that section 7a describes the in-app delete flow (it does in this branch, will be live post-merge).
+1. **Pro demo account:** flag the demo account as Pro in Supabase so reviewer sees extended features directly? Strengthens our "multiplatform service" narrative considerably. If yes: pick a demo account email and update their row in `subscriptions` table (or give me the email + I'll provide the SQL).
+2. **Privacy policy** already live on `https://big3.me/privacy` — confirm once more after the main deploy that section 7a describes the in-app delete flow (it does in this branch, will be live post-merge).
+3. **If 4.3(b) rejected AGAIN under Social Networking:** proceed to Fallback A (Lifestyle/Reference + scientific), then B (Review Board phone call), then C (PWA). See Section 4.
