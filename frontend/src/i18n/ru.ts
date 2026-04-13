@@ -554,6 +554,12 @@ export const ru: Record<string, string> = {
   "landing.signIn": "Войти",
   "landing.signUp": "Регистрация",
   "landing.signUpUnlock": "Зарегистрируйся чтобы подключаться и сравнивать",
+  "landing.pill.followFriends": "Подписки",
+  "landing.pill.compatibility": "Совместимость",
+  "landing.pill.dailyScore": "Дневной счёт",
+  "landing.pill.natalChart": "Натальная карта",
+  "landing.pill.swissEphemeris": "Swiss Ephemeris",
+  "landing.featuredProfiles": "Популярные профили",
   "landing.back": "Назад",
   "landing.loading": "Загрузка...",
   // Moon phase

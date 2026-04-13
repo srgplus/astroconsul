@@ -147,11 +147,11 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
           </button>
         </div>
         <div className="landing-pills landing-fade-in" style={{ animationDelay: "0.3s" }}>
-          <span className="landing-pill">Follow Friends</span>
-          <span className="landing-pill">Compatibility</span>
-          <span className="landing-pill">Daily Score</span>
-          <span className="landing-pill">Natal Chart</span>
-          <span className="landing-pill">Swiss Ephemeris</span>
+          <span className="landing-pill">{t("landing.pill.followFriends")}</span>
+          <span className="landing-pill">{t("landing.pill.compatibility")}</span>
+          <span className="landing-pill">{t("landing.pill.dailyScore")}</span>
+          <span className="landing-pill">{t("landing.pill.natalChart")}</span>
+          <span className="landing-pill">{t("landing.pill.swissEphemeris")}</span>
         </div>
       </section>
 
@@ -159,7 +159,7 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
         <div className="landing-loading">{t("landing.loading")}</div>
       ) : profiles.length > 0 ? (
         <>
-          <div className="landing-section-label">Featured Profiles</div>
+          <div className="landing-section-label">{t("landing.featuredProfiles")}</div>
           <section className="landing-grid">
             {profiles.map((p) => (
               <LandingCard key={p.profile_id} profile={p} onClick={() => setSelectedId(p.profile_id)} />

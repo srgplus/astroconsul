@@ -554,6 +554,12 @@ export const en: Record<string, string> = {
   "landing.signIn": "Sign In",
   "landing.signUp": "Sign Up",
   "landing.signUpUnlock": "Sign up to connect and compare",
+  "landing.pill.followFriends": "Follow Friends",
+  "landing.pill.compatibility": "Compatibility",
+  "landing.pill.dailyScore": "Daily Score",
+  "landing.pill.natalChart": "Natal Chart",
+  "landing.pill.swissEphemeris": "Swiss Ephemeris",
+  "landing.featuredProfiles": "Featured Profiles",
   "landing.back": "Back",
   "landing.loading": "Loading...",
   // Moon phase
