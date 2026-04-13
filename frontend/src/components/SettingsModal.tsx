@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { ProfileSummary, TransitReportResponse } from "../types"
 import { useLanguage, type Lang } from "../contexts/LanguageContext"
-import { getAuthHeaders } from "../api"
+import { deleteAccount, getAuthHeaders } from "../api"
 
 type Theme = "light" | "dark" | "system"
 
@@ -53,7 +53,25 @@ export function SettingsModal({
   expiresAt = null,
 }: SettingsModalProps) {
   const [page, setPage] = useState<SettingsPage>("account")
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const { t, lang, setLang } = useLanguage()
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(null)
+    setDeleting(true)
+    try {
+      await deleteAccount()
+      // Sign out locally to drop the now-invalid session, then reload.
+      onSignOut()
+      window.location.href = "/"
+    } catch (err) {
+      console.error("[Settings] delete account error:", err)
+      setDeleteError(t("settings.deleteAccountError"))
+      setDeleting(false)
+    }
+  }
 
   if (!open) return null
 
@@ -172,6 +190,17 @@ export function SettingsModal({
                       {lang === "ru" ? "Управление подпиской" : "Manage subscription"}
                     </button>
                   ) : null}
+                </div>
+                <div className="stg-card stg-card--danger">
+                  <div className="stg-card-title">{t("settings.deleteAccount")}</div>
+                  <p className="stg-card-desc">{t("settings.deleteAccountDesc")}</p>
+                  <button
+                    type="button"
+                    className="stg-delete-btn"
+                    onClick={() => setConfirmDelete(true)}
+                  >
+                    {t("settings.deleteAccount")}
+                  </button>
                 </div>
                 <div className="stg-mobile-signout">
                   <button type="button" className="stg-signout-btn" onClick={onSignOut}>
@@ -315,6 +344,48 @@ export function SettingsModal({
           </div>
         </div>
       </div>
+      {confirmDelete ? (
+        <div
+          className="modal-overlay stg-confirm-overlay"
+          onClick={() => {
+            if (!deleting) {
+              setConfirmDelete(false)
+              setDeleteError(null)
+            }
+          }}
+        >
+          <div className="stg-confirm" onClick={(e) => e.stopPropagation()}>
+            <h3 className="stg-confirm-title">{t("settings.deleteAccountConfirmTitle")}</h3>
+            <p className="stg-confirm-body">{t("settings.deleteAccountConfirmBody")}</p>
+            {deleteError ? (
+              <p className="stg-confirm-error">{deleteError}</p>
+            ) : null}
+            <div className="stg-confirm-actions">
+              <button
+                type="button"
+                className="stg-confirm-cancel"
+                disabled={deleting}
+                onClick={() => {
+                  setConfirmDelete(false)
+                  setDeleteError(null)
+                }}
+              >
+                {t("settings.deleteAccountCancel")}
+              </button>
+              <button
+                type="button"
+                className="stg-confirm-danger"
+                disabled={deleting}
+                onClick={handleDeleteAccount}
+              >
+                {deleting
+                  ? t("settings.deleteAccountDeleting")
+                  : t("settings.deleteAccountConfirmBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

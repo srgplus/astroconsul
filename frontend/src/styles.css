@@ -5652,6 +5652,102 @@ button.natal-pos__row--clickable {
   color: #667eea;
 }
 
+/* Account deletion (danger zone) */
+.stg-card--danger {
+  border: 1px solid rgba(226, 75, 74, 0.3);
+  background: rgba(226, 75, 74, 0.05);
+}
+.stg-card--danger .stg-card-title {
+  color: #E24B4A;
+  opacity: 1;
+}
+.stg-card-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #8e8e93);
+  margin: 0 0 12px 0;
+  line-height: 1.45;
+}
+.stg-delete-btn {
+  padding: 8px 16px;
+  border: 1px solid rgba(226, 75, 74, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #E24B4A;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.stg-delete-btn:hover {
+  background: rgba(226, 75, 74, 0.1);
+  border-color: #E24B4A;
+}
+
+.stg-confirm-overlay {
+  z-index: 1100;
+}
+.stg-confirm {
+  background: var(--card-bg, #ffffff);
+  color: var(--text, #1a1a1a);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.stg-confirm-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+.stg-confirm-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #8e8e93);
+  margin: 0 0 20px 0;
+}
+.stg-confirm-error {
+  color: #E24B4A;
+  font-size: 0.82rem;
+  margin: 0 0 12px 0;
+}
+.stg-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.stg-confirm-cancel,
+.stg-confirm-danger {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+}
+.stg-confirm-cancel {
+  border: 1px solid var(--line, #e0e0e0);
+  background: transparent;
+  color: var(--text, #1a1a1a);
+}
+.stg-confirm-cancel:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text, #1a1a1a) 8%, transparent);
+}
+.stg-confirm-danger {
+  border: 1px solid #E24B4A;
+  background: #E24B4A;
+  color: #ffffff;
+}
+.stg-confirm-danger:hover:not(:disabled) {
+  background: #c93f3f;
+  border-color: #c93f3f;
+}
+.stg-confirm-cancel:disabled,
+.stg-confirm-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Theme cards */
 .stg-theme-grid {
   display: grid;

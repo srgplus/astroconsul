@@ -343,3 +343,15 @@ export async function createCheckoutSession(plan: string): Promise<{ checkout_ur
     body: JSON.stringify({ plan }),
   }).then(json<{ checkout_url: string }>)
 }
+
+export async function deleteAccount(): Promise<void> {
+  const auth = await getAuthHeaders()
+  const res = await fetch("/api/v1/auth/account", {
+    method: "DELETE",
+    headers: auth,
+  })
+  if (!res.ok && res.status !== 204) {
+    const text = await res.text().catch(() => "")
+    throw new Error(`Account deletion failed (${res.status}): ${text}`)
+  }
+}

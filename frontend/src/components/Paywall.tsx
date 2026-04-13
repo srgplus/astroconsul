@@ -4,8 +4,6 @@ import { createCheckoutSession } from "../api"
 const isNativeApp = (): boolean =>
   typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.()
 
-const CONTACT_EMAIL = "big3meapp@gmail.com"
-
 interface PaywallProps {
   /** Translation function */
   t: (key: string) => string
@@ -40,12 +38,6 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
       setError(err instanceof Error ? err.message : "Payment system error. Please try again later.")
       setLoading(null)
     }
-  }
-
-  const handleContactEmail = () => {
-    const subject = encodeURIComponent("big3.me Pro — Subscription Request")
-    const body = encodeURIComponent("Hi! I'd like to upgrade to big3.me Pro.\n\nPlease send me the details.")
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
   }
 
   const isRu = lang === "ru"
@@ -84,17 +76,19 @@ export function Paywall({ t, lang, feature, onClose }: PaywallProps) {
           <>
             <p className="paywall-contact-text">
               {isRu
-                ? "Чтобы оформить подписку, свяжитесь с нами:"
-                : "To subscribe, contact us:"}
+                ? "Эта возможность доступна только подписчикам Pro."
+                : "This feature is available to Pro subscribers only."}
             </p>
 
-            <button
-              type="button"
-              className="paywall-purchase-btn"
-              onClick={handleContactEmail}
-            >
-              {isRu ? "Связаться с нами" : "Contact Us"}
-            </button>
+            {onClose ? (
+              <button
+                type="button"
+                className="paywall-purchase-btn"
+                onClick={onClose}
+              >
+                {isRu ? "Понятно" : "Got it"}
+              </button>
+            ) : null}
           </>
         ) : (
           <>
