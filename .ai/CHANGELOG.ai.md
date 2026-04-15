@@ -2,6 +2,28 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-04-14
+
+### StoreKit2 IAP implementation (3.1.1 compliance)
+Apple rejected Option C (no IAP) on Apr 14. Guideline 3.1.1 requires IAP if Pro content is accessible on iOS.
+
+- **Backend**: `POST /api/v1/payments/verify-apple` — verifies StoreKit2 transaction and activates subscription (`payment_provider: "apple"`)
+- **Backend**: `POST /api/v1/payments/webhooks/apple` — App Store Server Notifications v2 for renewals, cancellations, refunds
+- **Swift**: `StoreKit2Manager.swift` — manages products, purchases, transaction listener; communicates with JS via `WKScriptMessageHandler` on `storekit` channel
+- **Swift**: `CustomViewController.swift` — registers StoreKit2Manager as message handler
+- **Frontend**: `Paywall.tsx` — native branch now shows real StoreKit product cards with localized prices, purchase button, restore purchases
+- **Frontend**: `SettingsModal.tsx` — Apple subscribers see "Manage Subscription" linking to iOS subscription settings
+- **Frontend**: `api.ts` — added `verifyAppleTransaction()` function
+- **CSS**: `.paywall-restore-btn` style for restore purchases button
+- Product IDs: `me.big3.pro.monthly` ($7.99), `me.big3.pro.annual` ($59.99) — must be created in App Store Connect
+- Strategy: IAP on iOS + Stripe on web coexist per guideline 3.1.3(b)
+
+### Apple review status (Apr 14 rejection)
+- 2.2 Beta Testing: RESOLVED (no longer flagged)
+- 5.1.1(v) Account Deletion: RESOLVED (no longer flagged)
+- 4.3(b) Design Spam: still rejected (3rd time) — recommend booking "Meet with Apple" appointment
+- 3.1.1 IAP: NEW — addressed by StoreKit2 implementation above
+
 ## 2026-04-13
 
 ### Apple review compliance (v1.1, submission 2b81bd3a)

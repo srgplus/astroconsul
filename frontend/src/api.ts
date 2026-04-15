@@ -344,6 +344,23 @@ export async function createCheckoutSession(plan: string): Promise<{ checkout_ur
   }).then(json<{ checkout_url: string }>)
 }
 
+export async function verifyAppleTransaction(
+  transactionId: string,
+  productId: string,
+  originalTransactionId?: string,
+): Promise<{ status: string; plan: string; already_active?: boolean }> {
+  const auth = await getAuthHeaders()
+  return fetch("/api/v1/payments/verify-apple", {
+    method: "POST",
+    headers: { ...auth, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      transaction_id: transactionId,
+      product_id: productId,
+      original_transaction_id: originalTransactionId || null,
+    }),
+  }).then(json<{ status: string; plan: string; already_active?: boolean }>)
+}
+
 export async function deleteAccount(): Promise<void> {
   const auth = await getAuthHeaders()
   const res = await fetch("/api/v1/auth/account", {

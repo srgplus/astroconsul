@@ -195,7 +195,7 @@ function TransitAspectsPreview({ report }: { report: TransitReportResponse | nul
 export function App() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { t, lang } = useLanguage()
-  const { isPro, plan, expiresAt, loading: subLoading } = useSubscription()
+  const { isPro, plan, expiresAt, loading: subLoading, refresh: refreshSub } = useSubscription()
   const [theme, setTheme] = useTheme()
   const [showAuth, setShowAuth] = useState(false)
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -1864,7 +1864,7 @@ export function App() {
       {paywallOpen && !subLoading && !isPro ? (
         <div className="paywall-modal-backdrop" onClick={() => setPaywallOpen(false)}>
           <div onClick={(e) => e.stopPropagation()}>
-            <Paywall t={t} lang={lang} onClose={() => setPaywallOpen(false)} />
+            <Paywall t={t} lang={lang} onClose={() => setPaywallOpen(false)} userId={userId ?? undefined} onPurchaseComplete={refreshSub} />
           </div>
         </div>
       ) : null}

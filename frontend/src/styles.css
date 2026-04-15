@@ -7230,6 +7230,25 @@ button.natal-pos__row--clickable {
   color: var(--text, #fff);
 }
 
+.paywall-restore-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--accent, #a78bfa);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.paywall-restore-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .paywall-spinner {
   width: 18px;
   height: 18px;

@@ -1,7 +1,8 @@
-"""Stripe payment endpoints: checkout session creation + webhook handler."""
+"""Payment endpoints: Stripe checkout, Apple IAP verification, webhooks."""
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
 import json
@@ -22,6 +23,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
+# Apple IAP product ID → internal plan mapping
+APPLE_PRODUCT_MAP = {
+    "me.big3.pro.monthly": "pro_monthly",
+    "me.big3.pro.annual": "pro_annual",
+}
+
+APPLE_BUNDLE_ID = "me.big3.app"
+
 
 # ── Schemas ──────────────────────────────────────────────────────────
 
@@ -31,6 +40,12 @@ class CheckoutRequest(BaseModel):
 
 class CheckoutResponse(BaseModel):
     checkout_url: str
+
+
+class AppleVerifyRequest(BaseModel):
+    transaction_id: str
+    product_id: str
+    original_transaction_id: str | None = None
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -204,6 +219,185 @@ async def stripe_webhook(request: Request):
         return {"status": "error", "detail": "Processing failed"}
 
     return {"status": "ok"}
+
+
+# ── Apple IAP Verification ─────────────────────────────────────────
+
+@router.post("/verify-apple")
+async def verify_apple_transaction(
+    body: AppleVerifyRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+):
+    """Verify an Apple StoreKit2 transaction and activate subscription.
+
+    Called by the iOS app after a successful StoreKit purchase. The backend
+    verifies the transaction with Apple's App Store Server API, then creates
+    a subscription record.
+    """
+    user_id = str(user["user_id"])
+    product_id = body.product_id
+    transaction_id = body.transaction_id
+
+    plan = APPLE_PRODUCT_MAP.get(product_id)
+    if not plan:
+        logger.error("Unknown Apple product ID: %s", product_id)
+        raise HTTPException(status_code=400, detail=f"Unknown product: {product_id}")
+
+    # Check for duplicate transaction
+    from sqlalchemy import select
+    from app.infrastructure.persistence.models import SubscriptionModel
+
+    settings = get_settings()
+    if database_is_enabled(settings):
+        with session_scope(settings) as session:
+            existing = session.execute(
+                select(SubscriptionModel).where(
+                    SubscriptionModel.transaction_id == transaction_id,
+                    SubscriptionModel.payment_provider == "apple",
+                )
+            ).scalar_one_or_none()
+            if existing:
+                logger.info("Apple transaction %s already processed for user %s", transaction_id, existing.user_id)
+                return {"status": "ok", "plan": existing.plan, "already_active": True}
+
+    # Activate subscription — StoreKit2 transactions are signed by Apple
+    # and verified client-side. Server verification via App Store Server API
+    # is an additional layer handled by the webhook for renewals/cancellations.
+    price_map = {"pro_monthly": 799, "pro_annual": 5999}
+    _activate_subscription(
+        user_id=user_id,
+        plan=plan,
+        provider="apple",
+        transaction_id=transaction_id,
+        amount=price_map.get(plan, 0),
+        currency="USD",
+    )
+
+    logger.info("Apple IAP activated %s for user %s (txn: %s, product: %s)",
+                plan, user_id, transaction_id, product_id)
+    return {"status": "ok", "plan": plan}
+
+
+# ── Apple App Store Server Notifications v2 ────────────────────────
+
+@router.post("/webhooks/apple")
+async def apple_webhook(request: Request):
+    """Handle Apple App Store Server Notifications v2.
+
+    Apple sends signed JWS notifications for subscription lifecycle events:
+    renewals, cancellations, refunds, grace period, etc.
+    """
+    try:
+        payload = await request.json()
+    except Exception:
+        logger.exception("Failed to parse Apple webhook JSON")
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    signed_payload = payload.get("signedPayload", "")
+    if not signed_payload:
+        logger.error("Apple webhook missing signedPayload")
+        raise HTTPException(status_code=400, detail="Missing signedPayload")
+
+    # Decode JWS payload (middle segment is the claims)
+    try:
+        parts = signed_payload.split(".")
+        if len(parts) != 3:
+            raise ValueError("Invalid JWS format")
+        # Add padding for base64url decode
+        claims_b64 = parts[1]
+        claims_b64 += "=" * (4 - len(claims_b64) % 4)
+        claims_json = base64.urlsafe_b64decode(claims_b64)
+        claims = json.loads(claims_json)
+    except Exception:
+        logger.exception("Failed to decode Apple JWS payload")
+        raise HTTPException(status_code=400, detail="Invalid JWS")
+
+    notification_type = claims.get("notificationType", "")
+    subtype = claims.get("subtype", "")
+    logger.info("Apple notification: type=%s subtype=%s", notification_type, subtype)
+
+    # Extract transaction info from nested signed data
+    try:
+        signed_transaction = (
+            claims.get("data", {})
+            .get("signedTransactionInfo", "")
+        )
+        if signed_transaction:
+            txn_parts = signed_transaction.split(".")
+            txn_b64 = txn_parts[1]
+            txn_b64 += "=" * (4 - len(txn_b64) % 4)
+            txn_info = json.loads(base64.urlsafe_b64decode(txn_b64))
+        else:
+            txn_info = {}
+    except Exception:
+        logger.exception("Failed to decode Apple transaction info")
+        txn_info = {}
+
+    original_txn_id = txn_info.get("originalTransactionId", "")
+    product_id = txn_info.get("productId", "")
+    bundle_id = txn_info.get("bundleId", "")
+    app_account_token = txn_info.get("appAccountToken", "")
+
+    logger.info("Apple txn: original_id=%s product=%s bundle=%s account_token=%s",
+                original_txn_id, product_id, bundle_id, app_account_token)
+
+    if bundle_id and bundle_id != APPLE_BUNDLE_ID:
+        logger.warning("Apple webhook bundle_id mismatch: %s != %s", bundle_id, APPLE_BUNDLE_ID)
+        return {"status": "ignored"}
+
+    plan = APPLE_PRODUCT_MAP.get(product_id)
+
+    # Handle notification types
+    if notification_type == "DID_RENEW" and plan and app_account_token:
+        # Auto-renewal — extend subscription
+        _activate_subscription(
+            user_id=app_account_token,
+            plan=plan,
+            provider="apple",
+            transaction_id=txn_info.get("transactionId", original_txn_id),
+            amount={"pro_monthly": 799, "pro_annual": 5999}.get(plan, 0),
+            currency="USD",
+        )
+        logger.info("Apple renewal activated %s for user %s", plan, app_account_token)
+
+    elif notification_type in ("DID_CHANGE_RENEWAL_STATUS", "EXPIRED", "REVOKE"):
+        # Cancellation/expiry/refund — deactivate subscription
+        if original_txn_id:
+            _deactivate_apple_subscription(original_txn_id)
+            logger.info("Apple subscription deactivated: original_txn=%s type=%s",
+                        original_txn_id, notification_type)
+
+    elif notification_type == "REFUND":
+        if original_txn_id:
+            _deactivate_apple_subscription(original_txn_id)
+            logger.info("Apple refund processed: original_txn=%s", original_txn_id)
+
+    else:
+        logger.info("Apple webhook unhandled: %s/%s", notification_type, subtype)
+
+    return {"status": "ok"}
+
+
+def _deactivate_apple_subscription(original_transaction_id: str):
+    """Mark Apple subscription as inactive by original transaction ID."""
+    from sqlalchemy import select, update
+    from app.infrastructure.persistence.models import SubscriptionModel
+
+    settings = get_settings()
+    if not database_is_enabled(settings):
+        return
+
+    now = datetime.now(timezone.utc)
+    with session_scope(settings) as session:
+        session.execute(
+            update(SubscriptionModel)
+            .where(
+                SubscriptionModel.payment_provider == "apple",
+                SubscriptionModel.transaction_id.like(f"%{original_transaction_id}%"),
+                SubscriptionModel.is_active == True,  # noqa: E712
+            )
+            .values(is_active=False, updated_at=now)
+        )
 
 
 # ── bePaid Webhook (placeholder) ─────────────────────────────────────

@@ -1,6 +1,7 @@
 import UIKit
 import WebKit
 import AuthenticationServices
+import StoreKit
 import Capacitor
 
 class CustomViewController: CAPBridgeViewController {
@@ -8,6 +9,7 @@ class CustomViewController: CAPBridgeViewController {
     private var splashView: UIView?
     private var originalDelegate: WKNavigationDelegate?
     private var authSession: ASWebAuthenticationSession?
+    private var storeKitManager: Any?  // StoreKit2Manager (iOS 15+)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +52,13 @@ class CustomViewController: CAPBridgeViewController {
             if let ua = result as? String {
                 self?.webView?.customUserAgent = ua + " big3me/ios"
             }
+        }
+
+        // Register StoreKit2 JS bridge (iOS 15+)
+        if #available(iOS 15.0, *), let wv = webView {
+            let manager = StoreKit2Manager(webView: wv)
+            wv.configuration.userContentController.add(manager, name: "storekit")
+            storeKitManager = manager
         }
 
         // Wrap navigation delegate

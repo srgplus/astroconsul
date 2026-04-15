@@ -213,11 +213,16 @@ export function SettingsModal({
                       {lang === "ru" ? "Управление подпиской" : "Manage subscription"}
                     </button>
                   ) : isPro && isNativeApp() ? (
-                    <p className="stg-card-desc" style={{ marginTop: 12, fontSize: "0.82rem" }}>
-                      {lang === "ru"
-                        ? "Подписка управляется через сайт, где она была оформлена."
-                        : "Subscription is managed from the website where it was purchased."}
-                    </p>
+                    <button
+                      type="button"
+                      className="stg-portal-link"
+                      onClick={() => {
+                        // Deep link to iOS Settings → Subscriptions
+                        window.location.href = "https://apps.apple.com/account/subscriptions"
+                      }}
+                    >
+                      {lang === "ru" ? "Управление подпиской" : "Manage Subscription"}
+                    </button>
                   ) : null}
                 </div>
                 <div className="stg-card stg-card--danger">
