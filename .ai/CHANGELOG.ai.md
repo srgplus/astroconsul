@@ -2,6 +2,24 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-06-12
+
+### Android Google/Apple OAuth login fix
+Symptom: tapping "Continue with Google" on Android opened the website in the system browser and never logged the user into the app. Root causes:
+1. `AuthContext.tsx` detected Capacitor via `navigator.userAgent.includes("big3me")` — the WebView UA contains no such token (no `appendUserAgent` configured), so it always evaluated false and `redirectTo` fell back to `https://big3.me`.
+2. Even with a deep-link `redirectTo`, nothing caught the return: no `appUrlOpen` listener and `@capacitor/app` was not installed.
+3. Android had no intent-filter for the `big3me://` scheme, so the OS could not route the OAuth return back into the app.
+
+Fixes (JS — deploys via Railway, picked up by the WebView since it loads `https://big3.me` live):
+- `AuthContext.tsx`: detect native with `Capacitor.isNativePlatform()`; on native, open OAuth in the system browser via `@capacitor/browser` (`skipBrowserRedirect: true`) and complete the session in an `App.addListener("appUrlOpen")` handler that calls `supabase.auth.exchangeCodeForSession(code)`, then closes the in-app browser.
+- `package.json`: added `@capacitor/app`.
+
+Native (local-only — `frontend/android/` and `frontend/ios/` are gitignored; require a manual rebuild + store release):
+- `android/app/src/main/AndroidManifest.xml`: added VIEW/BROWSABLE intent-filter for `android:scheme="big3me"` on MainActivity (already `launchMode="singleTask"`).
+- iOS already registers the `big3me` scheme in `Info.plist`; run `npx cap sync ios` so the iOS project also picks up `@capacitor/app`.
+
+Required dashboard config (no code): in Supabase → Authentication → URL Configuration → Redirect URLs, add `big3me://auth-callback`. Without it Supabase rejects the redirect and falls back to the Site URL (the website). No Google Cloud Console change needed — Google still redirects to the Supabase callback.
+
 ## 2026-04-14
 
 ### StoreKit2 IAP implementation (3.1.1 compliance)
