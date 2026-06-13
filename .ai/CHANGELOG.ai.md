@@ -20,6 +20,8 @@ Native (local-only — `frontend/android/` and `frontend/ios/` are gitignored; r
 
 Dashboard config: in Supabase → Authentication → URL Configuration → Redirect URLs, `big3me://auth-callback` must be present (verified already present on 2026-06-12). Without it Supabase rejects the redirect and falls back to the Site URL (the website). No Google Cloud Console change needed — Google still redirects to the Supabase callback.
 
+Play Store release: signed AAB built (`versionCode 2`, `versionName 1.1`) and published to the **Internal testing** track on 2026-06-12 (developer `SRG PLUS`, app `me.big3.app`, internal opt-in `https://play.google.com/apps/internaltest/4701718781571690534`). Production is still at `1.0` / code `1` (0 installs) — promote internal → production after verifying Google login on a device. Next build must use `versionCode >= 3`. Open item: confirm an internal tester email list is attached (looked empty), or the opt-in link grants no access.
+
 ## 2026-04-14
 
 ### StoreKit2 IAP implementation (3.1.1 compliance)
