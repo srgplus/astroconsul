@@ -20,6 +20,8 @@ Native (local-only — `frontend/android/` and `frontend/ios/` are gitignored; r
 
 Dashboard config: in Supabase → Authentication → URL Configuration → Redirect URLs, `big3me://auth-callback` must be present (verified already present on 2026-06-12). Without it Supabase rejects the redirect and falls back to the Site URL (the website). No Google Cloud Console change needed — Google still redirects to the Supabase callback.
 
+Follow-up fix (implicit-flow tokens): on-device test showed the app returned from the system browser but never logged in. Cause: the Supabase client uses the default `flowType: 'implicit'`, so the OAuth return carries tokens in the URL **hash** (`#access_token=...&refresh_token=...`), not a PKCE `?code=`. The `appUrlOpen` handler only read `?code=`. Fixed the handler in `AuthContext.tsx` to handle both: `?code=` → `exchangeCodeForSession`, otherwise parse the hash and call `setSession({access_token, refresh_token})`. JS-only fix — the installed app picks it up on reload (no new APK). Future hardening: switch the client to `flowType: 'pkce'`.
+
 Play Store release: signed AAB built (`versionCode 2`, `versionName 1.1`) and published to the **Internal testing** track on 2026-06-12 (developer `SRG PLUS`, app `me.big3.app`, internal opt-in `https://play.google.com/apps/internaltest/4701718781571690534`). Production is still at `1.0` / code `1` (0 installs) — promote internal → production after verifying Google login on a device. Next build must use `versionCode >= 3`. Open item: confirm an internal tester email list is attached (looked empty), or the opt-in link grants no access.
 
 ## 2026-04-14

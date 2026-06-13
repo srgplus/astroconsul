@@ -95,13 +95,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!url.includes("auth-callback")) return;
         console.log("[Auth] appUrlOpen received");
         try {
-          const code = new URL(url).searchParams.get("code");
-          if (!code) {
-            console.error("[Auth] appUrlOpen missing code param:", url);
+          const parsed = new URL(url);
+          const code = parsed.searchParams.get("code");
+          if (code) {
+            // PKCE flow: exchange the auth code for a session.
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
+            if (error) console.error("[Auth] exchangeCodeForSession error:", error.message);
             return;
           }
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) console.error("[Auth] exchangeCodeForSession error:", error.message);
+          // Implicit flow (Supabase default): tokens come back in the URL fragment.
+          const hash = parsed.hash.replace(/^#/, "");
+          const params = new URLSearchParams(hash);
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (error) console.error("[Auth] setSession error:", error.message);
+            return;
+          }
+          const errDesc =
+            params.get("error_description") || parsed.searchParams.get("error_description");
+          console.error("[Auth] appUrlOpen had no code or tokens:", errDesc || url);
         } catch (err) {
           console.error("[Auth] appUrlOpen handling failed:", err);
         } finally {
