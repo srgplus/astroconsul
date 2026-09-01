@@ -4,18 +4,25 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-01
 
-### Production outage: Railway service has no active deployment
-`big3.me` and the generated `bb4q5xov.up.railway.app` both return Railway's 404
-("The train has not arrived at the station"), so this is a service-level outage,
-not a custom-domain or DNS problem. DNS verified healthy (apex flattens to the
-same Railway edge IP as the generated domain; `www` proxied via Cloudflare) and
-CI is clean (last deploy 2026-06-13, all auto-merge runs green).
+### Production outage: Railway trial expired
+`big3.me` and the generated `bb4q5xov.up.railway.app` both returned Railway's 404
+("The train has not arrived at the station"). Root cause confirmed in the Railway
+dashboard: **the trial ended and Railway stopped every service on the account**
+(`Trial expired` badge, "Trial Ended / Upgrade now" banner, all four projects at
+`0/1 service online`). Not a code, DNS, or custom-domain fault: DNS verified
+healthy (apex flattens to the same Railway edge IP as the generated domain, `www`
+proxied via Cloudflare) and CI is clean (last deploy 2026-06-13, all auto-merge
+runs green).
 
-Full diagnosis, Railway checklist, and the env-var restore list (including two
-variables that fail silently: `ASTRO_CONSUL_PERSISTENCE_BACKEND=database` and
-`ASTRO_CONSUL_AUTH_ENABLED=true`) are in
-`.ai/railway-outage-2026-09-01.md`. Resolution requires Railway dashboard access
-(usage/billing limits, then deployment state).
+Fix is account-level: upgrade the Railway plan, then redeploy. User data was
+never at risk since persistence is Supabase PostgreSQL and images are in Supabase
+Storage, so the Railway container is stateless; what only exists in Railway is
+the service configuration.
+
+Recovery order, data-safety note, and the env-var restore list (including two
+variables that fail silently: `ASTRO_CONSUL_PERSISTENCE_BACKEND=database`, which
+the Dockerfile bakes as `file`, and `ASTRO_CONSUL_AUTH_ENABLED=true`, which
+defaults to `false`) are in `.ai/railway-outage-2026-09-01.md`.
 
 Also noted: the scheduled `Rotate Apple SIWA Secret` workflow has been failing
 since 2026-06-01.

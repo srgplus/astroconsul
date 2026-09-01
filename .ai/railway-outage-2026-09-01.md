@@ -7,12 +7,22 @@
 iOS and Android apps load `https://big3.me` in a WebView, so they show the same
 page — the outage takes down the store apps together with the website.
 
-## Diagnosis
+## Root cause (confirmed)
 
-Railway's edge serves that 404 when a request arrives for a host it has no
+**The Railway trial expired and Railway stopped every service on the account.**
+Confirmed in the dashboard on 2026-09-01: a `Trial expired` badge, the banner
+"Trial Ended / Upgrade now to continue using the platform", the `SRG PLUS`
+account marked `TRIAL`, and all four projects reporting `0/1 service online`.
+
+Resolution is account-level, not code-level: upgrade the plan in Railway
+(Hobby or higher), then redeploy. Nothing in this repository can fix it.
+
+## How it presented
+
+Railway's edge serves its 404 when a request arrives for a host it has no
 active deployment to route to. Since the **generated** Railway domain
-(`bb4q5xov.up.railway.app`) returns it too, this is not a custom-domain problem:
-the service itself has no active deployment.
+(`bb4q5xov.up.railway.app`) returned it too, the custom domain was never the
+problem: there was no running service behind either hostname.
 
 Ruled out:
 
@@ -30,26 +40,33 @@ Ruled out:
   the generated domain, matching the setup recorded in `CHANGELOG.ai.md`
   (2026-03-27, Infrastructure).
 
-## Where to look in Railway
+## Recovery order
 
-In order, stopping at the first that explains it:
+1. **Upgrade the Railway plan** (dashboard banner → Upgrade now). Until this is
+   done nothing else has any effect: the services cannot start.
+2. **Identify the project.** Four projects exist (`meticulous-perfection`,
+   `tender-love`, `strong-benevolence`, `luminous-perfection`); astroconsul is
+   whichever holds the `big3.me` custom domain. Idle projects still draw against
+   the plan, so delete the ones that are not in use (`meticulous-perfection` has
+   no services at all).
+3. **Redeploy** the service and watch the build log. `start.sh` runs
+   `alembic upgrade head` before uvicorn but tolerates migration failure, so a
+   crash points at the app, not at migrations.
+4. **Verify the variables below survived the trial expiry**, in particular the
+   two that fail silently.
+5. **Settings → Networking:** confirm `big3.me` and `www.big3.me` are still
+   listed as custom domains and still provisioned.
+6. **Trigger a clean deploy** by pushing any commit to a `claude/*` branch; the
+   auto-merge action lands it on `main` and Railway builds from there.
 
-1. **Account → Usage / Billing.** A hit resource limit or a failed payment
-   suspends services and produces exactly this 404. Most likely cause given
-   there was no deploy and no code change for ~2.5 months.
-2. **Project → service → Deployments.** Is any deployment `Active`, or are they
-   all `Crashed` / `Removed` / stopped? `railway.json` sets
-   `restartPolicyType: ON_FAILURE` with 10 retries, so a boot loop ends as a
-   crashed deployment with no active replacement.
-3. **Deploy logs of the last deployment.** `start.sh` runs
-   `alembic upgrade head` before uvicorn, but tolerates migration failure, so a
-   crash there points at the app itself, not migrations.
-4. **Project existence.** If the project or service was deleted, recreate it and
-   restore the variables below.
+### Data safety
 
-Once the service is healthy, re-check **Settings → Networking** so `big3.me` and
-`www.big3.me` are still listed as custom domains, then push any commit to a
-`claude/*` branch to trigger a fresh deploy through the auto-merge action.
+User data is not on Railway. Persistence runs against Supabase PostgreSQL via
+`ASTRO_CONSUL_DATABASE_URL`, and post images live in Supabase Storage, so the
+Railway container is stateless. What is genuinely at risk if a project is
+garbage-collected is the **service configuration**: the environment variable
+values below exist only in Railway. Recovering them means pulling fresh keys
+from Stripe and Supabase, so upgrade before letting the projects lapse.
 
 ## Variables to restore if the service is recreated
 
@@ -105,5 +122,9 @@ also mean re-checking how Railway issues its certificate.
 ## Unrelated finding
 
 The scheduled `Rotate Apple SIWA Secret` workflow failed on 2026-06-01 and has
-not run since (run `26771874166`). The Apple Sign In client secret expires after
-at most 6 months, so this needs its own fix.
+not run since (run `26771874166`). Its logs are past GitHub's retention window
+(410 Gone), and the next scheduled run is 2027-01-01 (`cron: 0 12 1 1,6 *`), so
+diagnosing it means a manual `workflow_dispatch`. Note that a manual run
+actually rotates the live Apple client secret in Supabase Auth, so it needs a
+deliberate go-ahead rather than being fired off during an outage. The secret
+expires after at most 6 months, so this needs its own task.
