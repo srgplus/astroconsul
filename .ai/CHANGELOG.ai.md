@@ -2,6 +2,24 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-01
+
+### Production outage: Railway service has no active deployment
+`big3.me` and the generated `bb4q5xov.up.railway.app` both return Railway's 404
+("The train has not arrived at the station"), so this is a service-level outage,
+not a custom-domain or DNS problem. DNS verified healthy (apex flattens to the
+same Railway edge IP as the generated domain; `www` proxied via Cloudflare) and
+CI is clean (last deploy 2026-06-13, all auto-merge runs green).
+
+Full diagnosis, Railway checklist, and the env-var restore list (including two
+variables that fail silently: `ASTRO_CONSUL_PERSISTENCE_BACKEND=database` and
+`ASTRO_CONSUL_AUTH_ENABLED=true`) are in
+`.ai/railway-outage-2026-09-01.md`. Resolution requires Railway dashboard access
+(usage/billing limits, then deployment state).
+
+Also noted: the scheduled `Rotate Apple SIWA Secret` workflow has been failing
+since 2026-06-01.
+
 ## 2026-06-12
 
 ### Android Google/Apple OAuth login fix
