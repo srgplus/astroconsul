@@ -66,6 +66,15 @@ button now float over the sky as Liquid Glass, matching Weather on iOS 26.
 - Search moved to the bottom on its own: iOS 26 floats `.searchable` there for
   a `NavigationStack`. On iOS 17 the same code still draws it under the title,
   which is what the older simulators show.
+### Docs: the development workflow is written down
+`.ai/SKILL.md` explained the product and the formulas but never how work
+reaches main, so every session had to rediscover it. New section 1a covers the
+branch → PR → main flow, the one-simulator-per-worktree rule with the exact
+`big3 <worktree>` name, and a standing instruction to update the file in the
+same PR that moves the architecture. `CLAUDE.md` gained the naming convention
+and says to delete hand-made simulators that sit outside it — three had already
+appeared under three different names.
+
 ### One simulator per worktree
 `scripts/ios-simulator.sh` creates and boots a device named `big3 <worktree>`,
 so parallel sessions stop installing builds over each other and screenshotting

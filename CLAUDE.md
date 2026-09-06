@@ -19,6 +19,8 @@ Read `.ai/SKILL.md` before any task for full project context.
 - If main moved ahead and the PR conflicts, rebase onto `origin/main` and force-push the branch
 - Run `npm run build` before pushing
 - Never drive "whatever simulator is booted": several sessions run at once and would install over each other. Boot this worktree's device with `./scripts/ios-simulator.sh`, then pass that name to the simulator tools and `-destination "id=$(./scripts/ios-simulator.sh --udid)"` to `xcodebuild`. A new device needs a one-time "Let Claude use it" in the simulator panel
+- The device name is always `big3 <worktree>`, produced by the script and by nothing else. Hand-made simulators under other names (`big3-something`, a bare worktree name, a stock `iPhone 17 Pro`) belong to no branch and get driven by accident: delete them with `xcrun simctl delete <udid>` and run the script instead
+- Delete this worktree's device when the branch is done: `./scripts/ios-simulator.sh --delete`. Every booted simulator costs memory
 - Respond in Russian when user writes in Russian
 - Use native `<button>` elements for clickable items in scroll containers (iOS fix)
 - Grey spinner (#8e8e93), never purple

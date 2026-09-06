@@ -81,6 +81,50 @@ astro-consul/
 
 ---
 
+## 1a. Development Workflow
+
+Several Claude sessions work this repo at once, each in its own git worktree
+under `.claude/worktrees/<name>`. Everything below exists so those sessions do
+not collide.
+
+### Branch → PR → main
+
+Push a `claude/*` branch and `.github/workflows/open-pr.yml` opens a PR and
+queues it for auto-merge; it lands in main once CI is green, and Railway
+deploys from main. `main` is protected: no direct pushes, a PR is required
+(zero approvals), and the `backend`, `frontend` and `ios` checks must pass.
+
+A red check leaves the PR open and says nothing, so check after pushing:
+`gh pr checks` or `gh run list`. If main moved ahead and the PR conflicts,
+rebase onto `origin/main` and force-push the branch.
+
+### One simulator per worktree
+
+`scripts/ios-simulator.sh` creates and boots a device named `big3 <worktree>`.
+Use it rather than whatever simulator happens to be running: the simulator
+tools default to the booted device, so two sessions otherwise install over each
+other's build and screenshot each other's screen.
+
+```
+./scripts/ios-simulator.sh          # boot this worktree's device (creates it once)
+./scripts/ios-simulator.sh --udid   # id for `xcodebuild -destination` and simctl
+./scripts/ios-simulator.sh --delete # when the branch is done
+```
+
+`SIM_DEVICE_TYPE` and `SIM_RUNTIME` override hardware and iOS version. The
+default runtime is the newest installed, which can be ahead of what ships.
+
+### Keeping this file true
+
+This file is the first thing a session reads. When a change moves the
+architecture — a new layer, a screen that goes native, an endpoint that stops
+being planned and starts existing, a change to how work reaches main — update
+the affected section here in the same PR, and add an entry to
+`.ai/CHANGELOG.ai.md`. A stale section is worse than a missing one: sessions
+act on it.
+
+---
+
 ## 2. Architecture
 
 ### 5-Layer Pipeline
