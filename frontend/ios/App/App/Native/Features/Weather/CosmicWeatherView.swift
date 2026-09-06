@@ -137,15 +137,13 @@ struct CosmicWeatherView: View {
             // that moment is still being computed, so the stamp and its
             // progress are one thing rather than two.
             HStack(spacing: 7) {
-                if model.transitsState == .loading {
-                    ProgressView()
-                        .controlSize(.mini)
-                        .tint(Theme.spinner)
-                }
-
                 Text(readingStamp)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.85))
+
+                if model.state == .loading || model.transitsState == .loading {
+                    MinimalSpinner()
+                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 5)
@@ -225,11 +223,10 @@ struct CosmicWeatherView: View {
     private var forecast: some View {
         switch model.state {
         case .idle, .loading:
-            ProgressView()
-                .controlSize(.large)
-                .tint(Theme.spinner)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 40)
+            // No spinner here: the stamp in the hero already says the reading
+            // is being computed, and a second one mid-screen made the page
+            // look like it had failed to draw.
+            EmptyView()
 
         case let .failed(message):
             WeatherCard {
@@ -268,18 +265,8 @@ struct CosmicWeatherView: View {
     @ViewBuilder
     private var transits: some View {
         switch model.transitsState {
-        case .idle, .failed:
+        case .idle, .failed, .loading:
             EmptyView()
-
-        case .loading:
-            WeatherCard {
-                WeatherCardHeader(icon: "circle.hexagongrid", title: "Active transits")
-
-                ProgressView()
-                    .tint(Theme.spinner)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 18)
-            }
 
         case .loaded:
             ActiveTransitsCard(
@@ -326,5 +313,33 @@ struct TensionBar: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Tension \(percent) percent")
+    }
+}
+
+/// A thin rotating arc.
+///
+/// `ProgressView`'s spokes are a system alert's indicator: dropped on the sky
+/// at 13pt they read as a stuck widget rather than as work in progress, and
+/// the grey they are tinted with disappears on a dark sky where every other
+/// mark in the hero is white.
+struct MinimalSpinner: View {
+
+    var size: CGFloat = 13
+    var lineWidth: CGFloat = 1.6
+    var color: Color = .white.opacity(0.75)
+
+    @State private var turning = false
+
+    var body: some View {
+        Circle()
+            // A gap, not a dash: the arc has to read as one line chasing its
+            // own tail at this size.
+            .trim(from: 0.06, to: 0.9)
+            .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+            .frame(width: size, height: size)
+            .rotationEffect(.degrees(turning ? 360 : 0))
+            .animation(.linear(duration: 0.9).repeatForever(autoreverses: false), value: turning)
+            .onAppear { turning = true }
+            .accessibilityLabel("Loading")
     }
 }
