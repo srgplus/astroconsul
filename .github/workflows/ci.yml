@@ -10,8 +10,15 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# A push to claude/** and the pull_request event for the PR that push opens
+# both fire on the same commit. The push run is the one that counts (a PR
+# opened by GITHUB_TOKEN raises no pull_request event at all, so push is the
+# only trigger a fresh branch gets), so the PR run is skipped for those
+# branches and kept for PRs raised by hand from other branch names.
+
 jobs:
   backend:
+    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +49,7 @@ jobs:
         run: python -m unittest discover -s tests
 
   frontend:
+    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,6 +69,7 @@ jobs:
         working-directory: frontend
 
   ios:
+    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
