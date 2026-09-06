@@ -35,10 +35,12 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlbmhteWx5cXh6eHZqeHJieGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NTIxNTksImV4cCI6MjA4OTEyODE1OX0.nEo0BhmhD3YLQWcqT4Vag85p37xhpXrXzn0u5F7aIbY</string>
+	<key>SUPABASE_URL</key>
+	<string>https://penhmylyqxzxvjxrbxen.supabase.co</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

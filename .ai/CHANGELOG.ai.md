@@ -2,6 +2,62 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-06
+
+### iOS: native SwiftUI shell replaces the WebView root
+Start of the migration from a Capacitor WebView wrapper to a native app. The
+Apple 4.3(b) rejection was aimed at the app reading as a repackaged website, so
+screens move to native Swift one at a time instead of a rewrite.
+
+**Project changes**
+- `frontend/ios/` is no longer gitignored: it now holds hand-written Swift and
+  needs history. `frontend/android/` stays ignored. The nested
+  `frontend/ios/.gitignore` already excludes build output and the generated
+  `capacitor.config.json` / `config.xml`, so a fresh clone needs
+  `npx cap sync ios` before its first build.
+- `StoreKit2Manager.swift` existed on disk but was **missing from the Xcode
+  target**, so `CustomViewController` failed to compile ("cannot find
+  'StoreKit2Manager' in scope") and the project did not build at all. Added to
+  the target; IAP code is now actually part of the binary.
+- `Native/` is attached as a `PBXFileSystemSynchronizedRootGroup`
+  (objectVersion raised 60 -> 77), so new Swift files compile without editing
+  `project.pbxproj`.
+- `IPHONEOS_DEPLOYMENT_TARGET` 15.0 -> 17.0, required for `NavigationStack`,
+  `LabeledContent` and the modern SwiftUI animation APIs. Covers iPhone XS and
+  newer.
+
+**Native layer** (`frontend/ios/App/App/Native/`)
+- `Core/`: `AppConfig` (Supabase URL and anon key read from Info.plist),
+  `Models` (Codable mirror of `types.ts` plus the TII zone bands),
+  `APIClient` (URLSession against the same `/api/v1` REST API the web app
+  uses), `AuthStore` + `KeychainStore` (session in the Keychain, single-flight
+  refresh against Supabase `/auth/v1/token`).
+- `Design/Theme.swift`: tokens ported from `styles.css`, resolved per trait
+  collection so light and dark come from one definition.
+- `Features/Profiles/`: native profile list with TII badges, sections for own
+  vs followed profiles, swipe to set primary or unfollow, pull to refresh.
+- `Features/Settings/`: native settings (account, appearance, about).
+- `Features/Web/WebContainerView.swift`: the Capacitor controller as one tab,
+  held by a singleton so switching tabs never reloads big3.me.
+- `RootView.swift`: TabView shell (Profiles / Chart / Settings).
+
+**Entry point**: `AppDelegate` now builds a `UIHostingController(RootView())`
+as the window root and `UIMainStoryboardFile` was removed from Info.plist.
+Capacitor is no longer the root; it renders inside one tab.
+
+**Session bridge**: sign-in still happens in the WebView, so
+`CustomViewController.importSupabaseSession()` reads the supabase-js session
+out of localStorage after each page load and hands it to `AuthStore`. Deleted
+once sign-in is native.
+
+Account deletion stays in the WebView on purpose: that flow is what Apple
+reviewed under 5.1.1(v), and it is not reimplemented until the rest of the
+account screen is native.
+
+Verified on the iPhone 15 Pro Max simulator: native tab bar, profile list
+rendering its signed-out state, native settings, and big3.me loading inside
+the Chart tab.
+
 ## 2026-09-01
 
 ### Production outage: Railway trial expired

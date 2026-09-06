@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 import Capacitor
 
 @UIApplicationMain
@@ -7,7 +8,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // The app is migrating from a Capacitor WebView wrapper to native
+        // SwiftUI, so the root is a native shell (RootView) and the WebView is
+        // one tab inside it. Main.storyboard is no longer the entry point.
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        window.rootViewController = UIHostingController(rootView: RootView())
+        window.makeKeyAndVisible()
+        self.window = window
         return true
     }
 

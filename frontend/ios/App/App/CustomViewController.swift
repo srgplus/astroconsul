@@ -127,6 +127,75 @@ class CustomViewController: CAPBridgeViewController {
             webView?.removeObserver(self, forKeyPath: "loading")
         }
     }
+
+    // MARK: - Session bridge to the native layer
+
+    /// Copies the supabase-js session out of the WebView's localStorage into
+    /// `AuthStore`, so native screens can call the API with the same account.
+    ///
+    /// Sign-in still happens in the WebView during the migration. When it goes
+    /// native this bridge is deleted and the Keychain becomes the only source.
+    private func importSupabaseSession() {
+        let js = """
+        (() => {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+                        return localStorage.getItem(k);
+                    }
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        })()
+        """
+
+        webView?.evaluateJavaScript(js) { result, error in
+            if let error = error {
+                NSLog("[Session bridge] read failed: \(error.localizedDescription)")
+                return
+            }
+            guard let raw = result as? String, let data = raw.data(using: .utf8) else {
+                // No stored session: the user is signed out in the WebView.
+                return
+            }
+            guard let session = Self.parseWebSession(data) else {
+                NSLog("[Session bridge] stored session had an unexpected shape")
+                return
+            }
+            Task { @MainActor in
+                AuthStore.shared.adopt(fromWebSession: session)
+            }
+        }
+    }
+
+    private static func parseWebSession(_ data: Data) -> AuthSession? {
+        guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let accessToken = object["access_token"] as? String,
+              let refreshToken = object["refresh_token"] as? String else {
+            return nil
+        }
+
+        let expiresAt: Double
+        if let value = object["expires_at"] as? Double {
+            expiresAt = value
+        } else if let value = object["expires_in"] as? Double {
+            expiresAt = Date().timeIntervalSince1970 + value
+        } else {
+            expiresAt = Date().timeIntervalSince1970 + 3600
+        }
+
+        let email = (object["user"] as? [String: Any])?["email"] as? String
+
+        return AuthSession(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresAt: expiresAt,
+            email: email
+        )
+    }
 }
 
 // MARK: - ASWebAuthenticationPresentationContextProviding
@@ -245,6 +314,7 @@ extension CustomViewController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         originalDelegate?.webView?(webView, didFinish: navigation)
+        importSupabaseSession()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
