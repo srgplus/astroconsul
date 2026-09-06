@@ -63,18 +63,18 @@ struct MoonDisc: View {
                 )
             )
 
-            // Every sea in one path and one fill. Drawn one at a time they read
-            // as a row of grey bubbles; overlapped in a single path they merge
-            // into the one irregular dark face the Moon actually has. The
-            // coastline comes from the overlap, not from a blur — a photograph
-            // of the Moon has hard mare edges, and so does this.
+            // The seas, traced rather than assembled out of circles. Circles
+            // gave the disc a row of round spots; the near side's actual mare
+            // edges are ragged, and the bright highland running between
+            // Imbrium and Serenitatis is as much of the face as the dark is.
             context.drawLayer { layer in
-                layer.addFilter(.blur(radius: width * 0.008))
+                layer.addFilter(.blur(radius: width * 0.006))
 
                 var seas = Path()
-                for sea in Self.maria {
-                    seas.addEllipse(in: rect(sea.x, sea.y, sea.width, sea.height))
+                for outline in Self.maria {
+                    seas.addPath(Self.blob(outline, width: width, height: height))
                 }
+                seas.addEllipse(in: rect(0.815, 0.28, 0.125, 0.095))  // Crisium
                 layer.fill(seas, with: .color(Color(hex: 0x33323C).opacity(0.30)))
 
                 // A second pass over the darkest basins, for the tonal range a
@@ -83,7 +83,7 @@ struct MoonDisc: View {
                 for sea in Self.deepMaria {
                     deep.addEllipse(in: rect(sea.x, sea.y, sea.width, sea.height))
                 }
-                layer.fill(deep, with: .color(Color(hex: 0x33323C).opacity(0.16)))
+                layer.fill(deep, with: .color(Color(hex: 0x33323C).opacity(0.15)))
             }
 
             // Fine cratering. Too small to name, and the reason the highlands
@@ -163,53 +163,81 @@ struct MoonDisc: View {
         let x, y, radius: Double
     }
 
-    /// The dark seas, in unit coordinates of the disc, placed by eye from the
-    /// near side as it is seen from Earth rather than surveyed.
-    ///
-    /// Each sea is several overlapping ellipses instead of one. A single
-    /// ellipse per sea draws a row of neat circles; a cluster of them unions
-    /// into a ragged outline, which is what a mare's edge actually looks like
-    /// and what lets the fill stay sharp.
-    private static let maria: [Sea] = [
-        // Oceanus Procellarum — the long western plain down the left limb.
-        Sea(x: 0.25, y: 0.35, width: 0.22, height: 0.22),
-        Sea(x: 0.23, y: 0.48, width: 0.24, height: 0.26),
-        Sea(x: 0.27, y: 0.60, width: 0.20, height: 0.20),
-        Sea(x: 0.32, y: 0.42, width: 0.18, height: 0.24),
-
-        // Mare Imbrium — the big round basin above it.
-        Sea(x: 0.40, y: 0.28, width: 0.28, height: 0.26),
-        Sea(x: 0.46, y: 0.24, width: 0.20, height: 0.18),
-        Sea(x: 0.35, y: 0.32, width: 0.20, height: 0.18),
+    /// The dark seas as outlines, in unit coordinates of the disc: each entry
+    /// is a ring of points that `blob` rounds off into a closed curve. Placed
+    /// by eye from the near side as it is seen from Earth rather than surveyed,
+    /// but kept separate the way they really are — the bright highland between
+    /// the two "eyes" is what makes the face read as the Moon's.
+    private static let maria: [[(Double, Double)]] = [
+        // Mare Imbrium running south into Oceanus Procellarum: the whole
+        // western half of the near side, one connected plain.
+        [
+            (0.33, 0.15), (0.44, 0.17), (0.50, 0.25), (0.47, 0.34), (0.40, 0.38),
+            (0.37, 0.47), (0.36, 0.56), (0.32, 0.64), (0.26, 0.66), (0.21, 0.60),
+            (0.18, 0.50), (0.18, 0.40), (0.21, 0.30), (0.26, 0.21),
+        ],
 
         // Mare Frigoris — the thin arc along the northern limb.
-        Sea(x: 0.46, y: 0.15, width: 0.20, height: 0.07),
-        Sea(x: 0.58, y: 0.17, width: 0.16, height: 0.06),
+        [
+            (0.37, 0.13), (0.50, 0.11), (0.62, 0.15), (0.63, 0.19),
+            (0.50, 0.16), (0.38, 0.17),
+        ],
 
-        // Serenitatis and Tranquillitatis, the pair at the centre right.
-        Sea(x: 0.59, y: 0.30, width: 0.20, height: 0.19),
-        Sea(x: 0.62, y: 0.36, width: 0.14, height: 0.13),
-        Sea(x: 0.66, y: 0.45, width: 0.24, height: 0.22),
-        Sea(x: 0.61, y: 0.50, width: 0.16, height: 0.16),
+        // Serenitatis into Tranquillitatis and down to Nectaris: the eastern
+        // chain, and the darkest ground on the disc.
+        [
+            (0.55, 0.23), (0.64, 0.22), (0.70, 0.29), (0.69, 0.36), (0.74, 0.41),
+            (0.77, 0.48), (0.73, 0.55), (0.69, 0.59), (0.66, 0.66), (0.61, 0.63),
+            (0.60, 0.55), (0.57, 0.47), (0.55, 0.38), (0.52, 0.29),
+        ],
 
-        // The southern seas.
-        Sea(x: 0.76, y: 0.56, width: 0.14, height: 0.18),
-        Sea(x: 0.67, y: 0.61, width: 0.12, height: 0.13),
-        Sea(x: 0.44, y: 0.63, width: 0.20, height: 0.14),
-        Sea(x: 0.37, y: 0.66, width: 0.14, height: 0.12),
-        Sea(x: 0.30, y: 0.66, width: 0.12, height: 0.12),
+        // Mare Fecunditatis, east and slightly south of it.
+        [
+            (0.78, 0.48), (0.83, 0.53), (0.82, 0.60), (0.77, 0.63),
+            (0.73, 0.58), (0.74, 0.51),
+        ],
 
-        // Mare Crisium, alone on the eastern limb.
-        Sea(x: 0.81, y: 0.28, width: 0.13, height: 0.10),
+        // Mare Nubium — the mouth of the face.
+        [
+            (0.40, 0.57), (0.50, 0.59), (0.54, 0.65), (0.48, 0.71),
+            (0.39, 0.71), (0.33, 0.67), (0.34, 0.60),
+        ],
+
+        // Mare Humorum, the small round one southwest of it.
+        [
+            (0.27, 0.60), (0.32, 0.62), (0.32, 0.68), (0.27, 0.70), (0.24, 0.65),
+        ],
     ]
 
     /// Darkened a second time: the basins that stand out even to the eye.
     private static let deepMaria: [Sea] = [
-        Sea(x: 0.81, y: 0.28, width: 0.12, height: 0.09),  // Crisium
-        Sea(x: 0.59, y: 0.30, width: 0.17, height: 0.16),  // Serenitatis
-        Sea(x: 0.66, y: 0.45, width: 0.20, height: 0.18),  // Tranquillitatis
-        Sea(x: 0.41, y: 0.28, width: 0.22, height: 0.20),  // Imbrium
+        Sea(x: 0.815, y: 0.28, width: 0.11, height: 0.08),  // Crisium
+        Sea(x: 0.61, y: 0.30, width: 0.15, height: 0.14),   // Serenitatis
+        Sea(x: 0.67, y: 0.47, width: 0.18, height: 0.16),   // Tranquillitatis
+        Sea(x: 0.40, y: 0.26, width: 0.19, height: 0.17),   // Imbrium
     ]
+
+    /// A ring of points rounded into a closed curve: each segment is a quad
+    /// curve from midpoint to midpoint with the corner as its control, so the
+    /// outline passes smoothly through the polygon rather than along it.
+    private static func blob(_ points: [(Double, Double)], width: Double, height: Double) -> Path {
+        let ring = points.map { CGPoint(x: $0.0 * width, y: $0.1 * height) }
+        guard ring.count > 2 else { return Path() }
+
+        func midpoint(_ a: CGPoint, _ b: CGPoint) -> CGPoint {
+            CGPoint(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2)
+        }
+
+        var path = Path()
+        path.move(to: midpoint(ring[ring.count - 1], ring[0]))
+        for index in ring.indices {
+            let corner = ring[index]
+            let next = ring[(index + 1) % ring.count]
+            path.addQuadCurve(to: midpoint(corner, next), control: corner)
+        }
+        path.closeSubpath()
+        return path
+    }
 
     private static let craters: [Crater] = [
         Crater(x: 0.45, y: 0.79, radius: 0.028),  // Tycho
