@@ -330,6 +330,9 @@ def build_transit_report(
         },
         "natal_positions": natal_chart.get("natal_positions", []),
         "angle_positions": natal_chart.get("angle_positions", []),
+        # House cusps 1-12. The wheel needs them to draw the house ring, and
+        # the report is the only call the native app makes for a chart.
+        "houses": natal_chart.get("houses", []),
         "transit_positions": transit_positions,
         "active_aspects": active_aspects,
     }

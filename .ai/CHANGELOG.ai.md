@@ -4,6 +4,34 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the birth chart wheel, drawn natively
+The chart was the last big thing only the WebView could show. It is now a
+SwiftUI `Canvas` on the cosmic weather screen, under Active Transits. This is
+stage one: the natal wheel, static. The transit ring and tap-to-detail follow.
+
+- `Design/ChartWheelGeometry.swift` is the maths, ported from
+  `frontend/src/components/NatalZodiacRing.tsx`: `WheelMath.angle` rotates the
+  chart onto the ascendant, and `WheelMath.spread` is a line-for-line port of
+  the web `spreadGlyphs`, which shoves colliding glyphs apart along the band
+  and then lets each slide home if the room is there. `Zodiac` holds the sign
+  names and glyphs.
+- `Features/Chart/ChartWheelView.swift` draws it. Not a transcription of the
+  web ring: no curved sign names, no tooltips. It follows the instrument faces
+  in Weather instead - 5° ticks around the rim, a taller one per sign, upright
+  glyphs, hairlines. One `Canvas`, not a stack of shape views.
+- The centre is deliberately empty. That is where the transit rings go.
+- **Sign glyphs need `\u{FE0E}` and a non-rounded font.** U+2648-2653 are emoji
+  code points, and inside a `Canvas` SF Rounded renders a missing glyph as a
+  tofu box rather than falling back. `ChartWheelView.glyph(_:)` asks for no
+  design for exactly this reason; `label(_:_:)` keeps `.rounded` for text.
+- The report payload gained `houses` (`transit_builder.py`), the twelve cusps.
+  It is the only chart call the native app makes, and the house ring needs
+  them. `TransitReportResponse` is `extra="allow"`, so nothing else changed.
+- `ChartPosition.longitude` decodes the field the API already sent and nothing
+  read; `wheelLongitude` falls back to sign + degree so hand-written previews
+  still place correctly.
+
+
 ### iOS: the weather screens ask the device where you are
 `ProfileSummary.currentLocationName` moved the label off the birthplace, but
 it could only offer what was on file, and `latest_transit.location_name` is

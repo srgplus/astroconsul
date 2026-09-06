@@ -239,6 +239,8 @@ struct CosmicWeatherView: View {
                 retrograde: model.retrogradeObjects,
                 positions: model.positions
             )
+
+            ChartWheelCard(positions: model.positions)
         }
     }
 }

@@ -194,9 +194,18 @@ enum WeatherPreviewData {
             position("Sun", 27, 4, "Aries", house: 12),
             position("Saturn", 0, 27, "Capricorn", house: 9),
             position("Venus", 23, 16, "Taurus", house: 1),
+            position("Chiron", 12, 30, "Leo", house: 4),
+            position("Lilith", 5, 48, "Libra", house: 5),
+            position("North Node", 9, 2, "Capricorn", house: 8),
             position("ASC", 1, 44, "Gemini"),
             position("MC", 8, 9, "Aquarius"),
         ])
+        // Placidus cusps for that ascendant: the opposite pairs line up, so
+        // the wheel's house ring reads the way a real chart's would.
+        lookup.houses = [
+            61.73, 84, 106, 128.15, 156, 195,
+            241.73, 264, 286, 308.15, 336, 15,
+        ]
         return lookup
     }()
 
@@ -214,6 +223,8 @@ enum WeatherPreviewData {
     ) -> ChartPosition {
         ChartPosition(
             id: id,
+            longitude: Double(Zodiac.index(ofSign: sign) ?? 0) * 30
+                + Double(degree) + Double(minute) / 60,
             degree: degree,
             minute: minute,
             sign: sign,
