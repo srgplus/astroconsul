@@ -70,7 +70,10 @@ jobs:
 
   ios:
     if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
-    runs-on: macos-15
+    # Must carry the same Xcode the app is developed against: the native code
+    # calls iOS 26 APIs (`glassEffect`, `sharedBackgroundVisibility`) that are
+    # absent from the SDK on macos-15, where the newest Xcode is 16.4.
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
@@ -91,6 +94,9 @@ jobs:
           npm run build
           npx cap copy ios
         working-directory: frontend
+
+      - name: Report the toolchain
+        run: xcodebuild -version
 
       - name: Build app
         run: |
