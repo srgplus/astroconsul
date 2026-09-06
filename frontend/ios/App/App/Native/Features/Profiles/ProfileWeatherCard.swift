@@ -64,7 +64,27 @@ struct ProfileWeatherCard: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .frame(height: 108)
-        .background(WeatherSky.cardGradient(for: zone))
+        .background {
+            ZStack {
+                WeatherSky.cardGradient(for: zone)
+
+                // Same footage as the profile's own screen, so tapping a card
+                // lands on a sky the eye already recognises. A profile with no
+                // reading has no zone and keeps the neutral gradient.
+                if let zone {
+                    SkyVideo(zone: zone, variant: .card, phase: profile.profileId)
+
+                    // The right-hand column sits over the brightest part of the
+                    // sunlit clips, so the card carries its own scrim the way
+                    // the full screen does.
+                    LinearGradient(
+                        colors: [.black.opacity(0.26), .black.opacity(0.06), .black.opacity(0.22)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                }
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
