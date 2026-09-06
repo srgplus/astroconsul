@@ -279,7 +279,7 @@ struct CosmicWeatherView: View {
                 positions: model.positions
             )
 
-            ChartWheelCard(positions: model.positions)
+            ChartWheelCard(positions: model.positions, aspects: model.activeAspects)
         }
     }
 }

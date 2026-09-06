@@ -204,6 +204,18 @@ enum WeatherPreviewData {
         ])
         // Placidus cusps for that ascendant: the opposite pairs line up, so
         // the wheel's house ring reads the way a real chart's would.
+        // Every one of these is a real aspect between the positions above, to
+        // the arcminute — a made-up grid would draw lines the wheel's own
+        // geometry contradicts.
+        lookup.natalAspects = [
+            NatalAspect(p1: "Sun", p2: "Moon", aspect: "sextile", orb: 1.21),
+            NatalAspect(p1: "Moon", p2: "Saturn", aspect: "opposition", orb: 2.17),
+            NatalAspect(p1: "Venus", p2: "Pluto", aspect: "opposition", orb: 2.60),
+            NatalAspect(p1: "Mars", p2: "Saturn", aspect: "sextile", orb: 2.75),
+            NatalAspect(p1: "Neptune", p2: "North Node", aspect: "conjunction", orb: 5.79),
+            NatalAspect(p1: "Saturn", p2: "North Node", aspect: "conjunction", orb: 8.58),
+            NatalAspect(p1: "North Node", p2: "Lilith", aspect: "square", orb: 3.23),
+        ]
         lookup.houses = [
             61.73, 84, 106, 128.15, 156, 195,
             241.73, 264, 286, 308.15, 336, 15,

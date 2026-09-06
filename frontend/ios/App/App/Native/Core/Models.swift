@@ -310,6 +310,17 @@ struct ChartPosition: Codable, Hashable {
     }
 }
 
+/// One natal-to-natal aspect. The pair is unordered: the engine emits each
+/// combination once, in the order the bodies happen to be listed.
+struct NatalAspect: Codable, Hashable, Identifiable {
+    let p1: String
+    let p2: String
+    let aspect: String
+    let orb: Double
+
+    var id: String { "\(p1)-\(aspect)-\(p2)" }
+}
+
 struct TransitReport: Codable {
     let activeAspects: [ActiveAspect]?
     let transitPositions: [ChartPosition]?
@@ -317,6 +328,7 @@ struct TransitReport: Codable {
     let anglePositions: [ChartPosition]?
     /// Natal house cusps 1-12, in ecliptic longitude.
     let houses: [Double]?
+    let natalAspects: [NatalAspect]?
 }
 
 /// Position lookups for one report, so a row can name where each side of an
@@ -327,6 +339,8 @@ struct TransitPositions: Hashable {
     var natal: [String: ChartPosition] = [:]
     /// Natal house cusps 1-12. Empty until a report has landed.
     var houses: [Double] = []
+    /// The natal aspect grid, for the wheel's inner lines.
+    var natalAspects: [NatalAspect] = []
 
     init() {}
 
@@ -334,6 +348,7 @@ struct TransitPositions: Hashable {
         transiting = Self.index(report.transitPositions)
         natal = Self.index((report.natalPositions ?? []) + (report.anglePositions ?? []))
         houses = report.houses ?? []
+        natalAspects = report.natalAspects ?? []
     }
 
     private static func index(_ positions: [ChartPosition]?) -> [String: ChartPosition] {

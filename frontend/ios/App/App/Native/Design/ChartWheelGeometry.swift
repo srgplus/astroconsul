@@ -63,6 +63,12 @@ enum WheelMath {
         normalizeAngle(180 + longitude - asc)
     }
 
+    /// Unit vector pointing away from the centre at `angle`.
+    static func radialUnit(_ angle: Double) -> CGPoint {
+        let radians = angle * .pi / 180
+        return CGPoint(x: cos(radians), y: -sin(radians))
+    }
+
     /// Unit vector along the circle at `angle`.
     static func tangentUnit(_ angle: Double) -> CGPoint {
         let radians = angle * .pi / 180
