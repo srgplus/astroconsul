@@ -152,6 +152,107 @@ enum WeatherPreviewData {
         ),
     ]
 
+    /// Aspects inside orb, with the windows the timing engine returns. The
+    /// spans are written relative to today so the now-dot lands somewhere
+    /// different on each bar.
+    static let aspects: [ActiveAspect] = [
+        aspect("Sun", "trine", "Neptune", orb: 0.50, strength: "strong", opened: -1.5, closes: 1.5, peaks: 0.4),
+        aspect("Moon", "square", "Mars", orb: 0.18, strength: "exact", opened: -0.3, closes: 0.4, peaks: 0.05),
+        aspect("Mars", "trine", "Pluto", orb: 0.44, strength: "strong", opened: -4, closes: 5, peaks: 0.6),
+        aspect("Saturn", "square", "Moon", orb: 1.20, strength: "moderate", opened: -12, closes: 16, peaks: 3),
+        aspect("Uranus", "sextile", "Sun", orb: 0.36, strength: "strong", opened: -21, closes: 24, peaks: -2),
+        aspect("Neptune", "sextile", "Saturn", orb: 0.15, strength: "exact", opened: -30, closes: 34, peaks: 1),
+        aspect("Pluto", "conjunction", "ASC", orb: 0.04, strength: "exact", opened: -44, closes: 47, peaks: 0.8),
+        aspect("Lilith", "sextile", "Moon", orb: 0.12, strength: "exact", opened: -9, closes: 8, peaks: -0.5),
+        aspect("Chiron", "opposition", "Venus", orb: 1.74, strength: "moderate", opened: -16, closes: 19, peaks: 6),
+        aspect("Venus", "square", "MC", orb: 2.30, strength: "wide", opened: -2, closes: 2, peaks: 0.2),
+    ]
+
+    /// Transiting bodies drawn with an ℞ on their rows.
+    static let retrograde: Set<String> = ["Neptune", "Saturn", "Pluto"]
+
+    /// The positions behind those aspects, enough for the detail sheet.
+    static let positions: TransitPositions = {
+        var lookup = TransitPositions()
+        lookup.transiting = index([
+            position("Sun", 14, 19, "Virgo", house: 5),
+            position("Moon", 2, 41, "Sagittarius", house: 8),
+            position("Mars", 21, 8, "Libra", house: 6),
+            position("Saturn", 27, 3, "Pisces", house: 11, retrograde: true),
+            position("Uranus", 1, 55, "Gemini", house: 2),
+            position("Neptune", 0, 12, "Aries", house: 12, retrograde: true),
+            position("Pluto", 1, 40, "Aquarius", house: 10, retrograde: true),
+            position("Lilith", 9, 26, "Scorpio", house: 7),
+            position("Chiron", 25, 2, "Aries", house: 12),
+            position("Venus", 18, 44, "Leo", house: 4),
+        ])
+        lookup.natal = index([
+            position("Neptune", 14, 49, "Capricorn", house: 9, retrograde: true),
+            position("Mars", 3, 12, "Pisces", house: 11),
+            position("Pluto", 20, 40, "Scorpio", house: 7),
+            position("Moon", 28, 17, "Gemini", house: 2),
+            position("Sun", 27, 4, "Aries", house: 12),
+            position("Saturn", 0, 27, "Capricorn", house: 9),
+            position("Venus", 23, 16, "Taurus", house: 1),
+            position("ASC", 1, 44, "Gemini"),
+            position("MC", 8, 9, "Aquarius"),
+        ])
+        return lookup
+    }()
+
+    private static func index(_ positions: [ChartPosition]) -> [String: ChartPosition] {
+        Dictionary(positions.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    private static func position(
+        _ id: String,
+        _ degree: Int,
+        _ minute: Int,
+        _ sign: String,
+        house: Int? = nil,
+        retrograde: Bool = false
+    ) -> ChartPosition {
+        ChartPosition(
+            id: id,
+            degree: degree,
+            minute: minute,
+            sign: sign,
+            retrograde: retrograde,
+            natalHouse: house,
+            house: house
+        )
+    }
+
+    private static func aspect(
+        _ transit: String,
+        _ aspect: String,
+        _ natal: String,
+        orb: Double,
+        strength: String,
+        opened: Double,
+        closes: Double,
+        peaks: Double
+    ) -> ActiveAspect {
+        ActiveAspect(
+            transitObject: transit,
+            natalObject: natal,
+            aspect: aspect,
+            orb: orb,
+            strength: strength,
+            timing: AspectTiming(
+                startUtc: isoInstant(days: opened),
+                peakUtc: isoInstant(days: peaks),
+                exactUtc: nil,
+                endUtc: isoInstant(days: closes),
+                peakOrb: orb,
+                status: peaks < 0 ? "separating" : "applying",
+                willPerfect: true,
+                durationHours: (closes - opened) * 24,
+                exactPasses: nil
+            )
+        )
+    }
+
     private static func make(
         name: String,
         handle: String,
@@ -183,6 +284,15 @@ enum WeatherPreviewData {
             followersCount: nil,
             followingCount: nil
         )
+    }
+
+    /// A UTC instant this many days from now, spelled the way the timing
+    /// engine spells one.
+    private static func isoInstant(days: Double) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter.string(from: Date().addingTimeInterval(days * 86_400))
     }
 
     private static func isoDay(_ date: Date) -> String {

@@ -39,8 +39,14 @@ struct WeatherPreviewHarness: View {
                 CosmicWeatherView(
                     profile: profile,
                     topInset: topInset,
+                    bottomInset: geometry.safeAreaInsets.bottom,
                     isPrimary: profile.profileId == WeatherPreviewData.profile.profileId,
-                    model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days(for: profile))
+                    model: CosmicWeatherViewModel(
+                        previewDays: WeatherPreviewData.days(for: profile),
+                        previewAspects: WeatherPreviewData.aspects,
+                        previewRetrograde: WeatherPreviewData.retrograde,
+                        previewPositions: WeatherPreviewData.positions
+                    )
                 )
             }
         }
@@ -62,7 +68,12 @@ struct WeatherPreviewHarness: View {
 #Preview("Cosmic weather") {
     CosmicWeatherView(
         profile: WeatherPreviewData.profile,
-        model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days)
+        model: CosmicWeatherViewModel(
+            previewDays: WeatherPreviewData.days,
+            previewAspects: WeatherPreviewData.aspects,
+            previewRetrograde: WeatherPreviewData.retrograde,
+            previewPositions: WeatherPreviewData.positions
+        )
     )
 }
 

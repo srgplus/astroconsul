@@ -95,6 +95,7 @@ struct WeatherHomeView: View {
                 CosmicWeatherView(
                     profile: profile,
                     topInset: topInset,
+                    bottomInset: geometry.safeAreaInsets.bottom,
                     isPrimary: profile.profileId == model.primaryProfileId
                 )
             }

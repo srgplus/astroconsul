@@ -27,7 +27,13 @@ struct WeatherCard<Content: View>: View {
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .weatherGlass(in: CardGlass.shape, tint: CardGlass.tint)
-        .overlay(CardGlass.shape.strokeBorder(Color.white.opacity(0.16), lineWidth: 1))
+        .overlay(
+            CardGlass.shape
+                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                // Decoration only: a hit-testing overlay swallows taps meant
+                // for the controls underneath it.
+                .allowsHitTesting(false)
+        )
     }
 }
 

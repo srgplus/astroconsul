@@ -80,6 +80,49 @@ actor APIClient {
         )
     }
 
+    /// The transit report for one moment. `includeTiming` is what turns the
+    /// aspects' start/peak/end dates on, and it is the slow half of the call,
+    /// so the screen asks for it separately from the forecast.
+    func fetchTransitReport(
+        profileId: String,
+        date: String,
+        time: String,
+        timezone: String,
+        locationName: String? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        includeTiming: Bool = true
+    ) async throws -> TransitReport {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let transit_date: String
+            let transit_time: String
+            let timezone: String
+            let location_name: String?
+            let latitude: Double?
+            let longitude: Double?
+            let include_timing: Bool
+            let lang: String
+        }
+
+        let id = profileId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? profileId
+        return try await send(
+            "/api/v1/profiles/\(id)/transits/report",
+            method: "POST",
+            body: Body(
+                transit_date: date,
+                transit_time: time,
+                timezone: timezone,
+                location_name: locationName,
+                latitude: latitude,
+                longitude: longitude,
+                include_timing: includeTiming,
+                // The route defaults to Russian; the native screens are English.
+                lang: "en"
+            )
+        )
+    }
+
     // MARK: - Request plumbing
 
     private func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
