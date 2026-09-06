@@ -1,9 +1,20 @@
 import SwiftUI
 
-/// Translucent panel that floats on the sky gradient, the way Weather's
-/// summary and forecast blocks do. Fixed white tints rather than a material:
-/// the sky underneath is saturated in both light and dark, so the card has to
-/// keep the same contrast either way.
+/// A generic view cannot hold static storage, so the card's constants live here.
+private enum CardGlass {
+    /// Enough dark for white text to hold over a bright sky, little enough
+    /// that the panel still reads as glass rather than a grey box.
+    static let tint: Double = 0.3
+    static let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+}
+
+/// Frosted panel that floats on the sky, the way Weather's summary and
+/// forecast blocks do.
+///
+/// Glass rather than a flat white wash: a wash is only transparency, so the
+/// sky video kept moving through the text. Glass blurs what is behind it, and
+/// the tint here is heavier than the bottom bar's because these panels carry
+/// paragraphs, not a pair of glyphs.
 struct WeatherCard<Content: View>: View {
 
     @ViewBuilder var content: Content
@@ -15,14 +26,8 @@ struct WeatherCard<Content: View>: View {
         .padding(.vertical, 14)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.white.opacity(0.15))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
-        )
+        .weatherGlass(in: CardGlass.shape, tint: CardGlass.tint)
+        .overlay(CardGlass.shape.strokeBorder(Color.white.opacity(0.16), lineWidth: 1))
     }
 }
 

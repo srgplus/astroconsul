@@ -8,16 +8,25 @@ extension View {
     /// `glassEffect` at the use site.
     /// Tinted a little dark on purpose: over a bright sky, plain glass turns
     /// milky and the white dots and glyphs on it stop reading.
+    ///
+    /// `tint` is how much of that dark carries. Controls that hold a glyph or
+    /// two get the light default; a panel of running text needs more, or the
+    /// sky behind it reads through the words.
     @ViewBuilder
-    func weatherGlass<S: Shape>(in shape: S, interactive: Bool = false) -> some View {
+    func weatherGlass<S: Shape>(
+        in shape: S,
+        tint: Double = 0.16,
+        interactive: Bool = false
+    ) -> some View {
         if #available(iOS 26.0, *) {
-            let glass = Glass.regular.tint(Color.black.opacity(0.16))
+            let glass = Glass.regular.tint(Color.black.opacity(tint))
             glassEffect(interactive ? glass.interactive() : glass, in: shape)
         } else {
             background {
                 shape
                     .fill(.ultraThinMaterial)
                     .environment(\.colorScheme, .dark)
+                    .overlay(shape.fill(Color.black.opacity(tint)))
                     .overlay(shape.stroke(Color.white.opacity(0.24), lineWidth: 1))
             }
             .clipShape(shape)
