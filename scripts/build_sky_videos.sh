@@ -10,13 +10,10 @@
 #
 # Usage:  scripts/build_sky_videos.sh ~/Downloads/big3.me
 #
-# Needs ffmpeg with hevc_videotoolbox (macOS): brew install ffmpeg
+# Needs ffmpeg built with libx265: brew install ffmpeg
 #
-# Re-running produces equivalent clips, not byte-identical ones —
-# hevc_videotoolbox is a hardware encoder and does not repeat itself exactly.
-# So a plain re-run leaves eight modified files that differ in nothing that
-# matters. Commit the result only when the recipe actually changed; otherwise
-# `git restore` them.
+# Encoding all eight takes a few minutes — libx265 on `slow` is not fast. That
+# is the trade this script makes deliberately; see the encoder note below.
 
 set -euo pipefail
 
@@ -52,8 +49,19 @@ G_EXTREME="hue=h=75:s=0.85,colorbalance=rm=0.12:bm=-0.10:rs=0.06:bs=-0.05,eq=bri
 
 FADE=1.0
 
+# libx265 rather than hevc_videotoolbox. Measured on the lightning clip against
+# a lossless reference: at the same 1.3MB the hardware encoder scored VMAF 36
+# and libx265 scored 69. The video chip is built for speed, not for density,
+# and nothing here is encoded at runtime, so the slower encoder is free.
+#
+# CRF, not a target bitrate: the clips differ wildly in how much motion they
+# carry (drifting cloud against a lightning strike), and a fixed bitrate either
+# starves one or wastes bits on the other.
+CRF_SCREEN=32
+CRF_CARD=32
+
 build() {
-  local in=$1 out=$2 ss=$3 dur=$4 crop=$5 extra=$6 grade=$7 w=$8 h=$9 bitrate=${10}
+  local in=$1 out=$2 ss=$3 dur=$4 crop=$5 extra=$6 grade=$7 w=$8 h=$9 crf=${10}
   local mid
   mid=$(echo "$dur - $FADE" | bc)
 
@@ -64,7 +72,8 @@ build() {
 [t]trim=${mid}:${dur},setpts=PTS-STARTPTS[tail];\
 [tail][head]blend=all_expr='A*(1-T/${FADE})+B*(T/${FADE})'[bl];\
 [bl][mid]concat=n=2:v=1:a=0[v]" \
-    -map "[v]" -c:v hevc_videotoolbox -tag:v hvc1 -b:v "$bitrate" -pix_fmt yuv420p -an "$out"
+    -map "[v]" -c:v libx265 -tag:v hvc1 -crf "$crf" -preset slow \
+    -x265-params log-level=error -pix_fmt yuv420p -an "$out"
 
   # du reports allocated blocks, which rounds every one of these to the same
   # number and hides a clip that ballooned. Count the bytes.
@@ -80,27 +89,27 @@ echo "Building into $DST"
 # rest. The card crop comes off the untouched landscape original instead, so it
 # is a downscale with nothing to hide.
 build "$SRC/1481304_Cloud_Clouds_1280x720.mov" "$DST/sky_quiet.mp4" \
-  10 7.0 "crop=333:720:35:0" "gblur=sigma=0.6," "$G_QUIET" $SCREEN_W $SCREEN_H 1600k
+  10 7.0 "crop=333:720:35:0" "gblur=sigma=0.6," "$G_QUIET" $SCREEN_W $SCREEN_H $CRF_SCREEN
 build "$SRC/Archived/1481304_Cloud_Clouds_1280x720.mp4" "$DST/card_quiet.mp4" \
-  10 7.0 "crop=1280:387:0:180" "" "$G_QUIET" $CARD_W $CARD_H 500k
+  10 7.0 "crop=1280:387:0:180" "" "$G_QUIET" $CARD_W $CARD_H $CRF_CARD
 
 # active — rain on water.
 build "$SRC/0_Rain_Raindrops_720x1280.mp4" "$DST/sky_active.mp4" \
-  0 5.875 "crop=591:1280:64:0" "" "$G_ACTIVE" $SCREEN_W $SCREEN_H 1600k
+  0 5.875 "crop=591:1280:64:0" "" "$G_ACTIVE" $SCREEN_W $SCREEN_H $CRF_SCREEN
 build "$SRC/0_Rain_Raindrops_720x1280.mp4" "$DST/card_active.mp4" \
-  0 5.875 "crop=720:218:0:620" "" "$G_ACTIVE" $CARD_W $CARD_H 500k
+  0 5.875 "crop=720:218:0:620" "" "$G_ACTIVE" $CARD_W $CARD_H $CRF_CARD
 
 # hot — sun through cloud.
 build "$SRC/0_Sun_Sky_720x1280.mp4" "$DST/sky_hot.mp4" \
-  0 7.0 "crop=591:1280:64:0" "" "$G_HOT" $SCREEN_W $SCREEN_H 1600k
+  0 7.0 "crop=591:1280:64:0" "" "$G_HOT" $SCREEN_W $SCREEN_H $CRF_SCREEN
 build "$SRC/0_Sun_Sky_720x1280.mp4" "$DST/card_hot.mp4" \
-  0 7.0 "crop=720:218:0:480" "" "$G_HOT" $CARD_W $CARD_H 500k
+  0 7.0 "crop=720:218:0:480" "" "$G_HOT" $CARD_W $CARD_H $CRF_CARD
 
 # extreme — lightning.
 build "$SRC/0_Vertical_Video_Lightning_Bolt_720x1280.mp4" "$DST/sky_extreme.mp4" \
-  0 5.208 "crop=591:1280:64:0" "" "$G_EXTREME" $SCREEN_W $SCREEN_H 1600k
+  0 5.208 "crop=591:1280:64:0" "" "$G_EXTREME" $SCREEN_W $SCREEN_H $CRF_SCREEN
 build "$SRC/0_Vertical_Video_Lightning_Bolt_720x1280.mp4" "$DST/card_extreme.mp4" \
-  0 5.208 "crop=720:218:0:380" "" "$G_EXTREME" $CARD_W $CARD_H 500k
+  0 5.208 "crop=720:218:0:380" "" "$G_EXTREME" $CARD_W $CARD_H $CRF_CARD
 
 # --- Check ----------------------------------------------------------------
 #
