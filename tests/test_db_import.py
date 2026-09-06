@@ -12,6 +12,10 @@ from app.infrastructure.persistence.models import LatestTransitModel, NatalChart
 from app.infrastructure.persistence.session import clear_engine_cache, get_session_factory
 from scripts.import_legacy_json_to_db import import_legacy_json
 
+# charts/*.json is gitignored, so the sample payload this test imports only
+# exists on a developer machine.
+SAMPLE_CHART = Path("charts/chart_1991_07_28_2206.json")
+
 
 class LegacyImportTests(unittest.TestCase):
     def tearDown(self) -> None:
@@ -21,6 +25,7 @@ class LegacyImportTests(unittest.TestCase):
         clear_settings_cache()
         clear_engine_cache()
 
+    @unittest.skipUnless(SAMPLE_CHART.exists(), f"needs the local chart fixture {SAMPLE_CHART}")
     def test_import_legacy_json_preserves_chart_and_profile_ids(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
