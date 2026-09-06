@@ -61,7 +61,10 @@ struct WeatherHomeView: View {
                 }
             }
         }
-        .task { await model.load() }
+        .task {
+            await model.load()
+            syncSelection()
+        }
         .onChange(of: auth.session) { _, _ in
             Task { await model.load() }
         }

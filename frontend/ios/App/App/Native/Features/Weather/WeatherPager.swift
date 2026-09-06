@@ -32,6 +32,10 @@ struct WeatherPager<Page: View>: View {
                 count: profiles.count,
                 index: index,
                 primaryIndex: profiles.firstIndex { $0.profileId == primaryProfileId },
+                onSelectPage: { position in
+                    guard profiles.indices.contains(position) else { return }
+                    selection = profiles[position].profileId
+                },
                 onOpenChart: onOpenChart,
                 onOpenList: onOpenList
             )
@@ -46,6 +50,7 @@ struct WeatherBottomBar: View {
     let count: Int
     let index: Int
     let primaryIndex: Int?
+    var onSelectPage: (Int) -> Void
     var onOpenChart: () -> Void
     var onOpenList: () -> Void
 
@@ -53,11 +58,9 @@ struct WeatherBottomBar: View {
         HStack {
             circleButton(icon: "circle.hexagongrid.fill", label: "Open chart", action: onOpenChart)
 
-            Spacer(minLength: 8)
-
             dots
-
-            Spacer(minLength: 8)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 8)
 
             circleButton(icon: "list.bullet", label: "All profiles", action: onOpenList)
         }
@@ -82,25 +85,16 @@ struct WeatherBottomBar: View {
 
     /// The primary profile takes Weather's location arrow; the rest are dots.
     private var dots: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<count, id: \.self) { position in
-                if position == primaryIndex {
-                    Image(systemName: "location.fill")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.white.opacity(position == index ? 1 : 0.45))
-                } else {
-                    Circle()
-                        .fill(.white.opacity(position == index ? 1 : 0.4))
-                        .frame(width: 7, height: 7)
-                }
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
+        WeatherPageDots(
+            count: count,
+            index: index,
+            primaryIndex: primaryIndex,
+            onSelect: onSelectPage
+        )
+        .frame(height: 30)
         .background(
             Capsule().strokeBorder(Color.white.opacity(0.22), lineWidth: 1)
         )
-        .accessibilityElement()
         .accessibilityLabel("Profile \(index + 1) of \(count)")
     }
 

@@ -4,6 +4,15 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: page dots use UIPageControl
+A hand-rolled `HStack` of dots is as wide as the profile count, so an account
+following thirty-odd profiles made the bottom bar wider than the screen and
+pushed the whole pager sideways — the sky started ~40pt in from the left edge.
+`Features/Weather/WeatherPageDots.swift` wraps `UIPageControl`, which windows
+and shrinks its dots to the width it is given and takes a per-page image for
+the primary profile's location arrow. `WeatherPreviewData` now carries 33
+sample profiles so the harness reproduces that pressure.
+
 ### iOS: tab bar removed, home is the weather pager
 The shell now follows Weather all the way: no tab bar, one profile per page,
 swiped horizontally, with a floating bottom bar over the sky.

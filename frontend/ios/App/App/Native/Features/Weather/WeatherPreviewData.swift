@@ -39,7 +39,22 @@ enum WeatherPreviewData {
         make(name: "Kevin Van Vliet", handle: "kevinvanvliet", place: "Rotterdam, Netherlands", tii: 65, feels: "Expansive"),
         make(name: "Kim Kardashian", handle: "kimkardashian", place: "Los Angeles, California", tii: 73, feels: "Charged"),
         make(name: "Liliia Mosendz", handle: "liliiamosendz", place: "Kyiv, Ukraine", tii: 88, feels: "Explosive"),
-    ]
+    ] + filler
+
+    /// Real accounts follow dozens of profiles; the bar has to survive that.
+    private static let filler: [ProfileSummary] = (1...26).map { number in
+        let readings: [(Double, String)] = [
+            (18, "Calm"), (36, "Flowing"), (57, "Dynamic"), (71, "Charged"), (91, "Volatile"),
+        ]
+        let reading = readings[number % readings.count]
+        return make(
+            name: "Profile \(number)",
+            handle: "profile\(number)",
+            place: "Somewhere \(number)",
+            tii: reading.0,
+            feels: reading.1
+        )
+    }
 
     static let days: [ForecastDay] = {
         let readings: [(Double, String)] = [
