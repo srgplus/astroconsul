@@ -52,6 +52,38 @@ button now float over the sky as Liquid Glass, matching Weather on iOS 26.
 - Search moved to the bottom on its own: iOS 26 floats `.searchable` there for
   a `NavigationStack`. On iOS 17 the same code still draws it under the title,
   which is what the older simulators show.
+### CI and merging: PRs with required checks, and CI that actually runs
+The old `auto-merge-claude.yml` pushed straight to main with `merge --ff-only`.
+Two consequences, both live for months:
+
+- **CI never ran.** GitHub does not trigger workflows for pushes made with
+  `GITHUB_TOKEN`, so once the bot owned every push to main, `ci.yml` stopped
+  firing. Its last run was 2026-04-06, and it was already failing then.
+- **It broke silently.** `--ff-only` fails the moment another session moves
+  main ahead, and nothing reports that; the branch just never lands.
+
+Now: push to `claude/**` opens a PR (`open-pr.yml`) and queues it for
+auto-merge. main is protected — PR required (0 approvals), `backend`,
+`frontend` and `ios` checks must pass, direct pushes refused. `enforce_admins`
+is off, so the owner keeps an escape hatch.
+
+**What CI was hiding.** Making it green needed real fixes, not only lint:
+
+- `app/main.py` called `logging.getLogger` in the sitemap's `except` branch
+  without importing `logging`, so the fallback raised `NameError`.
+- `FileProfileRepository.delete_profile` called `profile_path` without
+  importing it, and `get_owner_user_id` called `.get` on the
+  `(path, payload)` tuple that `natal_profiles.load_profile` returns.
+- The test suite errored on import because CI installs `pyproject.toml`
+  dependencies, which omit six packages that `requirements.txt` (what Railway
+  installs) carries, `python-dotenv` among them. CI now installs both.
+- Lint and types: 145 ruff findings and 35 mypy errors. Fixed rather than
+  suppressed, except E501 (the formatter owns line width) and
+  `synastry_engine`, added to the existing legacy mypy override list.
+
+The ephemeris builders and `ProfileService` now annotate their payloads as
+`dict[str, Any]` instead of `dict[str, object]`: the values are heterogeneous,
+and `object` forced a cast at every read site.
 
 ### iOS: bottom bar trimmed, Settings can be closed, primary pinned first
 - The bottom bar's left button is gone; the web screens are reached from the

@@ -5,7 +5,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 ## Quick Reference
 - **Stack:** FastAPI + React/Vite + Supabase PostgreSQL + Swiss Ephemeris
 - **Domain:** big3.me (Cloudflare DNS → Railway)
-- **Deploy:** Push to `claude/*` branch → GitHub Action auto-merges to main → Railway auto-deploys (see `.github/workflows/auto-merge-claude.yml`). Do NOT try to push directly to main — the proxy blocks it with 403.
+- **Deploy:** Push to `claude/*` branch → a PR opens itself and merges to main once CI is green → Railway auto-deploys (see `.github/workflows/open-pr.yml`). `main` is protected: no direct pushes, PR required, `backend` + `frontend` + `ios` checks must pass.
 - **Local backend:** `uvicorn app.main:app --port 8001`
 - **Local frontend:** `cd frontend && npm run dev` (port 5173)
 - **Build check:** `cd frontend && npm run build` (must pass before push)
@@ -13,7 +13,9 @@ Read `.ai/SKILL.md` before any task for full project context.
 - **Auth:** Disabled locally, Supabase Auth on prod
 
 ## Rules
-- Always push to your `claude/*` branch after implementing — don't ask, just push (auto-merges to main via GitHub Action)
+- Always push to your `claude/*` branch after implementing — don't ask, just push. A PR opens automatically and merges itself when CI passes
+- Check the run after pushing (`gh pr checks` or `gh run list`): a red check leaves the PR open, it does not merge and does not announce itself
+- If main moved ahead and the PR conflicts, rebase onto `origin/main` and force-push the branch
 - Run `npm run build` before pushing
 - Respond in Russian when user writes in Russian
 - Use native `<button>` elements for clickable items in scroll containers (iOS fix)

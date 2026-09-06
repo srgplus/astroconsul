@@ -1,0 +1,45 @@
+name: Open PR for Claude branches
+
+# Replaces the old auto-merge action, which pushed straight to main with
+# `merge --ff-only`. That skipped CI entirely (a push made with GITHUB_TOKEN
+# does not trigger workflows) and broke silently whenever another session
+# moved main ahead. Now every branch gets a PR that merges itself once the
+# checks on this commit are green.
+
+on:
+  push:
+    branches: ['claude/**']
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open the PR and queue it for auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [ "$(git rev-list --count origin/main..HEAD)" -eq 0 ]; then
+            echo "Nothing to merge: branch is already contained in main."
+            exit 0
+          fi
+
+          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "$(git log -1 --pretty=%s)" \
+              --body "Opened automatically for \`$BRANCH\`. Merges itself once CI is green."
+          fi
+
+          gh pr merge "$BRANCH" --auto --merge
