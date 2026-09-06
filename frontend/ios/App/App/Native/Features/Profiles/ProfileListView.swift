@@ -4,6 +4,7 @@ struct ProfileListView: View {
 
     @StateObject private var model = ProfileListViewModel()
     @ObservedObject private var auth = AuthStore.shared
+    @State private var openProfile: ProfileSummary?
 
     /// Sends the user to the WebView tab, which still owns sign-in and the
     /// profile detail screens.
@@ -79,19 +80,25 @@ struct ProfileListView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Theme.bg.ignoresSafeArea())
         .refreshable { await model.load(showSpinner: false) }
+        .navigationDestination(item: $openProfile) { profile in
+            CosmicWeatherView(profile: profile)
+        }
     }
 
     private func row(_ profile: ProfileSummary) -> some View {
-        Button(action: onOpenWeb) {
-            ProfileRowView(profile: profile, isPrimary: profile.profileId == model.primaryProfileId)
+        Button {
+            openProfile = profile
+        } label: {
+            ProfileWeatherCard(profile: profile, isPrimary: profile.profileId == model.primaryProfileId)
         }
         .buttonStyle(.plain)
-        .listRowBackground(Theme.surface)
-        .listRowSeparatorTint(Theme.line)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
     }
 
     private func sectionHeader(_ title: String) -> some View {
@@ -99,6 +106,7 @@ struct ProfileListView: View {
             .font(.system(size: 12, design: .rounded).weight(.semibold))
             .foregroundStyle(Theme.textDim)
             .tracking(0.6)
+            .padding(.top, 4)
     }
 
     // MARK: - States

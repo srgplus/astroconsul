@@ -4,6 +4,40 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: Weather-style cosmic weather screen and profile list
+The app's pitch is "Apple Weather for astrology", so the native screens now
+look the part.
+
+- `Features/Weather/CosmicWeatherView.swift`: one screen per profile. TII is
+  the temperature (`51°`), `feels_like` is the condition, and H/L is the high
+  and low **across the forecast window**, not within today — the engine yields
+  one TII per day, so a same-day range would be invented.
+- `Design/WeatherSky.swift`: a sky gradient per TII zone (quiet / active / hot
+  / extreme), deeper in dark mode. Weather screens use white text on top of it
+  rather than `Theme.text`, since the sky is saturated in both themes.
+- `Features/Profiles/ProfileWeatherCard.swift` replaces `ProfileRowView`: the
+  list now reads like Weather's saved cities, with the same gradient per zone.
+  Tapping a card opens that profile's weather.
+- `Features/Weather/ForecastCard.swift`: the 10-day list. Each row places its
+  TII on the window's shared low…high scale, and the condition icon is an SF
+  Symbol (`FeelsLike.symbol(for:)`) rather than the web app's emoji.
+
+**One request feeds the whole screen**: `GET /transits/forecast?days=10` already
+returns TII, feels-like, top transits, moon phase and retrogrades per day, so
+no backend work was needed and no hourly strip exists (the engine has no hourly
+TII).
+
+The list drives navigation with `navigationDestination(item:)` and a plain
+Button — a `NavigationLink` inside a `List` draws a disclosure chevron over the
+card.
+
+**Debug harness**: launch with `-uiPreviewWeather`
+(`xcrun simctl launch <device> me.big3.app -uiPreviewWeather`) to open the
+screens with sample data from `WeatherPreviewData`, no account needed. It is
+`#if DEBUG` only and never reachable in a release build.
+
+## 2026-09-06
+
 ### iOS: native sign-in (email code, Apple, Google, password)
 The WebView's "Continue with Google" and "Continue with Apple" buttons did
 nothing on iOS. Root cause: `AuthContext.tsx` calls `Browser.open()` from

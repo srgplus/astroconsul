@@ -61,22 +61,52 @@ actor APIClient {
         let _: EmptyResponse = try await send(path, method: "DELETE", body: Optional<EmptyResponse>.none)
     }
 
+    // MARK: - Cosmic weather
+
+    /// One call feeds the whole weather screen: today plus the next days, each
+    /// with TII, feels-like, top transits, moon phase and retrogrades.
+    func fetchForecast(
+        profileId: String,
+        timezone: String = TimeZone.current.identifier,
+        days: Int = 10
+    ) async throws -> ForecastResponse {
+        let id = profileId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? profileId
+        return try await get(
+            "/api/v1/profiles/\(id)/transits/forecast",
+            query: [
+                URLQueryItem(name: "timezone", value: timezone),
+                URLQueryItem(name: "days", value: String(days)),
+            ]
+        )
+    }
+
     // MARK: - Request plumbing
 
-    private func get<T: Decodable>(_ path: String) async throws -> T {
-        try await send(path, method: "GET", body: Optional<EmptyResponse>.none)
+    private func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
+        try await send(path, method: "GET", query: query, body: Optional<EmptyResponse>.none)
     }
 
     private func send<T: Decodable, B: Encodable>(
         _ path: String,
         method: String,
+        query: [URLQueryItem] = [],
         body: B?
     ) async throws -> T {
         guard let token = await AuthStore.shared.validAccessToken() else {
             throw APIError.notSignedIn
         }
 
-        var request = URLRequest(url: AppConfig.apiBaseURL.appendingPathComponent(path))
+        var components = URLComponents(
+            url: AppConfig.apiBaseURL.appendingPathComponent(path),
+            resolvingAgainstBaseURL: false
+        )
+        components?.queryItems = query.isEmpty ? nil : query
+
+        guard let url = components?.url else {
+            throw APIError.http(status: -1, detail: "Could not build a URL for \(path).")
+        }
+
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")

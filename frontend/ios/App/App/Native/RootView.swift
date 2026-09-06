@@ -20,12 +20,23 @@ struct RootView: View {
 
     var body: some View {
         Group {
+            #if DEBUG
+            if WeatherPreviewHarness.isEnabled {
+                WeatherPreviewHarness()
+            } else if auth.isSignedIn {
+                tabs
+            } else {
+                SignInView()
+                    .transition(.opacity)
+            }
+            #else
             if auth.isSignedIn {
                 tabs
             } else {
                 SignInView()
                     .transition(.opacity)
             }
+            #endif
         }
         .animation(.easeInOut(duration: 0.25), value: auth.isSignedIn)
         .preferredColorScheme(SettingsView.Appearance(rawValue: appearance)?.colorScheme)
