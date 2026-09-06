@@ -19,7 +19,7 @@ from __future__ import annotations
 import base64
 import logging
 import os
-from typing import Any
+from typing import Any, cast
 
 import httpx
 from fastapi import APIRouter, HTTPException
@@ -112,9 +112,8 @@ def _update_post_image(slug: str, filename: str, image_url: str):
 
     with session_scope(settings) as session:
         from sqlalchemy import select
-        post = session.execute(
-            select(NewsPostModel).where(NewsPostModel.slug == slug)
-        ).scalar_one_or_none()
+
+        post = session.execute(select(NewsPostModel).where(NewsPostModel.slug == slug)).scalar_one_or_none()
 
         if not post:
             logger.warning("Post not found for image update: %s", slug)
@@ -128,14 +127,15 @@ def _update_post_image(slug: str, filename: str, image_url: str):
             parts = filename.replace(".png", "").split("_")
             if len(parts) >= 2 and parts[1].isdigit():
                 idx = int(parts[1])
-                sections = list(post.sections or [])
+                # post.sections is a JSON column, typed as a scalar by
+                # SQLAlchemy's stubs but a list of dicts at runtime.
+                sections = cast(list[dict[str, Any]], list(post.sections or []))
                 if idx < len(sections):
                     sections[idx]["image_url"] = image_url
                     sections[idx]["image_alt"] = sections[idx].get("heading", "")
                     post.sections = sections
 
         logger.info("Updated post %s with image %s", slug, filename)
-
 
 
 @router.post("/upload-base64")

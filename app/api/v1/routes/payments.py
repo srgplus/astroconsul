@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import base64
-import hashlib
-import hmac
 import json
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -34,6 +32,7 @@ APPLE_BUNDLE_ID = "me.big3.app"
 
 # ── Schemas ──────────────────────────────────────────────────────────
 
+
 class CheckoutRequest(BaseModel):
     plan: str  # "pro_monthly" or "pro_annual"
 
@@ -50,10 +49,12 @@ class AppleVerifyRequest(BaseModel):
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
+
 def _get_stripe():
     """Lazy import stripe to avoid hard dependency."""
     try:
         import stripe
+
         stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
         return stripe
     except ImportError:
@@ -95,7 +96,7 @@ def _activate_subscription(
         logger.error("Cannot activate subscription: database not enabled")
         return
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expires = now + timedelta(days=_plan_days(plan))
 
     with session_scope(settings) as session:
@@ -119,6 +120,7 @@ def _activate_subscription(
 
 
 # ── Stripe Checkout ──────────────────────────────────────────────────
+
 
 @router.post("/create-checkout", response_model=CheckoutResponse)
 def create_checkout(
@@ -151,6 +153,7 @@ def create_checkout(
 
 # ── Stripe Webhook ───────────────────────────────────────────────────
 
+
 @router.post("/webhooks/stripe")
 async def stripe_webhook(request: Request):
     """Handle Stripe webhook events (checkout.session.completed)."""
@@ -159,8 +162,12 @@ async def stripe_webhook(request: Request):
     sig_header = request.headers.get("stripe-signature", "")
     webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-    logger.info("Stripe webhook received, payload_len=%d, sig=%s, secret=%s",
-                len(payload), bool(sig_header), bool(webhook_secret))
+    logger.info(
+        "Stripe webhook received, payload_len=%d, sig=%s, secret=%s",
+        len(payload),
+        bool(sig_header),
+        bool(webhook_secret),
+    )
 
     if not webhook_secret:
         logger.error("STRIPE_WEBHOOK_SECRET not configured")
@@ -223,6 +230,7 @@ async def stripe_webhook(request: Request):
 
 # ── Apple IAP Verification ─────────────────────────────────────────
 
+
 @router.post("/verify-apple")
 async def verify_apple_transaction(
     body: AppleVerifyRequest,
@@ -245,6 +253,7 @@ async def verify_apple_transaction(
 
     # Check for duplicate transaction
     from sqlalchemy import select
+
     from app.infrastructure.persistence.models import SubscriptionModel
 
     settings = get_settings()
@@ -273,12 +282,12 @@ async def verify_apple_transaction(
         currency="USD",
     )
 
-    logger.info("Apple IAP activated %s for user %s (txn: %s, product: %s)",
-                plan, user_id, transaction_id, product_id)
+    logger.info("Apple IAP activated %s for user %s (txn: %s, product: %s)", plan, user_id, transaction_id, product_id)
     return {"status": "ok", "plan": plan}
 
 
 # ── Apple App Store Server Notifications v2 ────────────────────────
+
 
 @router.post("/webhooks/apple")
 async def apple_webhook(request: Request):
@@ -318,10 +327,7 @@ async def apple_webhook(request: Request):
 
     # Extract transaction info from nested signed data
     try:
-        signed_transaction = (
-            claims.get("data", {})
-            .get("signedTransactionInfo", "")
-        )
+        signed_transaction = claims.get("data", {}).get("signedTransactionInfo", "")
         if signed_transaction:
             txn_parts = signed_transaction.split(".")
             txn_b64 = txn_parts[1]
@@ -338,8 +344,13 @@ async def apple_webhook(request: Request):
     bundle_id = txn_info.get("bundleId", "")
     app_account_token = txn_info.get("appAccountToken", "")
 
-    logger.info("Apple txn: original_id=%s product=%s bundle=%s account_token=%s",
-                original_txn_id, product_id, bundle_id, app_account_token)
+    logger.info(
+        "Apple txn: original_id=%s product=%s bundle=%s account_token=%s",
+        original_txn_id,
+        product_id,
+        bundle_id,
+        app_account_token,
+    )
 
     if bundle_id and bundle_id != APPLE_BUNDLE_ID:
         logger.warning("Apple webhook bundle_id mismatch: %s != %s", bundle_id, APPLE_BUNDLE_ID)
@@ -364,8 +375,7 @@ async def apple_webhook(request: Request):
         # Cancellation/expiry/refund — deactivate subscription
         if original_txn_id:
             _deactivate_apple_subscription(original_txn_id)
-            logger.info("Apple subscription deactivated: original_txn=%s type=%s",
-                        original_txn_id, notification_type)
+            logger.info("Apple subscription deactivated: original_txn=%s type=%s", original_txn_id, notification_type)
 
     elif notification_type == "REFUND":
         if original_txn_id:
@@ -380,14 +390,15 @@ async def apple_webhook(request: Request):
 
 def _deactivate_apple_subscription(original_transaction_id: str):
     """Mark Apple subscription as inactive by original transaction ID."""
-    from sqlalchemy import select, update
+    from sqlalchemy import update
+
     from app.infrastructure.persistence.models import SubscriptionModel
 
     settings = get_settings()
     if not database_is_enabled(settings):
         return
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     with session_scope(settings) as session:
         session.execute(
             update(SubscriptionModel)
@@ -401,6 +412,7 @@ def _deactivate_apple_subscription(original_transaction_id: str):
 
 
 # ── bePaid Webhook (placeholder) ─────────────────────────────────────
+
 
 @router.post("/webhooks/bepaid")
 async def bepaid_webhook(request: Request):
@@ -444,6 +456,7 @@ async def bepaid_webhook(request: Request):
 
 
 # ── Stripe Customer Portal ──────────────────────────────────────────
+
 
 @router.post("/customer-portal")
 def create_customer_portal(

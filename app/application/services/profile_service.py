@@ -10,12 +10,12 @@ class ProfileService:
     def __init__(self, chart_service: ChartService):
         self.chart_service = chart_service
 
-    def list_profiles(self, profile_repository, *, user_id: str | None = None) -> dict[str, object]:
+    def list_profiles(self, profile_repository, *, user_id: str | None = None) -> dict[str, Any]:
         own = profile_repository.list_summaries(user_id=user_id)
         for p in own:
             p["is_own"] = True
             p["is_following"] = False
-        followed: list[dict[str, object]] = []
+        followed: list[dict[str, Any]] = []
         if user_id is not None:
             followed = profile_repository.list_followed(user_id)
             # Deduplicate: don't include followed profiles that are already owned
@@ -23,11 +23,11 @@ class ProfileService:
             followed = [f for f in followed if f["profile_id"] not in own_ids]
         return {"profiles": own + followed}
 
-    def profile_detail(self, profile_id: str, *, profile_repository, chart_repository) -> dict[str, object]:
+    def profile_detail(self, profile_id: str, *, profile_repository, chart_repository) -> dict[str, Any]:
         profile = profile_repository.load_profile(profile_id)
         return self.profile_detail_from_loaded(profile, chart_repository=chart_repository)
 
-    def profile_detail_from_loaded(self, profile: dict[str, object], *, chart_repository) -> dict[str, object]:
+    def profile_detail_from_loaded(self, profile: dict[str, Any], *, chart_repository) -> dict[str, Any]:
         """Build profile detail response from an already-loaded profile dict."""
         chart_reference, chart = chart_repository.load_chart(str(profile["chart_id"]))
         return {
@@ -44,7 +44,7 @@ class ProfileService:
         chart: dict[str, Any],
         profile_repository,
         user_id: str | None = None,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         profile = profile_repository.create_profile(
             payload.profile_name,
             payload.username,
@@ -67,7 +67,7 @@ class ProfileService:
         chart_reference: str,
         chart: dict[str, Any],
         profile_repository,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         profile = profile_repository.update_profile(
             profile_id,
             payload.profile_name,

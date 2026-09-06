@@ -40,7 +40,7 @@ def create_invite(
     token = uuid.uuid4().hex
     expires_at = datetime.now(UTC) + timedelta(days=INVITE_EXPIRY_DAYS)
 
-    invite = repos.profiles.create_invite(
+    repos.profiles.create_invite(
         profile_id=profile_id,
         invited_email=payload.email,
         token=token,

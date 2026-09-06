@@ -46,7 +46,8 @@ def get_public_profile_detail(
             chart_repository=repos.charts,
         )
         result["chart"]["natal_interpretations"] = _build_natal_interpretations(
-            result["chart"], lang,
+            result["chart"],
+            lang,
         )
         # Public view: only followers_count, no user-specific fields
         result["profile"]["followers_count"] = profile_data["followers_count"]
@@ -63,7 +64,7 @@ def get_public_profile_detail(
 _SKY_PLANETS = ["Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
 
 # Tighter orbs for transit-to-transit (sky aspects, not natal)
-_SKY_ASPECTS = [
+_SKY_ASPECTS: list[dict[str, Any]] = [
     {"name": "conjunction", "angle": 0, "orb": 6},
     {"name": "sextile", "angle": 60, "orb": 3},
     {"name": "square", "angle": 90, "orb": 5},
@@ -77,9 +78,9 @@ def get_cosmic_weather(
     target_date: str = Query(None, alias="date", description="YYYY-MM-DD, defaults to today"),
 ) -> dict[str, Any]:
     """Return comprehensive transit data for a given date — used by content generation."""
-    from aspect_engine import detect_aspect
     from app.domain.astrology.moon import compute_moon_phase
     from app.domain.astrology.tii import compute_retrograde_index
+    from aspect_engine import detect_aspect
     from transit_builder import compute_transit_positions
 
     try:
@@ -95,7 +96,10 @@ def get_cosmic_weather(
 
     try:
         positions = compute_transit_positions(
-            dt.year, dt.month, dt.day, 12.0,  # noon UTC
+            dt.year,
+            dt.month,
+            dt.day,
+            12.0,  # noon UTC
             equal_houses,
         )
     except Exception:
@@ -119,13 +123,15 @@ def get_cosmic_weather(
         lon2 = float(pos_by_id[p2]["longitude"])
         asp = detect_aspect(lon1, lon2, _SKY_ASPECTS)
         if asp and float(asp["orb"]) <= 3.0:  # only tight aspects
-            sky_aspects.append({
-                "planet1": p1,
-                "planet2": p2,
-                "aspect": asp["aspect"],
-                "orb": round(float(asp["orb"]), 2),
-                "exact_angle": asp["angle"],
-            })
+            sky_aspects.append(
+                {
+                    "planet1": p1,
+                    "planet2": p2,
+                    "aspect": asp["aspect"],
+                    "orb": round(float(asp["orb"]), 2),
+                    "exact_angle": asp["angle"],
+                }
+            )
 
     sky_aspects.sort(key=lambda a: a["orb"])
 
@@ -135,15 +141,17 @@ def get_cosmic_weather(
         pid = str(p.get("id", ""))
         if pid in ("Part of Fortune", "Vertex", "South Node"):
             continue  # skip derived points
-        simple_positions.append({
-            "planet": pid,
-            "sign": str(p.get("sign", "")),
-            "degree": int(p.get("degree", 0)),
-            "minute": int(p.get("minute", 0)),
-            "longitude": round(float(p.get("longitude", 0)), 4),
-            "speed": round(float(p.get("speed", 0)), 4),
-            "retrograde": bool(p.get("retrograde", False)),
-        })
+        simple_positions.append(
+            {
+                "planet": pid,
+                "sign": str(p.get("sign", "")),
+                "degree": int(p.get("degree", 0)),
+                "minute": int(p.get("minute", 0)),
+                "longitude": round(float(p.get("longitude", 0)), 4),
+                "speed": round(float(p.get("speed", 0)), 4),
+                "retrograde": bool(p.get("retrograde", False)),
+            }
+        )
 
     return {
         "date": dt.isoformat(),

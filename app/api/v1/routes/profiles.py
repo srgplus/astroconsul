@@ -7,15 +7,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 
-logger = logging.getLogger(__name__)
-
 from app.api.auth import get_current_user
-from app.data.natal_lookup import (
-    get_house_cusp_in_sign,
-    get_natal_aspect,
-    get_planet_in_house,
-    get_planet_in_sign,
-)
 from app.api.dependencies import (
     get_chart_service,
     get_location_lookup_service,
@@ -29,6 +21,12 @@ from app.application.services.location_lookup_service import LocationLookupServi
 from app.application.services.profile_service import ProfileService
 from app.application.services.synastry_service import SynastryService
 from app.application.services.transit_service import TransitService
+from app.data.natal_lookup import (
+    get_house_cusp_in_sign,
+    get_natal_aspect,
+    get_planet_in_house,
+    get_planet_in_sign,
+)
 from app.domain.astrology.locations import LocationResolutionError, resolve_location_name
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.schemas.requests import (
@@ -49,14 +47,29 @@ from app.schemas.responses import (
     TransitTimelineResponse,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
 # Objects that have natal interpretation entries (matches JSON data files)
 _INTERP_OBJECTS = [
-    "Sun", "Moon", "Mercury", "Venus", "Mars",
-    "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
-    "Chiron", "Lilith", "North Node", "Selena",
-    "South Node", "Part of Fortune", "Vertex",
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Chiron",
+    "Lilith",
+    "North Node",
+    "Selena",
+    "South Node",
+    "Part of Fortune",
+    "Vertex",
 ]
 
 
@@ -87,8 +100,18 @@ def _build_natal_interpretations(chart: dict[str, Any], lang: str) -> dict[str, 
     # houses is a list of longitudes for cusps 1-12
     if houses:
         signs_order = [
-            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-            "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+            "Aries",
+            "Taurus",
+            "Gemini",
+            "Cancer",
+            "Leo",
+            "Virgo",
+            "Libra",
+            "Scorpio",
+            "Sagittarius",
+            "Capricorn",
+            "Aquarius",
+            "Pisces",
         ]
         for i, cusp_lon in enumerate(houses):
             house_num = i + 1
@@ -108,10 +131,14 @@ def _build_natal_interpretations(chart: dict[str, Any], lang: str) -> dict[str, 
             continue
         desc = get_natal_aspect(p1, aspect_type, p2, lang)
         if desc["meaning"]:
-            aspect_interps.append({
-                "p1": p1, "p2": p2, "aspect": aspect_type,
-                **desc,
-            })
+            aspect_interps.append(
+                {
+                    "p1": p1,
+                    "p2": p2,
+                    "aspect": aspect_type,
+                    **desc,
+                }
+            )
 
     return {
         "planets_in_signs": planets_in_signs,
@@ -218,7 +245,9 @@ def create_profile(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except IntegrityError as exc:
         logger.error("Profile creation failed (IntegrityError): %s", exc)
-        raise HTTPException(status_code=409, detail="Profile could not be created — possible duplicate or constraint violation.") from exc
+        raise HTTPException(
+            status_code=409, detail="Profile could not be created — possible duplicate or constraint violation."
+        ) from exc
 
 
 @router.get("/{profile_id}", response_model=ProfileDetailResponse)
@@ -239,7 +268,8 @@ def profile_detail(
             chart_repository=repos.charts,
         )
         result["chart"]["natal_interpretations"] = _build_natal_interpretations(
-            result["chart"], lang,
+            result["chart"],
+            lang,
         )
         # Attach social metrics from the consolidated query
         result["profile"]["followers_count"] = profile_data["followers_count"]
@@ -296,7 +326,9 @@ def update_profile(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except IntegrityError as exc:
         logger.error("Profile update failed (IntegrityError): %s", exc)
-        raise HTTPException(status_code=409, detail="Profile could not be updated — possible duplicate or constraint violation.") from exc
+        raise HTTPException(
+            status_code=409, detail="Profile could not be updated — possible duplicate or constraint violation."
+        ) from exc
 
 
 @router.post("/{profile_id}/transits/report", response_model=TransitReportResponse)

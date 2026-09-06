@@ -319,26 +319,27 @@ class SqlAlchemyProfileRepository:
             profile = _profile_payload(model)
 
             followers_count = session.execute(
-                select(func.count()).select_from(ProfileFollowModel)
-                .where(ProfileFollowModel.profile_id == profile_id)
+                select(func.count()).select_from(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id)
             ).scalar_one()
 
             following_count = session.execute(
-                select(func.count()).select_from(ProfileFollowModel)
-                .where(ProfileFollowModel.user_id == model.user_id)
+                select(func.count()).select_from(ProfileFollowModel).where(ProfileFollowModel.user_id == model.user_id)
             ).scalar_one()
 
-            is_following = session.execute(
-                select(ProfileFollowModel).where(
-                    ProfileFollowModel.user_id == viewer_user_id,
-                    ProfileFollowModel.profile_id == profile_id,
-                )
-            ).scalar_one_or_none() is not None
+            is_following = (
+                session.execute(
+                    select(ProfileFollowModel).where(
+                        ProfileFollowModel.user_id == viewer_user_id,
+                        ProfileFollowModel.profile_id == profile_id,
+                    )
+                ).scalar_one_or_none()
+                is not None
+            )
 
             profile["followers_count"] = followers_count
             profile["following_count"] = following_count
             profile["is_following"] = is_following
-            profile["is_own"] = (viewer_user_id == model.user_id)
+            profile["is_own"] = viewer_user_id == model.user_id
             return profile
 
     def create_profile(
@@ -431,9 +432,7 @@ class SqlAlchemyProfileRepository:
             if model is None:
                 raise FileNotFoundError(f"Natal profile not found: {profile_id}")
             # Delete related follows
-            session.execute(
-                delete(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id)
-            )
+            session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id))
             # Delete related latest_transit
             if model.latest_transit is not None:
                 session.delete(model.latest_transit)
@@ -516,12 +515,16 @@ class SqlAlchemyProfileRepository:
             collapsed = re.sub(r"[\s_]+", "", raw).lower()
             statement = (
                 select(ProfileModel)
-                .where(or_(
-                    ProfileModel.handle.ilike(f"%{raw}%"),
-                    ProfileModel.display_name.ilike(f"%{raw}%"),
-                    func.replace(func.lower(ProfileModel.handle), "_", "").ilike(f"%{collapsed}%"),
-                    func.replace(func.replace(func.lower(ProfileModel.display_name), "_", ""), " ", "").ilike(f"%{collapsed}%"),
-                ))
+                .where(
+                    or_(
+                        ProfileModel.handle.ilike(f"%{raw}%"),
+                        ProfileModel.display_name.ilike(f"%{raw}%"),
+                        func.replace(func.lower(ProfileModel.handle), "_", "").ilike(f"%{collapsed}%"),
+                        func.replace(func.replace(func.lower(ProfileModel.display_name), "_", ""), " ", "").ilike(
+                            f"%{collapsed}%"
+                        ),
+                    )
+                )
                 .order_by(ProfileModel.updated_at.desc())
                 .limit(limit)
             )
@@ -609,16 +612,12 @@ class SqlAlchemyProfileRepository:
     def count_followers(self, profile_id: str) -> int:
         """How many users follow this profile."""
         with self.session_factory() as session:
-            return session.execute(
-                select(func.count()).where(ProfileFollowModel.profile_id == profile_id)
-            ).scalar_one()
+            return session.execute(select(func.count()).where(ProfileFollowModel.profile_id == profile_id)).scalar_one()
 
     def count_following(self, user_id: str) -> int:
         """How many profiles this user follows."""
         with self.session_factory() as session:
-            return session.execute(
-                select(func.count()).where(ProfileFollowModel.user_id == user_id)
-            ).scalar_one()
+            return session.execute(select(func.count()).where(ProfileFollowModel.user_id == user_id)).scalar_one()
 
     def get_owner_user_id(self, profile_id: str) -> str | None:
         """Get the user_id that owns a profile."""
@@ -669,7 +668,6 @@ class SqlAlchemyProfileRepository:
             session.commit()
             session.refresh(profile)
             return _profile_payload(profile)
-
 
     def get_primary_profile_id(self, user_id: str) -> str | None:
         with self.session_factory() as session:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
 # ── Schemas ──────────────────────────────────────────────────────────
 
+
 class SubscriptionStatusResponse(BaseModel):
     plan: str  # "free", "pro_monthly", "pro_annual", "lifetime"
     is_pro: bool
@@ -35,9 +36,10 @@ class ActivateRequest(BaseModel):
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
+
 def get_user_subscription(user_id: str) -> dict[str, Any]:
     """Get active subscription for user. Returns dict with plan info."""
-    from sqlalchemy import select, desc
+    from sqlalchemy import desc, select
 
     from app.infrastructure.persistence.models import SubscriptionModel
 
@@ -45,7 +47,7 @@ def get_user_subscription(user_id: str) -> dict[str, Any]:
     if not database_is_enabled(settings):
         return {"plan": "free", "is_pro": False, "expires_at": None}
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with session_scope(settings) as session:
         result = session.execute(
@@ -82,6 +84,7 @@ def get_user_subscription(user_id: str) -> dict[str, Any]:
 
 # ── Routes ───────────────────────────────────────────────────────────
 
+
 @router.get("/status", response_model=SubscriptionStatusResponse)
 def subscription_status(user: dict[str, Any] = Depends(get_current_user)):
     """Get current subscription status for logged-in user."""
@@ -105,7 +108,7 @@ def admin_activate(
     if not database_is_enabled(settings):
         raise HTTPException(status_code=500, detail="Database not enabled")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expires = now + timedelta(days=body.days) if body.plan != "lifetime" else None
 
     with session_scope(settings) as session:

@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from app.main import create_app
 from app.core.config import clear_settings_cache
+from app.main import create_app
 
 
 class HealthEndpointTests(unittest.TestCase):

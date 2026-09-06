@@ -134,7 +134,7 @@ POST = {
                 "</ul>"
                 "<p><strong>Watch out for:</strong></p>"
                 "<ul>"
-                "<li>Emotional overspending — Moon-Jupiter in Cancer = \"I deserve this\" shopping energy</li>"
+                '<li>Emotional overspending — Moon-Jupiter in Cancer = "I deserve this" shopping energy</li>'
                 "<li>Over-promising — Jupiter's optimism can outpace what you can realistically deliver</li>"
                 "<li>Nostalgia traps — Cancer can pull you backward; use the memory, don't live in it</li>"
                 "</ul>"

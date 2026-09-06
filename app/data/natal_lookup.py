@@ -43,7 +43,7 @@ _REFERENCE: dict[str, dict[str, Any]] = {}
 def _load_json(filename: str) -> dict[str, Any]:
     path = _DATA_DIR / filename
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
         # Remove _meta key
         data.pop("_meta", None)
         return data
@@ -87,12 +87,7 @@ def _load_all() -> None:
 
     _REFERENCE.update(_load_json("natal_reference.json"))
 
-    total = (
-        len(_PLANETS_IN_SIGNS)
-        + len(_PLANETS_IN_HOUSES)
-        + len(_HOUSE_CUSPS_IN_SIGNS)
-        + len(_ASPECTS)
-    )
+    total = len(_PLANETS_IN_SIGNS) + len(_PLANETS_IN_HOUSES) + len(_HOUSE_CUSPS_IN_SIGNS) + len(_ASPECTS)
     logger.info("Loaded %d natal interpretation entries", total)
 
 
@@ -125,7 +120,10 @@ def get_house_cusp_in_sign(house: int, sign: str, lang: str = "en") -> dict[str,
 
 
 def get_natal_aspect(
-    p1: str, aspect: str, p2: str, lang: str = "en",
+    p1: str,
+    aspect: str,
+    p2: str,
+    lang: str = "en",
 ) -> dict[str, Any]:
     key = f"{p1}_{aspect}_{p2}".lower()
     rec = _ASPECTS.get(key)
@@ -140,7 +138,9 @@ def get_natal_aspect(
 
 
 def get_reference(
-    category: str, key: str, lang: str = "en",
+    category: str,
+    key: str,
+    lang: str = "en",
 ) -> dict[str, Any]:
     """Lookup from natal_reference.json.
 

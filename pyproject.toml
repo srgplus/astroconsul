@@ -36,6 +36,10 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+# `ruff format` owns line width and already wraps everything it can. What is
+# left under E501 is unsplittable string literals (post copy, URLs), so the
+# rule only produces noise the formatter cannot act on.
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -64,6 +68,7 @@ module = [
     "transit_timing_engine",
     "transit_timeline",
     "location_service",
+    "synastry_engine",
 ]
 ignore_errors = true
 

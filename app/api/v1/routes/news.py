@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
@@ -41,7 +40,8 @@ def _parse_sections(sections_data) -> list[dict]:
         return []
     if isinstance(sections_data, str):
         try:
-            return json.loads(sections_data)
+            parsed: list[dict] = json.loads(sections_data)
+            return parsed
         except (json.JSONDecodeError, TypeError):
             return []
     if isinstance(sections_data, list):
@@ -73,24 +73,26 @@ def _get_published_posts(tag: str | None = None, limit: int = 20, offset: int = 
         # Convert to dicts while session is open
         post_dicts = []
         for p in posts:
-            post_dicts.append({
-                "slug": p.slug,
-                "title": p.title,
-                "subtitle": p.subtitle,
-                "date": p.date,
-                "author": p.author,
-                "intro": p.intro,
-                "tags": _parse_tags(p.tags),
-                "hero_image_url": p.hero_image_url,
-                "sections": _parse_sections(p.sections),
-                "conclusion": p.conclusion,
-                "celebrity_name": p.celebrity_name,
-                "celebrity_event": p.celebrity_event,
-                "meta_title": p.meta_title,
-                "meta_description": p.meta_description,
-                "og_image_url": p.og_image_url,
-                "published_at": p.published_at,
-            })
+            post_dicts.append(
+                {
+                    "slug": p.slug,
+                    "title": p.title,
+                    "subtitle": p.subtitle,
+                    "date": p.date,
+                    "author": p.author,
+                    "intro": p.intro,
+                    "tags": _parse_tags(p.tags),
+                    "hero_image_url": p.hero_image_url,
+                    "sections": _parse_sections(p.sections),
+                    "conclusion": p.conclusion,
+                    "celebrity_name": p.celebrity_name,
+                    "celebrity_event": p.celebrity_event,
+                    "meta_title": p.meta_title,
+                    "meta_description": p.meta_description,
+                    "og_image_url": p.og_image_url,
+                    "published_at": p.published_at,
+                }
+            )
         return post_dicts
 
 
@@ -135,7 +137,6 @@ def _get_post_by_slug(slug: str):
         }
 
 
-
 @router.get("/", response_class=HTMLResponse)
 def news_feed(request: Request, tag: str | None = None, page: int = 1):
     """Render news feed with optional tag filter."""
@@ -171,7 +172,7 @@ def news_rss_feed():
         xml += "  <item>\n"
         xml += f"    <title>{_xml_escape(post['title'])}</title>\n"
         xml += f"    <link>https://big3.me/news/{post['slug']}</link>\n"
-        xml += f"    <guid isPermaLink=\"true\">https://big3.me/news/{post['slug']}</guid>\n"
+        xml += f'    <guid isPermaLink="true">https://big3.me/news/{post["slug"]}</guid>\n'
         if post.get("subtitle"):
             xml += f"    <description>{_xml_escape(post['subtitle'])}</description>\n"
         xml += f"    <pubDate>{_rfc822_date(post['date'])}</pubDate>\n"
@@ -192,6 +193,7 @@ def _xml_escape(text: str) -> str:
 def _rfc822_date(date_str: str) -> str:
     """Convert YYYY-MM-DD to RFC 822 date format for RSS."""
     from datetime import datetime
+
     try:
         dt = datetime.strptime(str(date_str), "%Y-%m-%d")
         return dt.strftime("%a, %d %b %Y 00:00:00 +0000")

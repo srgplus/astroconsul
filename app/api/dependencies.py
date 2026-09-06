@@ -46,7 +46,7 @@ def get_repositories():
     return get_repository_bundle(get_settings())
 
 
-def require_pro(user: dict = None):
+def require_pro(user: dict | None = None):
     """FastAPI dependency that checks Pro subscription status.
 
     Usage: user = Depends(require_pro) in route signature.

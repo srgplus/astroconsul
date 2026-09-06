@@ -11,6 +11,7 @@ from natal_profiles import (
     delete_chart_if_unreferenced,
     list_profile_summaries,
     load_profile,
+    profile_path,
     resolve_profile_chart_id,
     save_profile_latest_transit,
     update_profile,
@@ -23,7 +24,8 @@ def _load_follows() -> dict[str, list[str]]:
     """Load follows mapping: { user_id: [profile_id, ...] }"""
     if _FOLLOWS_FILE.exists():
         try:
-            return json.loads(_FOLLOWS_FILE.read_text(encoding="utf-8"))
+            follows: dict[str, list[str]] = json.loads(_FOLLOWS_FILE.read_text(encoding="utf-8"))
+            return follows
         except (json.JSONDecodeError, OSError):
             pass
     return {}
@@ -61,7 +63,7 @@ class FileProfileRepository:
         profile["followers_count"] = self.count_followers(profile_id)
         profile["following_count"] = self.count_following(viewer_user_id)
         profile["is_following"] = self.is_following(viewer_user_id, profile_id)
-        profile["is_own"] = (viewer_user_id == profile.get("user_id", "user_local_dev"))
+        profile["is_own"] = viewer_user_id == profile.get("user_id", "user_local_dev")
         return profile
 
     def create_profile(
@@ -92,7 +94,8 @@ class FileProfileRepository:
             payload["user_id"] = user_id
             dirty = True
         if dirty:
-            from natal_profiles import write_json, profile_path
+            from natal_profiles import profile_path, write_json
+
             write_json(profile_path(payload["profile_id"]), payload)
         return payload
 
@@ -110,6 +113,7 @@ class FileProfileRepository:
 
     def delete_profile(self, profile_id: str) -> None:
         import os
+
         path = profile_path(profile_id)
         if os.path.exists(path):
             os.remove(path)
@@ -138,9 +142,9 @@ class FileProfileRepository:
         all_summaries = list_profile_summaries()
         query_lower = query.lower()
         results = [
-            s for s in all_summaries
-            if query_lower in s.get("username", "").lower()
-               or query_lower in s.get("profile_name", "").lower()
+            s
+            for s in all_summaries
+            if query_lower in s.get("username", "").lower() or query_lower in s.get("profile_name", "").lower()
         ]
         return results[:limit]
 
@@ -189,12 +193,14 @@ class FileProfileRepository:
 
     def get_owner_user_id(self, profile_id: str) -> str | None:
         bootstrap_profiles()
-        from natal_profiles import load_profile
+
         try:
-            profile = load_profile(profile_id)
-            return profile.get("user_id")
+            profile = self.load_profile(profile_id)
         except FileNotFoundError:
             return None
+
+        owner = profile.get("user_id")
+        return str(owner) if owner is not None else None
 
     def save_latest_transit(self, profile_id: str, latest_transit: dict[str, Any]) -> dict[str, Any]:
         return save_profile_latest_transit(profile_id, latest_transit)
@@ -206,7 +212,9 @@ class FileProfileRepository:
     def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
         del user_id, profile_id
 
-    def create_invite(self, profile_id: str, invited_email: str, token: str, invited_by: str, expires_at: object) -> dict[str, Any]:
+    def create_invite(
+        self, profile_id: str, invited_email: str, token: str, invited_by: str, expires_at: object
+    ) -> dict[str, Any]:
         raise NotImplementedError("Invites require database persistence")
 
     def get_invite_by_token(self, token: str) -> dict[str, Any] | None:

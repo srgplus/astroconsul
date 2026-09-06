@@ -7,7 +7,7 @@ Natal positions computed at noon (houses/Moon approximate without verified birth
 
 import sys
 import uuid
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -15,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.core.config import get_settings
 from app.infrastructure.persistence.models import NewsPostModel
 from app.infrastructure.persistence.session import database_is_enabled, session_scope
-
 
 SEED_POSTS = [
     # ── Post 1: Zendaya ── verified against ephemeris for 2026-03-15
@@ -93,7 +92,7 @@ SEED_POSTS = [
         ),
         "keywords": "zendaya,wedding,transits,saturn return,aries,astrology,2026",
         "tags": "celebrity,transit",
-        "published_at": datetime(2026, 3, 15, 9, 0, tzinfo=timezone.utc),
+        "published_at": datetime(2026, 3, 15, 9, 0, tzinfo=UTC),
     },
     # ── Post 2: Aries Season ── verified against ephemeris for 2026-03-20
     # Sun 29°53' Pisces (ingress to Aries within hours)
@@ -174,7 +173,7 @@ SEED_POSTS = [
         ),
         "keywords": "aries season,2026,astrology,saturn,neptune,conjunction,mercury retrograde,transits",
         "tags": "transit,educational",
-        "published_at": datetime(2026, 3, 20, 9, 0, tzinfo=timezone.utc),
+        "published_at": datetime(2026, 3, 20, 9, 0, tzinfo=UTC),
     },
     # ── Post 3: Michael B. Jordan ── verified against ephemeris for 2026-03-10
     # His natal: Sun 20°11' Aquarius, Mercury 7°58' Pisces, Moon ~2° Cancer,
@@ -260,7 +259,7 @@ SEED_POSTS = [
         ),
         "keywords": "michael b jordan,oscar,north node,mercury,transits,astrology,2026",
         "tags": "celebrity,transit",
-        "published_at": datetime(2026, 3, 10, 9, 0, tzinfo=timezone.utc),
+        "published_at": datetime(2026, 3, 10, 9, 0, tzinfo=UTC),
     },
 ]
 
@@ -271,12 +270,13 @@ def main():
         print("Database not enabled. Set ASTRO_CONSUL_PERSISTENCE_BACKEND=database")
         return
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with session_scope(settings) as session:
         for post_data in SEED_POSTS:
             # Check if already exists
             from sqlalchemy import select
+
             existing = session.execute(
                 select(NewsPostModel).where(NewsPostModel.slug == post_data["slug"])
             ).scalar_one_or_none()

@@ -62,9 +62,7 @@ class SynastryService:
         # Localize labels
         if lang == "ru":
             scores["overall_label"] = _score_label_ru(scores["overall"])
-            scores_business["overall_label"] = _score_label_business_ru(
-                scores_business["overall"]
-            )
+            scores_business["overall_label"] = _score_label_business_ru(scores_business["overall"])
 
         # Count exact/strong
         exact_count = sum(1 for a in aspects_a_to_b if a["strength"] == "exact")
@@ -76,9 +74,7 @@ class SynastryService:
 
         # Overall readings for both modes
         overall_reading = _generate_overall_reading(aspects_a_to_b, scores, lang)
-        overall_reading_business = _generate_business_reading(
-            aspects_a_to_b, scores_business, lang
-        )
+        overall_reading_business = _generate_business_reading(aspects_a_to_b, scores_business, lang)
 
         # Lightweight positions for display in aspect cards
         def _slim_positions(positions: list[dict]) -> list[dict]:
@@ -120,9 +116,7 @@ def _person_summary(profile: dict, chart: dict) -> dict:
     }
 
 
-def _generate_overall_reading(
-    aspects: list[dict], scores: dict, lang: str
-) -> str:
+def _generate_overall_reading(aspects: list[dict], scores: dict, lang: str) -> str:
     """Generate a template-based overall synastry reading."""
     overall = scores["overall"]
     top_aspects = [a for a in aspects if a["strength"] in ("exact", "strong")][:5]
@@ -173,19 +167,12 @@ def _reading_en(overall: int, scores: dict, top_aspects: list[dict]) -> str:
     if scores["karmic"] >= 75:
         highlights.append("karmic significance")
     if highlights:
-        parts.append(
-            f"Particularly strong in: {', '.join(highlights)}."
-        )
+        parts.append(f"Particularly strong in: {', '.join(highlights)}.")
 
     # Key aspects
     if top_aspects:
-        aspect_names = [
-            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
-            for a in top_aspects[:3]
-        ]
-        parts.append(
-            f"Key aspects driving this connection: {'; '.join(aspect_names)}."
-        )
+        aspect_names = [f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}" for a in top_aspects[:3]]
+        parts.append(f"Key aspects driving this connection: {'; '.join(aspect_names)}.")
 
     return " ".join(parts)
 
@@ -232,10 +219,7 @@ def _reading_ru(overall: int, scores: dict, top_aspects: list[dict]) -> str:
         parts.append(f"Особенно сильно: {', '.join(highlights)}.")
 
     if top_aspects:
-        aspect_names = [
-            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
-            for a in top_aspects[:3]
-        ]
+        aspect_names = [f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}" for a in top_aspects[:3]]
         parts.append(f"Ключевые аспекты: {'; '.join(aspect_names)}.")
 
     return " ".join(parts)
@@ -246,9 +230,7 @@ def _reading_ru(overall: int, scores: dict, top_aspects: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _generate_business_reading(
-    aspects: list[dict], scores: dict, lang: str
-) -> str:
+def _generate_business_reading(aspects: list[dict], scores: dict, lang: str) -> str:
     overall = scores["overall"]
     top_aspects = [a for a in aspects if a["strength"] in ("exact", "strong")][:5]
     if lang == "ru":
@@ -298,10 +280,7 @@ def _business_reading_en(overall: int, scores: dict, top_aspects: list[dict]) ->
         parts.append(f"Key strengths: {', '.join(highlights)}.")
 
     if top_aspects:
-        aspect_names = [
-            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
-            for a in top_aspects[:3]
-        ]
+        aspect_names = [f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}" for a in top_aspects[:3]]
         parts.append(f"Defining aspects: {'; '.join(aspect_names)}.")
 
     return " ".join(parts)
@@ -349,10 +328,7 @@ def _business_reading_ru(overall: int, scores: dict, top_aspects: list[dict]) ->
         parts.append(f"Сильные стороны: {', '.join(highlights)}.")
 
     if top_aspects:
-        aspect_names = [
-            f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}"
-            for a in top_aspects[:3]
-        ]
+        aspect_names = [f"{a['person_a_object']} {a['aspect']} {a['person_b_object']}" for a in top_aspects[:3]]
         parts.append(f"Определяющие аспекты: {'; '.join(aspect_names)}.")
 
     return " ".join(parts)

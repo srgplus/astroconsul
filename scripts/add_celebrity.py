@@ -28,10 +28,10 @@ import json
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -99,7 +99,8 @@ def find_admin_user(url, key):
     result = supabase_request(
         "GET",
         "users?select=id&email=eq.hi@srgplus.com&limit=1",
-        url=url, key=key,
+        url=url,
+        key=key,
     )
     if result and len(result) > 0:
         return result[0]["id"]
@@ -110,7 +111,6 @@ def find_admin_user(url, key):
 def compute_chart(celebrity):
     """Compute natal chart using Swiss Ephemeris."""
     from chart_builder import build_chart
-    from astro_utils import time_str_to_decimal_hours
 
     birth_date = celebrity["birth_date"]  # "1996-09-01"
     birth_time = celebrity["birth_time"]  # "18:55"
@@ -132,8 +132,7 @@ def compute_chart(celebrity):
             from backports.zoneinfo import ZoneInfo
         from datetime import datetime as dt
 
-        local_dt = dt(year, month, day, int(time_parts[0]), int(time_parts[1]),
-                      tzinfo=ZoneInfo(tz_name))
+        local_dt = dt(year, month, day, int(time_parts[0]), int(time_parts[1]), tzinfo=ZoneInfo(tz_name))
         utc_dt = local_dt.astimezone(ZoneInfo("UTC"))
         year = utc_dt.year
         month = utc_dt.month
@@ -146,7 +145,10 @@ def compute_chart(celebrity):
         local_str = utc_str
 
     chart = build_chart(
-        year, month, day, hour,
+        year,
+        month,
+        day,
+        hour,
         celebrity["latitude"],
         celebrity["longitude"],
         birth_input={
@@ -179,7 +181,7 @@ def make_handle(name):
 def add_celebrity(celebrity):
     """Add celebrity profile to Supabase."""
     url, key = get_supabase_creds()
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # Validate Rodden rating
     rating = celebrity.get("rodden_rating", "")
@@ -193,7 +195,8 @@ def add_celebrity(celebrity):
     existing = supabase_request(
         "GET",
         f"profiles?select=id,display_name&handle=eq.{handle}&limit=1",
-        url=url, key=key,
+        url=url,
+        key=key,
     )
     if existing and len(existing) > 0:
         print(f"  SKIP (exists): {celebrity['name']} — profile_id: {existing[0]['id']}")
@@ -211,7 +214,8 @@ def add_celebrity(celebrity):
     existing_chart = supabase_request(
         "GET",
         f"natal_charts?select=id&chart_hash=eq.{c_hash}&limit=1",
-        url=url, key=key,
+        url=url,
+        key=key,
     )
 
     if existing_chart and len(existing_chart) > 0:
@@ -220,6 +224,7 @@ def add_celebrity(celebrity):
     else:
         # Insert chart
         import swisseph as swe
+
         chart_id = str(uuid.uuid4())
         jd = swe.julday(year, month, day, hour)
 
@@ -277,6 +282,7 @@ if __name__ == "__main__":
 
     celeb_file = sys.argv[1]
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("celeb_module", celeb_file)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
