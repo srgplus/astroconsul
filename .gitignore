@@ -18,5 +18,6 @@ charts/*.json
 *.egg-info/
 
 # Capacitor native projects
-frontend/ios/
+# frontend/ios/ is tracked: the app is migrating to native Swift.
+# frontend/ios/.gitignore excludes build output and generated Capacitor config.
 frontend/android/
