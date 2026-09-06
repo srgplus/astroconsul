@@ -35,19 +35,40 @@ final class CosmicWeatherViewModel: ObservableObject {
     #if DEBUG
     /// Seeds a loaded state for previews and the `-uiPreviewWeather` harness,
     /// so the screens can be checked without an account.
+    /// `loadingFor` holds the seeded data behind the loading states for a
+    /// moment before revealing it. A seeded model never calls the API — the
+    /// view's `.task` returns early for anything but `.idle` — so without this
+    /// the harness can never show a spinner, and the loading states go
+    /// unchecked until someone signs in on a device.
     init(
         previewDays: [ForecastDay],
         previewAspects: [ActiveAspect] = [],
         previewRetrograde: Set<String> = [],
-        previewPositions: TransitPositions = .init()
+        previewPositions: TransitPositions = .init(),
+        loadingFor delay: Duration? = nil
     ) {
         self.api = .shared
         self.days = previewDays
-        self.state = .loaded
         self.activeAspects = previewAspects
         self.retrogradeObjects = previewRetrograde
         self.positions = previewPositions
-        self.transitsState = .loaded
+
+        guard let delay else {
+            self.state = .loaded
+            self.transitsState = .loaded
+            return
+        }
+
+        self.state = .loading
+        self.transitsState = .loading
+        Task { @MainActor [weak self] in
+            // The forecast is the fast half in the real app; the report lands
+            // a beat later. The harness keeps that order.
+            try? await Task.sleep(for: delay)
+            self?.state = .loaded
+            try? await Task.sleep(for: delay)
+            self?.transitsState = .loaded
+        }
     }
     #endif
 

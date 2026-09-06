@@ -12,6 +12,16 @@ struct WeatherPreviewHarness: View {
         ProcessInfo.processInfo.arguments.contains("-uiPreviewWeather")
     }
 
+    /// Add `-uiPreviewLoading` to watch the screens fill in the way they do on
+    /// an account, spinners and all, instead of arriving already loaded.
+    static var simulatesLoading: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewLoading")
+    }
+
+    private static var previewDelay: Duration? {
+        simulatesLoading ? .seconds(3) : nil
+    }
+
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
@@ -45,7 +55,8 @@ struct WeatherPreviewHarness: View {
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
                         previewRetrograde: WeatherPreviewData.retrograde,
-                        previewPositions: WeatherPreviewData.positions
+                        previewPositions: WeatherPreviewData.positions,
+                        loadingFor: Self.previewDelay
                     )
                 )
             }
