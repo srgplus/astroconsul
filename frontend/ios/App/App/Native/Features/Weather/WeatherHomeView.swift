@@ -65,6 +65,9 @@ struct WeatherHomeView: View {
             }
         }
         .task {
+            // Asked here rather than at launch: the permission sheet makes
+            // sense over the screen whose label it fills in.
+            DeviceLocation.shared.start()
             await model.load()
             syncSelection()
         }
@@ -89,7 +92,11 @@ struct WeatherHomeView: View {
                 bottomInset: geometry.safeAreaInsets.bottom,
                 onOpenList: { showsList = true }
             ) { profile in
-                CosmicWeatherView(profile: profile, topInset: topInset)
+                CosmicWeatherView(
+                    profile: profile,
+                    topInset: topInset,
+                    isPrimary: profile.profileId == model.primaryProfileId
+                )
             }
         }
     }

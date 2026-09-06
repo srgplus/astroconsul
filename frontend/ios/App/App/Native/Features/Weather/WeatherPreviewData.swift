@@ -38,14 +38,18 @@ enum WeatherPreviewData {
         followingCount: 8
     )
 
+    /// Everyone here was born in one city and lives in another. The two used
+    /// to be the same string, which made the harness useless for the question
+    /// it exists to answer — a card showing the birthplace and a card showing
+    /// the current location looked identical.
     static let profiles: [ProfileSummary] = [
         profile,
-        make(name: "Alex Mosendz", handle: "alexmosendz", place: "Khmelnytskyi, Ukraine", tii: 11, feels: "Subtle pressure"),
-        make(name: "Asmik", handle: "asmik", place: "Yerevan, Armenia", tii: 27, feels: "Flowing"),
-        make(name: "Britney Spears", handle: "britneyspears", place: "McComb, Mississippi", tii: 42, feels: "Dynamic"),
-        make(name: "Kevin Van Vliet", handle: "kevinvanvliet", place: "Rotterdam, Netherlands", tii: 65, feels: "Expansive"),
-        make(name: "Kim Kardashian", handle: "kimkardashian", place: "Los Angeles, California", tii: 73, feels: "Charged"),
-        make(name: "Liliia Mosendz", handle: "liliiamosendz", place: "Kyiv, Ukraine", tii: 88, feels: "Explosive"),
+        make(name: "Alex Mosendz", handle: "alexmosendz", bornIn: "Khmelnytskyi, Ukraine", livesIn: "Berlin, Germany", tii: 11, feels: "Subtle pressure"),
+        make(name: "Asmik", handle: "asmik", bornIn: "Yerevan, Armenia", livesIn: "Lisbon, Portugal", tii: 27, feels: "Flowing"),
+        make(name: "Britney Spears", handle: "britneyspears", bornIn: "McComb, Mississippi", livesIn: "Los Angeles, California", tii: 42, feels: "Dynamic"),
+        make(name: "Kevin Van Vliet", handle: "kevinvanvliet", bornIn: "Rotterdam, Netherlands", livesIn: "Amsterdam, Netherlands", tii: 65, feels: "Expansive"),
+        make(name: "Kim Kardashian", handle: "kimkardashian", bornIn: "Los Angeles, California", livesIn: "Calabasas, California", tii: 73, feels: "Charged"),
+        make(name: "Liliia Mosendz", handle: "liliiamosendz", bornIn: "Kyiv, Ukraine", livesIn: "Vienna, Austria", tii: 88, feels: "Explosive"),
     ] + filler
 
     /// Real accounts follow dozens of profiles; the bar has to survive that.
@@ -57,7 +61,10 @@ enum WeatherPreviewData {
         return make(
             name: "Profile \(number)",
             handle: "profile\(number)",
-            place: "Somewhere \(number)",
+            bornIn: "Born \(number)",
+            // Every fourth has no reading location on file, so the harness also
+            // shows what a profile that never set one falls back to.
+            livesIn: number % 4 == 0 ? nil : "Living \(number)",
             tii: reading.0,
             feels: reading.1
         )
@@ -148,7 +155,8 @@ enum WeatherPreviewData {
     private static func make(
         name: String,
         handle: String,
-        place: String,
+        bornIn: String,
+        livesIn: String?,
         tii: Double,
         feels: String
     ) -> ProfileSummary {
@@ -156,13 +164,13 @@ enum WeatherPreviewData {
             profileId: "preview-\(handle)",
             profileName: name,
             username: handle,
-            locationName: place,
+            locationName: bornIn,
             localBirthDatetime: nil,
             latestTransit: LatestTransit(
                 transitDate: nil,
                 transitTime: nil,
                 timezone: nil,
-                locationName: place,
+                locationName: livesIn,
                 latitude: nil,
                 longitude: nil,
                 updatedAt: nil,
