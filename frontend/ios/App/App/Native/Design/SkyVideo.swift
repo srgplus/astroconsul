@@ -9,36 +9,85 @@ import SwiftUI
 /// sky still reads as the reading even when it moves.
 struct SkyVideo: View {
 
+    /// A profile card is a 358×108pt sliver, so it gets its own crop of the
+    /// footage at roughly an eighth of the pixels. Decoding the full-screen
+    /// clip for a row would make scrolling a list of thirty profiles expensive
+    /// for detail nobody can see at that size.
+    enum Variant {
+        case screen
+        case card
+
+        var prefix: String {
+            switch self {
+            case .screen: return "sky"
+            case .card: return "card"
+            }
+        }
+    }
+
     let zone: TiiZone
+    var variant: Variant = .screen
+
+    /// Cards of the same zone share one clip, so without an offset a list of
+    /// them plays in lockstep and reads as a repeated image rather than as
+    /// separate skies. Callers pass something stable per card, like a profile
+    /// id, and the clip starts at its own point in the loop.
+    var phase: String?
 
     @State private var isReady = false
 
     /// Zones ship footage one at a time; the rest fall back to the gradient.
     private var asset: URL? {
-        guard let name = Self.clipName(for: zone) else { return nil }
+        guard let name = Self.clipName(for: zone, variant: variant) else { return nil }
         return Bundle.main.url(forResource: name, withExtension: "mp4")
     }
 
-    static func clipName(for zone: TiiZone) -> String? {
+    /// 0..<1 position in the loop to start at. Hashing the caller's key by hand
+    /// rather than with `hashValue`, which is seeded per launch and would move
+    /// a card's sky every time the app starts.
+    private var phaseFraction: Double {
+        guard let phase, !phase.isEmpty else { return 0 }
+        let digest = phase.unicodeScalars.reduce(UInt64(5381)) { hash, scalar in
+            hash &* 33 &+ UInt64(scalar.value)
+        }
+        return Double(digest % 1000) / 1000
+    }
+
+    static func clipName(for zone: TiiZone, variant: Variant) -> String? {
         switch zone {
         case .quiet: return nil          // no clip yet, gradient holds
-        case .active: return "sky_active"
-        case .hot: return "sky_hot"
-        case .extreme: return "sky_extreme"
+        case .active: return "\(variant.prefix)_active"
+        case .hot: return "\(variant.prefix)_hot"
+        case .extreme: return "\(variant.prefix)_extreme"
         }
     }
 
     var body: some View {
         ZStack {
             if let asset {
-                SkyPlayerLayer(url: asset, isReady: $isReady)
+                SkyPlayerLayer(url: asset, phase: phaseFraction, isReady: $isReady)
                     .opacity(isReady ? 1 : 0)
                     .animation(.easeIn(duration: 0.35), value: isReady)
             }
         }
-        .ignoresSafeArea()
+        // Only the full-screen sky bleeds past the insets; a card must stay
+        // inside the rounded rect its parent clips it to.
+        .modifier(BleedToEdges(isEnabled: variant == .screen))
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+}
+
+private struct BleedToEdges: ViewModifier {
+
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.ignoresSafeArea()
+        } else {
+            content
+        }
     }
 }
 
@@ -47,17 +96,18 @@ struct SkyVideo: View {
 private struct SkyPlayerLayer: UIViewRepresentable {
 
     let url: URL
+    let phase: Double
     @Binding var isReady: Bool
 
     func makeUIView(context: Context) -> PlayerView {
         let view = PlayerView()
         view.onReady = { isReady = true }
-        view.load(url: url)
+        view.load(url: url, phase: phase)
         return view
     }
 
     func updateUIView(_ view: PlayerView, context: Context) {
-        view.load(url: url)
+        view.load(url: url, phase: phase)
     }
 
     static func dismantleUIView(_ view: PlayerView, coordinate: ()) {
@@ -77,12 +127,13 @@ private struct SkyPlayerLayer: UIViewRepresentable {
 
         private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
 
-        func load(url: URL) {
+        func load(url: URL, phase: Double) {
             guard currentURL != url else { return }
             currentURL = url
             stop()
 
             let item = AVPlayerItem(url: url)
+            seekToPhase(item: item, phase: phase)
             let player = AVQueuePlayer()
             // Muted so the clip never ducks the user's music.
             player.isMuted = true
@@ -105,6 +156,25 @@ private struct SkyPlayerLayer: UIViewRepresentable {
 
             player.play()
             observeLifecycle()
+        }
+
+        /// Start this clip part-way through its loop. Seeking the template item
+        /// before the looper wraps it means the offset survives into every copy
+        /// the looper makes, so the card keeps its own phase forever.
+        private func seekToPhase(item: AVPlayerItem, phase: Double) {
+            guard phase > 0 else { return }
+
+            Task { @MainActor in
+                guard let duration = try? await item.asset.load(.duration),
+                      duration.isNumeric, duration.seconds > 0
+                else { return }
+
+                let target = CMTime(
+                    seconds: duration.seconds * phase.truncatingRemainder(dividingBy: 1),
+                    preferredTimescale: duration.timescale
+                )
+                await item.seek(to: target, toleranceBefore: .zero, toleranceAfter: .positiveInfinity)
+            }
         }
 
         func stop() {
