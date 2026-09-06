@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
 
     @ObservedObject private var auth = AuthStore.shared
+    @Environment(\.dismiss) private var dismiss
     @AppStorage("nativeAppearance") private var appearance = Appearance.system.rawValue
 
     /// Opens the WebView tab. Account deletion still lives there: that flow is
@@ -41,6 +42,12 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(Theme.bg.ignoresSafeArea())
             .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .font(.system(.body, design: .rounded).weight(.medium))
+                }
+            }
         }
     }
 

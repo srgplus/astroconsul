@@ -8,7 +8,6 @@ struct WeatherPager<Page: View>: View {
     let profiles: [ProfileSummary]
     @Binding var selection: String
     let primaryProfileId: String?
-    var onOpenChart: () -> Void
     var onOpenList: () -> Void
     @ViewBuilder var page: (ProfileSummary) -> Page
 
@@ -36,7 +35,6 @@ struct WeatherPager<Page: View>: View {
                     guard profiles.indices.contains(position) else { return }
                     selection = profiles[position].profileId
                 },
-                onOpenChart: onOpenChart,
                 onOpenList: onOpenList
             )
         }
@@ -51,12 +49,13 @@ struct WeatherBottomBar: View {
     let index: Int
     let primaryIndex: Int?
     var onSelectPage: (Int) -> Void
-    var onOpenChart: () -> Void
     var onOpenList: () -> Void
 
     var body: some View {
         HStack {
-            circleButton(icon: "circle.hexagongrid.fill", label: "Open chart", action: onOpenChart)
+            // Balances the list button so the dots stay centred on screen.
+            Color.clear
+                .frame(width: 42, height: 42)
 
             dots
                 .frame(maxWidth: .infinity)

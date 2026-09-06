@@ -13,8 +13,23 @@ struct WeatherHomeView: View {
     @State private var showsWeb = false
     @State private var showsSettings = false
 
+    /// Primary profile first, the way Weather keeps My Location at page one,
+    /// then own profiles and followed ones. The primary is pinned here rather
+    /// than relying on the list's sections: the API can report it as followed
+    /// rather than own, which would otherwise bury it mid-pager.
     private var profiles: [ProfileSummary] {
-        model.ownProfiles + model.followedProfiles
+        let all = model.ownProfiles + model.followedProfiles
+
+        guard
+            let primaryProfileId = model.primaryProfileId,
+            let position = all.firstIndex(where: { $0.profileId == primaryProfileId })
+        else {
+            return all
+        }
+
+        var ordered = all
+        let primary = ordered.remove(at: position)
+        return [primary] + ordered
     }
 
     var body: some View {
@@ -87,7 +102,6 @@ struct WeatherHomeView: View {
                 profiles: profiles,
                 selection: $selection,
                 primaryProfileId: model.primaryProfileId,
-                onOpenChart: { showsWeb = true },
                 onOpenList: { showsList = true }
             ) { profile in
                 CosmicWeatherView(profile: profile, topInset: topInset)

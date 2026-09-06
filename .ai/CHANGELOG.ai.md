@@ -4,6 +4,20 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: bottom bar trimmed, Settings can be closed, primary pinned first
+- The bottom bar's left button is gone; the web screens are reached from the
+  profile list's ellipsis menu. A clear 42pt spacer keeps the dots centred.
+- `SettingsView` is presented as a sheet and had no control of its own, so a
+  user who opened it was stuck. It now carries a Done button.
+- `ProfileListViewModel.ownProfiles` sorted with a comparator that returned
+  `true` for `lhs == rhs` when both were the primary, which is not a strict
+  weak ordering; the primary ended up mid-list. It now sorts by name and lifts
+  the primary out afterwards.
+- `WeatherHomeView` pins the primary profile to page one regardless of which
+  section it falls in. On the owner's own account the API reports the primary
+  profile with `is_own: false`, so it sorts into "Following" and, without the
+  pin, the location arrow landed in the middle of the page dots.
+
 ### iOS: page dots use UIPageControl
 A hand-rolled `HStack` of dots is as wide as the profile count, so an account
 following thirty-odd profiles made the bottom bar wider than the screen and

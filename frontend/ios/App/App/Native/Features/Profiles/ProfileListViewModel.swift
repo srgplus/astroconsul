@@ -32,12 +32,27 @@ final class ProfileListViewModel: ObservableObject {
     #endif
 
     /// Own profiles first, then followed ones, primary pinned to the top.
+    ///
+    /// Sorting by name and lifting the primary out afterwards, rather than
+    /// special-casing it inside the comparator: that comparator claimed
+    /// `lhs < rhs` even when both were the primary, which is not a strict weak
+    /// ordering, and Swift's sort left the primary mid-list. That in turn put
+    /// the pager's location arrow in the middle of the dots.
     var ownProfiles: [ProfileSummary] {
-        profiles.filter(\.ownedByViewer).sorted { lhs, rhs in
-            if lhs.profileId == primaryProfileId { return true }
-            if rhs.profileId == primaryProfileId { return false }
-            return lhs.profileName.localizedCaseInsensitiveCompare(rhs.profileName) == .orderedAscending
+        let sorted = profiles
+            .filter(\.ownedByViewer)
+            .sorted { $0.profileName.localizedCaseInsensitiveCompare($1.profileName) == .orderedAscending }
+
+        guard
+            let primaryProfileId,
+            let position = sorted.firstIndex(where: { $0.profileId == primaryProfileId })
+        else {
+            return sorted
         }
+
+        var reordered = sorted
+        let primary = reordered.remove(at: position)
+        return [primary] + reordered
     }
 
     var followedProfiles: [ProfileSummary] {
