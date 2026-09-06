@@ -34,12 +34,19 @@ jobs:
             exit 0
           fi
 
-          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+          # `gh pr view <branch>` also matches a PR that is already merged, so
+          # after the first merge every later push believed a PR existed and
+          # opened none. Ask for open PRs only.
+          number="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
+
+          if [ -z "$number" ]; then
             gh pr create \
               --base main \
               --head "$BRANCH" \
               --title "$(git log -1 --pretty=%s)" \
               --body "Opened automatically for \`$BRANCH\`. Merges itself once CI is green."
+            number="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
           fi
 
-          gh pr merge "$BRANCH" --auto --merge
+          echo "PR #$number"
+          gh pr merge "$number" --auto --merge
