@@ -13,6 +13,13 @@ enum AstroGlyph {
 
     static func aspect(_ id: String) -> String { aspects[id.lowercased()] ?? id }
 
+    /// The zodiac code points default to emoji presentation — a purple tile
+    /// next to the text — so each one is pinned to its text form with U+FE0E.
+    static func sign(_ id: String) -> String {
+        guard let glyph = signs[id.capitalized] else { return "" }
+        return glyph + "\u{FE0E}"
+    }
+
     private static let objects: [String: String] = [
         "Sun": "\u{2609}",
         "Moon": "\u{263D}",
@@ -33,6 +40,21 @@ enum AstroGlyph {
         "Vertex": "\u{22C1}",
         "ASC": "AC",
         "MC": "MC",
+    ]
+
+    private static let signs: [String: String] = [
+        "Aries": "\u{2648}",
+        "Taurus": "\u{2649}",
+        "Gemini": "\u{264A}",
+        "Cancer": "\u{264B}",
+        "Leo": "\u{264C}",
+        "Virgo": "\u{264D}",
+        "Libra": "\u{264E}",
+        "Scorpio": "\u{264F}",
+        "Sagittarius": "\u{2650}",
+        "Capricorn": "\u{2651}",
+        "Aquarius": "\u{2652}",
+        "Pisces": "\u{2653}",
     ]
 
     private static let aspects: [String: String] = [

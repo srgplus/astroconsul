@@ -4,6 +4,29 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: the Moon leaves the summary card and gets its own panel
+It used to be a chip in `TodaySummaryCard`'s conditions row — "🌔 Waxing
+Gibbous · 78%" next to the retrograde count. `MoonCard` now stands on its own
+under the forecast, laid out the way Weather lays out its moon module: the
+phase named in the header, a short column of readings, the sphere on the right.
+
+- **The disc is drawn, not photographed.** `MoonDisc` paints the near side in a
+  `Canvas` — the maria as one union of overlapping ellipses so the coastline
+  comes out ragged rather than as a row of circles, a scatter of craters from a
+  fixed seed, a radial highlight and limb darkening for volume. `MoonLitShape`
+  closes the lit limb with the terminator, whose projected half-width is
+  `cos(elongation)`, signed; `MoonShadowShape` fills disc-plus-lit even-odd, so
+  what is left is exactly what is in shadow. No asset, every phase from one
+  number.
+- **That number is `moon_phase.phase_angle`,** which the engine already sent
+  and iOS was throwing away. `MoonPhase` decodes it and derives the age and
+  both countdowns from it; a response without one falls back to illumination
+  plus the phase name, which say the same thing between them.
+- **Where Weather prints moonrise and moonset, this prints the sign.** Rise and
+  set need a horizon and the forecast is cast for a chart, not a viewing spot.
+  `AstroGlyph.sign` gained the zodiac, each pinned to text presentation with
+  U+FE0E — bare, those code points render as purple emoji tiles.
+
 ### iOS: the wheel's aspect lines lost their colour, on purpose
 The web ring gives each aspect a hue. That works on white; it does not work
 here, and the reasons are worth writing down before someone puts the colours

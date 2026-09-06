@@ -78,17 +78,10 @@ struct TodaySummaryCard: View {
         return "No strong transits today — a quiet sky."
     }
 
+    /// The Moon used to sit here as a chip. It has its own panel now, so all
+    /// that is left of this row is the retrograde count.
     private var conditions: [String] {
         var items: [String] = []
-
-        if let moon = day.moonPhase {
-            let emoji = moon.phaseEmoji ?? "🌙"
-            if let illumination = moon.illuminationPct {
-                items.append("\(emoji) \(moon.phaseName) · \(Int(illumination.rounded()))%")
-            } else {
-                items.append("\(emoji) \(moon.phaseName)")
-            }
-        }
 
         if let count = day.retrogradeCount, count > 0 {
             items.append("℞ \(count) retrograde")

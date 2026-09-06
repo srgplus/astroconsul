@@ -148,6 +148,43 @@ struct MoonPhase: Codable, Hashable {
     let moonSign: String?
     let moonDegree: Int?
     let phaseEmoji: String?
+    /// Sun–Moon elongation: 0° new, 90° first quarter, 180° full, 270° third.
+    /// The engine sends it, and the drawn disc and both countdowns follow from
+    /// it alone.
+    let phaseAngle: Double?
+
+    /// The mean synodic month — new moon to new moon.
+    static let synodicMonth: Double = 29.530588853
+
+    /// The elongation to draw with. A response from before the engine sent one
+    /// still carries illumination and a name, and those two together say the
+    /// same thing: illumination gives the angle up to a reflection, and the
+    /// name says which side of full it falls on.
+    var angle: Double {
+        if let phaseAngle { return phaseAngle.truncatingRemainder(dividingBy: 360) }
+
+        let lit = min(max((illuminationPct ?? 0) / 100, 0), 1)
+        let waxingAngle = acos(1 - 2 * lit) * 180 / .pi
+        return isWaning ? 360 - waxingAngle : waxingAngle
+    }
+
+    var isWaning: Bool {
+        if let phaseAngle { return phaseAngle.truncatingRemainder(dividingBy: 360) >= 180 }
+        let name = phaseName.lowercased()
+        return name.contains("waning") || name.contains("third") || name.contains("last")
+    }
+
+    /// Days from now until the elongation next reaches `target`.
+    private func days(toAngle target: Double) -> Double {
+        let remaining = (target - angle).truncatingRemainder(dividingBy: 360)
+        return (remaining < 0 ? remaining + 360 : remaining) / 360 * Self.synodicMonth
+    }
+
+    var daysToFullMoon: Double { days(toAngle: 180) }
+    var daysToNewMoon: Double { days(toAngle: 360) }
+
+    /// How far into the cycle the Moon is, in days since the new moon.
+    var age: Double { angle / 360 * Self.synodicMonth }
 }
 
 struct ForecastDay: Codable, Hashable, Identifiable {
