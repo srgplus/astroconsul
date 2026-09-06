@@ -146,6 +146,8 @@ export const en: Record<string, string> = {
   "widget.planetPositions": "Planet Positions",
   "widget.natalAspects": "Chart Aspects",
   "widget.planetsHouses": "Planets & Houses",
+  "summary.details": "Details",
+  "summary.hideDetails": "Hide details",
   "widget.edit": "Edit",
   "widget.synastry": "Compatibility",
   "widget.addSynastryFirst": "Add a partner for compatibility",

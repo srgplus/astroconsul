@@ -125,7 +125,44 @@ stage one: the natal wheel, static. The transit ring and tap-to-detail follow.
 - `ChartPosition.longitude` decodes the field the API already sent and nothing
   read; `wheelLongitude` falls back to sign + degree so hand-written previews
   still place correctly.
+### Web: the Chart widget opens its own details drawer
+Reading a chart meant leaving the widget: tapping it threw up the full-screen
+Birth Chart popup, which is also where Edit and Transfer Ownership live. The
+widget now carries a "Details" button that unfolds `NatalPositionsTable` in
+place, so the positions are one tap away and the popup stays what it is.
 
+- The drawer is a prop on `ProfileSummaryCard` (`drawer`), set by the widget
+  only. In the popup the same table is already further down the page.
+- The widget's own `onClick` still opens the popup, so the toggle and the
+  drawer body both `stopPropagation` — otherwise reading a row would launch
+  the popup on top of it.
+- The drawer cancels the widget's 16px padding with a negative margin, so the
+  table's dividers run edge to edge the way they do in the popup.
+- Fixed alongside, because the drawer is where it shows: a body the ephemeris
+  has no data for (`build_unavailable_position` sends nulls) printed
+  "sign.null" and "°null′" — the Chiron row on a real profile. Sign, glyph and
+  degrees now fall back to a dash.
+
+### iOS: the natal chart under the weather
+`NatalChartCard` closes the weather screen with the chart every reading above
+it is cast against: Sun, Moon, Ascendant, Midheaven, Mercury, Venus and Mars,
+each with its sign, degrees, house and ℞ when the body was retrograde at
+birth, then the birthplace and birth moment, with the age in the header.
+
+- No new request. The transit report that already feeds Active Transits
+  carries `natal_positions` and `angle_positions`, and the view model indexes
+  both into `TransitPositions.natal` — the card just reads that.
+- Signs are written out, not drawn: U+2648-2653 resolve through the emoji
+  font, which the simulator draws as tofu. Same call `TransitDetailSheet`
+  already made. Houses use the `house` SF Symbol rather than the web's △,
+  which is the glyph for a trine.
+- ASC and MC show degrees only — they are the cusps of houses 1 and 10 by
+  definition, so a house number there repeats the label.
+- The birth moment is read out of `local_birth_datetime` as text, never
+  parsed into a `Date`: it is already local, so a timezone conversion would
+  move the clock off the birth certificate.
+- `WeatherPreviewData` gained a natal Mercury, retrograde, so `-uiPreviewWeather`
+  shows the ℞ column instead of leaving it to be assumed.
 
 ### iOS: the weather screens ask the device where you are
 `ProfileSummary.currentLocationName` moved the label off the birthplace, but

@@ -2824,6 +2824,43 @@ select {
   gap: 2px;
 }
 
+/* --- Details drawer, widget only --- */
+
+.profile-summary__drawer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.1);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.profile-summary__chevron {
+  transition: transform 0.2s;
+}
+
+.profile-summary__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* The widget pads itself by 16px; the drawer cancels that so the table's
+   dividers run edge to edge the way they do in the expanded popup. */
+.profile-summary__drawer {
+  margin: 10px -16px -16px;
+  cursor: default;
+}
+
 .profile-summary__age-badge {
   font-size: 1.1rem;
   font-weight: 700;

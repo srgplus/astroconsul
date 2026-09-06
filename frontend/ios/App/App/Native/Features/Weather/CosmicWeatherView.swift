@@ -212,6 +212,11 @@ struct CosmicWeatherView: View {
     private var content: some View {
         forecast
         transits
+
+        // The chart every reading above is cast against, so it closes the
+        // screen rather than opening it: today first, the birth data last.
+        // It draws nothing until the natal positions land.
+        NatalChartCard(profile: profile, positions: model.positions.natal)
     }
 
     @ViewBuilder
