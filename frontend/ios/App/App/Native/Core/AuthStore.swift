@@ -15,12 +15,12 @@ struct AuthSession: Codable, Equatable {
     var needsRefresh: Bool { Date().timeIntervalSince1970 >= expiresAt - 60 }
 }
 
-/// Owns the Supabase session for the native layer.
+/// Owns the Supabase session for the whole app.
 ///
-/// During the migration the WebView is still the place where the user signs
-/// in, so `adopt(fromWebSession:)` imports the session that supabase-js keeps
-/// in localStorage. Once sign-in itself is native this import goes away and
-/// the Keychain becomes the only source.
+/// Sign-in is native (email code, Apple, Google, password) and the Keychain is
+/// the source of truth. The WebView is kept in step in both directions:
+/// `adopt(fromWebSession:)` picks up a session created there before this
+/// screen existed, and `adoptFromNativeSignIn` pushes new sessions into it.
 @MainActor
 final class AuthStore: ObservableObject {
 
@@ -32,7 +32,19 @@ final class AuthStore: ObservableObject {
     var email: String? { session?.email }
 
     private static let keychainKey = "session"
+    private static let signedOutFlag = "nativeUserSignedOut"
     private var refreshTask: Task<String?, Never>?
+
+    /// Set when the user signs out on purpose.
+    ///
+    /// The WebView keeps its own session in localStorage, which survives app
+    /// restarts. Without this flag, signing out while the Chart tab has never
+    /// been opened would leave that copy untouched, and the import bridge
+    /// would sign the user back in the next time the tab loads.
+    private var didSignOutExplicitly: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.signedOutFlag) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.signedOutFlag) }
+    }
 
     private init() {
         if let data = KeychainStore.read(key: Self.keychainKey),
@@ -77,12 +89,60 @@ final class AuthStore: ObservableObject {
         refreshTask?.cancel()
         refreshTask = nil
         KeychainStore.delete(key: Self.keychainKey)
+        didSignOutExplicitly = true
+        WebControllerHolder.shared.current?.clearWebSession()
+    }
+
+    // MARK: - Native sign-in
+
+    func sendEmailCode(to email: String) async throws {
+        try await SupabaseAuthAPI.sendEmailCode(email: email.trimmed)
+    }
+
+    func signIn(email: String, code: String) async throws {
+        let session = try await SupabaseAuthAPI.verifyEmailCode(
+            email: email.trimmed,
+            code: code.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        adoptFromNativeSignIn(session)
+    }
+
+    func signIn(email: String, password: String) async throws {
+        let session = try await SupabaseAuthAPI.signIn(email: email.trimmed, password: password)
+        adoptFromNativeSignIn(session)
+    }
+
+    func signInWithApple() async throws {
+        let session = try await AppleSignInController().signIn()
+        adoptFromNativeSignIn(session)
+    }
+
+    func signInWithGoogle() async throws {
+        let session = try await GoogleSignInController().signIn()
+        adoptFromNativeSignIn(session)
+    }
+
+    /// Stores a session that native sign-in produced and hands it to the
+    /// WebView, so the un-ported screens are signed in as the same account.
+    ///
+    /// If the Chart tab has never been opened there is no WebView yet; it
+    /// picks the session up from the Keychain on its first load instead.
+    private func adoptFromNativeSignIn(_ newSession: AuthSession) {
+        didSignOutExplicitly = false
+        store(newSession)
+        WebControllerHolder.shared.current?.applyNativeSession(newSession)
     }
 
     /// Adopts a session read out of the WebView's localStorage.
-    /// Ignores payloads that are not newer than what is already stored, so a
-    /// WebView reload cannot downgrade a freshly refreshed native session.
+    ///
+    /// Skipped after an explicit sign-out, and skipped when the stored session
+    /// is not newer, so a WebView reload cannot resurrect a signed-out user or
+    /// downgrade a freshly refreshed native session.
     func adopt(fromWebSession incoming: AuthSession) {
+        if didSignOutExplicitly {
+            WebControllerHolder.shared.current?.clearWebSession()
+            return
+        }
         if let current = session, current.expiresAt >= incoming.expiresAt {
             return
         }
@@ -150,5 +210,13 @@ enum SupabaseTokenResponse {
             expiresAt: expiresAt,
             email: payload.user?.email
         )
+    }
+}
+
+extension String {
+    /// Emails are trimmed and lowercased before hitting Supabase: it treats
+    /// addresses case-insensitively, but a stray space fails the request.
+    var trimmed: String {
+        trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }

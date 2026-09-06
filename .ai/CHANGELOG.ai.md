@@ -4,6 +4,49 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: native sign-in (email code, Apple, Google, password)
+The WebView's "Continue with Google" and "Continue with Apple" buttons did
+nothing on iOS. Root cause: `AuthContext.tsx` calls `Browser.open()` from
+`@capacitor/browser` on native, but the built app links only
+`Capacitor.framework` and `Cordova.framework`. Neither `@capacitor/browser`
+nor `@capacitor/app` is in `CapApp-SPM/Package.swift`, so the plugin call
+throws and the flow dies silently. `npx cap sync ios` cannot add them because
+the project was renamed to `big3.me.xcodeproj` and its `Package.swift` write
+fails.
+
+Rather than patch the plugins in, sign-in went native and no longer depends on
+Capacitor at all:
+- `Core/SupabaseAuthAPI.swift`: direct calls to Supabase `/auth/v1` for the
+  email code (`otp` + `verify`), password grant, Apple `id_token` grant, and
+  the provider `authorize` redirect.
+- `Core/AppleSignInController.swift`: `ASAuthorizationController` with a nonce
+  (SHA256 to Apple, raw to Supabase). Not `SignInWithAppleButton`, which builds
+  its own request and would break nonce verification.
+- `Core/GoogleSignInController.swift`: `ASWebAuthenticationSession` returning
+  through `big3me://auth-callback`. Handles both implicit (hash) and PKCE
+  (`?code=`) returns, since the client currently defaults to implicit.
+- `Features/Auth/SignInView.swift`: email code is the primary path, password
+  sits behind "Sign in with password" for accounts that have one.
+
+Email code was chosen over a magic link on purpose: a link has to re-enter the
+app through the same `big3me://` deep link that is currently broken, while a
+6-digit code is typed in place with no round trip.
+
+**Requires a dashboard change**: the Supabase "Magic Link" email template must
+include `{{ .Token }}`, otherwise the message carries only a link and the user
+never sees a code.
+
+**Two-way session bridge** in `CustomViewController`: `applyNativeSession`
+pushes a native session into the WebView via supabase-js `setSession`, and
+`clearWebSession` signs it out. `AuthStore` records an explicit sign-out in
+UserDefaults, because the WebView's localStorage copy survives app restarts
+and the import bridge would otherwise sign a signed-out user back in the next
+time the Chart tab loads.
+
+Verified on the simulator: native sign-in screen renders, and the Google
+button reaches the real `ASWebAuthenticationSession` consent sheet. The email
+code path is unverified: it needs the template change and a real inbox.
+
 ### iOS: native SwiftUI shell replaces the WebView root
 Start of the migration from a Capacitor WebView wrapper to a native app. The
 Apple 4.3(b) rejection was aimed at the app reading as a repackaged website, so

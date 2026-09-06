@@ -130,11 +130,78 @@ class CustomViewController: CAPBridgeViewController {
 
     // MARK: - Session bridge to the native layer
 
+    /// Pushes a session obtained by the native sign-in screen into the WebView,
+    /// so both halves of the app are signed in as the same account.
+    ///
+    /// Goes through supabase-js `setSession` rather than writing localStorage
+    /// directly: the library then fetches the user, sets up refresh timers and
+    /// notifies its own listeners, which a raw localStorage write would skip.
+    func applyNativeSession(_ session: AuthSession) {
+        let payload: [String: Any] = [
+            "access_token": session.accessToken,
+            "refresh_token": session.refreshToken,
+        ]
+        guard let data = try? JSONSerialization.data(withJSONObject: payload),
+              let json = String(data: data, encoding: .utf8) else {
+            NSLog("[Session bridge] could not serialise native session")
+            return
+        }
+
+        let js = """
+        (async () => {
+            try {
+                if (!window.__supabase) { return 'no-client'; }
+                const { error } = await window.__supabase.auth.setSession(\(json));
+                if (error) { return 'error: ' + error.message; }
+                return 'ok';
+            } catch (e) {
+                return 'threw: ' + (e && e.message ? e.message : e);
+            }
+        })()
+        """
+
+        webView?.evaluateJavaScript(js) { result, error in
+            if let error {
+                NSLog("[Session bridge] push failed: \(error.localizedDescription)")
+            } else if let outcome = result as? String, outcome != "ok" {
+                NSLog("[Session bridge] push rejected: \(outcome)")
+            }
+        }
+    }
+
+    /// Signs the WebView out, so a native sign-out clears both halves.
+    func clearWebSession() {
+        let js = """
+        (async () => {
+            try {
+                if (window.__supabase) { await window.__supabase.auth.signOut(); }
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+                        localStorage.removeItem(k);
+                    }
+                }
+                return 'ok';
+            } catch (e) {
+                return 'threw: ' + (e && e.message ? e.message : e);
+            }
+        })()
+        """
+
+        webView?.evaluateJavaScript(js) { result, error in
+            if let error {
+                NSLog("[Session bridge] web sign-out failed: \(error.localizedDescription)")
+            } else if let outcome = result as? String, outcome != "ok" {
+                NSLog("[Session bridge] web sign-out rejected: \(outcome)")
+            }
+        }
+    }
+
     /// Copies the supabase-js session out of the WebView's localStorage into
     /// `AuthStore`, so native screens can call the API with the same account.
     ///
-    /// Sign-in still happens in the WebView during the migration. When it goes
-    /// native this bridge is deleted and the Keychain becomes the only source.
+    /// Runs after every page load. If the WebView has no session but the
+    /// native side does, the session is pushed the other way instead.
     private func importSupabaseSession() {
         let js = """
         (() => {
@@ -152,19 +219,25 @@ class CustomViewController: CAPBridgeViewController {
         })()
         """
 
-        webView?.evaluateJavaScript(js) { result, error in
+        webView?.evaluateJavaScript(js) { [weak self] result, error in
             if let error = error {
                 NSLog("[Session bridge] read failed: \(error.localizedDescription)")
                 return
             }
-            guard let raw = result as? String, let data = raw.data(using: .utf8) else {
-                // No stored session: the user is signed out in the WebView.
+
+            guard let raw = result as? String,
+                  let data = raw.data(using: .utf8),
+                  let session = Self.parseWebSession(data) else {
+                // The WebView is signed out. If the native side is signed in,
+                // hand it the session so the two stay in step.
+                Task { @MainActor in
+                    if let native = AuthStore.shared.session {
+                        self?.applyNativeSession(native)
+                    }
+                }
                 return
             }
-            guard let session = Self.parseWebSession(data) else {
-                NSLog("[Session bridge] stored session had an unexpected shape")
-                return
-            }
+
             Task { @MainActor in
                 AuthStore.shared.adopt(fromWebSession: session)
             }

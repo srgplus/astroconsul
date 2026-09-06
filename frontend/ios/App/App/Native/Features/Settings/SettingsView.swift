@@ -51,12 +51,8 @@ struct SettingsView: View {
                     .foregroundStyle(Theme.textDim)
             }
 
-            if auth.isSignedIn {
-                Button("Sign out", role: .destructive) {
-                    auth.signOut()
-                }
-            } else {
-                Button("Sign in", action: onOpenWeb)
+            Button("Sign out", role: .destructive) {
+                auth.signOut()
             }
 
             Button("Manage account") { onOpenWeb() }
