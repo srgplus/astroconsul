@@ -2,6 +2,38 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-07
+
+### iOS: the hero says when, in what words, and how tense
+Three things the web hero has and the native one did not.
+
+- **When.** A transit reading is a moment, not a day, so a capsule under the
+  name prints it — "Sun, Sep 6 at 4:14 PM" — in the profile's own zone, not
+  the device's. `CosmicWeatherViewModel` publishes the instant and zone it
+  built the request from, rather than the hero reading the clock a second time
+  and drifting from what is on screen.
+- **In what words.** Under the feels-like label sits the short line the web
+  calls a time modifier: "In the flow" at four in the afternoon, "Drift into
+  peace" at one in the morning. The API does not send it — the web app reads
+  `data/feels_like_time_modifiers.json` directly — so `FeelsLike.headline`
+  inlines the English half of that file. 48 short strings did not warrant a
+  bundled resource and a decode path, but the JSON stays the source of truth.
+- **How tense.** `TensionBar` puts the engine's tension ratio under the
+  headline as a short track and a percentage. It is a footnote to the reading
+  above it, so it is 132pt wide and 4pt tall and says nothing else.
+
+### iOS: the list's glass frosts the sky that is actually behind it
+Opening the profile list over a blue sky gave a green sheet.
+
+Two causes, both fixed. `WeatherHomeView` keyed the backdrop to
+`profile.latest_transit.tii`, but a page's sky comes from its own loaded
+forecast, and the two disagree by a whole zone often enough to notice. Pages
+now report the zone they settled on through `SkyZoneKey`, keyed by profile
+because a paging `TabView` keeps every page alive and they all contribute; the
+stored TII is only the fallback until a forecast lands. And since the sky
+gained footage, `WeatherGlassBackdrop` frosted a gradient the sky no longer
+is — it now draws the same `SkyVideo` under the material.
+
 ## 2026-09-06
 
 ### iOS: the weather screens ask the device where you are

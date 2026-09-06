@@ -64,6 +64,12 @@ struct WeatherGlassBackdrop: View {
         ZStack {
             if let zone {
                 WeatherSky.gradient(for: zone)
+
+                // The page draws footage over its gradient, so frosting the
+                // gradient alone leaves the glass a shade the sky no longer
+                // is. The material blurs this to a wash either way, but it is
+                // the sky's own wash.
+                SkyVideo(zone: zone)
             }
             Rectangle().fill(.ultraThinMaterial)
         }

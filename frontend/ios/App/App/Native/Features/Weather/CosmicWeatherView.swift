@@ -102,6 +102,7 @@ struct CosmicWeatherView: View {
             .allowsHitTesting(false)
         }
         .tint(.white)
+        .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
         .task {
             // A seeded model (previews, harness) is already loaded.
             guard model.state == .idle else { return }
@@ -130,6 +131,16 @@ struct CosmicWeatherView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
 
+            // A transit reading is a moment, not a day, so the hero says
+            // which moment — in the profile's own zone, not the device's.
+            Text(readingStamp)
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.85))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(Capsule().fill(.white.opacity(0.16)))
+                .padding(.top, 6)
+
             Text(temperature)
                 .font(.system(size: 92, weight: .ultraLight, design: .rounded))
                 .foregroundStyle(.white)
@@ -137,11 +148,36 @@ struct CosmicWeatherView: View {
                 .padding(.leading, 14)   // optical centring: the ° hangs right
                 .padding(.vertical, -8)
 
-            Text(model.today?.feelsLike ?? profile.latestTransit?.feelsLike ?? " ")
+            Text(feelsLike ?? " ")
                 .font(.system(size: 21, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.9))
+
+            if let headline = FeelsLike.headline(for: feelsLike, at: model.readingTime, in: model.readingZone) {
+                Text(headline)
+                    .font(.system(size: 15, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 1)
+            }
+
+            if let tension = model.today?.tensionRatio ?? profile.latestTransit?.tensionRatio {
+                TensionBar(ratio: tension)
+                    .padding(.top, 12)
+            }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var feelsLike: String? {
+        model.today?.feelsLike ?? profile.latestTransit?.feelsLike
+    }
+
+    /// "Mon, Sep 7 at 1:05 AM", in the zone the reading was cast for.
+    private var readingStamp: String {
+        let formatter = DateFormatter()
+        formatter.timeZone = model.readingZone
+        formatter.setLocalizedDateFormatFromTemplate("EEE d MMM jmm")
+        return formatter.string(from: model.readingTime)
     }
 
     /// Weather names the place you are standing in, so this is where the
@@ -240,5 +276,41 @@ struct CosmicWeatherView: View {
                 positions: model.positions
             )
         }
+    }
+}
+
+/// How much of the day's intensity is friction rather than flow, as the
+/// engine's tension ratio. A short track and a number, nothing else: it is a
+/// footnote to the reading above it, not a second headline.
+struct TensionBar: View {
+
+    /// 0…1 from the transit engine.
+    let ratio: Double
+
+    private var percent: Int { Int((min(max(ratio, 0), 1) * 100).rounded()) }
+
+    private let width: CGFloat = 132
+    private let track: CGFloat = 4
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(.white.opacity(0.22))
+                    .frame(width: width, height: track)
+
+                Capsule()
+                    .fill(.white.opacity(0.9))
+                    .frame(width: max(width * CGFloat(min(max(ratio, 0), 1)), track), height: track)
+            }
+
+            Text("Tension \(percent)%")
+                .font(.system(size: 13, design: .rounded))
+                .foregroundStyle(.white.opacity(0.7))
+                .monospacedDigit()
+                .fixedSize()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Tension \(percent) percent")
     }
 }
