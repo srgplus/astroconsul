@@ -8,8 +8,19 @@ struct ProfileWeatherCard: View {
     let profile: ProfileSummary
     let isPrimary: Bool
 
+    @ObservedObject private var device = DeviceLocation.shared
+
     private var tii: Double? { profile.latestTransit?.tii }
     private var zone: TiiZone? { tii.map(TiiZone.init(tii:)) }
+
+    /// The same answer the detail screen's hero gives, so the two agree: this
+    /// device's location on your own card, the transit location on the rest.
+    private var location: String? {
+        if isPrimary, let here = device.placeName {
+            return here
+        }
+        return profile.currentLocationName
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -53,7 +64,7 @@ struct ProfileWeatherCard: View {
                 // The current location, matching the hero on the detail
                 // screen. Birth location belongs to the profile, not to a
                 // reading of today's sky.
-                if let location = profile.currentLocationName {
+                if let location {
                     Text(location)
                         .font(.system(size: 12, design: .rounded))
                         .opacity(0.75)

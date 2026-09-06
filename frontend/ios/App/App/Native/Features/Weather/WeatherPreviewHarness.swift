@@ -39,10 +39,12 @@ struct WeatherPreviewHarness: View {
                 CosmicWeatherView(
                     profile: profile,
                     topInset: topInset,
+                    isPrimary: profile.profileId == WeatherPreviewData.profile.profileId,
                     model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days(for: profile))
                 )
             }
         }
+        .task { DeviceLocation.shared.start() }
         .sheet(isPresented: $showsList) {
             ProfileListScreen(
                 model: listModel,

@@ -4,6 +4,34 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the weather screens ask the device where you are
+`ProfileSummary.currentLocationName` moved the label off the birthplace, but
+it could only offer what was on file, and `latest_transit.location_name` is
+only filled when someone types a city into the web Transits tab. Most accounts
+never have, so the label still had nothing better to show than the timezone's
+city — and in the preview harness every sample carried the *same* string as
+its birthplace, which made the fix look like it had done nothing.
+
+- `Core/DeviceLocation.swift` takes one CoreLocation fix per app run and
+  reverse-geocodes it to "City, Country". Accuracy is deliberately
+  `kCLLocationAccuracyKilometer`: the output is a city name, so street-level
+  digits would be paid for and thrown away. `NSLocationWhenInUseUsageDescription`
+  is in Info.plist; the prompt is raised from `WeatherHomeView.task`, over the
+  screen whose label it fills in.
+- It applies to the **primary profile only**, on the hero and on its card. The
+  primary is the person holding the phone — Weather's "My Location" at page one
+  — and a followed profile's owner is somewhere else entirely. Everyone else
+  keeps `currentLocationName`.
+- Denied or undecided is not an error: `placeName` stays nil and the old chain
+  answers. Failures are logged, never swallowed.
+- `WeatherPreviewData` now gives every sample a birthplace and a different
+  current city, and leaves every fourth filler profile without a current
+  location, so the harness shows the fallback too.
+
+Still open: the device location is display-only. It is not sent to the backend,
+so the web app, the saved `latest_transit` and the transit engine's houses all
+still use whatever was typed by hand.
+
 ### iOS: the weather screens name where you are, not where you were born
 The hero and the list cards labelled every reading with `profile.location_name`
 — the birthplace — so a person who moved was told the sky over a city they left.

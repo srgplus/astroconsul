@@ -11,11 +11,18 @@ struct CosmicWeatherView: View {
     /// the page can no longer read it for itself.
     var topInset: CGFloat = 0
 
-    @StateObject private var model: CosmicWeatherViewModel
+    /// The primary profile is the person holding the phone, so it — and only
+    /// it — is labelled with where this device is. A followed profile's owner
+    /// is somewhere else entirely.
+    var isPrimary: Bool = false
 
-    init(profile: ProfileSummary, topInset: CGFloat = 0) {
+    @StateObject private var model: CosmicWeatherViewModel
+    @ObservedObject private var device = DeviceLocation.shared
+
+    init(profile: ProfileSummary, topInset: CGFloat = 0, isPrimary: Bool = false) {
         self.profile = profile
         self.topInset = topInset
+        self.isPrimary = isPrimary
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
 
@@ -25,10 +32,12 @@ struct CosmicWeatherView: View {
     init(
         profile: ProfileSummary,
         topInset: CGFloat = 0,
+        isPrimary: Bool = false,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
     ) {
         self.profile = profile
         self.topInset = topInset
+        self.isPrimary = isPrimary
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -135,11 +144,15 @@ struct CosmicWeatherView: View {
         .frame(maxWidth: .infinity)
     }
 
-    /// Weather names the place you are standing in, so this is the transit
-    /// location, never the birth one. Without a reading to read it from, the
+    /// Weather names the place you are standing in, so this is where the
+    /// person is, never where they were born: this device's own location on
+    /// your page, the transit location on everyone else's. With neither, the
     /// handle stands in rather than a place we cannot vouch for.
     private var subtitle: String {
-        profile.currentLocationName ?? "@\(profile.username)"
+        if isPrimary, let here = device.placeName {
+            return here
+        }
+        return profile.currentLocationName ?? "@\(profile.username)"
     }
 
     private var temperature: String {
