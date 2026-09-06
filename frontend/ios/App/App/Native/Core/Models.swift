@@ -276,6 +276,9 @@ struct ActiveAspect: Codable, Hashable, Identifiable {
 /// only in which of the optional fields they carry.
 struct ChartPosition: Codable, Hashable {
     let id: String
+    /// Ecliptic longitude, 0..<360. The only field the wheel draws from; the
+    /// sign and degree below are the same number already split up for text.
+    let longitude: Double?
     let degree: Int?
     let minute: Int?
     let sign: String?
@@ -284,6 +287,15 @@ struct ChartPosition: Codable, Hashable {
     /// same idea `house`.
     let natalHouse: Int?
     let house: Int?
+
+    /// Longitude to draw at. Older payloads and hand-written previews carry
+    /// only the sign and the degree inside it, which is the same position to
+    /// within the arcsecond the API drops.
+    var wheelLongitude: Double? {
+        if let longitude { return longitude }
+        guard let sign, let index = Zodiac.index(ofSign: sign) else { return nil }
+        return Double(index) * 30 + Double(degree ?? 0) + Double(minute ?? 0) / 60
+    }
 
     /// 14°19′ — the form the web chart prints.
     var formattedDegree: String? {
@@ -303,6 +315,8 @@ struct TransitReport: Codable {
     let transitPositions: [ChartPosition]?
     let natalPositions: [ChartPosition]?
     let anglePositions: [ChartPosition]?
+    /// Natal house cusps 1-12, in ecliptic longitude.
+    let houses: [Double]?
 }
 
 /// Position lookups for one report, so a row can name where each side of an
@@ -311,12 +325,15 @@ struct TransitReport: Codable {
 struct TransitPositions: Hashable {
     var transiting: [String: ChartPosition] = [:]
     var natal: [String: ChartPosition] = [:]
+    /// Natal house cusps 1-12. Empty until a report has landed.
+    var houses: [Double] = []
 
     init() {}
 
     init(report: TransitReport) {
         transiting = Self.index(report.transitPositions)
         natal = Self.index((report.natalPositions ?? []) + (report.anglePositions ?? []))
+        houses = report.houses ?? []
     }
 
     private static func index(_ positions: [ChartPosition]?) -> [String: ChartPosition] {
