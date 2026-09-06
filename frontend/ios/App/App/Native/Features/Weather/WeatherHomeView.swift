@@ -11,6 +11,7 @@ struct WeatherHomeView: View {
     @State private var selection = ""
     @State private var showsList = false
     @State private var showsWeb = false
+    @State private var skyZones: [String: TiiZone] = [:]
 
     /// Primary profile first, the way Weather keeps My Location at page one,
     /// then the rest of the owner's profiles and the followed ones. The model
@@ -99,12 +100,16 @@ struct WeatherHomeView: View {
                     isPrimary: profile.profileId == model.primaryProfileId
                 )
             }
+            .onPreferenceChange(SkyZoneKey.self) { skyZones = $0 }
         }
     }
 
     /// The visible page's zone, so the list's glass matches the sky it came
-    /// from rather than sitting on flat grey.
+    /// from rather than sitting on flat grey. The page reports its own, which
+    /// is the forecast's reading; the profile's stored TII is the fallback
+    /// until the forecast lands, and can be a zone out of date.
     private var visibleZone: TiiZone? {
+        if let reported = skyZones[selection] { return reported }
         guard let profile = profiles.first(where: { $0.profileId == selection }) else { return nil }
         return TiiZone(tii: profile.latestTransit?.tii ?? 0)
     }

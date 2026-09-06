@@ -326,3 +326,133 @@ struct TransitPositions: Hashable {
         )
     }
 }
+
+// MARK: - Time of day
+
+/// The four windows the feels-like headline is written for. Mirrors
+/// `frontend/src/time-modifiers.ts`.
+enum TimeWindow {
+    case morning, afternoon, evening, night
+
+    init(hour: Int) {
+        switch hour {
+        case 6..<12: self = .morning
+        case 12..<18: self = .afternoon
+        case 18..<23: self = .evening
+        default: self = .night
+        }
+    }
+
+    init(date: Date, in zone: TimeZone) {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        self.init(hour: calendar.component(.hour, from: date))
+    }
+}
+
+struct TimeHeadlines {
+    let morning: String
+    let afternoon: String
+    let evening: String
+    let night: String
+
+    subscript(window: TimeWindow) -> String {
+        switch window {
+        case .morning: return morning
+        case .afternoon: return afternoon
+        case .evening: return evening
+        case .night: return night
+        }
+    }
+}
+
+extension FeelsLike {
+
+    /// The short line under the feels-like label: "Drift into peace" for a
+    /// flowing night, "Bold moves time" for a dynamic afternoon.
+    ///
+    /// The English half of `data/feels_like_time_modifiers.json`, which the
+    /// web app reads directly. It is inlined rather than bundled because the
+    /// native screens are English only and 48 short strings do not warrant a
+    /// resource and a decode path — but that file stays the source of truth,
+    /// so edits there belong here too.
+    static func headline(for label: String?, at date: Date, in zone: TimeZone) -> String? {
+        guard let label, let headlines = headlines[label] else { return nil }
+        return headlines[TimeWindow(date: date, in: zone)]
+    }
+
+    private static let headlines: [String: TimeHeadlines] = [
+        "Calm": TimeHeadlines(
+            morning: "Gentle start ahead",
+            afternoon: "Calm and steady",
+            evening: "Peaceful wind-down",
+            night: "Deep stillness"
+        ),
+        "Subtle pressure": TimeHeadlines(
+            morning: "Something stirring beneath",
+            afternoon: "Haze of tension",
+            evening: "Undercurrent surfaces",
+            night: "Restless quiet"
+        ),
+        "Grinding": TimeHeadlines(
+            morning: "Heavy start, pace yourself",
+            afternoon: "Endurance mode",
+            evening: "Release the weight",
+            night: "Let the body recover"
+        ),
+        "Flowing": TimeHeadlines(
+            morning: "Promising start",
+            afternoon: "In the flow",
+            evening: "Savor the harmony",
+            night: "Drift into peace"
+        ),
+        "Dynamic": TimeHeadlines(
+            morning: "Active day building",
+            afternoon: "Bold moves time",
+            evening: "Process the buzz",
+            night: "Mind still racing"
+        ),
+        "Pressured": TimeHeadlines(
+            morning: "Brace for demands",
+            afternoon: "Adapt to pressure",
+            evening: "Decompress gently",
+            night: "Release and restore"
+        ),
+        "Expansive": TimeHeadlines(
+            morning: "Big energy awakening",
+            afternoon: "Doors are opening",
+            evening: "Celebrate the expansion",
+            night: "Dream big tonight"
+        ),
+        "Charged": TimeHeadlines(
+            morning: "Storm energy building",
+            afternoon: "Ready to discharge",
+            evening: "Let the charge settle",
+            night: "Electric dreams ahead"
+        ),
+        "Intense": TimeHeadlines(
+            morning: "Fiery day ahead",
+            afternoon: "Fire and pressure",
+            evening: "Cool the flames",
+            night: "Let the fire die down"
+        ),
+        "Powerful": TimeHeadlines(
+            morning: "Rare launch window",
+            afternoon: "Breakthrough energy",
+            evening: "Ride the momentum",
+            night: "Power in stillness"
+        ),
+        "Volatile": TimeHeadlines(
+            morning: "Expect the unexpected",
+            afternoon: "Unpredictable shifts",
+            evening: "Ground after the storm",
+            night: "Turbulent dreams possible"
+        ),
+        "Explosive": TimeHeadlines(
+            morning: "Maximum intensity day",
+            afternoon: "Everything at once",
+            evening: "Survive and reflect",
+            night: "Deep recovery needed"
+        ),
+    ]
+}

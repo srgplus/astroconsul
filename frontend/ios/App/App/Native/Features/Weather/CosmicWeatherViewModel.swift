@@ -20,6 +20,12 @@ final class CosmicWeatherViewModel: ObservableObject {
     @Published private(set) var retrogradeObjects: Set<String> = []
     @Published private(set) var positions = TransitPositions()
 
+    /// The moment the reading was cast for, and the zone it is read in. The
+    /// hero prints these, so they are the request's own values rather than
+    /// "now" read a second time.
+    @Published private(set) var readingTime = Date()
+    @Published private(set) var readingZone = TimeZone.current
+
     private let api: APIClient
 
     init(api: APIClient = .shared) {
@@ -81,6 +87,8 @@ final class CosmicWeatherViewModel: ObservableObject {
 
         let moment = Self.moment(for: profile)
         let transit = profile.latestTransit
+        readingTime = moment.instant
+        readingZone = moment.zone
 
         do {
             let report = try await api.fetchTransitReport(
@@ -105,6 +113,8 @@ final class CosmicWeatherViewModel: ObservableObject {
             }
 
             let fallback = Self.moment(for: profile, ignoringSavedSettings: true)
+            readingTime = fallback.instant
+            readingZone = fallback.zone
             do {
                 let report = try await api.fetchTransitReport(
                     profileId: profile.profileId,
@@ -143,7 +153,7 @@ final class CosmicWeatherViewModel: ObservableObject {
     private static func moment(
         for profile: ProfileSummary,
         ignoringSavedSettings: Bool = false
-    ) -> (date: String, time: String, timezone: String, usedSavedSettings: Bool) {
+    ) -> (date: String, time: String, timezone: String, instant: Date, zone: TimeZone, usedSavedSettings: Bool) {
         let saved = ignoringSavedSettings ? nil : profile.latestTransit?.timezone
         let zone = saved.flatMap(TimeZone.init(identifier:)) ?? .current
         let now = Date()
@@ -152,6 +162,8 @@ final class CosmicWeatherViewModel: ObservableObject {
             date: format(now, as: "yyyy-MM-dd", in: zone),
             time: format(now, as: "HH:mm", in: zone),
             timezone: zone.identifier,
+            instant: now,
+            zone: zone,
             usedSavedSettings: !ignoringSavedSettings
                 && (saved != nil
                     || profile.latestTransit?.locationName != nil

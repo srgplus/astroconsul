@@ -90,3 +90,18 @@ private extension UIColor {
         )
     }
 }
+
+/// The sky each weather page settled on, keyed by profile.
+///
+/// A page's zone comes from its own loaded forecast, which the pager above it
+/// cannot see — it only holds the TII the profile list carried in, and the two
+/// disagree often enough to put a green sheet over a blue sky. Pages report
+/// upwards instead. Keyed rather than a single value because a paging TabView
+/// keeps every page alive, so they all contribute.
+struct SkyZoneKey: PreferenceKey {
+    static var defaultValue: [String: TiiZone] = [:]
+
+    static func reduce(value: inout [String: TiiZone], nextValue: () -> [String: TiiZone]) {
+        value.merge(nextValue()) { _, latest in latest }
+    }
+}
