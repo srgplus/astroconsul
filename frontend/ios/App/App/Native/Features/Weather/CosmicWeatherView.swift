@@ -211,22 +211,18 @@ struct CosmicWeatherView: View {
     @ViewBuilder
     private var content: some View {
         forecast
-
-        // While the forecast is still on its first spinner, that one spinner
-        // speaks for the whole screen.
-        if model.state != .loading, model.state != .idle {
-            transits
-        }
+        transits
     }
 
     @ViewBuilder
     private var forecast: some View {
         switch model.state {
         case .idle, .loading:
-            // No spinner here: the stamp in the hero already says the reading
-            // is being computed, and a second one mid-screen made the page
-            // look like it had failed to draw.
-            EmptyView()
+            // Skeletons rather than a spinner or nothing: the cards keep their
+            // place, so the reading fills in instead of shoving the page
+            // around as each piece lands.
+            WeatherSkeleton(kind: .summary)
+            WeatherSkeleton(kind: .forecast)
 
         case let .failed(message):
             WeatherCard {
@@ -265,8 +261,11 @@ struct CosmicWeatherView: View {
     @ViewBuilder
     private var transits: some View {
         switch model.transitsState {
-        case .idle, .failed, .loading:
+        case .idle, .failed:
             EmptyView()
+
+        case .loading:
+            WeatherSkeleton(kind: .transits)
 
         case .loaded:
             ActiveTransitsCard(
