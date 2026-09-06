@@ -99,6 +99,33 @@ is — it now draws the same `SkyVideo` under the material.
 
 ## 2026-09-06
 
+### iOS: transit rings and aspect lines on the wheel
+Stage two. The wheel now carries up to five rings and both aspect grids, and
+the card grew the web chart's Chart/Transit switch.
+
+- **Five rings, not three.** A "pair" is planets outside, special points
+  inside, and there is one pair for the natal bodies and one for the
+  transiting ones. Both switches on: zodiac + 4 = 5. `Metrics` takes
+  `showsTransits` and `showsSpecialPoints` and thins the bands to suit —
+  five rings in one circle is a different budget from three, and with the
+  inner rows off the transit pair moves up into the room they vacated.
+- **The zodiac rim is inverted**, black with light ink, as on the web chart.
+  It is the one part of the wheel that ignores `transitPalette`: it makes its
+  own contrast rather than borrowing the sky's.
+- **Aspect lines.** `AspectStyle` ports `ASPECT_LINE_STYLES` with the hues
+  lifted, because the web draws on white and these draw over a sky. Natal
+  lines leave from their band's inner edge; transit-to-natal lines leave from
+  whichever edge faces the other end, by the radial dot product the web uses,
+  so a line never crosses its own band.
+- The natal grid drops to half ink once transits are on. Both grids at full
+  strength is fifty lines through one circle, which on a phone is a ball of
+  wool. The transits are the news; the natal grid is the background.
+- The report payload gained `natal_aspects` (`transit_builder.py`) next to
+  `houses`, decoded as `NatalAspect`.
+- `WeatherPreviewData.natalAspects` is seven aspects that are all real for
+  the positions above them, to the arcminute. A made-up grid would draw lines
+  the wheel's own geometry contradicts, which is worse than no preview.
+
 ### iOS: the birth chart wheel, drawn natively
 The chart was the last big thing only the WebView could show. It is now a
 SwiftUI `Canvas` on the cosmic weather screen, under Active Transits. This is
