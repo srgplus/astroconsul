@@ -62,6 +62,8 @@ struct WeatherBottomBar: View {
     /// Both circles and the dot capsule share one height so the row reads as
     /// a single band.
     private static let control: CGFloat = 44
+    /// The dot capsule hugs the dots, so it is shorter than the buttons.
+    private static let dots: CGFloat = 32
 
     /// How much of the page the bar covers. It floats over the sky rather
     /// than sitting under it, so a scrolling page pads its content by this
@@ -99,6 +101,11 @@ struct WeatherBottomBar: View {
     }
 
     /// The primary profile takes Weather's location arrow; the rest are dots.
+    ///
+    /// The capsule is the app's glass, the same surface the list button sits
+    /// on, so the two read as one bar. It hugs the dots rather than filling
+    /// the row: a full-height capsule around a line of 7pt dots looks like a
+    /// button that lost its label.
     private var dots: some View {
         WeatherPageDots(
             count: count,
@@ -106,6 +113,9 @@ struct WeatherBottomBar: View {
             primaryIndex: primaryIndex,
             onSelect: onSelectPage
         )
+        .frame(height: Self.dots)
+        .padding(.horizontal, 10)
+        .weatherGlass(in: .capsule)
         .frame(height: Self.control)
         .accessibilityLabel("Profile \(index + 1) of \(count)")
     }

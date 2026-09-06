@@ -4,6 +4,28 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: the dot capsule is the app's glass, and the stamp carries the spinner
+The bar held two surfaces that did not match. `UIPageControl.backgroundStyle =
+.prominent` draws Weather's capsule, but it is UIKit's own light material and
+takes none of `weatherGlass`'s dark tint, so beside the list button it read as
+a different material sitting on a different sky.
+
+The control now runs `.minimal`, which draws no background at all, and
+`WeatherBottomBar` wraps it in the same glass the button uses.
+
+Sizing the capsule to the dots took measuring rather than guessing. The
+control reports no padding of its own — one dot is 12pt, each further dot one
+17.67pt pitch — so 33 profiles ask for 577pt, it is handed the bar's width
+instead, and it windows the dots and centres them, leaving its bounds mostly
+empty for a capsule to wrap. `sizeThatFits` now caps the width at that window,
+derived from the control's own metrics rather than constants of ours. The cap
+is ten dots, not the eleven a windowed control draws, because it shrinks the
+outer ones as it windows.
+
+Separately, the hero's date capsule now carries the spinner while the transit
+report for that moment is still in flight, so the stamp and its progress are
+one thing rather than two.
+
 ### iOS: the hero says when, in what words, and how tense
 Three things the web hero has and the native one did not.
 

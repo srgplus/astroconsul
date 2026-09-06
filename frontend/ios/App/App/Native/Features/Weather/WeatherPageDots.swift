@@ -19,10 +19,11 @@ struct WeatherPageDots: UIViewRepresentable {
         let control = UIPageControl()
         control.currentPageIndicatorTintColor = .white
         control.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.4)
-        // `.prominent` is what draws Weather's capsule behind the dots: the
-        // system sizes it to the dots themselves and renders it as glass on
-        // iOS 26, which a capsule of our own could only approximate.
-        control.backgroundStyle = .prominent
+        // No capsule of its own. `.prominent` draws one, but it is UIKit's
+        // own light material and takes none of `weatherGlass`'s dark tint, so
+        // next to the list button it read as a different surface entirely.
+        // The bar wraps the control in the app's glass instead.
+        control.backgroundStyle = .minimal
         control.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.addTarget(
@@ -47,28 +48,43 @@ struct WeatherPageDots: UIViewRepresentable {
         }
     }
 
-    /// Sizes the control to its dots so the glass capsule hugs them, but
-    /// never wider than the bar can offer: past that the system control
-    /// compresses the dots itself.
+    /// The most dots the capsule is ever as wide as. `UIPageControl` windows
+    /// the dots itself once they stop fitting, but it centres what it draws in
+    /// whatever width it is handed and leaves the rest of its bounds empty —
+    /// which the glass capsule around it would then wrap, floating a bar-wide
+    /// pill around a short row of dots. Capping the width at the window keeps
+    /// the capsule on the dots at any profile count.
+    ///
+    /// Ten rather than the eleven a windowed control actually draws: it shrinks
+    /// the outer dots as it windows, so eleven of them come to about what ten
+    /// full-pitch ones measure.
+    private static let maxVisibleDots = 10
+
+    /// Sizes the control to its dots so the glass capsule hugs them. The
+    /// metrics come from the control rather than from constants of ours:
+    /// it reports no padding of its own, so one dot is the dot and each
+    /// further dot is one pitch.
     func sizeThatFits(
         _ proposal: ProposedViewSize,
         uiView control: UIPageControl,
         context: Context
     ) -> CGSize? {
-        let intrinsic = control.size(forNumberOfPages: max(count, 1))
+        let single = control.size(forNumberOfPages: 1).width
+        let pitch = control.size(forNumberOfPages: 2).width - single
 
-        let width: CGFloat
+        let intrinsic = single + pitch * CGFloat(max(count - 1, 0))
+        let window = single + pitch * CGFloat(Self.maxVisibleDots - 1)
+
+        var width = min(intrinsic, window)
         if let proposed = proposal.width, proposed.isFinite {
-            width = min(intrinsic.width, proposed)
-        } else {
-            width = intrinsic.width
+            width = min(width, proposed)
         }
 
         let height: CGFloat
         if let proposed = proposal.height, proposed.isFinite {
             height = proposed
         } else {
-            height = intrinsic.height
+            height = control.size(forNumberOfPages: max(count, 1)).height
         }
 
         return CGSize(width: width, height: height)

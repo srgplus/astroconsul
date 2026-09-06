@@ -133,13 +133,25 @@ struct CosmicWeatherView: View {
 
             // A transit reading is a moment, not a day, so the hero says
             // which moment — in the profile's own zone, not the device's.
-            Text(readingStamp)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(0.85))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(Capsule().fill(.white.opacity(0.16)))
-                .padding(.top, 6)
+            // The spinner rides in the same capsule while the reading for
+            // that moment is still being computed, so the stamp and its
+            // progress are one thing rather than two.
+            HStack(spacing: 7) {
+                if model.transitsState == .loading {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .tint(Theme.spinner)
+                }
+
+                Text(readingStamp)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.85))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .background(Capsule().fill(.white.opacity(0.16)))
+            .padding(.top, 6)
+            .animation(.easeInOut(duration: 0.2), value: model.transitsState)
 
             Text(temperature)
                 .font(.system(size: 92, weight: .ultraLight, design: .rounded))
