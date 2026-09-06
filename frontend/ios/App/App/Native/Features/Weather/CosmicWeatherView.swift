@@ -7,9 +7,11 @@ struct CosmicWeatherView: View {
 
     let profile: ProfileSummary
 
-    /// Top safe-area inset, passed in because the pager draws full bleed and
-    /// the page can no longer read it for itself.
+    /// Safe-area insets, passed in because the pager draws full bleed and the
+    /// page can no longer read them for itself. The bottom one also has the
+    /// floating bar to clear.
     var topInset: CGFloat = 0
+    var bottomInset: CGFloat = 0
 
     /// The primary profile is the person holding the phone, so it — and only
     /// it — is labelled with where this device is. A followed profile's owner
@@ -19,9 +21,15 @@ struct CosmicWeatherView: View {
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
 
-    init(profile: ProfileSummary, topInset: CGFloat = 0, isPrimary: Bool = false) {
+    init(
+        profile: ProfileSummary,
+        topInset: CGFloat = 0,
+        bottomInset: CGFloat = 0,
+        isPrimary: Bool = false
+    ) {
         self.profile = profile
         self.topInset = topInset
+        self.bottomInset = bottomInset
         self.isPrimary = isPrimary
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
@@ -32,11 +40,13 @@ struct CosmicWeatherView: View {
     init(
         profile: ProfileSummary,
         topInset: CGFloat = 0,
+        bottomInset: CGFloat = 0,
         isPrimary: Bool = false,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
     ) {
         self.profile = profile
         self.topInset = topInset
+        self.bottomInset = bottomInset
         self.isPrimary = isPrimary
         _model = StateObject(wrappedValue: model())
     }
@@ -76,9 +86,9 @@ struct CosmicWeatherView: View {
                     content
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 28)
+                .padding(.bottom, WeatherBottomBar.height(bottomInset: bottomInset) + 12)
             }
-            .refreshable { await model.load(profileId: profile.profileId, showSpinner: false) }
+            .refreshable { await model.load(profile: profile, showSpinner: false) }
             .scrollIndicators(.hidden)
         }
         .overlay(alignment: .top) {
@@ -95,7 +105,7 @@ struct CosmicWeatherView: View {
         .task {
             // A seeded model (previews, harness) is already loaded.
             guard model.state == .idle else { return }
-            await model.load(profileId: profile.profileId)
+            await model.load(profile: profile)
         }
     }
 
@@ -130,16 +140,6 @@ struct CosmicWeatherView: View {
             Text(model.today?.feelsLike ?? profile.latestTransit?.feelsLike ?? " ")
                 .font(.system(size: 21, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.9))
-
-            if let high = model.high, let low = model.low {
-                Text("H:\(Int(high.rounded()))°  L:\(Int(low.rounded()))°")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .monospacedDigit()
-                    .accessibilityLabel(
-                        "High \(Int(high.rounded())), low \(Int(low.rounded())) over the next \(model.days.count) days"
-                    )
-            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -164,6 +164,17 @@ struct CosmicWeatherView: View {
 
     @ViewBuilder
     private var content: some View {
+        forecast
+
+        // While the forecast is still on its first spinner, that one spinner
+        // speaks for the whole screen.
+        if model.state != .loading, model.state != .idle {
+            transits
+        }
+    }
+
+    @ViewBuilder
+    private var forecast: some View {
         switch model.state {
         case .idle, .loading:
             ProgressView()
@@ -183,7 +194,7 @@ struct CosmicWeatherView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button("Try again") {
-                    Task { await model.load(profileId: profile.profileId) }
+                    Task { await model.load(profile: profile) }
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
@@ -201,6 +212,33 @@ struct CosmicWeatherView: View {
                         .foregroundStyle(.white)
                 }
             }
+        }
+    }
+
+    /// The transit report is a slower request than the forecast, so it lands
+    /// under the cards on its own schedule instead of holding them back.
+    @ViewBuilder
+    private var transits: some View {
+        switch model.transitsState {
+        case .idle, .failed:
+            EmptyView()
+
+        case .loading:
+            WeatherCard {
+                WeatherCardHeader(icon: "circle.hexagongrid", title: "Active transits")
+
+                ProgressView()
+                    .tint(Theme.spinner)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+            }
+
+        case .loaded:
+            ActiveTransitsCard(
+                aspects: model.activeAspects,
+                retrograde: model.retrogradeObjects,
+                positions: model.positions
+            )
         }
     }
 }

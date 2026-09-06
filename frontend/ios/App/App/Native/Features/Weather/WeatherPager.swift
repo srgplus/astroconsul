@@ -61,7 +61,20 @@ struct WeatherBottomBar: View {
 
     /// Both circles and the dot capsule share one height so the row reads as
     /// a single band.
-    private let control: CGFloat = 44
+    private static let control: CGFloat = 44
+
+    /// How much of the page the bar covers. It floats over the sky rather
+    /// than sitting under it, so a scrolling page pads its content by this
+    /// much to keep the last row clear of the glass.
+    static func height(bottomInset: CGFloat) -> CGFloat {
+        8 + control + bottomMargin(for: bottomInset)
+    }
+
+    /// Just above the home indicator rather than on it; on a device without
+    /// one the bar keeps a plain margin.
+    private static func bottomMargin(for inset: CGFloat) -> CGFloat {
+        inset > 0 ? inset - 14 : 10
+    }
 
     var body: some View {
         WeatherGlassGroup(spacing: 14) {
@@ -69,7 +82,7 @@ struct WeatherBottomBar: View {
                 // Left slot, held empty for a button we have yet to add. It
                 // also balances the list button so the dots stay centred.
                 Color.clear
-                    .frame(width: control, height: control)
+                    .frame(width: Self.control, height: Self.control)
 
                 Spacer(minLength: 0)
 
@@ -82,9 +95,7 @@ struct WeatherBottomBar: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
-        // Sits just above the home indicator rather than on it; on a device
-        // without one the bar keeps a plain margin.
-        .padding(.bottom, bottomInset > 0 ? bottomInset - 14 : 10)
+        .padding(.bottom, Self.bottomMargin(for: bottomInset))
     }
 
     /// The primary profile takes Weather's location arrow; the rest are dots.
@@ -95,7 +106,7 @@ struct WeatherBottomBar: View {
             primaryIndex: primaryIndex,
             onSelect: onSelectPage
         )
-        .frame(height: control)
+        .frame(height: Self.control)
         .accessibilityLabel("Profile \(index + 1) of \(count)")
     }
 
@@ -104,7 +115,7 @@ struct WeatherBottomBar: View {
             Image(systemName: icon)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(.white)
-                .frame(width: control, height: control)
+                .frame(width: Self.control, height: Self.control)
         }
         .weatherGlass(in: .circle, interactive: true)
         .accessibilityLabel(label)

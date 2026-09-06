@@ -65,6 +65,64 @@ that gradient and frosts it, and the result is what would have shown through.
 `glassEffect(.clear)` and `.opacity()` on a material are both dead ends here —
 they drop the vibrancy and leave a flat light fill.
 
+### iOS: Active Transits, compact rows with the arc each one travels
+A third card under the 10-day forecast lists every aspect currently inside
+orb, laid out the way the forecast lays out its days: one line per transit,
+glyphs where the weather icon goes, the transit's arc where the temperature
+bar goes, then the orb and the strength. The name stays off the row — three
+glyphs already say it, and the line stays scannable. Rows are banded by how
+fast the transiting body moves, and the header's switch narrows the list to
+what is actually close.
+
+- `Features/Weather/ActiveTransitsCard.swift` is the card, with `TransitGlyphs`
+  and `StrengthLabel` beside it because the sheet reuses both. `SmallSwitch` is
+  there too: SwiftUI's `Toggle` never sees a tap inside the pager's scroll view
+  — the same gesture conflict that keeps a plain-styled `Button` from firing —
+  and at 51x31 it towers over a 13pt header line with no supported way to
+  shrink it, so the switch is drawn from two shapes and a tap gesture.
+- `Features/Weather/TransitProgressBar.swift` is the arc. The track is the
+  whole window, the gradient under it is the influence bell curve peaking
+  where the aspect perfects, and it is masked back to now so the filled part
+  reads as elapsed. The palette and the per-planet weights are the web app's
+  (`buildTransitGradient`), which is why the Moon's bar tops out yellow while
+  Pluto's runs to red. `showsDates` adds the start, peak and end labels; the
+  compact row has no space for them, the sheet does. The peak label rides its
+  notch via `.position`, so it centres without measuring the text.
+- `Features/Weather/TransitDetailSheet.swift` opens on a tap: title, strength,
+  orb and status; the window with its dates and every exact pass; and where
+  both bodies sit. It is *not* drawn on the sky — Weather's own detail sheets
+  drop the weather for a plain surface, and a sky-coloured sheet both fought
+  the page behind it and, when the colour was derived from the transit, read
+  as a severity the engine never assigned. So it sits on `Theme.bg` and its
+  ink follows the system appearance.
+- `Design/TransitPalette.swift` is how the shared pieces manage that. The same
+  rows are drawn over a saturated sky, where they must be white under both
+  appearances, and on a plain surface, where they must flip; one palette in the
+  environment beats threading a colour through every subview.
+- The report's `meaning`, `action` and `keywords` are the sheet's obvious next
+  section and are deliberately not wired up yet, so `ActiveAspect` leaves them
+  undecoded rather than carrying dead fields.
+- The data is a second request: `POST /transits/report` with
+  `include_timing: true`, which is the slow half and the only source of
+  start/peak/end. `CosmicWeatherViewModel` runs it alongside the forecast
+  under its own state, so the forecast cards draw without waiting, and it
+  retries on the device's plain timezone when the profile's saved transit
+  settings are stale — the same fallback `App.tsx` makes.
+- `Design/AstroGlyphs.swift` ports the planet and aspect glyph tables and the
+  three bands. Nothing is bundled: every code point resolves through Apple
+  Symbols, checked on a simulator down to Chiron and Lilith. The zodiac signs
+  are the exception and are written out — U+2648-2653 resolve through the
+  emoji font, which the simulator draws as tofu and a device draws in colour.
+  The house on a positions row is an SF Symbol rather than the web's △, which
+  on a screen about aspects reads as a trine.
+- Three things this surfaced elsewhere. `WeatherCard`'s border overlay was
+  hit-testing, so it swallowed taps meant for anything inside a card. The
+  pages ran under the floating bottom bar: they now take a `bottomInset` the
+  way they already took a `topInset`, and pad by
+  `WeatherBottomBar.height(bottomInset:)`. And the hero's `H:34° L:4°` line is
+  gone — one TII a day means there is no daily high and low, so the figure was
+  the ten-day spread wearing a label that promised something else.
+
 ### iOS: Settings button replaces the menu, primary pinned in the list too
 - The profile list's ellipsis menu is gone: the toolbar button opens Settings
   directly. The web screens are still reachable — Settings links to them — and

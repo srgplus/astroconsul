@@ -193,3 +193,136 @@ struct ForecastDay: Codable, Hashable, Identifiable {
 struct ForecastResponse: Codable {
     let days: [ForecastDay]
 }
+
+// MARK: - Active transits
+
+/// One moment the aspect is exact. Retrograde transits perfect up to three
+/// times, which is why this is a list rather than a single date.
+struct ExactPass: Codable, Hashable {
+    let utc: String
+    let orb: Double?
+}
+
+/// When an aspect opens, peaks and closes. The report only carries this when
+/// asked for with `include_timing`.
+struct AspectTiming: Codable, Hashable {
+    let startUtc: String?
+    let peakUtc: String?
+    let exactUtc: String?
+    let endUtc: String?
+    let peakOrb: Double?
+    let status: String?
+    let willPerfect: Bool?
+    let durationHours: Double?
+    let exactPasses: [ExactPass]?
+
+    /// `exact_utc` is only set under 0.01°, which almost never happens; the
+    /// peak is the closest approach and is always there.
+    var peak: Date? { Self.date(peakUtc) ?? Self.date(exactUtc) }
+    var start: Date? { Self.date(startUtc) }
+    var end: Date? { Self.date(endUtc) }
+
+    var passes: [Date] {
+        guard let exactPasses, exactPasses.count > 1 else {
+            return peak.map { [$0] } ?? []
+        }
+        return exactPasses.compactMap { Self.date($0.utc) }
+    }
+
+    /// The engine writes `datetime.isoformat()` with `+00:00` swapped for `Z`,
+    /// so seconds are always there and fractional seconds sometimes are.
+    static func date(_ iso: String?) -> Date? {
+        guard let iso else { return nil }
+        return fractional.date(from: iso) ?? plain.date(from: iso)
+    }
+
+    private static let plain: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static let fractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+}
+
+/// A transit-to-natal aspect that is inside orb right now. The report also
+/// sends `meaning`, `action`, `insight` and `keywords`; nothing reads them
+/// yet, so they are left undecoded.
+struct ActiveAspect: Codable, Hashable, Identifiable {
+    let transitObject: String
+    let natalObject: String
+    let aspect: String
+    let orb: Double
+    let strength: String
+    let timing: AspectTiming?
+
+    /// Only the tightest aspect per pair survives the engine, so the pair and
+    /// the aspect name identify a row.
+    var id: String { "\(transitObject)-\(aspect)-\(natalObject)" }
+
+    /// "Saturn square Moon" — the headline form used across the app.
+    var title: String { "\(transitObject) \(aspect) \(natalObject)" }
+
+    /// Exact and strong are what the web app calls "most impact".
+    var isImpactful: Bool { strength == "exact" || strength == "strong" }
+}
+
+/// Where a body sits, in the chart the report was cast for. One type covers
+/// the transiting bodies, the natal ones and the angles: the payloads differ
+/// only in which of the optional fields they carry.
+struct ChartPosition: Codable, Hashable {
+    let id: String
+    let degree: Int?
+    let minute: Int?
+    let sign: String?
+    let retrograde: Bool?
+    /// Natal house the transiting body falls in; the natal payload calls the
+    /// same idea `house`.
+    let natalHouse: Int?
+    let house: Int?
+
+    /// 14°19′ — the form the web chart prints.
+    var formattedDegree: String? {
+        guard let degree else { return nil }
+        return "\(degree)°\(String(format: "%02d", minute ?? 0))′"
+    }
+
+    /// Whichever house the payload names, transit or natal.
+    var houseNumber: Int? {
+        let number = natalHouse ?? house
+        return (number ?? 0) > 0 ? number : nil
+    }
+}
+
+struct TransitReport: Codable {
+    let activeAspects: [ActiveAspect]?
+    let transitPositions: [ChartPosition]?
+    let natalPositions: [ChartPosition]?
+    let anglePositions: [ChartPosition]?
+}
+
+/// Position lookups for one report, so a row can name where each side of an
+/// aspect actually sits. The angles arrive in their own list but read as natal
+/// points, so they are folded in with them.
+struct TransitPositions: Hashable {
+    var transiting: [String: ChartPosition] = [:]
+    var natal: [String: ChartPosition] = [:]
+
+    init() {}
+
+    init(report: TransitReport) {
+        transiting = Self.index(report.transitPositions)
+        natal = Self.index((report.natalPositions ?? []) + (report.anglePositions ?? []))
+    }
+
+    private static func index(_ positions: [ChartPosition]?) -> [String: ChartPosition] {
+        Dictionary(
+            (positions ?? []).map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }
+}
