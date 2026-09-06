@@ -50,6 +50,7 @@ struct WeatherPreviewHarness: View {
                     selection = profile.profileId
                     showsList = false
                 },
+                skyZone: TiiZone(tii: WeatherPreviewData.profile.latestTransit?.tii ?? 0),
                 onOpenWeb: { showsList = false }
             )
         }

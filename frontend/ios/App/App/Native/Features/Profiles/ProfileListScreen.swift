@@ -6,6 +6,11 @@ struct ProfileListScreen: View {
 
     @ObservedObject var model: ProfileListViewModel
     var onSelect: (ProfileSummary) -> Void
+
+    /// The sky of the page this screen was opened from, so the glass behind it
+    /// carries that colour.
+    var skyZone: TiiZone?
+
     var onOpenWeb: () -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -53,14 +58,14 @@ struct ProfileListScreen: View {
         // asking its parent to swap one presentation for another can drop the
         // second one on the floor.
         .sheet(isPresented: $showsSettings) {
-            SettingsView(onOpenWeb: {
+            SettingsView(skyZone: skyZone, onOpenWeb: {
                 showsSettings = false
                 onOpenWeb()
             })
         }
         // Glass instead of a slab of grey: the weather page underneath stays
         // visible through it, the way Weather's own sheets read on iOS 26.
-        .presentationBackground(.ultraThinMaterial)
+        .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
     }
 
     private var list: some View {

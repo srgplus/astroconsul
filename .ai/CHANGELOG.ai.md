@@ -4,6 +4,20 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: Settings on glass too, and where the glass gets its colour
+Both presented screens — the profile list and Settings — sit on
+`WeatherGlassBackdrop` instead of a `Theme.bg` fill, and Settings' rows use a
+translucent material rather than `Theme.surface`.
+
+The colour comes from the page's own sky, drawn inside the backdrop, not from
+the screen underneath. A sheet's presenting screen is not rendered behind it:
+`presentationBackground(.clear)` over a sheet shows the window's white, not
+the weather page, and a material over that frosts the same white into grey. So
+`WeatherHomeView` passes the visible page's `TiiZone` down, the backdrop draws
+that gradient and frosts it, and the result is what would have shown through.
+`glassEffect(.clear)` and `.opacity()` on a material are both dead ends here —
+they drop the vibrancy and leave a flat light fill.
+
 ### iOS: Settings button replaces the menu, primary pinned in the list too
 - The profile list's ellipsis menu is gone: the toolbar button opens Settings
   directly. The web screens are still reachable — Settings links to them — and
