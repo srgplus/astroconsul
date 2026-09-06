@@ -20,7 +20,6 @@ struct ProfileListScreen: View {
             list
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $query, prompt: "Search profiles")
-                .background(Theme.bg.ignoresSafeArea())
                 .toolbar {
                     // The wordmark stands in for the title, with the menu on
                     // the same line. Done is gone: the menu closes the screen,
@@ -68,6 +67,9 @@ struct ProfileListScreen: View {
                 }
         }
         .tint(Theme.text)
+        // Glass instead of a slab of grey: the weather page underneath stays
+        // visible through it, the way Weather's own sheets read on iOS 26.
+        .presentationBackground(.ultraThinMaterial)
     }
 
     private var list: some View {

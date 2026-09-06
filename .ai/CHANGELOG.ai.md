@@ -30,6 +30,10 @@ button now float over the sky as Liquid Glass, matching Weather on iOS 26.
 - `Design/B3Wordmark.swift` draws the site's three-part lockup; Space Grotesk
   ships in `Design/Fonts` and is declared in `UIAppFonts`. Google's subset
   names the faces `SpaceGroteskLight-{Light,Regular,Bold}`.
+- The list itself sits on `presentationBackground(.ultraThinMaterial)` rather
+  than `Theme.bg`, so the weather page stays visible through it and the screen
+  picks up the sky's colour. A clear presentation background also keeps the
+  page below on screen instead of the cover blacking it out.
 - Search moved to the bottom on its own: iOS 26 floats `.searchable` there for
   a `NavigationStack`. On iOS 17 the same code still draws it under the title,
   which is what the older simulators show.
