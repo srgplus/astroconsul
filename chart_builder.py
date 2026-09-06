@@ -163,7 +163,7 @@ def build_unavailable_position(
     *,
     house: int | None = None,
     retrograde: bool | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     return {
         "id": object_id,
         "longitude": None,
@@ -189,7 +189,7 @@ def build_chart_position(
     speed: float | None = None,
     retrograde: bool | None = None,
     house: int | None | object = AUTO_HOUSE,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     position = longitude_to_zodiac_position(longitude)
     position["id"] = object_id
     position["house"] = determine_house(longitude, houses) if house is AUTO_HOUSE else house
@@ -215,8 +215,8 @@ def build_natal_special_positions(
     planets: dict[str, float],
     houses: list[float],
     angles: dict[str, float],
-) -> dict[str, dict[str, object]]:
-    positions: dict[str, dict[str, object]] = {}
+) -> dict[str, dict[str, Any]]:
+    positions: dict[str, dict[str, Any]] = {}
 
     for object_id, swe_id in NATAL_SPECIAL_OBJECT_IDS.items():
         result = safe_calc_object(jd, swe_id)
@@ -274,8 +274,8 @@ def build_natal_positions(
     planet_speeds: dict[str, float],
     houses: list[float],
     angles: dict[str, float],
-) -> list[dict[str, object]]:
-    natal_positions: dict[str, dict[str, object]] = {}
+) -> list[dict[str, Any]]:
+    natal_positions: dict[str, dict[str, Any]] = {}
 
     for planet_id, longitude in planets.items():
         natal_positions[planet_id] = build_chart_position(
@@ -310,8 +310,8 @@ def build_natal_positions(
     ]
 
 
-def build_angle_positions(angles: dict[str, float]) -> list[dict[str, object]]:
-    angle_positions: list[dict[str, object]] = []
+def build_angle_positions(angles: dict[str, float]) -> list[dict[str, Any]]:
+    angle_positions: list[dict[str, Any]] = []
 
     for angle_id, longitude in (("ASC", float(angles["asc"])), ("MC", float(angles["mc"]))):
         position = longitude_to_zodiac_position(longitude)
@@ -321,7 +321,7 @@ def build_angle_positions(angles: dict[str, float]) -> list[dict[str, object]]:
     return angle_positions
 
 
-def format_summary_position(position: dict[str, object]) -> str:
+def format_summary_position(position: dict[str, Any]) -> str:
     return (
         f"{position['sign']} {position['degree']}°"
         f"{int(position['minute']):02d}'{int(position['second']):02d}\""
@@ -329,8 +329,8 @@ def format_summary_position(position: dict[str, object]) -> str:
 
 
 def build_natal_summary(
-    natal_positions: list[dict[str, object]],
-    angle_positions: list[dict[str, object]],
+    natal_positions: list[dict[str, Any]],
+    angle_positions: list[dict[str, Any]],
 ) -> dict[str, str]:
     positions_by_id = {str(position["id"]): position for position in natal_positions}
     angles_by_id = {str(position["id"]): position for position in angle_positions}
@@ -350,8 +350,8 @@ def build_chart(
     latitude: float,
     longitude: float,
     *,
-    birth_input: dict[str, object] | None = None,
-) -> dict[str, object]:
+    birth_input: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     jd = swe.julday(year, month, day, hour)
     planets, planet_speeds, ephemeris_sources = compute_planets(jd)
     houses, angles = compute_houses(jd, latitude, longitude)
@@ -436,7 +436,7 @@ def make_chart_id(year: int, month: int, day: int, hour: float) -> str:
     return f"chart_{year:04d}_{month:02d}_{day:02d}_{hour_to_time_token(hour)}"
 
 
-def save_chart(chart: dict[str, object], chart_id: str | None = None) -> tuple[str, Path]:
+def save_chart(chart: dict[str, Any], chart_id: str | None = None) -> tuple[str, Path]:
     CHARTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if chart_id is None:

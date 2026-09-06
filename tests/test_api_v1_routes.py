@@ -1,17 +1,24 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 from app.main import create_app
 
+# profiles/*.json is gitignored (it is real user data), so these two cases only
+# have something to assert against on a developer machine that has run the app.
+HAS_LOCAL_PROFILES = any(Path("profiles").glob("profile_*.json"))
+NEEDS_PROFILES = "needs local profile fixtures in profiles/"
+
 
 class ApiV1RouteTests(unittest.TestCase):
     def setUp(self) -> None:
         self.client = TestClient(create_app())
 
+    @unittest.skipUnless(HAS_LOCAL_PROFILES, NEEDS_PROFILES)
     def test_profiles_route_matches_legacy_listing_contract(self) -> None:
         response = self.client.get("/api/v1/profiles")
 
@@ -39,6 +46,7 @@ class ApiV1RouteTests(unittest.TestCase):
         self.assertEqual(payload["timezone"], "Europe/Warsaw")
         self.assertEqual(payload["resolved_name"], "Warsaw, Masovian Voivodeship, Poland")
 
+    @unittest.skipUnless(HAS_LOCAL_PROFILES, NEEDS_PROFILES)
     def test_profile_scoped_transit_routes_generate_report_and_timeline(self) -> None:
         profiles_response = self.client.get("/api/v1/profiles")
         profile_id = profiles_response.json()["profiles"][0]["profile_id"]

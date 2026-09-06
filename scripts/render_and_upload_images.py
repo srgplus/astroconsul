@@ -39,6 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # ── Supabase helpers ──
 
+
 def get_supabase_creds():
     # Load .env.local
     env_file = Path(__file__).resolve().parents[1] / ".env.local"
@@ -157,12 +158,15 @@ def _create_bucket(name: str):
 
 # ── Playwright rendering ──
 
+
 def html_to_png(html_path: Path, png_path: Path, width: int = 1080, height: int = 1350):
     """Screenshot an HTML file to PNG using Playwright."""
     subprocess.run(
         [
-            "playwright", "screenshot",
-            "--viewport-size", f"{width},{height}",
+            "playwright",
+            "screenshot",
+            "--viewport-size",
+            f"{width},{height}",
             f"file://{html_path.resolve()}",
             str(png_path),
         ],
@@ -172,6 +176,7 @@ def html_to_png(html_path: Path, png_path: Path, width: int = 1080, height: int 
 
 
 # ── Main ──
+
 
 def main():
     if len(sys.argv) < 3:
@@ -254,7 +259,7 @@ def main():
 
     supabase_update(f"news_posts?slug=eq.{slug}", update_data)
 
-    print(f"\nDone!")
+    print("\nDone!")
     if cover_url:
         print(f"  Cover: {cover_url}")
     print(f"  Section images: {len(section_urls)}")

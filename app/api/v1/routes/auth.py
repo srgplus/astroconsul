@@ -51,47 +51,22 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
     if settings.use_database:
         with session_scope(settings) as session:
             profile_ids = [
-                pid
-                for (pid,) in session.execute(
-                    select(ProfileModel.id).where(ProfileModel.user_id == user_id)
-                ).all()
+                pid for (pid,) in session.execute(select(ProfileModel.id).where(ProfileModel.user_id == user_id)).all()
             ]
 
             if profile_ids:
-                session.execute(
-                    delete(LatestTransitModel).where(
-                        LatestTransitModel.profile_id.in_(profile_ids)
-                    )
-                )
-                session.execute(
-                    delete(ProfileFollowModel).where(
-                        ProfileFollowModel.profile_id.in_(profile_ids)
-                    )
-                )
-                session.execute(
-                    delete(ProfileInviteModel).where(
-                        ProfileInviteModel.profile_id.in_(profile_ids)
-                    )
-                )
+                session.execute(delete(LatestTransitModel).where(LatestTransitModel.profile_id.in_(profile_ids)))
+                session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.profile_id.in_(profile_ids)))
+                session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.profile_id.in_(profile_ids)))
 
-            session.execute(
-                delete(ProfileFollowModel).where(ProfileFollowModel.user_id == user_id)
-            )
-            session.execute(
-                delete(ProfileInviteModel).where(ProfileInviteModel.invited_by == user_id)
-            )
-            session.execute(
-                delete(ProfileModel).where(ProfileModel.user_id == user_id)
-            )
-            session.execute(
-                delete(SubscriptionModel).where(SubscriptionModel.user_id == user_id)
-            )
+            session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.user_id == user_id))
+            session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.invited_by == user_id))
+            session.execute(delete(ProfileModel).where(ProfileModel.user_id == user_id))
+            session.execute(delete(SubscriptionModel).where(SubscriptionModel.user_id == user_id))
             session.execute(delete(UserModel).where(UserModel.id == user_id))
 
     # --- 2. Delete Supabase Auth record ---
-    service_role_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get(
-        "SUPABASE_KEY"
-    )
+    service_role_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_KEY")
     if settings.auth_enabled and settings.supabase_url and service_role_key:
         try:
             resp = httpx.delete(

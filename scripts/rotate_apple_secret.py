@@ -17,11 +17,12 @@ Requires env vars:
   SUPABASE_ACCESS_TOKEN - Supabase personal access token (from dashboard)
 """
 
+import json
 import os
 import sys
 import time
-import json
 import urllib.request
+
 import jwt
 
 
@@ -39,16 +40,23 @@ def generate_apple_secret(team_id: str, client_id: str, key_id: str, private_key
 
 def update_supabase_apple_secret(project_ref: str, access_token: str, client_id: str, secret: str):
     url = f"https://api.supabase.com/v1/projects/{project_ref}/config/auth"
-    data = json.dumps({
-        "EXTERNAL_APPLE_ENABLED": True,
-        "EXTERNAL_APPLE_CLIENT_ID": client_id,
-        "EXTERNAL_APPLE_SECRET": secret,
-    }).encode()
+    data = json.dumps(
+        {
+            "EXTERNAL_APPLE_ENABLED": True,
+            "EXTERNAL_APPLE_CLIENT_ID": client_id,
+            "EXTERNAL_APPLE_SECRET": secret,
+        }
+    ).encode()
 
-    req = urllib.request.Request(url, data=data, method="PATCH", headers={
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json",
-    })
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method="PATCH",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        },
+    )
     with urllib.request.urlopen(req) as resp:
         if resp.status == 200:
             print("Supabase Apple secret updated successfully.")
@@ -77,7 +85,7 @@ def main():
     access_token = os.environ.get("SUPABASE_ACCESS_TOKEN")
 
     secret = generate_apple_secret(team_id, client_id, key_id, private_key)
-    print(f"Generated new Apple client secret (expires in 180 days)")
+    print("Generated new Apple client secret (expires in 180 days)")
 
     if access_token:
         update_supabase_apple_secret(project_ref, access_token, client_id, secret)

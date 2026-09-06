@@ -4,7 +4,7 @@ from datetime import date, datetime, time
 from typing import Any
 
 from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, Time, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
@@ -138,7 +138,9 @@ class NewsPostModel(Base):
 
     # Content
     intro: Mapped[str] = mapped_column(Text, nullable=False)
-    sections: Mapped[dict[str, Any] | None] = mapped_column(JSONType, nullable=True)
+    # A list of section dicts, not a single dict: the column was annotated as
+    # a mapping but every writer and reader treats it as a list.
+    sections: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONType, nullable=True)
     conclusion: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Celebrity (nullable for non-celebrity posts)

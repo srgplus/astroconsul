@@ -17,10 +17,10 @@ import json
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 
 def load_env_file():
@@ -115,7 +115,7 @@ def publish(post: dict, upsert: bool = False):
         print("Or create .env.local (see .env.local.example)")
         sys.exit(1)
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     row = {
         "id": post.get("id", str(uuid.uuid4())),
@@ -159,6 +159,7 @@ if __name__ == "__main__":
 
     # Load post definition from file
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("post_module", post_file)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 
-
 PHASE_RANGES: list[tuple[float, float, str]] = [
     (0, 3, "New Moon"),
     (3, 87, "Waxing Crescent"),
@@ -18,14 +17,14 @@ PHASE_RANGES: list[tuple[float, float, str]] = [
 ]
 
 PHASE_EMOJI: dict[str, str] = {
-    "New Moon": "\U0001F311",
-    "Waxing Crescent": "\U0001F312",
-    "First Quarter": "\U0001F313",
-    "Waxing Gibbous": "\U0001F314",
-    "Full Moon": "\U0001F315",
-    "Waning Gibbous": "\U0001F316",
-    "Third Quarter": "\U0001F317",
-    "Waning Crescent": "\U0001F318",
+    "New Moon": "\U0001f311",
+    "Waxing Crescent": "\U0001f312",
+    "First Quarter": "\U0001f313",
+    "Waxing Gibbous": "\U0001f314",
+    "Full Moon": "\U0001f315",
+    "Waning Gibbous": "\U0001f316",
+    "Third Quarter": "\U0001f317",
+    "Waning Crescent": "\U0001f318",
 }
 
 
@@ -67,5 +66,5 @@ def compute_moon_phase(transit_positions: list[dict]) -> dict | None:
         "illumination_pct": round(illumination_pct, 1),
         "moon_sign": str(moon.get("sign", "")),
         "moon_degree": int(moon.get("degree", 0)),
-        "phase_emoji": PHASE_EMOJI.get(phase_name, "\U0001F315"),
+        "phase_emoji": PHASE_EMOJI.get(phase_name, "\U0001f315"),
     }

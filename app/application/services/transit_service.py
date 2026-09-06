@@ -210,19 +210,21 @@ class TransitService:
 
             moon_phase = compute_moon_phase(report.get("transit_positions", []))
 
-            days.append({
-                "date": current_date.isoformat(),
-                "tii": tii_val,
-                "tension_ratio": tr,
-                "feels_like": fl,
-                "ope": ope_val,
-                "retrograde_count": rx["count"],
-                "retrograde_planets": rx["planets"],
-                "velocity_delta": velocity_delta,
-                "velocity_direction": velocity_direction,
-                "top_transits": top,
-                "moon_phase": moon_phase,
-            })
+            days.append(
+                {
+                    "date": current_date.isoformat(),
+                    "tii": tii_val,
+                    "tension_ratio": tr,
+                    "feels_like": fl,
+                    "ope": ope_val,
+                    "retrograde_count": rx["count"],
+                    "retrograde_planets": rx["planets"],
+                    "velocity_delta": velocity_delta,
+                    "velocity_direction": velocity_direction,
+                    "top_transits": top,
+                    "moon_phase": moon_phase,
+                }
+            )
             prev_tii = tii_val
 
         return {"days": days}

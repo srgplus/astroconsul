@@ -8,8 +8,8 @@ import urllib.request
 from typing import Any
 
 import jwt
-from jwt import PyJWK
 from fastapi import HTTPException, Request
+from jwt import PyJWK
 
 from app.core.config import get_settings
 

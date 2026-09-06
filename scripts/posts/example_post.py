@@ -6,11 +6,11 @@ Usage:
   python scripts/publish_post.py scripts/posts/example_post.py
 """
 
-from datetime import date
-
 # Import helper for code blocks with copy button
 import sys
+from datetime import date
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.publish_post import prompt_block
 
@@ -31,8 +31,7 @@ POST = {
             "heading": "Section with HTML",
             "body_html": (
                 "<p>Use <strong>body_html</strong> for rich content.</p>"
-                "<p>You can use any HTML here.</p>"
-                + prompt_block("This is a copyable code block")
+                "<p>You can use any HTML here.</p>" + prompt_block("This is a copyable code block")
             ),
         },
     ],

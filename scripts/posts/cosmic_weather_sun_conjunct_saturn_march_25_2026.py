@@ -68,7 +68,7 @@ POST = {
             "heading": "First Quarter Moon in Cancer: Emotional Crossroads",
             "body_html": (
                 "<p>The Moon at 0°51' Cancer forms a <strong>square to the Sun at 86°</strong> — "
-                "classic First Quarter tension. This is the \"crisis of action\" phase in the lunar cycle.</p>"
+                'classic First Quarter tension. This is the "crisis of action" phase in the lunar cycle.</p>'
                 "<p>The Moon also squares Neptune (1.10° orb) and is applying to a square with Saturn. "
                 "Cancer Moon wants comfort and safety. Aries Sun-Saturn says: grow up, move forward, "
                 "deal with what's uncomfortable. This push-pull between emotional needs and structural demands "
@@ -101,7 +101,7 @@ POST = {
             "body_html": (
                 "<p>Two aspects from earlier this week are still active and worth noting:</p>"
                 "<p><strong>Mercury conjunct North Node</strong> at 8°–9° Pisces (orb 1.76°, separating) — "
-                "messages with a \"fated\" quality continue to arrive. If a conversation from the past few days "
+                'messages with a "fated" quality continue to arrive. If a conversation from the past few days '
                 "is still echoing, pay attention — Mercury-North Node doesn't deliver trivial information.</p>"
                 "<p><strong>Mars trine Jupiter</strong> — Mars at 18°01' Pisces, Jupiter at 15°25' Cancer "
                 "(orb 2.61°, applying). This is the action-reward aspect of the week. "
@@ -123,7 +123,7 @@ POST = {
                 "<li>Making decisions you've been postponing — Saturn won't let you stall anymore</li>"
                 "<li>Having authority conversations (with bosses, parents, institutions)</li>"
                 "<li>Financial planning and budgeting — Saturn loves a spreadsheet</li>"
-                "<li>Setting boundaries — Venus-Chiron supports saying \"no\" without guilt</li>"
+                '<li>Setting boundaries — Venus-Chiron supports saying "no" without guilt</li>'
                 "</ul>"
                 "<p><strong>Watch out for:</strong></p>"
                 "<ul>"

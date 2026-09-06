@@ -10,7 +10,7 @@ Usage:
 """
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -29,16 +29,14 @@ def main():
         print("Database not enabled. Set ASTRO_CONSUL_PERSISTENCE_BACKEND=database")
         return
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with session_scope(settings) as session:
         from sqlalchemy import select
 
         for post_data in SEED_POSTS:
             slug = post_data["slug"]
-            existing = session.execute(
-                select(NewsPostModel).where(NewsPostModel.slug == slug)
-            ).scalar_one_or_none()
+            existing = session.execute(select(NewsPostModel).where(NewsPostModel.slug == slug)).scalar_one_or_none()
 
             if not existing:
                 print(f"  NOT FOUND: {slug} (run seed_news.py first)")

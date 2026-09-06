@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -50,7 +52,7 @@ def resolve_chart_path(chart_id: str) -> Path:
     return path
 
 
-def _load_chart_from_db(chart_id: str) -> dict[str, object] | None:
+def _load_chart_from_db(chart_id: str) -> dict[str, Any] | None:
     """Load chart payload from natal_charts table (primary source)."""
     try:
         from app.core.config import get_settings
@@ -75,7 +77,7 @@ def _load_chart_from_db(chart_id: str) -> dict[str, object] | None:
     return None
 
 
-def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, object]]:
+def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, Any]]:
     filename = chart_id if chart_id.endswith('.json') else f"{chart_id}.json"
     chart_path = CHARTS_DIR / filename
 
@@ -105,7 +107,7 @@ def load_saved_chart(chart_id: str) -> tuple[Path, dict[str, object]]:
     return chart_path, chart
 
 
-def build_transit_object(planet_id: str, longitude: float, speed: float) -> dict[str, object]:
+def build_transit_object(planet_id: str, longitude: float, speed: float) -> dict[str, Any]:
     position = longitude_to_zodiac_position(longitude)
     position.update(
         {
@@ -123,7 +125,7 @@ def build_transit_point(
     *,
     speed: float | None = None,
     retrograde: bool | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     position = longitude_to_zodiac_position(longitude)
     position["id"] = object_id
 
@@ -142,10 +144,10 @@ def determine_natal_house(longitude: float, natal_houses: list[float]) -> int:
 
 
 def map_transits_to_natal_houses(
-    transit_objects: list[dict[str, object]],
+    transit_objects: list[dict[str, Any]],
     natal_houses: list[float],
-) -> list[dict[str, object]]:
-    mapped_objects: list[dict[str, object]] = []
+) -> list[dict[str, Any]]:
+    mapped_objects: list[dict[str, Any]] = []
 
     for transit_object in transit_objects:
         mapped_object = dict(transit_object)
@@ -181,8 +183,8 @@ def transit_object_sort_key(object_id: str) -> tuple[int, str]:
         return (len(TRANSIT_OBJECT_ORDER), object_id)
 
 
-def compute_geocentric_transit_objects(jd: float) -> list[dict[str, object]]:
-    transit_objects: list[dict[str, object]] = []
+def compute_geocentric_transit_objects(jd: float) -> list[dict[str, Any]]:
+    transit_objects: list[dict[str, Any]] = []
 
     for object_id, swe_id in TRANSIT_OBJECT_IDS.items():
         values, _ = swe.calc_ut(jd, swe_id, FLAGS)
@@ -203,11 +205,11 @@ def compute_geocentric_transit_objects(jd: float) -> list[dict[str, object]]:
 
 def compute_location_dependent_transit_objects(
     jd: float,
-    base_transit_objects: list[dict[str, object]],
+    base_transit_objects: list[dict[str, Any]],
     *,
     latitude: float,
     longitude: float,
-) -> list[dict[str, object]]:
+) -> list[dict[str, Any]]:
     local_houses, local_angles = compute_local_houses_and_angles(jd, latitude, longitude)
     transit_by_id = {str(item["id"]): item for item in base_transit_objects}
     sun_longitude = float(transit_by_id["Sun"]["longitude"])
@@ -235,7 +237,7 @@ def compute_transit_positions(
     *,
     transit_latitude: float | None = None,
     transit_longitude: float | None = None,
-) -> list[dict[str, object]]:
+) -> list[dict[str, Any]]:
     jd = swe.julday(transit_year, transit_month, transit_day, transit_hour)
     transit_objects = compute_geocentric_transit_objects(jd)
 
@@ -262,7 +264,7 @@ def build_transit_report(
     transit_latitude: float | None = None,
     transit_longitude: float | None = None,
     lang: str = "en",
-) -> dict[str, object]:
+) -> dict[str, Any]:
     chart_path, natal_chart = load_saved_chart(chart_id)
     parsed_date = parse_iso_date(transit_date)
     parsed_time = parse_time_string(transit_time)
@@ -300,7 +302,7 @@ def build_transit_report(
 
     if include_timing:
         longitude_cache: dict[tuple[str, int], float] = {}
-        timed_aspects: list[dict[str, object]] = []
+        timed_aspects: list[dict[str, Any]] = []
 
         for aspect in active_aspects:
             timed_aspect = dict(aspect)
