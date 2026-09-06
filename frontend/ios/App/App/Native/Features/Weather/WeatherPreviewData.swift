@@ -11,15 +11,18 @@ enum WeatherPreviewData {
         profileId: "preview-profile",
         profileName: "Alena Brama",
         username: "alenabrama",
+        // Born in one city, living in another, so the harness shows at a
+        // glance that the screens label the reading with the current
+        // location and never with the birthplace.
         locationName: "Brest, Belarus",
         localBirthDatetime: "1990-04-17T09:20:00",
         latestTransit: LatestTransit(
             transitDate: "2026-09-06",
             transitTime: "12:00:00",
-            timezone: "Europe/Minsk",
-            locationName: "Brest, Belarus",
-            latitude: 52.09,
-            longitude: 23.68,
+            timezone: "Europe/Warsaw",
+            locationName: "Warsaw, Poland",
+            latitude: 52.23,
+            longitude: 21.01,
             updatedAt: nil,
             tii: 51,
             tensionRatio: 0.42,

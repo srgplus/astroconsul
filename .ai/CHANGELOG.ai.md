@@ -4,6 +4,25 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the weather screens name where you are, not where you were born
+The hero and the list cards labelled every reading with `profile.location_name`
+— the birthplace — so a person who moved was told the sky over a city they left.
+
+- `ProfileSummary.currentLocationName` is the one place that answers "where is
+  this person now": `latest_transit.location_name` (the transit location typed
+  by hand in the web Transits tab) first, then the city of
+  `latest_transit.timezone` ("Europe/Minsk" → "Minsk") for readings saved
+  without a place. Birth location is deliberately not in the chain; when
+  nothing is known the hero shows the handle instead of a place we cannot
+  vouch for.
+- `CosmicWeatherView` and `ProfileWeatherCard` both read it, so the list and
+  the detail screen still agree. Search matches either location.
+- `WeatherPreviewData.profile` is now born in Brest and living in Warsaw, so
+  the `-uiPreviewWeather` harness shows the difference rather than hiding it
+  behind one city in both fields.
+- Next step: detect the location automatically instead of relying on the
+  transit form.
+
 ### iOS: Settings on glass too, and where the glass gets its colour
 Both presented screens — the profile list and Settings — sit on
 `WeatherGlassBackdrop` instead of a `Theme.bg` fill, and Settings' rows use a

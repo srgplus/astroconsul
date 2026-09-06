@@ -139,14 +139,20 @@ struct ProfileListScreen: View {
             .tracking(0.6)
     }
 
-    /// Name, handle and birthplace all match, so typing a city finds a profile.
+    /// Name, handle, birthplace and current location all match, so typing a
+    /// city finds a profile whichever of the two the card happens to show.
     private func filter(_ profiles: [ProfileSummary]) -> [ProfileSummary] {
         let term = query.trimmingCharacters(in: .whitespaces)
         guard !term.isEmpty else { return profiles }
 
         return profiles.filter { profile in
-            [profile.profileName, profile.username, profile.locationName ?? ""]
-                .contains { $0.localizedCaseInsensitiveContains(term) }
+            [
+                profile.profileName,
+                profile.username,
+                profile.locationName ?? "",
+                profile.currentLocationName ?? "",
+            ]
+            .contains { $0.localizedCaseInsensitiveContains(term) }
         }
     }
 }

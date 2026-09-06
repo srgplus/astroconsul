@@ -50,7 +50,10 @@ struct ProfileWeatherCard: View {
 
                 Spacer(minLength: 6)
 
-                if let location = profile.locationName, !location.isEmpty {
+                // The current location, matching the hero on the detail
+                // screen. Birth location belongs to the profile, not to a
+                // reading of today's sky.
+                if let location = profile.currentLocationName {
                     Text(location)
                         .font(.system(size: 12, design: .rounded))
                         .opacity(0.75)

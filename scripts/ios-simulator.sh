@@ -9,7 +9,12 @@
 #
 #   scripts/ios-simulator.sh          boot (creating it the first time), print the name
 #   scripts/ios-simulator.sh --udid   print just the UDID, for simctl commands
+#   scripts/ios-simulator.sh --run    ... then build, install and launch the app on it
 #   scripts/ios-simulator.sh --delete remove this worktree's simulator
+#
+# --run passes anything after it to the app as launch arguments, so
+#   scripts/ios-simulator.sh --run -uiPreviewWeather
+# opens the weather harness without signing in.
 #
 # Override the hardware or the iOS version, e.g.
 #   SIM_DEVICE_TYPE="iPhone 17 Pro Max" scripts/ios-simulator.sh
@@ -107,7 +112,47 @@ if [ "$state" != "Booted" ]; then
   echo "Booted \"$NAME\"." >&2
 fi
 
-if [ "${1:-}" = "--udid" ]; then
+if [ "${1:-}" = "--run" ]; then
+  shift
+  repo_root="$(git rev-parse --show-toplevel)"
+  # Per-worktree, so parallel branches do not share build output either.
+  derived_data="${TMPDIR:-/tmp/}big3-sim/${WORKTREE}"
+  app_path="$derived_data/Build/Products/Debug-iphonesimulator/big3.me.app"
+
+  # The Xcode target copies public/ and capacitor.config.json as resources and
+  # neither is tracked, so a fresh worktree has to generate them first.
+  if [ ! -d "$repo_root/frontend/ios/App/App/public" ]; then
+    echo "==> Building web assets" >&2
+    (
+      cd "$repo_root/frontend"
+      [ -d node_modules ] || npm ci
+      npm run build
+      npx cap copy ios
+    )
+  fi
+
+  echo "==> Building big3.me" >&2
+  xcodebuild \
+    -project "$repo_root/frontend/ios/App/big3.me.xcodeproj" \
+    -scheme big3.me \
+    -configuration Debug \
+    -destination "id=$udid" \
+    -derivedDataPath "$derived_data" \
+    CODE_SIGNING_ALLOWED=NO \
+    build
+
+  bundle_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app_path/Info.plist")"
+
+  echo "==> Installing on \"$NAME\"" >&2
+  xcrun simctl install "$udid" "$app_path"
+  open -a Simulator --args -CurrentDeviceUDID "$udid"
+
+  # `simctl launch` only foregrounds an app that is already running, and
+  # foregrounding takes no launch arguments — so a second --run -uiPreviewWeather
+  # would silently show the signed-out app instead of the harness.
+  xcrun simctl terminate "$udid" "$bundle_id" >/dev/null 2>&1 || true
+  xcrun simctl launch "$udid" "$bundle_id" "$@"
+elif [ "${1:-}" = "--udid" ]; then
   echo "$udid"
 else
   echo "$NAME"

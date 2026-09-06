@@ -135,9 +135,11 @@ struct CosmicWeatherView: View {
         .frame(maxWidth: .infinity)
     }
 
+    /// Weather names the place you are standing in, so this is the transit
+    /// location, never the birth one. Without a reading to read it from, the
+    /// handle stands in rather than a place we cannot vouch for.
     private var subtitle: String {
-        let location = profile.locationName ?? ""
-        return location.isEmpty ? "@\(profile.username)" : location
+        profile.currentLocationName ?? "@\(profile.username)"
     }
 
     private var temperature: String {

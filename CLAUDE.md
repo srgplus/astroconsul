@@ -9,7 +9,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 - **Local backend:** `uvicorn app.main:app --port 8001`
 - **Local frontend:** `cd frontend && npm run dev` (port 5173)
 - **Build check:** `cd frontend && npm run build` (must pass before push)
-- **iOS simulator:** `./scripts/ios-simulator.sh` boots this worktree's own device (`big3 <worktree>`), creating it on first run
+- **iOS simulator:** `./scripts/ios-simulator.sh` boots this worktree's own device (`big3 <worktree>`), creating it on first run. `--run` also builds, installs and launches, passing launch arguments through (`--run -uiPreviewWeather` opens the weather harness)
 - **Persistence:** `file` locally, `database` on Railway (env var `ASTRO_CONSUL_PERSISTENCE_BACKEND`)
 - **Auth:** Disabled locally, Supabase Auth on prod
 
