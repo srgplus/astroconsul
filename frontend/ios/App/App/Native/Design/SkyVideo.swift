@@ -36,10 +36,10 @@ struct SkyVideo: View {
 
     @State private var isReady = false
 
-    /// Zones ship footage one at a time; the rest fall back to the gradient.
+    /// A zone whose clip is missing from the bundle falls back to the gradient
+    /// rather than to a black rectangle.
     private var asset: URL? {
-        guard let name = Self.clipName(for: zone, variant: variant) else { return nil }
-        return Bundle.main.url(forResource: name, withExtension: "mp4")
+        Bundle.main.url(forResource: Self.clipName(for: zone, variant: variant), withExtension: "mp4")
     }
 
     /// 0..<1 position in the loop to start at. Hashing the caller's key by hand
@@ -53,13 +53,8 @@ struct SkyVideo: View {
         return Double(digest % 1000) / 1000
     }
 
-    static func clipName(for zone: TiiZone, variant: Variant) -> String? {
-        switch zone {
-        case .quiet: return nil          // no clip yet, gradient holds
-        case .active: return "\(variant.prefix)_active"
-        case .hot: return "\(variant.prefix)_hot"
-        case .extreme: return "\(variant.prefix)_extreme"
-        }
+    static func clipName(for zone: TiiZone, variant: Variant) -> String {
+        "\(variant.prefix)_\(zone.rawValue)"
     }
 
     var body: some View {
