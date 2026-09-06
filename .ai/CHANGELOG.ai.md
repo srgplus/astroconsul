@@ -4,6 +4,22 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: skeletons instead of an empty weather page
+Removing the mid-screen spinner left the page as a hero over bare sky while
+the reading was computed, which is worse than the spinner was: nothing says
+anything is coming, and each card shoves the page down as it lands.
+
+`WeatherSkeleton` stands in for all three cards — the summary's three lines
+and its transit rows, the ten forecast rows, a band of active transits — so
+the layout is already the layout and the data fills it in. One pulse animates
+the whole card; bars fading out of step read as a glitch rather than as
+waiting. Widths are fixed rather than fractions of the card: a fraction needs
+the card's width measured back into the layout, and the extra pass buys
+nothing for bars nobody reads.
+
+Old cached data would be better still on a repeat visit, but nothing caches a
+report yet — only `latest_transit`, which the hero already falls back to.
+
 ### iOS: one loader on the weather page, and it is a ring
 `ProgressView`'s spokes are a system alert's indicator. At 13pt on the sky
 they read as a stuck widget rather than as work in progress, and the grey
