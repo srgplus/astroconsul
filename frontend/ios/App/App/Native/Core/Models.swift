@@ -20,6 +20,8 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     let profileId: String
     let profileName: String
     let username: String
+    /// Where the person was *born*. Not what the weather screens label the
+    /// reading with — see `currentLocationName`.
     let locationName: String?
     let localBirthDatetime: String?
     let latestTransit: LatestTransit?
@@ -33,6 +35,27 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     /// `true` for the user's own profiles, `false` for followed ones.
     /// The backend omits the flag on some payloads; treat missing as own.
     var ownedByViewer: Bool { isOwn ?? true }
+
+    /// Where the person is *now*: the transit location the last reading ran
+    /// with — the one typed by hand on the web app — falling back to the city
+    /// of that reading's timezone. Birth location is deliberately not in the
+    /// chain; telling the two apart is the point.
+    var currentLocationName: String? {
+        if let name = latestTransit?.locationName?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !name.isEmpty {
+            return name
+        }
+        guard let timezone = latestTransit?.timezone else { return nil }
+        return Self.city(inTimezone: timezone)
+    }
+
+    /// "Europe/Minsk" → "Minsk", "America/Argentina/Buenos_Aires" → "Buenos Aires".
+    /// A bare zone such as "UTC" names no city, so it yields nothing.
+    private static func city(inTimezone identifier: String) -> String? {
+        let parts = identifier.split(separator: "/")
+        guard parts.count > 1, let city = parts.last else { return nil }
+        return city.replacingOccurrences(of: "_", with: " ")
+    }
 }
 
 struct ProfilesResponse: Codable {
