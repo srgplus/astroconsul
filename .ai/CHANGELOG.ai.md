@@ -4,6 +4,19 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: the harness can play the loading states
+Swiping the weather harness never showed a spinner, which reads as "it does
+not load" but is the harness working as built: every page is handed a model
+seeded with `.loaded`, and `CosmicWeatherView.task` returns early for anything
+but `.idle`, so no request is ever made and no loading state is ever drawn.
+
+`-uiPreviewLoading` alongside `-uiPreviewWeather` now holds the seeded data
+behind the real states for three seconds each — forecast first, report a beat
+later, the order an account sees — so the spinners can be checked without
+signing in:
+
+    ./scripts/ios-simulator.sh --run -uiPreviewWeather -uiPreviewLoading
+
 ### iOS: the dot capsule is the app's glass, and the stamp carries the spinner
 The bar held two surfaces that did not match. `UIPageControl.backgroundStyle =
 .prominent` draws Weather's capsule, but it is UIKit's own light material and
