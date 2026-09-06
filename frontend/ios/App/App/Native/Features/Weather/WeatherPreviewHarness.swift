@@ -43,14 +43,13 @@ struct WeatherPreviewHarness: View {
                 )
             }
         }
-        .fullScreenCover(isPresented: $showsList) {
+        .sheet(isPresented: $showsList) {
             ProfileListScreen(
                 model: listModel,
                 onSelect: { profile in
                     selection = profile.profileId
                     showsList = false
                 },
-                onOpenSettings: { showsList = false },
                 onOpenWeb: { showsList = false }
             )
         }

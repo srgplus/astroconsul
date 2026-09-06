@@ -25,7 +25,11 @@ enum WeatherPreviewData {
             tensionRatio: 0.42,
             feelsLike: "Flowing"
         ),
-        isOwn: true,
+        // The API reports the owner's own primary profile with `is_own: false`,
+        // which used to drop it into "Following" and bury it at the bottom of
+        // the list. The sample data reproduces that, so the harness shows the
+        // primary pinned to the top the way an account does.
+        isOwn: false,
         isFollowing: false,
         followersCount: 12,
         followingCount: 8

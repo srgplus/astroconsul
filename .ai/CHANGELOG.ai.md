@@ -4,6 +4,21 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: Settings button replaces the menu, primary pinned in the list too
+- The profile list's ellipsis menu is gone: the toolbar button opens Settings
+  directly. The web screens are still reachable — Settings links to them — and
+  `ProfileListScreen` presents Settings itself rather than asking the pager to
+  swap one presentation for another, which can drop the second sheet.
+- The list is a `.sheet` now, not a `.fullScreenCover`: with Done gone, a swipe
+  down is how it is left.
+- `ProfileListViewModel.ownProfiles` filtered on `ownedByViewer`, so a primary
+  profile the API reports with `is_own: false` — which is what it does on the
+  owner's own account — landed in "Following", below every followed profile.
+  The primary is now lifted out by id regardless of the flag, and excluded from
+  `followedProfiles`. `WeatherHomeView` dropped its own copy of that pin.
+- `WeatherPreviewData.profile` carries `isOwn: false` so the harness reproduces
+  that shape instead of the tidy one.
+
 ### iOS 26: glass bottom bar, wordmark title, search at the bottom
 The bottom bar dropped its slab of background: the dot capsule and the list
 button now float over the sky as Liquid Glass, matching Weather on iOS 26.

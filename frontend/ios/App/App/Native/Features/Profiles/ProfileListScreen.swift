@@ -6,11 +6,11 @@ struct ProfileListScreen: View {
 
     @ObservedObject var model: ProfileListViewModel
     var onSelect: (ProfileSummary) -> Void
-    var onOpenSettings: () -> Void
     var onOpenWeb: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
+    @State private var showsSettings = false
 
     private var own: [ProfileSummary] { filter(model.ownProfiles) }
     private var followed: [ProfileSummary] { filter(model.followedProfiles) }
@@ -21,12 +21,9 @@ struct ProfileListScreen: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $query, prompt: "Search profiles")
                 .toolbar {
-                    // The wordmark stands in for the title, with the menu on
-                    // the same line. Done is gone: the menu closes the screen,
-                    // and so does picking a profile.
                     // The wordmark reads as a title, so it keeps its own
                     // width and skips the glass pill iOS 26 puts behind
-                    // toolbar items; the menu keeps its pill.
+                    // toolbar items; the Settings button keeps its pill.
                     if #available(iOS 26.0, *) {
                         ToolbarItem(placement: .topBarLeading) {
                             B3Wordmark(size: 24).fixedSize()
@@ -38,35 +35,29 @@ struct ProfileListScreen: View {
                         }
                     }
 
+                    // Straight to Settings, no menu in between. The web
+                    // screens are still reachable from there, and the screen
+                    // is dismissed by picking a profile or swiping down.
                     ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            Button {
-                                onOpenSettings()
-                            } label: {
-                                Label("Settings", systemImage: "gearshape")
-                            }
-
-                            Button {
-                                onOpenWeb()
-                            } label: {
-                                Label("Chart, transits, profiles", systemImage: "safari")
-                            }
-
-                            Divider()
-
-                            Button {
-                                dismiss()
-                            } label: {
-                                Label("Done", systemImage: "xmark")
-                            }
+                        Button {
+                            showsSettings = true
                         } label: {
-                            Image(systemName: "ellipsis")
+                            Image(systemName: "gearshape")
                         }
-                        .accessibilityLabel("More")
+                        .accessibilityLabel("Settings")
                     }
                 }
         }
         .tint(Theme.text)
+        // Settings is presented from here rather than from the pager: a sheet
+        // asking its parent to swap one presentation for another can drop the
+        // second one on the floor.
+        .sheet(isPresented: $showsSettings) {
+            SettingsView(onOpenWeb: {
+                showsSettings = false
+                onOpenWeb()
+            })
+        }
         // Glass instead of a slab of grey: the weather page underneath stays
         // visible through it, the way Weather's own sheets read on iOS 26.
         .presentationBackground(.ultraThinMaterial)

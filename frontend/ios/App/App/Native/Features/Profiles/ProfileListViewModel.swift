@@ -31,32 +31,34 @@ final class ProfileListViewModel: ObservableObject {
     }
     #endif
 
-    /// Own profiles first, then followed ones, primary pinned to the top.
+    /// The primary profile, whichever section the API thinks it belongs to.
     ///
-    /// Sorting by name and lifting the primary out afterwards, rather than
-    /// special-casing it inside the comparator: that comparator claimed
-    /// `lhs < rhs` even when both were the primary, which is not a strict weak
-    /// ordering, and Swift's sort left the primary mid-list. That in turn put
-    /// the pager's location arrow in the middle of the dots.
+    /// On the owner's own account the API can report the primary profile with
+    /// `is_own: false`, so a plain `ownedByViewer` filter drops it into
+    /// "Following" and buries it below every followed profile.
+    private var primaryProfile: ProfileSummary? {
+        guard let primaryProfileId else { return nil }
+        return profiles.first { $0.profileId == primaryProfileId }
+    }
+
+    /// Own profiles sorted by name, primary lifted to the top.
+    ///
+    /// Sorting first and lifting afterwards, rather than special-casing the
+    /// primary inside the comparator: that comparator claimed `lhs < rhs` even
+    /// when both were the primary, which is not a strict weak ordering, and
+    /// Swift's sort left the primary mid-list. That in turn put the pager's
+    /// location arrow in the middle of the dots.
     var ownProfiles: [ProfileSummary] {
         let sorted = profiles
-            .filter(\.ownedByViewer)
+            .filter { $0.ownedByViewer && $0.profileId != primaryProfileId }
             .sorted { $0.profileName.localizedCaseInsensitiveCompare($1.profileName) == .orderedAscending }
 
-        guard
-            let primaryProfileId,
-            let position = sorted.firstIndex(where: { $0.profileId == primaryProfileId })
-        else {
-            return sorted
-        }
-
-        var reordered = sorted
-        let primary = reordered.remove(at: position)
-        return [primary] + reordered
+        guard let primary = primaryProfile else { return sorted }
+        return [primary] + sorted
     }
 
     var followedProfiles: [ProfileSummary] {
-        profiles.filter { !$0.ownedByViewer }
+        profiles.filter { !$0.ownedByViewer && $0.profileId != primaryProfileId }
     }
 
     func load(showSpinner: Bool = true) async {

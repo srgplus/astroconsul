@@ -11,25 +11,13 @@ struct WeatherHomeView: View {
     @State private var selection = ""
     @State private var showsList = false
     @State private var showsWeb = false
-    @State private var showsSettings = false
 
     /// Primary profile first, the way Weather keeps My Location at page one,
-    /// then own profiles and followed ones. The primary is pinned here rather
-    /// than relying on the list's sections: the API can report it as followed
-    /// rather than own, which would otherwise bury it mid-pager.
+    /// then the rest of the owner's profiles and the followed ones. The model
+    /// pins the primary for both this pager and the list, so the order here is
+    /// just its two sections in order.
     private var profiles: [ProfileSummary] {
-        let all = model.ownProfiles + model.followedProfiles
-
-        guard
-            let primaryProfileId = model.primaryProfileId,
-            let position = all.firstIndex(where: { $0.profileId == primaryProfileId })
-        else {
-            return all
-        }
-
-        var ordered = all
-        let primary = ordered.remove(at: position)
-        return [primary] + ordered
+        model.ownProfiles + model.followedProfiles
     }
 
     var body: some View {
@@ -84,14 +72,10 @@ struct WeatherHomeView: View {
             Task { await model.load() }
         }
         .onChange(of: model.profiles) { _, _ in syncSelection() }
-        .fullScreenCover(isPresented: $showsList) { listScreen }
+        // A sheet, not a cover: with the toolbar down to one Settings
+        // button, a swipe down is how the list is left.
+        .sheet(isPresented: $showsList) { listScreen }
         .fullScreenCover(isPresented: $showsWeb) { WebScreen() }
-        .sheet(isPresented: $showsSettings) {
-            SettingsView(onOpenWeb: {
-                showsSettings = false
-                showsWeb = true
-            })
-        }
     }
 
     private var pager: some View {
@@ -116,10 +100,6 @@ struct WeatherHomeView: View {
             onSelect: { profile in
                 selection = profile.profileId
                 showsList = false
-            },
-            onOpenSettings: {
-                showsList = false
-                showsSettings = true
             },
             onOpenWeb: {
                 showsList = false
