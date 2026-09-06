@@ -2,20 +2,12 @@ import SwiftUI
 
 /// Native shell of the app.
 ///
-/// Migration shape: every tab here is native except `.web`, which hosts the
-/// Capacitor WebView for screens that have not been ported yet (birth chart,
-/// transits, compatibility). Ported screens move out of that tab one at a time
-/// until it can be removed.
+/// There is no tab bar: the home screen is the cosmic weather pager, and the
+/// screens that are still web (birth chart, transits, compatibility, account)
+/// open from the bottom bar as a full-screen cover.
 struct RootView: View {
 
-    enum Tab: Hashable {
-        case profiles
-        case web
-        case settings
-    }
-
     @ObservedObject private var auth = AuthStore.shared
-    @State private var selection: Tab = .profiles
     @AppStorage("nativeAppearance") private var appearance = SettingsView.Appearance.system.rawValue
 
     var body: some View {
@@ -23,40 +15,24 @@ struct RootView: View {
             #if DEBUG
             if WeatherPreviewHarness.isEnabled {
                 WeatherPreviewHarness()
-            } else if auth.isSignedIn {
-                tabs
             } else {
-                SignInView()
-                    .transition(.opacity)
+                signedInOrOut
             }
             #else
-            if auth.isSignedIn {
-                tabs
-            } else {
-                SignInView()
-                    .transition(.opacity)
-            }
+            signedInOrOut
             #endif
         }
         .animation(.easeInOut(duration: 0.25), value: auth.isSignedIn)
         .preferredColorScheme(SettingsView.Appearance(rawValue: appearance)?.colorScheme)
     }
 
-    private var tabs: some View {
-        TabView(selection: $selection) {
-            ProfileListView(onOpenWeb: { selection = .web })
-                .tabItem { Label("Profiles", systemImage: "person.2.fill") }
-                .tag(Tab.profiles)
-
-            WebContainerView()
-                .ignoresSafeArea(edges: .top)
-                .tabItem { Label("Chart", systemImage: "circle.hexagongrid.fill") }
-                .tag(Tab.web)
-
-            SettingsView(onOpenWeb: { selection = .web })
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-                .tag(Tab.settings)
+    @ViewBuilder
+    private var signedInOrOut: some View {
+        if auth.isSignedIn {
+            WeatherHomeView()
+        } else {
+            SignInView()
+                .transition(.opacity)
         }
-        .tint(Theme.text)
     }
 }

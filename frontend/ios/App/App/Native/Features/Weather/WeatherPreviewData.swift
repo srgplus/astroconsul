@@ -71,6 +71,28 @@ enum WeatherPreviewData {
         }
     }()
 
+    /// Shifts the sample readings so day one matches the profile's own TII —
+    /// swiping the harness then walks through every sky colour.
+    static func days(for profile: ProfileSummary) -> [ForecastDay] {
+        guard let tii = profile.latestTransit?.tii, let first = days.first else { return days }
+        let delta = tii - first.tii
+
+        return days.enumerated().map { index, day in
+            ForecastDay(
+                date: day.date,
+                tii: min(max(day.tii + delta, 4), 96),
+                tensionRatio: day.tensionRatio,
+                feelsLike: index == 0 ? (profile.latestTransit?.feelsLike ?? day.feelsLike) : day.feelsLike,
+                retrogradeCount: day.retrogradeCount,
+                retrogradePlanets: day.retrogradePlanets,
+                velocityDelta: day.velocityDelta,
+                velocityDirection: day.velocityDirection,
+                topTransits: day.topTransits,
+                moonPhase: day.moonPhase
+            )
+        }
+    }
+
     private static let transits: [TopTransit] = [
         TopTransit(
             transitObject: "Saturn",

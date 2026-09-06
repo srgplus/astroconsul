@@ -4,6 +4,30 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: tab bar removed, home is the weather pager
+The shell now follows Weather all the way: no tab bar, one profile per page,
+swiped horizontally, with a floating bottom bar over the sky.
+
+- `Features/Weather/WeatherHomeView.swift` is the signed-in root. It owns the
+  profile list model, the visible page and the covers.
+- `Features/Weather/WeatherPager.swift`: paged `TabView` plus `WeatherBottomBar`
+  (chart button left, page dots centre, profile list right). The primary
+  profile takes Weather's location arrow instead of a dot.
+- `Features/Profiles/ProfileListScreen.swift` replaces `ProfileListView`: same
+  cards, now a full-screen cover with search and an ellipsis menu (Settings,
+  web app). Tapping a card switches the visible page instead of pushing.
+- `Features/Web/WebScreen.swift`: the Capacitor WebView, previously the Chart
+  tab, is now a cover opened from the bottom bar and from Settings. It still
+  owns the birth chart, transits, compatibility, profile editing and account
+  deletion, so it stays reachable while those screens go native one by one.
+
+The pager draws full bleed (`.ignoresSafeArea()`) so each page's sky reaches
+the status bar, which means the page can no longer read the top safe-area
+inset for itself: `WeatherHomeView` measures it once with a `GeometryReader`
+and passes it to `CosmicWeatherView` as `topInset`.
+
+## 2026-09-06
+
 ### iOS: Weather-style cosmic weather screen and profile list
 The app's pitch is "Apple Weather for astrology", so the native screens now
 look the part.

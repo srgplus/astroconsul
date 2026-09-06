@@ -7,19 +7,28 @@ struct CosmicWeatherView: View {
 
     let profile: ProfileSummary
 
-    @StateObject private var model: CosmicWeatherViewModel
-    @Environment(\.dismiss) private var dismiss
+    /// Top safe-area inset, passed in because the pager draws full bleed and
+    /// the page can no longer read it for itself.
+    var topInset: CGFloat = 0
 
-    init(profile: ProfileSummary) {
+    @StateObject private var model: CosmicWeatherViewModel
+
+    init(profile: ProfileSummary, topInset: CGFloat = 0) {
         self.profile = profile
+        self.topInset = topInset
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
 
     #if DEBUG
     /// Autoclosure so the model is built on the main actor when SwiftUI
     /// installs the view, not at the call site.
-    init(profile: ProfileSummary, model: @autoclosure @escaping () -> CosmicWeatherViewModel) {
+    init(
+        profile: ProfileSummary,
+        topInset: CGFloat = 0,
+        model: @autoclosure @escaping () -> CosmicWeatherViewModel
+    ) {
         self.profile = profile
+        self.topInset = topInset
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -39,7 +48,7 @@ struct CosmicWeatherView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     hero
-                        .padding(.top, 8)
+                        .padding(.top, topInset + 8)
                         .padding(.bottom, 6)
 
                     content
@@ -48,28 +57,17 @@ struct CosmicWeatherView: View {
                 .padding(.bottom, 28)
             }
             .refreshable { await model.load(profileId: profile.profileId, showSpinner: false) }
+            .scrollIndicators(.hidden)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        // Transparent at the top, blurred once the hero scrolls under it —
-        // the same protection Weather gives its content. The dark scheme keeps
-        // the back button white against that blur in both themes.
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 17, weight: .semibold))
-                        Text("Profiles")
-                            .font(.system(size: 17, design: .rounded))
-                    }
-                    .foregroundStyle(.white)
-                }
-                .accessibilityLabel("Back to profiles")
-            }
+        .overlay(alignment: .top) {
+            LinearGradient(
+                colors: [WeatherSky.topColor(for: zone), WeatherSky.topColor(for: zone).opacity(0)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: topInset + 8)
+            .ignoresSafeArea(edges: .top)
+            .allowsHitTesting(false)
         }
         .tint(.white)
         .task {

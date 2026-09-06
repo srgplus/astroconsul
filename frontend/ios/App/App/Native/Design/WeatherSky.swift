@@ -28,6 +28,11 @@ enum WeatherSky {
         )
     }
 
+    /// Topmost stop, used to fade content sliding under the status bar.
+    static func topColor(for zone: TiiZone) -> Color {
+        colors(for: zone).first ?? .clear
+    }
+
     /// Accent used for the forecast bars — the brightest stop of the sky.
     static func accent(for zone: TiiZone) -> Color {
         colors(for: zone).last ?? .white

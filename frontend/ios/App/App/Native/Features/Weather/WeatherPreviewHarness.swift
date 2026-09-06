@@ -5,62 +5,66 @@ import SwiftUI
 /// Debug-only shortcut into the weather screens with sample data.
 ///
 /// Launch with `-uiPreviewWeather` (`xcrun simctl launch <device> me.big3.app
-/// -uiPreviewWeather`) to check layout on a real device without signing in.
+/// -uiPreviewWeather`) to check layout on a simulator without signing in.
 struct WeatherPreviewHarness: View {
 
     static var isEnabled: Bool {
         ProcessInfo.processInfo.arguments.contains("-uiPreviewWeather")
     }
 
-    @State private var openProfile: ProfileSummary?
+    @StateObject private var listModel: ProfileListViewModel
+    @State private var selection = WeatherPreviewData.profile.profileId
+    @State private var showsList = false
+
+    init() {
+        _listModel = StateObject(
+            wrappedValue: ProfileListViewModel(
+                previewProfiles: WeatherPreviewData.profiles,
+                primaryProfileId: WeatherPreviewData.profile.profileId
+            )
+        )
+    }
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach(WeatherPreviewData.profiles) { profile in
-                        Button { openProfile = profile } label: {
-                            ProfileWeatherCard(
-                                profile: profile,
-                                isPrimary: profile.profileId == WeatherPreviewData.profile.profileId
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
-                    }
-                } header: {
-                    Text("MINE")
-                        .font(.system(size: 12, design: .rounded).weight(.semibold))
-                        .foregroundStyle(Theme.textDim)
-                        .tracking(0.6)
-                }
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Theme.bg.ignoresSafeArea())
-            .navigationTitle("Profiles")
-            .navigationDestination(item: $openProfile) { profile in
+        GeometryReader { geometry in
+            let topInset = geometry.safeAreaInsets.top
+
+            WeatherPager(
+                profiles: WeatherPreviewData.profiles,
+                selection: $selection,
+                primaryProfileId: WeatherPreviewData.profile.profileId,
+                onOpenChart: {},
+                onOpenList: { showsList = true }
+            ) { profile in
                 CosmicWeatherView(
                     profile: profile,
-                    model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days)
+                    topInset: topInset,
+                    model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days(for: profile))
                 )
             }
+        }
+        .fullScreenCover(isPresented: $showsList) {
+            ProfileListScreen(
+                model: listModel,
+                onSelect: { profile in
+                    selection = profile.profileId
+                    showsList = false
+                },
+                onOpenSettings: { showsList = false },
+                onOpenWeb: { showsList = false }
+            )
         }
     }
 }
 
 #Preview("Cosmic weather") {
-    NavigationStack {
-        CosmicWeatherView(
-            profile: WeatherPreviewData.profile,
-            model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days)
-        )
-    }
+    CosmicWeatherView(
+        profile: WeatherPreviewData.profile,
+        model: CosmicWeatherViewModel(previewDays: WeatherPreviewData.days)
+    )
 }
 
-#Preview("Profile cards") {
+#Preview("Home pager") {
     WeatherPreviewHarness()
 }
 

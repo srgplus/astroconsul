@@ -21,6 +21,16 @@ final class ProfileListViewModel: ObservableObject {
         self.api = api
     }
 
+    #if DEBUG
+    /// Seeds a loaded list for previews and the `-uiPreviewWeather` harness.
+    init(previewProfiles: [ProfileSummary], primaryProfileId: String?) {
+        self.api = .shared
+        self.profiles = previewProfiles
+        self.primaryProfileId = primaryProfileId
+        self.state = .loaded
+    }
+    #endif
+
     /// Own profiles first, then followed ones, primary pinned to the top.
     var ownProfiles: [ProfileSummary] {
         profiles.filter(\.ownedByViewer).sorted { lhs, rhs in
