@@ -40,3 +40,24 @@ struct WeatherGlassGroup<Content: View>: View {
         }
     }
 }
+
+/// The backdrop a presented screen sits on.
+///
+/// A sheet's presenting screen is not rendered behind it — a clear or material
+/// background over it shows the window's own white, not the weather page — so
+/// the page's sky is drawn here and frosted, which is what would show through
+/// if the system kept it around.
+struct WeatherGlassBackdrop: View {
+
+    var zone: TiiZone?
+
+    var body: some View {
+        ZStack {
+            if let zone {
+                WeatherSky.gradient(for: zone)
+            }
+            Rectangle().fill(.ultraThinMaterial)
+        }
+        .ignoresSafeArea()
+    }
+}

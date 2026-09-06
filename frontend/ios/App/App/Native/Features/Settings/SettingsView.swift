@@ -6,6 +6,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("nativeAppearance") private var appearance = Appearance.system.rawValue
 
+    /// The sky behind the glass, passed down from the screen that presented
+    /// this one.
+    var skyZone: TiiZone?
+
     /// Opens the WebView tab. Account deletion still lives there: that flow is
     /// what Apple reviewed under 5.1.1(v), so it is not reimplemented until
     /// the rest of the account screen is native.
@@ -40,7 +44,6 @@ struct SettingsView: View {
                 aboutSection
             }
             .scrollContentBackground(.hidden)
-            .background(Theme.bg.ignoresSafeArea())
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -49,6 +52,14 @@ struct SettingsView: View {
                 }
             }
         }
+        .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
+    }
+
+    /// Rows keep a card of their own so the form still reads as grouped, but a
+    /// translucent one: a solid `Theme.surface` fill would put opaque white
+    /// blocks back on top of the glass.
+    private var rowBackground: some View {
+        Rectangle().fill(.ultraThinMaterial)
     }
 
     private var accountSection: some View {
@@ -68,7 +79,7 @@ struct SettingsView: View {
         } footer: {
             Text("Account deletion and subscription management open in the app's web view.")
         }
-        .listRowBackground(Theme.surface)
+        .listRowBackground(rowBackground)
     }
 
     private var appearanceSection: some View {
@@ -80,7 +91,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.segmented)
         }
-        .listRowBackground(Theme.surface)
+        .listRowBackground(rowBackground)
     }
 
     private var aboutSection: some View {
@@ -89,7 +100,7 @@ struct SettingsView: View {
                 Text(Self.versionString).foregroundStyle(Theme.textDim)
             }
         }
-        .listRowBackground(Theme.surface)
+        .listRowBackground(rowBackground)
     }
 
     private static var versionString: String {

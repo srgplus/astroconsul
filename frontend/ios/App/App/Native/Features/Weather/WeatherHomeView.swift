@@ -94,6 +94,13 @@ struct WeatherHomeView: View {
         }
     }
 
+    /// The visible page's zone, so the list's glass matches the sky it came
+    /// from rather than sitting on flat grey.
+    private var visibleZone: TiiZone? {
+        guard let profile = profiles.first(where: { $0.profileId == selection }) else { return nil }
+        return TiiZone(tii: profile.latestTransit?.tii ?? 0)
+    }
+
     private var listScreen: some View {
         ProfileListScreen(
             model: model,
@@ -101,6 +108,7 @@ struct WeatherHomeView: View {
                 selection = profile.profileId
                 showsList = false
             },
+            skyZone: visibleZone,
             onOpenWeb: {
                 showsList = false
                 showsWeb = true
