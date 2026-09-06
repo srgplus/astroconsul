@@ -52,6 +52,15 @@ button now float over the sky as Liquid Glass, matching Weather on iOS 26.
 - Search moved to the bottom on its own: iOS 26 floats `.searchable` there for
   a `NavigationStack`. On iOS 17 the same code still draws it under the title,
   which is what the older simulators show.
+### One simulator per worktree
+`scripts/ios-simulator.sh` creates and boots a device named `big3 <worktree>`,
+so parallel sessions stop installing builds over each other and screenshotting
+each other's screen — the simulator tools otherwise default to whatever happens
+to be booted. `--udid` prints the id for `xcodebuild -destination` and `simctl`,
+`--delete` removes the device when a worktree is done. `SIM_DEVICE_TYPE` and
+`SIM_RUNTIME` override the hardware and iOS version; the default runtime is the
+newest installed, which can be ahead of what ships.
+
 ### CI and merging: PRs with required checks, and CI that actually runs
 The old `auto-merge-claude.yml` pushed straight to main with `merge --ff-only`.
 Two consequences, both live for months:
