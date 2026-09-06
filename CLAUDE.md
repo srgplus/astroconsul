@@ -9,6 +9,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 - **Local backend:** `uvicorn app.main:app --port 8001`
 - **Local frontend:** `cd frontend && npm run dev` (port 5173)
 - **Build check:** `cd frontend && npm run build` (must pass before push)
+- **iOS simulator:** `./scripts/ios-simulator.sh` boots this worktree's own device (`big3 <worktree>`), creating it on first run
 - **Persistence:** `file` locally, `database` on Railway (env var `ASTRO_CONSUL_PERSISTENCE_BACKEND`)
 - **Auth:** Disabled locally, Supabase Auth on prod
 
@@ -17,6 +18,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 - Check the run after pushing (`gh pr checks` or `gh run list`): a red check leaves the PR open, it does not merge and does not announce itself
 - If main moved ahead and the PR conflicts, rebase onto `origin/main` and force-push the branch
 - Run `npm run build` before pushing
+- Never drive "whatever simulator is booted": several sessions run at once and would install over each other. Boot this worktree's device with `./scripts/ios-simulator.sh`, then pass that name to the simulator tools and `-destination "id=$(./scripts/ios-simulator.sh --udid)"` to `xcodebuild`. A new device needs a one-time "Let Claude use it" in the simulator panel
 - Respond in Russian when user writes in Russian
 - Use native `<button>` elements for clickable items in scroll containers (iOS fix)
 - Grey spinner (#8e8e93), never purple
