@@ -10,25 +10,48 @@ struct ChartWheelBody: Identifiable, Hashable {
     var isPlanet: Bool { Zodiac.isPlanet(id) }
 }
 
-/// How one aspect's line is drawn. Ported from `ASPECT_LINE_STYLES` in the web
-/// ring, with the hues lifted: the web draws on white, and these have to hold
-/// over a sky that can be anything from deep blue to sunlit orange.
+/// How one aspect's line is drawn: no hue, only weight and rhythm.
+///
+/// The web ring gives each aspect a colour, but the web draws on white. This
+/// card floats over a sky that is blue, green, orange or red depending on the
+/// day's TII, so a green sextile line vanishes over a green sky and an orange
+/// square over an orange one. Worse, those are the *same* four hues the app
+/// already spends on the TII zones, so one orange would mean two unrelated
+/// things on one screen.
+///
+/// So the ink is the palette's — white over the sky, dark ink on a surface —
+/// and the aspect is carried the way an instrument face carries it:
+///
+/// - **Solid is hard, broken is soft.** Conjunction, opposition and square are
+///   unbroken; trine is a long dash and sextile a dot. Friction reads as a
+///   continuous line, flow as an interrupted one.
+/// - **Weight ranks within the family.** Conjunction is the heaviest line on
+///   the wheel and sextile the lightest.
+/// - **Orb sets the ink.** A partile aspect is at full strength and one at the
+///   edge of orb is half — which the coloured version could not say at all, and
+///   is the thing you actually want to see first.
 struct AspectStyle {
 
-    let color: Color
     let dash: [CGFloat]
-    let opacity: Double
+    let width: CGFloat
+    let ink: Double
 
     static func named(_ aspect: String) -> AspectStyle {
         styles[aspect.lowercased()] ?? styles["sextile"]!
     }
 
+    /// Ink for an aspect this far from exact. Falls off to a little over half
+    /// by 6°, which is where the engine's orbs end for most pairs.
+    static func ink(orb: Double) -> Double {
+        1 - min(abs(orb), 6) / 6 * 0.45
+    }
+
     private static let styles: [String: AspectStyle] = [
-        "conjunction": AspectStyle(color: Color(hex: 0xFF6B5E), dash: [], opacity: 0.95),
-        "opposition": AspectStyle(color: Color(hex: 0xFF6B5E), dash: [6, 3], opacity: 0.85),
-        "square": AspectStyle(color: Color(hex: 0xFFA24B), dash: [2, 3], opacity: 0.85),
-        "trine": AspectStyle(color: Color(hex: 0x5AB4F0), dash: [8, 4], opacity: 0.8),
-        "sextile": AspectStyle(color: Color(hex: 0x4FD98C), dash: [1.5, 3], opacity: 0.75),
+        "conjunction": AspectStyle(dash: [], width: 1.5, ink: 0.95),
+        "opposition": AspectStyle(dash: [], width: 1.1, ink: 0.85),
+        "square": AspectStyle(dash: [], width: 0.8, ink: 0.8),
+        "trine": AspectStyle(dash: [6, 3.5], width: 1.1, ink: 0.8),
+        "sextile": AspectStyle(dash: [0.5, 3], width: 0.9, ink: 0.7),
     ]
 }
 
@@ -323,8 +346,7 @@ struct ChartWheelView: View {
                 from: WheelMath.point(center: center, radius: from.inner - metrics.notch, angle: from.angle),
                 to: WheelMath.point(center: center, radius: to.inner - metrics.notch, angle: to.angle),
                 style: .named(aspect.aspect),
-                width: metrics.aspectLine,
-                ink: natalInk,
+                ink: natalInk * AspectStyle.ink(orb: aspect.orb),
                 in: context
             )
         }
@@ -345,7 +367,7 @@ struct ChartWheelView: View {
                 from: edge(of: natalEnd, facing: transitMid, from: natalMid, center: center, notch: metrics.notch),
                 to: edge(of: transitEnd, facing: natalMid, from: transitMid, center: center, notch: metrics.notch),
                 style: .named(aspect.aspect),
-                width: metrics.aspectLine,
+                ink: AspectStyle.ink(orb: aspect.orb),
                 in: context
             )
         }
@@ -388,8 +410,7 @@ struct ChartWheelView: View {
         from: CGPoint,
         to: CGPoint,
         style: AspectStyle,
-        width: CGFloat,
-        ink: Double = 1,
+        ink: Double,
         in context: GraphicsContext
     ) {
         var path = Path()
@@ -397,8 +418,8 @@ struct ChartWheelView: View {
         path.addLine(to: to)
         context.stroke(
             path,
-            with: .color(style.color.opacity(style.opacity * ink)),
-            style: StrokeStyle(lineWidth: width, lineCap: .round, dash: style.dash)
+            with: .color(palette.primary.opacity(style.ink * ink)),
+            style: StrokeStyle(lineWidth: style.width, lineCap: .round, dash: style.dash)
         )
     }
 
@@ -493,7 +514,6 @@ struct ChartWheelView: View {
         let notch: CGFloat
         let arrow: CGFloat
         let axisLabelOffset: CGFloat
-        let aspectLine: CGFloat
         let signGlyph: CGFloat
         let bodyGlyph: CGFloat
         let transitGlyph: CGFloat
@@ -533,7 +553,6 @@ struct ChartWheelView: View {
             notch = max(ring * 0.006, 2)
             arrow = max(ring * 0.016, 5)
             axisLabelOffset = max(ring * 0.038, 13)
-            aspectLine = 0.9
 
             signGlyph = max(ring * 0.036, 13)
             bodyGlyph = max(ring * (showsTransits ? 0.032 : 0.036), 13)

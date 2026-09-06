@@ -4,6 +4,30 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: the wheel's aspect lines lost their colour, on purpose
+The web ring gives each aspect a hue. That works on white; it does not work
+here, and the reasons are worth writing down before someone puts the colours
+back.
+
+- The card floats over a sky that is **blue, green, orange or red** depending
+  on the day's TII. A green sextile line vanishes over a green sky.
+- Those are the same four hues the app already spends on the TII zones, so one
+  orange would have meant two unrelated things on one screen.
+- Colour was carrying a *category* (which aspect), which is the one job an
+  instrument face does with shape instead.
+
+`AspectStyle` now holds no colour. The ink is `transitPalette.primary`, so the
+lines are white over the sky and dark on a surface without asking. The aspect
+is carried three ways:
+
+- **Solid is hard, broken is soft.** Conjunction, opposition and square are
+  unbroken; trine is a long dash, sextile a dot.
+- **Weight ranks within the family.** Conjunction is the heaviest line on the
+  wheel at 1.5, sextile the lightest at 0.9.
+- **Orb sets the ink** (`AspectStyle.ink(orb:)`), falling to a little over half
+  by 6°. The coloured version could not say this at all, and it is the thing
+  you want to see first: which transits are actually close.
+
 ### iOS: skeletons instead of an empty weather page
 Removing the mid-screen spinner left the page as a hero over bare sky while
 the reading was computed, which is worse than the spinner was: nothing says
