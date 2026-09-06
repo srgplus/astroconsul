@@ -4,6 +4,18 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: one loader on the weather page, and it is a ring
+`ProgressView`'s spokes are a system alert's indicator. At 13pt on the sky
+they read as a stuck widget rather than as work in progress, and the grey
+they are tinted with disappears on a dark sky where every other mark in the
+hero is white. `MinimalSpinner` is a thin arc that turns, trailing the date in
+the stamp capsule.
+
+The page has no other loader now. The large one mid-screen and the one inside
+the Active Transits card are gone: the stamp already says the reading is being
+computed, and a second spinner in the middle of an empty page read as a screen
+that had failed to draw. The cards simply arrive.
+
 ### iOS: the harness can play the loading states
 Swiping the weather harness never showed a spinner, which reads as "it does
 not load" but is the harness working as built: every page is handed a model
