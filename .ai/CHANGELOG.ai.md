@@ -4,6 +4,36 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS 26: glass bottom bar, wordmark title, search at the bottom
+The bottom bar dropped its slab of background: the dot capsule and the list
+button now float over the sky as Liquid Glass, matching Weather on iOS 26.
+
+- `Design/GlassSurface.swift` is the one place that calls `glassEffect`. The
+  deployment target is still iOS 17, so it falls back to a dark
+  `.ultraThinMaterial` shape; `WeatherGlassGroup` wraps `GlassEffectContainer`
+  the same way. The glass carries a slight dark tint, otherwise white dots and
+  glyphs disappear over a bright sky.
+- `WeatherPageDots` switched to `backgroundStyle = .prominent`: that is what
+  draws Weather's capsule, sized to the dots by the system. A capsule of our
+  own sat ~50pt wider than the dots on each side, because `UIPageControl`
+  reserves margin inside its own bounds. It also reports `sizeThatFits` so the
+  control asks for its dots' width and no more.
+- The pager draws full bleed, so the bar could not read the bottom safe-area
+  inset for itself; `WeatherHomeView` passes it down and the bar sits above the
+  home indicator rather than on it. The left slot is deliberately empty — a
+  second button goes there later.
+- `ProfileListScreen`: Done is gone from the toolbar (the ellipsis menu closes
+  the screen, and so does picking a profile), the title is the big3.me
+  wordmark, and the menu sits on that same line.
+  `sharedBackgroundVisibility(.hidden)` keeps iOS 26 from putting a glass pill
+  behind the wordmark.
+- `Design/B3Wordmark.swift` draws the site's three-part lockup; Space Grotesk
+  ships in `Design/Fonts` and is declared in `UIAppFonts`. Google's subset
+  names the faces `SpaceGroteskLight-{Light,Regular,Bold}`.
+- Search moved to the bottom on its own: iOS 26 floats `.searchable` there for
+  a `NavigationStack`. On iOS 17 the same code still draws it under the title,
+  which is what the older simulators show.
+
 ### iOS: bottom bar trimmed, Settings can be closed, primary pinned first
 - The bottom bar's left button is gone; the web screens are reached from the
   profile list's ellipsis menu. A clear 42pt spacer keeps the dots centred.

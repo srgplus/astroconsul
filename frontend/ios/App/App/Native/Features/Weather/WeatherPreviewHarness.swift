@@ -33,6 +33,7 @@ struct WeatherPreviewHarness: View {
                 profiles: WeatherPreviewData.profiles,
                 selection: $selection,
                 primaryProfileId: WeatherPreviewData.profile.profileId,
+                bottomInset: geometry.safeAreaInsets.bottom,
                 onOpenList: { showsList = true }
             ) { profile in
                 CosmicWeatherView(

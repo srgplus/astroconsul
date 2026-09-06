@@ -19,7 +19,10 @@ struct WeatherPageDots: UIViewRepresentable {
         let control = UIPageControl()
         control.currentPageIndicatorTintColor = .white
         control.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.4)
-        control.backgroundStyle = .minimal
+        // `.prominent` is what draws Weather's capsule behind the dots: the
+        // system sizes it to the dots themselves and renders it as glass on
+        // iOS 26, which a capsule of our own could only approximate.
+        control.backgroundStyle = .prominent
         control.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.addTarget(
@@ -42,6 +45,33 @@ struct WeatherPageDots: UIViewRepresentable {
         for page in 0..<count {
             control.setIndicatorImage(page == primaryIndex ? arrow : nil, forPage: page)
         }
+    }
+
+    /// Sizes the control to its dots so the glass capsule hugs them, but
+    /// never wider than the bar can offer: past that the system control
+    /// compresses the dots itself.
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView control: UIPageControl,
+        context: Context
+    ) -> CGSize? {
+        let intrinsic = control.size(forNumberOfPages: max(count, 1))
+
+        let width: CGFloat
+        if let proposed = proposal.width, proposed.isFinite {
+            width = min(intrinsic.width, proposed)
+        } else {
+            width = intrinsic.width
+        }
+
+        let height: CGFloat
+        if let proposed = proposal.height, proposed.isFinite {
+            height = proposed
+        } else {
+            height = intrinsic.height
+        }
+
+        return CGSize(width: width, height: height)
     }
 
     func makeCoordinator() -> Coordinator {

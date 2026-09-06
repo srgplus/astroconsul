@@ -18,14 +18,25 @@ struct ProfileListScreen: View {
     var body: some View {
         NavigationStack {
             list
-                .navigationTitle("Profiles")
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $query, prompt: "Search profiles")
                 .background(Theme.bg.ignoresSafeArea())
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Done") { dismiss() }
-                            .font(.system(.body, design: .rounded).weight(.medium))
+                    // The wordmark stands in for the title, with the menu on
+                    // the same line. Done is gone: the menu closes the screen,
+                    // and so does picking a profile.
+                    // The wordmark reads as a title, so it keeps its own
+                    // width and skips the glass pill iOS 26 puts behind
+                    // toolbar items; the menu keeps its pill.
+                    if #available(iOS 26.0, *) {
+                        ToolbarItem(placement: .topBarLeading) {
+                            B3Wordmark(size: 24).fixedSize()
+                        }
+                        .sharedBackgroundVisibility(.hidden)
+                    } else {
+                        ToolbarItem(placement: .topBarLeading) {
+                            B3Wordmark(size: 24).fixedSize()
+                        }
                     }
 
                     ToolbarItem(placement: .topBarTrailing) {
@@ -41,8 +52,16 @@ struct ProfileListScreen: View {
                             } label: {
                                 Label("Chart, transits, profiles", systemImage: "safari")
                             }
+
+                            Divider()
+
+                            Button {
+                                dismiss()
+                            } label: {
+                                Label("Done", systemImage: "xmark")
+                            }
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Image(systemName: "ellipsis")
                         }
                         .accessibilityLabel("More")
                     }

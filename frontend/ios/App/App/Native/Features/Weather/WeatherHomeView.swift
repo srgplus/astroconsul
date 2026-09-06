@@ -102,6 +102,7 @@ struct WeatherHomeView: View {
                 profiles: profiles,
                 selection: $selection,
                 primaryProfileId: model.primaryProfileId,
+                bottomInset: geometry.safeAreaInsets.bottom,
                 onOpenList: { showsList = true }
             ) { profile in
                 CosmicWeatherView(profile: profile, topInset: topInset)

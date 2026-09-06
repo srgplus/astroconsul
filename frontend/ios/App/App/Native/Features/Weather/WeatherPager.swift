@@ -1,13 +1,19 @@
 import SwiftUI
 
-/// Horizontal pager over profiles with Weather's floating bottom bar: the
-/// chart button on the left, page dots in the middle, the profile list on the
-/// right. Generic over the page so previews can feed it seeded screens.
+/// Horizontal pager over profiles with Weather's floating bottom bar: page
+/// dots in a capsule at the centre, the profile list on the right, the left
+/// slot held empty for a second button. Generic over the page so previews can
+/// feed it seeded screens.
 struct WeatherPager<Page: View>: View {
 
     let profiles: [ProfileSummary]
     @Binding var selection: String
     let primaryProfileId: String?
+
+    /// Bottom safe-area inset, passed in because the pager draws full bleed
+    /// and can no longer read it for itself.
+    var bottomInset: CGFloat = 0
+
     var onOpenList: () -> Void
     @ViewBuilder var page: (ProfileSummary) -> Page
 
@@ -35,51 +41,50 @@ struct WeatherPager<Page: View>: View {
                     guard profiles.indices.contains(position) else { return }
                     selection = profiles[position].profileId
                 },
+                bottomInset: bottomInset,
                 onOpenList: onOpenList
             )
         }
     }
 }
 
-/// The bar itself. Translucent so the sky of the current page shows through,
-/// exactly as Weather's does.
+/// The bar itself: no slab of background, just glass controls floating over
+/// the sky, the way Weather's bar reads on iOS 26.
 struct WeatherBottomBar: View {
 
     let count: Int
     let index: Int
     let primaryIndex: Int?
     var onSelectPage: (Int) -> Void
+    var bottomInset: CGFloat = 0
     var onOpenList: () -> Void
 
+    /// Both circles and the dot capsule share one height so the row reads as
+    /// a single band.
+    private let control: CGFloat = 44
+
     var body: some View {
-        HStack {
-            // Balances the list button so the dots stay centred on screen.
-            Color.clear
-                .frame(width: 42, height: 42)
+        WeatherGlassGroup(spacing: 14) {
+            HStack(spacing: 10) {
+                // Left slot, held empty for a button we have yet to add. It
+                // also balances the list button so the dots stay centred.
+                Color.clear
+                    .frame(width: control, height: control)
 
-            dots
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 8)
+                Spacer(minLength: 0)
 
-            circleButton(icon: "list.bullet", label: "All profiles", action: onOpenList)
+                dots
+
+                Spacer(minLength: 0)
+
+                circleButton(icon: "list.bullet", label: "All profiles", action: onOpenList)
+            }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 6)
-        .background {
-            // Dark scheme inside the background so the blur stays dark over a
-            // bright sky and the white glyphs keep their contrast.
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(Color.black.opacity(0.18))
-                .environment(\.colorScheme, .dark)
-                .ignoresSafeArea()
-        }
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.white.opacity(0.14))
-                .frame(height: 1)
-        }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        // Sits just above the home indicator rather than on it; on a device
+        // without one the bar keeps a plain margin.
+        .padding(.bottom, bottomInset > 0 ? bottomInset - 14 : 10)
     }
 
     /// The primary profile takes Weather's location arrow; the rest are dots.
@@ -90,10 +95,7 @@ struct WeatherBottomBar: View {
             primaryIndex: primaryIndex,
             onSelect: onSelectPage
         )
-        .frame(height: 30)
-        .background(
-            Capsule().strokeBorder(Color.white.opacity(0.22), lineWidth: 1)
-        )
+        .frame(height: control)
         .accessibilityLabel("Profile \(index + 1) of \(count)")
     }
 
@@ -102,11 +104,9 @@ struct WeatherBottomBar: View {
             Image(systemName: icon)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(.white)
-                .frame(width: 42, height: 42)
-                .background(
-                    Circle().strokeBorder(Color.white.opacity(0.28), lineWidth: 1)
-                )
+                .frame(width: control, height: control)
         }
+        .weatherGlass(in: .circle, interactive: true)
         .accessibilityLabel(label)
     }
 }
