@@ -126,6 +126,26 @@ stage one: the natal wheel, static. The transit ring and tap-to-detail follow.
   read; `wheelLongitude` falls back to sign + degree so hand-written previews
   still place correctly.
 
+### iOS: the natal chart under the weather
+`NatalChartCard` closes the weather screen with the chart every reading above
+it is cast against: Sun, Moon, Ascendant, Midheaven, Mercury, Venus and Mars,
+each with its sign, degrees, house and ℞ when the body was retrograde at
+birth, then the birthplace and birth moment, with the age in the header.
+
+- No new request. The transit report that already feeds Active Transits
+  carries `natal_positions` and `angle_positions`, and the view model indexes
+  both into `TransitPositions.natal` — the card just reads that.
+- Signs are written out, not drawn: U+2648-2653 resolve through the emoji
+  font, which the simulator draws as tofu. Same call `TransitDetailSheet`
+  already made. Houses use the `house` SF Symbol rather than the web's △,
+  which is the glyph for a trine.
+- ASC and MC show degrees only — they are the cusps of houses 1 and 10 by
+  definition, so a house number there repeats the label.
+- The birth moment is read out of `local_birth_datetime` as text, never
+  parsed into a `Date`: it is already local, so a timezone conversion would
+  move the clock off the birth certificate.
+- `WeatherPreviewData` gained a natal Mercury, retrograde, so `-uiPreviewWeather`
+  shows the ℞ column instead of leaving it to be assumed.
 
 ### iOS: the weather screens ask the device where you are
 `ProfileSummary.currentLocationName` moved the label off the birthplace, but

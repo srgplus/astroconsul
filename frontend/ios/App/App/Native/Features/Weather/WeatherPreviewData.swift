@@ -197,6 +197,8 @@ enum WeatherPreviewData {
             position("Chiron", 12, 30, "Leo", house: 4),
             position("Lilith", 5, 48, "Libra", house: 5),
             position("North Node", 9, 2, "Capricorn", house: 8),
+            // Retrograde at birth, so the natal card shows its ℞ column too.
+            position("Mercury", 11, 2, "Taurus", house: 1, retrograde: true),
             position("ASC", 1, 44, "Gemini"),
             position("MC", 8, 9, "Aquarius"),
         ])
