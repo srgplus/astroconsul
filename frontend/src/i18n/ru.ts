@@ -146,6 +146,8 @@ export const ru: Record<string, string> = {
   "widget.planetPositions": "Позиции планет",
   "widget.natalAspects": "Аспекты карты",
   "widget.planetsHouses": "Планеты и дома",
+  "summary.details": "Подробнее",
+  "summary.hideDetails": "Свернуть",
   "widget.edit": "Ред.",
   "widget.synastry": "Совместимость",
   "widget.addSynastryFirst": "Добавьте партнёра для совместимости",

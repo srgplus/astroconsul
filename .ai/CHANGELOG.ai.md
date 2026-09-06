@@ -125,6 +125,23 @@ stage one: the natal wheel, static. The transit ring and tap-to-detail follow.
 - `ChartPosition.longitude` decodes the field the API already sent and nothing
   read; `wheelLongitude` falls back to sign + degree so hand-written previews
   still place correctly.
+### Web: the Chart widget opens its own details drawer
+Reading a chart meant leaving the widget: tapping it threw up the full-screen
+Birth Chart popup, which is also where Edit and Transfer Ownership live. The
+widget now carries a "Details" button that unfolds `NatalPositionsTable` in
+place, so the positions are one tap away and the popup stays what it is.
+
+- The drawer is a prop on `ProfileSummaryCard` (`drawer`), set by the widget
+  only. In the popup the same table is already further down the page.
+- The widget's own `onClick` still opens the popup, so the toggle and the
+  drawer body both `stopPropagation` — otherwise reading a row would launch
+  the popup on top of it.
+- The drawer cancels the widget's 16px padding with a negative margin, so the
+  table's dividers run edge to edge the way they do in the popup.
+- Fixed alongside, because the drawer is where it shows: a body the ephemeris
+  has no data for (`build_unavailable_position` sends nulls) printed
+  "sign.null" and "°null′" — the Chiron row on a real profile. Sign, glyph and
+  degrees now fall back to a dash.
 
 ### iOS: the natal chart under the weather
 `NatalChartCard` closes the weather screen with the chart every reading above

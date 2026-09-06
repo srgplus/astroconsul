@@ -74,6 +74,16 @@ const GROUPS: ObjectGroup[] = [
   { labelKey: "transits.specialPoints", ids: ["Chiron", "Lilith", "Selena", "North Node", "South Node", "Part of Fortune", "Vertex"] },
 ]
 
+/**
+ * "14°19′", or a dash when the ephemeris had nothing for this body —
+ * `build_unavailable_position` sends nulls, and the row used to print them
+ * as "°null′".
+ */
+function formatDegree(p: NatalPosition): string {
+  if (p.degree == null || p.minute == null) return "—"
+  return `${p.degree}\u00B0${String(p.minute).padStart(2, "0")}\u2032`
+}
+
 function formatPosition(p: NatalPosition): string {
   return `${p.sign} ${p.degree}\u00B0${String(p.minute).padStart(2, "0")}'${String(Math.round(p.second)).padStart(2, "0")}"`
 }
@@ -159,8 +169,8 @@ export function NatalPositionsTable({
                       {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
                     </span>
                     <span className="natal-pos__center">
-                      <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                      <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                      <span className="natal-pos__sign-name">{p.sign ? t(`sign.${p.sign}`) : "—"}</span>
+                      {p.sign ? <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span> : null}
                       <span className="natal-pos__house">△{p.house || "—"}</span>
                     </span>
                     <span className="natal-pos__right">
@@ -169,7 +179,7 @@ export function NatalPositionsTable({
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         </span>
                       ) : (
-                        <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                        <span className="natal-pos__deg">{formatDegree(p)}</span>
                       )}
                     </span>
                   </button>
@@ -181,12 +191,12 @@ export function NatalPositionsTable({
                       {p.retrograde ? <span className="natal-pos__retro">Ⓡ</span> : null}
                     </span>
                     <span className="natal-pos__center">
-                      <span className="natal-pos__sign-name">{t(`sign.${p.sign}`)}</span>
-                      <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span>
+                      <span className="natal-pos__sign-name">{p.sign ? t(`sign.${p.sign}`) : "—"}</span>
+                      {p.sign ? <span className="natal-pos__sign">{SIGN_GLYPHS[p.sign] ?? ""}</span> : null}
                       <span className="natal-pos__house">△{p.house || "—"}</span>
                     </span>
                     <span className="natal-pos__right">
-                      <span className="natal-pos__deg">{p.degree}°{String(p.minute).padStart(2, "0")}′</span>
+                      <span className="natal-pos__deg">{formatDegree(p)}</span>
                     </span>
                   </div>
                   )}
@@ -472,8 +482,24 @@ function computeAge(birthDate: string): number | null {
   return age
 }
 
-export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }) {
+export function ProfileSummaryCard({
+  detail,
+  drawer = false,
+  isPro = true,
+  onPaywall,
+}: {
+  detail: ProfileDetailResponse
+  /**
+   * Hangs a collapsible details drawer under the card. For the widget only:
+   * in the expanded popup the same table is already further down the page,
+   * so a drawer there would show it twice.
+   */
+  drawer?: boolean
+  isPro?: boolean
+  onPaywall?: () => void
+}) {
   const { t } = useLanguage()
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const positions = detail.chart.natal_positions ?? []
   const byId = new Map(positions.map((p) => [p.id, p]))
   const sun = byId.get("Sun")
@@ -560,6 +586,46 @@ export function ProfileSummaryCard({ detail }: { detail: ProfileDetailResponse }
           </span>
         </div>
       </div>
+      {drawer && positions.length ? (
+        <>
+          {/* The widget itself opens the popup on click, so the drawer and
+              everything inside it has to keep its taps to itself. */}
+          <button
+            type="button"
+            className="profile-summary__drawer-toggle"
+            aria-expanded={drawerOpen}
+            onClick={(e) => {
+              e.stopPropagation()
+              setDrawerOpen((open) => !open)
+            }}
+          >
+            <span>{t(drawerOpen ? "summary.hideDetails" : "summary.details")}</span>
+            <svg
+              className={`profile-summary__chevron${drawerOpen ? " profile-summary__chevron--open" : ""}`}
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {drawerOpen ? (
+            <div className="profile-summary__drawer" onClick={(e) => e.stopPropagation()}>
+              <NatalPositionsTable
+                positions={positions}
+                interpretations={detail.chart.natal_interpretations}
+                isPro={isPro}
+                onPaywall={onPaywall}
+              />
+            </div>
+          ) : null}
+        </>
+      ) : null}
     </div>
   )
 }

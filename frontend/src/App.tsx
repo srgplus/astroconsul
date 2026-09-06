@@ -1420,7 +1420,12 @@ export function App() {
               {activeDetail ? (
                 <div className="widget widget--summary" onClick={() => setExpandedWidget("summary")}>
                   <div className="widget-title">{t("widget.natal")}</div>
-                  <ProfileSummaryCard detail={activeDetail} />
+                  <ProfileSummaryCard
+                    detail={activeDetail}
+                    drawer
+                    isPro={isPro}
+                    onPaywall={() => setPaywallOpen(true)}
+                  />
                 </div>
               ) : activeProfileId ? (
                 <SkeletonWidget rows={5} />
