@@ -4,6 +4,38 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: the wheel draws aspects to the angles, and the preview data stopped lying
+Two findings from checking, endpoint by endpoint, where the wheel's aspect
+lines actually attach.
+
+**Aspects to AC and MC were being dropped.** `drawable()` filters ASC and MC
+out of the glyph rows, because they are drawn as arrows through the rim
+instead — so every aspect naming one had no placement and was silently
+skipped. The web ring does the same, but on the web there is no transits card
+directly above the wheel listing the aspect you cannot find on it.
+`axisPlacements(_:)` gives them a place: their own angle, at
+`zodiacInner - notch`, which is where the arrow's inner end already is. Every
+other body sits further in, so a line to an angle always leaves the zodiac
+band inward and lands along the arrow it names. Verified: both ends land at
+r=124.0 with zodiacInner=126.0 and notch=2.0.
+
+**The preview transit aspects were geometrically false.** Of ten rows, two
+matched the positions they were supposedly measured from. "Mars trine Pluto"
+sat 29.53° apart; "Pluto conjunction ASC" sat 239.93° apart. They were written
+for a card that only ever printed two glyphs and an orb, so nothing checked
+them. The wheel checks them: a trine drawn between two bodies 30° apart looks
+like a bug in the renderer. All ten are now real for the positions below them,
+to the arcminute, and three of them name an angle so the new lines are
+exercised. **Any row added to `WeatherPreviewData.aspects` has to survive
+being drawn.**
+
+The natal-to-natal and transit-to-natal attachments were checked the same way
+and were correct: each end lands on the inner edge of its own row, so a
+planet-and-point pair gets two different radii (99.0 and 79.0), and the natal
+end of a transit line is always inward — not by luck, but because the transit
+ring is strictly inside the natal one, which makes the projection negative
+every time.
+
 ### iOS: the Moon leaves the summary card and gets its own panel
 It used to be a chip in `TodaySummaryCard`'s conditions row — "🌔 Waxing
 Gibbous · 78%" next to the retrograde count. `MoonCard` now stands on its own

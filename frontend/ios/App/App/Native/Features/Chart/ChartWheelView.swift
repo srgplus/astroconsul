@@ -330,7 +330,12 @@ struct ChartWheelView: View {
         natalRing: Ring,
         transitRing: Ring
     ) {
+        // The angles are drawn as arrows through the rim rather than glyphs on
+        // a ring, so they need a place of their own or every aspect to them is
+        // dropped — and a transit exact on the ascendant is the loudest line
+        // in the report.
         let natal = placements(of: bodies, on: natalRing)
+            .merging(axisPlacements(metrics)) { body, _ in body }
 
         // Natal to natal: both ends sit just inside their own band, and the
         // line crosses whatever is in the middle, which is what the web does.
@@ -391,6 +396,24 @@ struct ChartWheelView: View {
             },
             uniquingKeysWith: { first, _ in first }
         )
+    }
+
+    /// Where an aspect line to one of the angles ends: on that axis, just
+    /// inside the rim, where the axis line itself begins. Everything else on
+    /// the wheel sits further in, so a line to an angle always leaves the
+    /// zodiac band inward and lands along the arrow it names.
+    private func axisPlacements(_ metrics: Metrics) -> [String: Placement] {
+        func placement(_ longitude: Double) -> Placement {
+            Placement(
+                angle: WheelMath.angle(longitude: longitude, asc: asc),
+                outer: metrics.zodiacOuter,
+                inner: metrics.zodiacInner
+            )
+        }
+
+        var placements = ["ASC": placement(asc)]
+        if let mc { placements["MC"] = placement(mc) }
+        return placements
     }
 
     /// The band edge that faces `target`: outward when the other end is further

@@ -184,17 +184,25 @@ enum WeatherPreviewData {
     /// Aspects inside orb, with the windows the timing engine returns. The
     /// spans are written relative to today so the now-dot lands somewhere
     /// different on each bar.
+    /// Every row here is a real aspect between the positions below, named and
+    /// measured to the arcminute.
+    ///
+    /// It was not always: these started as plausible-looking rows, because the
+    /// card that showed them only ever printed two glyphs and an orb. Then the
+    /// wheel started drawing them, and a "trine" between two bodies 30° apart
+    /// is a line that looks like a bug in the renderer. Any row added here has
+    /// to survive being drawn.
     static let aspects: [ActiveAspect] = [
         aspect("Sun", "trine", "Neptune", orb: 0.50, strength: "strong", opened: -1.5, closes: 1.5, peaks: 0.4),
-        aspect("Moon", "square", "Mars", orb: 0.18, strength: "exact", opened: -0.3, closes: 0.4, peaks: 0.05),
-        aspect("Mars", "trine", "Pluto", orb: 0.44, strength: "strong", opened: -4, closes: 5, peaks: 0.6),
-        aspect("Saturn", "square", "Moon", orb: 1.20, strength: "moderate", opened: -12, closes: 16, peaks: 3),
-        aspect("Uranus", "sextile", "Sun", orb: 0.36, strength: "strong", opened: -21, closes: 24, peaks: -2),
-        aspect("Neptune", "sextile", "Saturn", orb: 0.15, strength: "exact", opened: -30, closes: 34, peaks: 1),
-        aspect("Pluto", "conjunction", "ASC", orb: 0.04, strength: "exact", opened: -44, closes: 47, peaks: 0.8),
-        aspect("Lilith", "sextile", "Moon", orb: 0.12, strength: "exact", opened: -9, closes: 8, peaks: -0.5),
-        aspect("Chiron", "opposition", "Venus", orb: 1.74, strength: "moderate", opened: -16, closes: 19, peaks: 6),
-        aspect("Venus", "square", "MC", orb: 2.30, strength: "wide", opened: -2, closes: 2, peaks: 0.2),
+        aspect("Moon", "square", "Mars", orb: 0.52, strength: "exact", opened: -0.3, closes: 0.4, peaks: 0.05),
+        aspect("Mars", "opposition", "Sun", orb: 5.93, strength: "wide", opened: -4, closes: 5, peaks: 0.6),
+        aspect("Saturn", "square", "Moon", orb: 1.23, strength: "moderate", opened: -12, closes: 16, peaks: 3),
+        aspect("Uranus", "conjunction", "ASC", orb: 0.18, strength: "exact", opened: -21, closes: 24, peaks: -2),
+        aspect("Neptune", "square", "Saturn", orb: 0.25, strength: "exact", opened: -30, closes: 34, peaks: 1),
+        aspect("Pluto", "trine", "ASC", orb: 0.07, strength: "exact", opened: -44, closes: 47, peaks: 0.8),
+        aspect("Lilith", "square", "MC", orb: 1.28, strength: "exact", opened: -9, closes: 8, peaks: -0.5),
+        aspect("Chiron", "sextile", "Moon", orb: 3.25, strength: "moderate", opened: -16, closes: 19, peaks: 6),
+        aspect("Venus", "square", "Pluto", orb: 1.93, strength: "moderate", opened: -2, closes: 2, peaks: 0.2),
     ]
 
     /// Transiting bodies drawn with an ℞ on their rows.
