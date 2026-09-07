@@ -12,10 +12,15 @@ import SwiftUI
 struct CosmicClimateCard: View {
 
     let aspects: [ActiveAspect]
+    /// Transiting bodies that are retrograde right now, marked in the sheet.
+    var retrograde: Set<String> = []
+    var positions: TransitPositions = .init()
     /// Injected rather than read from the clock so previews are stable.
     var now: Date = Date()
 
     @Environment(\.transitPalette) private var palette
+
+    @State private var selected: ActiveAspect?
 
     /// Wide enough for "Aug 2026 – Mar 2027", and fixed so the bars end on the
     /// same line however long each range prints.
@@ -40,7 +45,20 @@ struct CosmicClimateCard: View {
 
                     row(aspect)
                         .padding(.vertical, 11)
+                        .contentShape(Rectangle())
+                        .onTapGesture { selected = aspect }
                 }
+            }
+            // The row says when; the sheet says what — the same one the
+            // transits card opens, so a tap here behaves the way a tap up
+            // there already does.
+            .sheet(item: $selected) { aspect in
+                TransitDetailSheet(
+                    aspect: aspect,
+                    isRetrograde: retrograde.contains(aspect.transitObject),
+                    positions: positions,
+                    now: now
+                )
             }
         }
     }
@@ -64,6 +82,7 @@ struct CosmicClimateCard: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(range.map { "\(aspect.title), \($0)" } ?? aspect.title)
+        .accessibilityAddTraits(.isButton)
     }
 
     /// "Aug – Dec 2026", or "Aug 2026 – Mar 2027" once the window crosses a new
