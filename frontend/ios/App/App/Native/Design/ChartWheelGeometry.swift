@@ -31,6 +31,10 @@ enum Zodiac {
         names.firstIndex { $0.caseInsensitiveCompare(name) == .orderedSame }
     }
 
+    static func index(ofLongitude longitude: Double) -> Int {
+        Int(normalize(longitude) / 30) % 12
+    }
+
     static func isPlanet(_ id: String) -> Bool { planets.contains(id) }
 
     static func normalize(_ longitude: Double) -> Double {
@@ -80,6 +84,25 @@ enum WheelMath {
         let delta = (end - start).truncatingRemainder(dividingBy: 360)
         let forward = delta < 0 ? delta + 360 : delta
         return (start + forward / 2).truncatingRemainder(dividingBy: 360)
+    }
+
+    /// Which house a longitude falls in, 1-12, or nil when the cusps are
+    /// missing or malformed.
+    static func house(of longitude: Double, cusps: [Double]) -> Int? {
+        guard cusps.count == 12 else { return nil }
+        let value = Zodiac.normalize(longitude)
+
+        for index in 0..<12 {
+            let cusp = cusps[index]
+            let next = cusps[(index + 1) % 12]
+            if next > cusp {
+                if value >= cusp && value < next { return index + 1 }
+            } else if value >= cusp || value < next {
+                // The house that straddles 0° Aries.
+                return index + 1
+            }
+        }
+        return nil
     }
 
     // MARK: - Glyph spreading

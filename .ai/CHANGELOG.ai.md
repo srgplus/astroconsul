@@ -53,6 +53,45 @@ user can delete any profile by id.
 
 ## 2026-09-07
 
+### iOS: the wheel answers a tap
+Stage three. A glyph or an aspect line is tapped and named in a caption under
+the wheel, and a transit aspect's caption opens the detail sheet the transits
+card already uses. This is the phone's replacement for the web ring's hover
+tooltip, which has no equivalent here.
+
+**`WheelLayout` is the change that matters.** The geometry used to live inside
+the `Canvas` closure, where a gesture cannot see it. It is now built once per
+size in `ChartWheelLayout.swift` and read by both the drawing and the hit test,
+so a touch target cannot drift from the thing it is meant to hit. Working it
+out twice is how you get a wheel whose glyphs sit half a degree from where they
+can be tapped, with neither copy looking wrong on its own. `Metrics`, `Ring`
+and `Placement` moved there with it, and the wheel's inputs are now one
+`ChartWheelData` rather than eight properties.
+
+- **Glyphs beat lines**, and within each kind the nearest wins, so a tap
+  between two crowded glyphs takes the closer one. The reach is 16 points
+  against a 13-point glyph: a fingertip is 44, and since the nearest wins,
+  reaching past the neighbours costs nothing.
+- The glyph's tap target follows the **glyph**, not the tick — a crowded row
+  nudges glyphs off their true angle, and you aim at what you can see.
+- Tapping the same thing again clears it, so the caption can be let go of
+  without hunting for empty space between the rings.
+- A selection does not survive Chart/Transit or Special points: the rings are
+  rebuilt, and the body may not be drawn any more or may have moved.
+- The caption sits **under** the wheel, not in the middle of it. The middle is
+  about seventy points across once five rings are drawn, and a readout that
+  fits there in one combination is clipped in another.
+- Haptics are `@State`, not a stored `let`. A stored property on a `View` is
+  rebuilt every time SwiftUI rebuilds the struct, and a generator that new has
+  not warmed the Taptic Engine, so the first tap after any redraw was silent.
+
+**No rotation, deliberately.** The card lives inside a vertical `ScrollView`
+inside a horizontal pager, so a one-finger drag on the wheel fights both, and
+the wheel is a big target people scroll through. A two-finger `RotationGesture`
+would not conflict but nobody would find it. Neither earns its keep next to
+tapping, and rotating also breaks the convention the house numbers and axes are
+drawn to, that the ascendant is on the left horizon.
+
 ### iOS: Cosmic Climate, one line per season
 The web widget gives each long transit a card: emoji, name, a paragraph of
 meaning, a line of advice, a bar. On the native weather screen it is a
