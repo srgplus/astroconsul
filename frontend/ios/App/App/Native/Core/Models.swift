@@ -287,6 +287,52 @@ struct ForecastDay: Codable, Hashable, Identifiable {
         return Self.weekdayFormatter.string(from: day)
     }
 
+    /// "Tuesday, 9 September" — the long form, for a screen about this day
+    /// alone rather than a row in a list of ten.
+    func longLabel(isToday: Bool) -> String {
+        guard let day else { return date }
+        let name = Self.longFormatter.string(from: day)
+        return isToday ? "Today, \(name)" : name
+    }
+
+    /// This day as a moment to read: its date at `time`'s hour and minute, in
+    /// `zone`. The forecast sends a bare date, so the clock comes from the
+    /// reading the screen is already on — the same thing the settings sheet
+    /// produces when someone moves only the date wheel.
+    func instant(at time: Date, in zone: TimeZone) -> Date? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+
+        // Parsed off the string rather than off `day`, which is midnight in
+        // the *device's* zone and so lands on the wrong date either side of
+        // the dateline.
+        let parts = date.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else { return nil }
+
+        let clock = calendar.dateComponents([.hour, .minute], from: time)
+        return calendar.date(
+            from: DateComponents(
+                year: parts[0],
+                month: parts[1],
+                day: parts[2],
+                hour: clock.hour,
+                minute: clock.minute
+            )
+        )
+    }
+
+    /// Today, spelled the way the forecast spells its days. A window the
+    /// reader moved starts on the day they chose, so which row is "Today" is a
+    /// date comparison rather than the first row — and the zone is the one the
+    /// reading is cast in, so today means today *there*.
+    static func todayKey(in zone: TimeZone) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = zone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
+
     private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -297,6 +343,12 @@ struct ForecastDay: Codable, Hashable, Identifiable {
     private static let weekdayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("EEE")
+        return formatter
+    }()
+
+    private static let longFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM")
         return formatter
     }()
 }

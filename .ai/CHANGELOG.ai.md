@@ -4,6 +4,40 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: a forecast day opens in a sheet
+A row of the 10-day forecast was a readout and nothing else. Tapping one now
+opens `ForecastDayDetailSheet` — the same reading the page would show if that
+day had been picked by hand in the transit settings, minus the birth chart,
+which is the one thing on the page that does not move when the day does.
+
+The day's own numbers are already in hand: the forecast row carries the TII,
+the tension ratio, the feels-like label and the Moon, so the hero and the Moon
+card draw the instant the sheet opens. Only the transit report is fetched, and
+until it lands the cards below stand as `WeatherSkeleton(kind: .transits)` —
+the same loader the page itself uses.
+
+**How the day becomes a request.** `ForecastDay.instant(at:in:)` turns the bare
+`YYYY-MM-DD` into a moment: that date, at the clock time and in the zone the
+page is already reading. The date is parsed off the string rather than off
+`ForecastDay.day`, which is midnight in the *device's* zone and lands on the
+wrong date either side of the dateline. `CosmicWeatherViewModel.loadDay(_:_:)`
+then walks the same path `choose` does, minus the forecast half — asking for
+the ten-day window again would only re-fetch what the caller is looking at.
+
+**`readingMoment` replaces `readingTime`/`readingZone`** on the view model
+(both stay as computed properties, so call sites are unchanged). It records the
+moment the standing report was actually *cast for*, place and all, which is not
+always the moment that went out: a stale saved location is dropped on the
+retry. The day sheet builds its request from it, so it starts from something
+known to answer; the transit settings sheet opens on it too, which removed the
+hand-assembled `TransitMoment` that used to be built at the call site.
+
+The rows are wired with `.onTapGesture`, not a `Button` — inside the pager's
+scroll view a plain-styled button never fires, the same reason the active
+transit rows are wired that way. Which row is "Today" is now
+`ForecastDay.todayKey(in:)`, shared by the card and by the sheet it opens
+rather than spelled out twice.
+
 ### iOS: a chosen day now reaches the cards, and says it is loading
 Two faults in the same feature — reading the sky for a moment other than now
 (`TransitSettingsSheet` → `CosmicWeatherViewModel.choose`).

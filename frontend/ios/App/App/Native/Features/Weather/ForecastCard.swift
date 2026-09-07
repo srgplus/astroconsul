@@ -10,9 +10,12 @@ struct ForecastCard: View {
     /// The zone the reading is cast in, so "Today" means today there.
     var zone: TimeZone = .current
 
+    /// Tapping a row opens that day. Left unset the rows are just rows.
+    var onSelect: ((ForecastDay) -> Void)?
+
     var body: some View {
         // Once per draw, not once per row.
-        let today = todayKey
+        let today = ForecastDay.todayKey(in: zone)
 
         return WeatherCard {
             WeatherCardHeader(
@@ -27,19 +30,13 @@ struct ForecastCard: View {
 
                 row(day, isToday: day.date == today)
                     .padding(.vertical, 9)
+                    .contentShape(Rectangle())
+                    // A tap gesture rather than a Button: inside the pager's
+                    // scroll view a plain-styled Button never fires, which is
+                    // why the transit rows above are wired the same way.
+                    .onTapGesture { onSelect?(day) }
             }
         }
-    }
-
-    /// Today, spelled the way the forecast spells its days. A window the
-    /// reader moved starts on the day they chose, and calling its first row
-    /// "Today" would date the whole card wrong.
-    private var todayKey: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = zone
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
     }
 
     private func row(_ day: ForecastDay, isToday: Bool) -> some View {
@@ -62,6 +59,7 @@ struct ForecastCard: View {
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(day.label(isToday: isToday)), \(day.feelsLike), TII \(Int(day.tii.rounded()))")
+        .accessibilityAddTraits(onSelect == nil ? [] : .isButton)
     }
 
 }

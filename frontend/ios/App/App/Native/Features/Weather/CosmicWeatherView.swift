@@ -34,6 +34,8 @@ struct CosmicWeatherView: View {
     @ObservedObject private var device = DeviceLocation.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var showsSettings = false
+    /// The forecast row that was tapped, and so the day whose sheet is open.
+    @State private var selectedDay: ForecastDay?
 
     init(
         profile: ProfileSummary,
@@ -143,15 +145,18 @@ struct CosmicWeatherView: View {
         }
         .tint(.white)
         .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
+        .sheet(item: $selectedDay) { day in
+            ForecastDayDetailSheet(
+                profile: profile,
+                day: day,
+                isToday: day.date == ForecastDay.todayKey(in: model.readingZone),
+                moment: moment(for: day),
+                model: dayModel()
+            )
+        }
         .sheet(isPresented: $showsSettings) {
             TransitSettingsSheet(
-                current: model.chosen ?? TransitMoment(
-                    instant: model.readingTime,
-                    zone: model.readingZone,
-                    locationName: profile.latestTransit?.locationName,
-                    latitude: profile.latestTransit?.latitude,
-                    longitude: profile.latestTransit?.longitude
-                ),
+                current: model.chosen ?? model.readingMoment,
                 isChosen: model.chosen != nil,
                 onApply: { moment in
                     Task { await model.choose(moment, profile: profile) }
@@ -365,6 +370,28 @@ struct CosmicWeatherView: View {
         return "\(Int(tii.rounded()))°"
     }
 
+    // MARK: - One day
+
+    /// A forecast day, spelled as a moment to read: that date, at the clock
+    /// time and in the place this page is already reading. The same request
+    /// the settings sheet would send if the reader moved only the date wheel.
+    private func moment(for day: ForecastDay) -> TransitMoment {
+        var moment = model.readingMoment
+        moment.instant = day.instant(at: moment.instant, in: moment.zone) ?? moment.instant
+        return moment
+    }
+
+    /// A fresh model for the day sheet, so its request stands apart from this
+    /// page's and neither overwrites the other.
+    private func dayModel() -> CosmicWeatherViewModel {
+        #if DEBUG
+        // The harness has no account to read another day with, so a sheet
+        // opened over a seeded page is seeded from the same report.
+        if model.isSeeded { return model.seededCopy() }
+        #endif
+        return CosmicWeatherViewModel()
+    }
+
     // MARK: - Body states
 
     @ViewBuilder
@@ -408,7 +435,9 @@ struct CosmicWeatherView: View {
 
         case .loaded:
             if let today = model.today, let high = model.high, let low = model.low {
-                ForecastCard(days: model.days, low: low, high: high, zone: model.readingZone)
+                ForecastCard(days: model.days, low: low, high: high, zone: model.readingZone) { day in
+                    selectedDay = day
+                }
 
                 if let moon = today.moonPhase {
                     MoonCard(phase: moon)

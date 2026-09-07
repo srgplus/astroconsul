@@ -23,11 +23,17 @@ final class CosmicWeatherViewModel: ObservableObject {
     @Published private(set) var retrogradeObjects: Set<String> = []
     @Published private(set) var positions = TransitPositions()
 
-    /// The moment the reading was cast for, and the zone it is read in. The
-    /// hero prints these, so they are the request's own values rather than
-    /// "now" read a second time.
-    @Published private(set) var readingTime = Date()
-    @Published private(set) var readingZone = TimeZone.current
+    /// The moment the standing report was actually cast for, place and all.
+    ///
+    /// Not always the moment that was asked for: a stale saved location is
+    /// dropped on the retry below, and this records what came back rather than
+    /// what went out. The hero prints it, the settings sheet opens on it, and
+    /// a day opened from the forecast starts from it — so each of those works
+    /// from a request that is known to have answered.
+    @Published private(set) var readingMoment = TransitMoment(instant: Date(), zone: .current)
+
+    var readingTime: Date { readingMoment.instant }
+    var readingZone: TimeZone { readingMoment.zone }
 
     /// What the reader asked for instead of "now, where the profile lives".
     /// Nil is the ordinary case and the one the screen opens in.
@@ -47,8 +53,9 @@ final class CosmicWeatherViewModel: ObservableObject {
     #if DEBUG
     /// A seeded model has no session to read with, so a chosen moment cannot
     /// be fetched. The harness still has to show what choosing one looks like,
-    /// so it holds the refresh for a beat over the reading already on screen.
-    private var isSeeded = false
+    /// so it holds the refresh for a beat over the reading already on screen —
+    /// and a screen opened from a seeded page is seeded from it in turn.
+    private(set) var isSeeded = false
     #endif
 
     private let api: APIClient
@@ -56,6 +63,19 @@ final class CosmicWeatherViewModel: ObservableObject {
     /// The in-flight reading, owned by the model rather than by whoever asked
     /// for it. See `load(profile:showSpinner:)`.
     private var loadTask: Task<Void, Never>?
+
+    #if DEBUG
+    /// The same seeded report again, for a sheet opened over a seeded page.
+    func seededCopy() -> CosmicWeatherViewModel {
+        CosmicWeatherViewModel(
+            previewDays: days,
+            previewAspects: activeAspects,
+            previewClimate: cosmicClimate,
+            previewRetrograde: retrogradeObjects,
+            previewPositions: positions
+        )
+    }
+    #endif
 
     init(api: APIClient = .shared) {
         self.api = api
@@ -173,6 +193,16 @@ final class CosmicWeatherViewModel: ObservableObject {
         await load(profile: profile, showSpinner: false)
     }
 
+    /// One day's report on its own — what a forecast row's sheet needs.
+    ///
+    /// The same path `choose` takes, minus the forecast: the row already
+    /// carries its day's TII, feels-like and Moon, so asking for the ten-day
+    /// window again would only fetch what the caller is looking at.
+    func loadDay(_ moment: TransitMoment, profile: ProfileSummary) async {
+        chosen = moment
+        await loadTransits(profile: profile)
+    }
+
     func loadForecast(profileId: String, showSpinner: Bool = true) async {
         if showSpinner, days.isEmpty { state = .loading }
 
@@ -202,8 +232,13 @@ final class CosmicWeatherViewModel: ObservableObject {
 
         let moment = Self.moment(for: profile, chosen: chosen)
         let transit = profile.latestTransit
-        readingTime = moment.instant
-        readingZone = moment.zone
+        readingMoment = TransitMoment(
+            instant: moment.instant,
+            zone: moment.zone,
+            locationName: chosen?.locationName ?? transit?.locationName,
+            latitude: chosen?.latitude ?? transit?.latitude,
+            longitude: chosen?.longitude ?? transit?.longitude
+        )
 
         do {
             let report = try await api.fetchTransitReport(
@@ -231,9 +266,10 @@ final class CosmicWeatherViewModel: ObservableObject {
                 return
             }
 
+            // The retry sends no place at all, so neither does the record of
+            // it: anything opened from here asks the same way and answers.
             let fallback = Self.moment(for: profile, chosen: chosen, ignoringSavedSettings: true)
-            readingTime = fallback.instant
-            readingZone = fallback.zone
+            readingMoment = TransitMoment(instant: fallback.instant, zone: fallback.zone)
             do {
                 let report = try await api.fetchTransitReport(
                     profileId: profile.profileId,
