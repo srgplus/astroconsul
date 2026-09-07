@@ -360,6 +360,10 @@ struct NatalAspect: Codable, Hashable, Identifiable {
 
 struct TransitReport: Codable {
     let activeAspects: [ActiveAspect]?
+    /// The slow half of the same list, picked out and ranked by the backend:
+    /// outer planets on the personal points and the angles, inside orb for
+    /// months. The season behind the reading rather than today's weather.
+    let cosmicClimate: [ActiveAspect]?
     let transitPositions: [ChartPosition]?
     let natalPositions: [ChartPosition]?
     let anglePositions: [ChartPosition]?

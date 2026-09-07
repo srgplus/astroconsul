@@ -17,6 +17,9 @@ final class CosmicWeatherViewModel: ObservableObject {
     /// state: the forecast draws as soon as it lands rather than waiting.
     @Published private(set) var transitsState: State = .idle
     @Published private(set) var activeAspects: [ActiveAspect] = []
+    /// The months-long outer-planet transits, in the order the report ranked
+    /// them.
+    @Published private(set) var cosmicClimate: [ActiveAspect] = []
     @Published private(set) var retrogradeObjects: Set<String> = []
     @Published private(set) var positions = TransitPositions()
 
@@ -43,6 +46,7 @@ final class CosmicWeatherViewModel: ObservableObject {
     init(
         previewDays: [ForecastDay],
         previewAspects: [ActiveAspect] = [],
+        previewClimate: [ActiveAspect] = [],
         previewRetrograde: Set<String> = [],
         previewPositions: TransitPositions = .init(),
         loadingFor delay: Duration? = nil
@@ -50,6 +54,7 @@ final class CosmicWeatherViewModel: ObservableObject {
         self.api = .shared
         self.days = previewDays
         self.activeAspects = previewAspects
+        self.cosmicClimate = previewClimate
         self.retrogradeObjects = previewRetrograde
         self.positions = previewPositions
 
@@ -158,6 +163,8 @@ final class CosmicWeatherViewModel: ObservableObject {
             if leftRank != rightRank { return leftRank < rightRank }
             return left.orb < right.orb
         }
+        // Already ranked by the engine — longest window, tightest orb first.
+        cosmicClimate = report.cosmicClimate ?? []
         retrogradeObjects = Set(
             (report.transitPositions ?? []).filter { $0.retrograde == true }.map(\.id)
         )
