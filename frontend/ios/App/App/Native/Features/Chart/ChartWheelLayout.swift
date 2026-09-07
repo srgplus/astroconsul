@@ -220,14 +220,12 @@ struct WheelLayout {
         let natal = placements(of: chart.bodies, on: natalRing, chart: chart)
             .merging(axisPlacements(chart: chart, metrics: metrics)) { body, _ in body }
 
-        // Dimmed once transits are on. Both grids at full strength is fifty
-        // lines through one circle, and on a phone that is a ball of wool —
-        // the natal grid is the standing background, the transits are the news.
-        let natalInk = chart.showsTransits ? 0.5 : 1.0
         var result: [Line] = []
 
         // Natal to natal: both ends sit just inside their own band, and the
         // line crosses whatever is in the middle, which is what the web does.
+        // Only in Chart mode — `natalAspects` is empty once transits are on,
+        // because two grids in one circle is fifty lines and a ball of wool.
         for aspect in chart.natalAspects {
             guard let from = natal[aspect.p1], let to = natal[aspect.p2] else { continue }
             result.append(
@@ -235,7 +233,7 @@ struct WheelLayout {
                     from: WheelMath.point(center: center, radius: from.inner - metrics.notch, angle: from.angle),
                     to: WheelMath.point(center: center, radius: to.inner - metrics.notch, angle: to.angle),
                     style: .named(aspect.aspect),
-                    ink: natalInk * AspectStyle.ink(orb: aspect.orb),
+                    ink: AspectStyle.ink(orb: aspect.orb),
                     subject: .natalAspect(aspect)
                 )
             )
@@ -432,11 +430,14 @@ extension ChartWheelData {
         self.houses = positions.houses
         self.hidesSpecialPoints = hidesSpecialPoints
         self.bodies = Self.wheelBodies(positions.natal)
-        self.natalAspects = positions.natalAspects
 
+        // One grid at a time: Chart draws the natal aspects, Transit draws the
+        // transit-to-natal ones. Both together is unreadable on a phone.
         if showsTransits {
             self.transits = Self.wheelBodies(positions.transiting)
             self.transitAspects = aspects
+        } else {
+            self.natalAspects = positions.natalAspects
         }
     }
 
