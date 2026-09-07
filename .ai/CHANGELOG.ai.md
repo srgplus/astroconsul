@@ -18,6 +18,14 @@ hero shows, unless the hero has only a handle, which is not a place.
 is already in a text box in the chat, which is the one place they will read it
 and the easiest place to rewrite it, so there is no editor for it on this side.
 
+It is written in the descriptive register on purpose — "below is a finished
+calculation … these are positions, angles and intervals, not interpretations
+… these data can support, for example" — and not as instructions to an
+oracle. The data are ephemeris output; what is asked for is a judgement
+resting on the numbers. The four numbered lines are offered as examples of
+what can be read out of them, not as a form to fill in, which is also what
+keeps them easy to replace with the reader's own question.
+
 The two numbers get a glossary above them. Intensity and tension are ours, not
 anyone's convention, and a model handed "51 of 100" with no scale reads it as a
 temperature: `report.glossaryIntensity` and `report.glossaryTension` carry the

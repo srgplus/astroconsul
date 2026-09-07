@@ -143,7 +143,7 @@ private let enUI: [String: String] = [
     // rewrite it there, which is the one place they are already typing.
     "report.copy": "Copy report",
     "report.copied": "Report copied",
-    "report.prompt": "You are working from a finished astrological calculation: a natal chart and the transits for one moment, computed with Swiss Ephemeris. The data and a glossary of its two indices follow.\n\nRead it on its own terms. Work from the actual aspects, their orbs, the houses they fall in and the windows they are inside, not from generic sign descriptions. Do not invent anything the data does not carry; say so instead.\n\nGive me:\n1. What matters right now: the two or three strongest transits, and why those.\n2. How they land on this particular chart.\n3. Timing: when it tightens, when it lets go.\n4. What to do about it in practice.",
+    "report.prompt": "Below is a finished astrological calculation: a natal chart and the transits for one moment, computed with Swiss Ephemeris, and a glossary of its two indices. These are positions, angles and intervals, not interpretations.\n\nReading them on their own terms means working from the actual aspects, their orbs, the houses they fall in and the windows they are inside, rather than from generic sign descriptions. Anything the data does not carry is not worth inventing.\n\nThese data can support, for example:\n1. What matters most right now: the two or three strongest transits, and why those.\n2. How they land on this particular chart rather than on a typical Aries.\n3. Timing: when it tightens, when it lets go.\n4. What to do about it in practice.\n\nWhat is useful is a conclusion rather than a retelling of the tables: a judgement resting on the numbers, and what follows from it.",
     "report.birth": "Born",
     "report.reading": "Read for",
     "report.now": "Right now",
@@ -562,7 +562,7 @@ private let ruUI: [String: String] = [
     // Copy report
     "report.copy": "Скопировать отчёт",
     "report.copied": "Отчёт скопирован",
-    "report.prompt": "Ты работаешь с готовым астрологическим расчётом: натальная карта и транзиты на указанный момент, посчитанные по Swiss Ephemeris. Ниже данные и глоссарий двух показателей.\n\nРазбирай по существу: опирайся на конкретные аспекты, их орбы, дома, в которые они попадают, и окна, в которых они действуют, а не на общие описания знаков. Чего в данных нет, того не придумывай, так и скажи.\n\nДай:\n1. Что сейчас главное: два-три самых сильных транзита и почему именно они.\n2. Как это ложится на эту конкретную карту.\n3. Тайминг: когда усиливается, когда отпускает.\n4. Что с этим делать на практике.",
+    "report.prompt": "Ниже готовый астрологический расчёт: натальная карта и транзиты на указанный момент, Swiss Ephemeris, и глоссарий двух показателей. Это позиции, углы и интервалы, а не толкования.\n\nРазбор по существу опирается на конкретные аспекты, их орбы, дома и окна действия, а не на общие описания знаков. Чего в данных нет, того не стоит придумывать.\n\nНапример, по этим данным можно разобрать:\n1. Что сейчас главное: два-три самых сильных транзита и почему именно они.\n2. Как это ложится на эту конкретную карту, а не на «типичного Овна».\n3. Тайминг: когда усиливается, когда отпускает.\n4. Что с этим делать на практике.\n\nЦенен вывод, а не пересказ таблиц: суждение, опирающееся на числа, и то, что из него следует.",
     "report.birth": "Рождение",
     "report.reading": "Расчёт на",
     "report.now": "Сейчас",
