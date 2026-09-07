@@ -14,6 +14,7 @@ struct WeatherPager<Page: View>: View {
     /// and can no longer read it for itself.
     var bottomInset: CGFloat = 0
 
+    var onOpenSearch: () -> Void
     var onOpenList: () -> Void
     @ViewBuilder var page: (ProfileSummary) -> Page
 
@@ -42,6 +43,7 @@ struct WeatherPager<Page: View>: View {
                     selection = profiles[position].profileId
                 },
                 bottomInset: bottomInset,
+                onOpenSearch: onOpenSearch,
                 onOpenList: onOpenList
             )
         }
@@ -57,6 +59,7 @@ struct WeatherBottomBar: View {
     let primaryIndex: Int?
     var onSelectPage: (Int) -> Void
     var bottomInset: CGFloat = 0
+    var onOpenSearch: () -> Void
     var onOpenList: () -> Void
 
     /// Both circles and the dot capsule share one height so the row reads as
@@ -64,6 +67,8 @@ struct WeatherBottomBar: View {
     private static let control: CGFloat = 44
     /// The dot capsule hugs the dots, so it is shorter than the buttons.
     private static let dots: CGFloat = 32
+    /// Between the controls, and the width the empty left slot mirrors.
+    private static let gap: CGFloat = 10
 
     /// How much of the page the bar covers. It floats over the sky rather
     /// than sitting under it, so a scrolling page pads its content by this
@@ -80,11 +85,11 @@ struct WeatherBottomBar: View {
 
     var body: some View {
         WeatherGlassGroup(spacing: 14) {
-            HStack(spacing: 10) {
-                // Left slot, held empty for a button we have yet to add. It
-                // also balances the list button so the dots stay centred.
-                Color.clear
-                    .frame(width: Self.control, height: Self.control)
+            HStack(spacing: Self.gap) {
+                // One button each side, which is what keeps the dots on the
+                // centre line of the screen — and what leaves the capsule its
+                // width. Both on the right cost it about three dots.
+                circleButton(icon: "magnifyingglass", label: "Search profiles", action: onOpenSearch)
 
                 Spacer(minLength: 0)
 

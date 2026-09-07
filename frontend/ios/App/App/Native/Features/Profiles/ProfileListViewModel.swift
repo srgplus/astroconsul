@@ -98,6 +98,32 @@ final class ProfileListViewModel: ObservableObject {
         }
     }
 
+    /// Every profile already on the list, own or followed. The search screen
+    /// asks this before it offers a profile to subscribe to: the search route
+    /// drops the caller's own profiles but happily returns ones they already
+    /// follow.
+    var savedProfileIds: Set<String> {
+        Set(profiles.map(\.profileId))
+    }
+
+    /// Follows a profile found in search, then reloads so the pager gains its
+    /// page. No optimistic insert: a search result carries no reading of its
+    /// own worth showing, and the list is the one place that knows the order.
+    ///
+    /// A failure is reported back rather than pushed into `state`: this is
+    /// called from a sheet, and turning the whole pager behind it into an
+    /// error screen over one refused subscription is out of proportion.
+    func follow(_ profile: ProfileSummary) async -> Error? {
+        do {
+            try await api.followProfile(id: profile.profileId)
+            await load(showSpinner: false)
+            return nil
+        } catch {
+            NSLog("[Profiles] follow failed: \(error.localizedDescription)")
+            return error
+        }
+    }
+
     func unfollow(_ profile: ProfileSummary) async {
         let snapshot = profiles
         profiles.removeAll { $0.profileId == profile.profileId }

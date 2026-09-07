@@ -4,6 +4,52 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: search across profiles, and a preview before you subscribe
+The bottom bar had one button and a slot held empty for a second. The search
+button fills that slot, on the left, which is also what keeps the dots on the
+centre line of the screen: the empty slot was only ever there to balance the
+list button. Both buttons on the right was tried first and costs the dot
+capsule about three of its ten dots, because the empty slot has to grow to
+match them.
+
+**The search screen** (`Features/Profiles/ProfileSearchScreen.swift`) answers
+in two halves, which is the whole point of it:
+
+- *Mine* and *Following* come out of `ProfileListViewModel`, which already
+  holds them, so they filter on the keystroke with no request at all.
+- *Discover* / *New profiles* is `GET /api/v1/profiles/search`, debounced
+  300 ms through `.task(id: query)` so a fast typist makes one request rather
+  than one per letter. Before the first keystroke it shows
+  `GET /api/v1/public/featured` instead.
+
+That route drops the caller's own profiles but happily returns ones they
+already follow, so the screen subtracts `list.savedProfileIds` — a plus button
+next to a profile you already follow is a lie. `ProfileSummary.matches(_:)`
+now holds the one match test both this screen and `ProfileListScreen` apply,
+so a term that finds a profile in one finds it in the other.
+
+**Subscribing** is either the plus on the row or the plus on the preview.
+`ProfilePreviewSheet` is Weather's "city you searched for": the profile's own
+sky, TII, feels-like, Big 3 and birth moment, with a cross top-left and a plus
+top-right. It asks the network for nothing — everything is in the search
+payload — because `GET /profiles/{id}/transits/forecast` answers 403 for a
+profile you neither own nor follow. A full forecast in the preview needs that
+route to admit a public read; it does not today.
+
+Two things worth not rediscovering:
+
+- A follow failure is returned from `ProfileListViewModel.follow`, not pushed
+  into its `state`. It is called from a sheet, and turning the whole pager
+  behind it into an error screen over one refused subscription is out of
+  proportion.
+- Both the search screen and the preview watch the same `followError`, and an
+  alert raised by the *presenting* screen makes SwiftUI close the sheet to show
+  it. The search screen's alert is therefore gated on `preview == nil`, and the
+  preview carries its own.
+
+`ProfileSummary` gained `natalSummary` (the Big 3 the preview shows) and
+`birthMoment`, the birth date/time split that `NatalChartCard` had been keeping
+to itself.
 ### iOS: the ••• joins the header, and Edit Profile stops floating
 `ProfileEditSheet` had the two habits the other sheets have now lost. It is
 filled rather than frosted — a form of text fields, date pickers and a

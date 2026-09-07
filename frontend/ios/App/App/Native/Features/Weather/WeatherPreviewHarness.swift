@@ -34,6 +34,7 @@ struct WeatherPreviewHarness: View {
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
     @State private var editing: ProfileSummary?
+    @State private var showsSearch = false
 
     init() {
         _listModel = StateObject(
@@ -42,6 +43,10 @@ struct WeatherPreviewHarness: View {
                 primaryProfileId: WeatherPreviewData.profile.profileId
             )
         )
+    }
+
+    private var previewZone: TiiZone {
+        TiiZone(tii: WeatherPreviewData.profile.latestTransit?.tii ?? 0)
     }
 
     var body: some View {
@@ -53,6 +58,7 @@ struct WeatherPreviewHarness: View {
                 selection: $selection,
                 primaryProfileId: WeatherPreviewData.profile.profileId,
                 bottomInset: geometry.safeAreaInsets.bottom,
+                onOpenSearch: { showsSearch = true },
                 onOpenList: { showsList = true }
             ) { profile in
                 CosmicWeatherView(
@@ -95,8 +101,22 @@ struct WeatherPreviewHarness: View {
                     selection = profile.profileId
                     showsList = false
                 },
-                skyZone: TiiZone(tii: WeatherPreviewData.profile.latestTransit?.tii ?? 0),
+                skyZone: previewZone,
                 onOpenWeb: { showsList = false }
+            )
+        }
+        .sheet(isPresented: $showsSearch) {
+            ProfileSearchScreen(
+                list: listModel,
+                onSelect: { profile in
+                    selection = profile.profileId
+                    showsSearch = false
+                },
+                skyZone: previewZone,
+                // Seeded, because the harness runs without an account to
+                // search with: the "new profiles" group would otherwise be
+                // empty on every query.
+                model: ProfileSearchViewModel(previewDiscoveries: WeatherPreviewData.discoveries)
             )
         }
     }
@@ -117,6 +137,10 @@ struct WeatherPreviewHarness: View {
 
 #Preview("Home pager") {
     WeatherPreviewHarness()
+}
+
+#Preview("Profile preview") {
+    ProfilePreviewSheet(profile: WeatherPreviewData.discoveries[2], onSubscribe: {})
 }
 
 #endif
