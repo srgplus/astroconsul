@@ -110,7 +110,7 @@ struct NatalChartCard: View {
                 withAnimation(.easeInOut(duration: 0.22)) { isExpanded.toggle() }
             }
             .accessibilityAddTraits(.isButton)
-            .accessibilityHint(isExpanded ? "Hides the rest of the chart" : "Shows the rest of the chart")
+            .accessibilityHint(isExpanded ? "Hides the rest of the profile" : "Shows the rest of the profile")
         }
     }
 
@@ -119,7 +119,7 @@ struct NatalChartCard: View {
             Image(systemName: "circle.dotted")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Natal chart".uppercased())
+            Text("Astro profile".uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
 
