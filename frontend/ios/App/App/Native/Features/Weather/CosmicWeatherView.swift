@@ -103,6 +103,17 @@ struct CosmicWeatherView: View {
                     hero
                         .padding(.top, topInset + 8)
                         .padding(.bottom, 6)
+                        // In the scrolling content and not pinned over it, so
+                        // it leaves with the header it belongs to. An overlay
+                        // rather than a row, so it costs the hero no height:
+                        // it sits in the band beside the status bar that is
+                        // otherwise empty.
+                        .overlay(alignment: .topTrailing) {
+                            // No inset of its own: the scroll view is already
+                            // laid out below the status bar, so the top of the
+                            // content is the top of the header.
+                            profileMenu
+                        }
 
                     content
                 }
@@ -121,11 +132,6 @@ struct CosmicWeatherView: View {
             .frame(height: topInset + 8)
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
-        }
-        .overlay(alignment: .topTrailing) {
-            profileMenu
-                .padding(.top, topInset + 6)
-                .padding(.trailing, 16)
         }
         .tint(.white)
         .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
@@ -267,6 +273,11 @@ struct CosmicWeatherView: View {
                     .frame(width: Self.menuButton, height: Self.menuButton)
                     .contentShape(Circle())
             }
+            // The page tints everything under it white so marks read on the
+            // sky. The menu it opens is not on the sky — it is a system popup
+            // in the system's own appearance — so a white tint left its icons
+            // white beside black labels. Ink, which resolves either way.
+            .tint(Theme.text)
             .weatherGlass(in: .circle, interactive: true)
             .accessibilityLabel("Profile options")
         }

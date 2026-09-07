@@ -4,6 +4,22 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the ••• joins the header, and Edit Profile stops floating
+`ProfileEditSheet` had the two habits the other sheets have now lost. It is
+filled rather than frosted — a form of text fields, date pickers and a
+destructive row, all drawn for a background of a known colour — its cards are a
+step in tone with no hairline round them, and the grabber is gone.
+
+Saving moved from a full-width bar under the form to a tick in the corner where
+a confirm belongs. That bar was the only thing on the screen that needed a bar
+of its own, and it covered the bottom of the fields it was saving. Close moved
+to the leading side to face it.
+
+The ••• sits at the top of the header now, and inside the scrolling content
+rather than pinned over it, so it leaves with the header it belongs to. As an
+overlay it costs the hero no height: it rides in the band beside the status bar
+that is empty anyway.
+
 ### iOS: the Google button carries Google's own mark
 The native sign-in screen drew the provider as a serif letter "G", which read
 as a typo next to Apple's real glyph. It now uses the official four-colour

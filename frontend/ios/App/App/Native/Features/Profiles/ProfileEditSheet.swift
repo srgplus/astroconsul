@@ -57,16 +57,48 @@ struct ProfileEditSheet: View {
                 .navigationTitle("Edit Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .cancellationAction) {
                         Button("Close") { dismiss() }
                             .font(.system(.body, design: .rounded).weight(.medium))
+                            .foregroundStyle(Theme.text)
                             .disabled(model.isSaving || model.isDeleting)
+                    }
+
+                    // Saving is the confirm, so it sits where a confirm sits.
+                    // As a full-width button under the form it was the only
+                    // thing on screen that needed its own bar, and the bar
+                    // covered the bottom of the fields it was saving.
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button {
+                            focused = nil
+                            Task {
+                                if await model.save() {
+                                    onSaved()
+                                    dismiss()
+                                }
+                            }
+                        } label: {
+                            if model.isSaving {
+                                MinimalSpinner(color: .white)
+                            } else {
+                                Image(systemName: "checkmark")
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.blue)
+                        .disabled(!model.canSave)
+                        .accessibilityLabel("Save profile")
                     }
                 }
         }
         .tint(Theme.text)
-        .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
-        .presentationDragIndicator(.visible)
+        // Filled, not frosted. This is a form of system controls — text
+        // fields, date pickers, a destructive row — and every one of them is
+        // drawn for a background of a known colour.
+        .presentationBackground(Theme.sheetBg)
+        .presentationDragIndicator(.hidden)
         .task {
             // A seeded model (previews, harness) is already filled in.
             guard model.state == .loading else { return }
@@ -143,7 +175,6 @@ struct ProfileEditSheet: View {
             .padding(.bottom, 24)
         }
         .scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom) { saveBar }
     }
 
     // MARK: - Cards
@@ -303,37 +334,6 @@ struct ProfileEditSheet: View {
 
     // MARK: - Actions
 
-    private var saveBar: some View {
-        Button {
-            focused = nil
-            Task {
-                if await model.save() {
-                    onSaved()
-                    dismiss()
-                }
-            }
-        } label: {
-            HStack(spacing: 8) {
-                // The fill is `Theme.text`, so the label and the arc are both
-                // the page ground — white on a black button in light mode,
-                // black on a white one in dark.
-                if model.isSaving { MinimalSpinner(color: Theme.bg) }
-                Text(model.isSaving ? "Saving…" : "Save Profile")
-            }
-            .font(.system(.body, design: .rounded).weight(.semibold))
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(Theme.text)
-        .foregroundStyle(Theme.bg)
-        .disabled(!model.canSave)
-        .padding(.horizontal, 16)
-        .padding(.top, 10)
-        .padding(.bottom, 8)
-        .background(.ultraThinMaterial)
-    }
-
     private var deleteButton: some View {
         Button(role: .destructive) {
             focused = nil
@@ -366,15 +366,14 @@ struct ProfileEditSheet: View {
             .background(cardBackground)
     }
 
-    /// Translucent, never a solid fill: an opaque card would put a grey slab
-    /// back over the frosted sky this sheet floats on.
+    /// A step in tone from the sheet's own ground, and nothing else. That is
+    /// how the system separates a grouped panel from what it sits on; the
+    /// hairline this used to carry was a second, weaker answer to a question
+    /// already answered, and it is what made the cards look drawn on rather
+    /// than raised.
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-            .fill(.ultraThinMaterial)
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .stroke(Theme.line, lineWidth: 1)
-            )
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .fill(Theme.sheetCard)
     }
 
     private var divider: some View {
