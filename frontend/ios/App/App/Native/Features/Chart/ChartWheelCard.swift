@@ -44,7 +44,7 @@ struct ChartWheelCard: View {
     var now: Date = Date()
     /// The sky this card is floating on, so the full-screen wheel can stand on
     /// the same one frosted rather than on a slab of grey.
-    var zone: TiiZone = .active
+    var state: SkyState = .flowing
 
     @ObservedObject private var strings = L10n.shared
 
@@ -118,7 +118,7 @@ struct ChartWheelCard: View {
                     positions: positions,
                     aspects: aspects,
                     now: now,
-                    zone: zone,
+                    state: state,
                     mode: $mode,
                     showsSpecialPoints: $showsSpecialPoints,
                     selection: $selection

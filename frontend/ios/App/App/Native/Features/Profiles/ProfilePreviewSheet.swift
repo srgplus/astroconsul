@@ -35,13 +35,16 @@ struct ProfilePreviewSheet: View {
     @ObservedObject private var strings = L10n.shared
 
     private var zone: TiiZone? { profile.latestTransit?.tii.map(TiiZone.init(tii:)) }
+    private var state: SkyState? {
+        zone.map { SkyState(label: profile.latestTransit?.feelsLike, zone: $0) }
+    }
 
     var body: some View {
         ZStack {
             WeatherSky.cardGradient(for: zone).ignoresSafeArea()
 
-            if let zone {
-                SkyVideo(zone: zone, phase: profile.profileId).ignoresSafeArea()
+            if let state {
+                SkyVideo(state: state, phase: profile.profileId).ignoresSafeArea()
             }
 
             LinearGradient(

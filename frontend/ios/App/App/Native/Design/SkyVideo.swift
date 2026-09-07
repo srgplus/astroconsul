@@ -3,10 +3,10 @@ import SwiftUI
 
 /// Looping footage behind a weather screen.
 ///
-/// The gradient in `WeatherSky` stays underneath: zones without a clip keep it,
-/// and a clip that has not decoded its first frame yet fades in over it rather
-/// than flashing black. One file per zone, graded to that zone's palette so the
-/// sky still reads as the reading even when it moves.
+/// The gradient in `WeatherSky` stays underneath: states without a clip keep
+/// it, and a clip that has not decoded its first frame yet fades in over it
+/// rather than flashing black. One file per feels-like state, so two readings
+/// that share a zone no longer share a sky.
 struct SkyVideo: View {
 
     /// A profile card is a 358×108pt sliver, so it gets its own crop of the
@@ -25,10 +25,10 @@ struct SkyVideo: View {
         }
     }
 
-    let zone: TiiZone
+    let state: SkyState
     var variant: Variant = .screen
 
-    /// Cards of the same zone share one clip, so without an offset a list of
+    /// Cards of the same state share one clip, so without an offset a list of
     /// them plays in lockstep and reads as a repeated image rather than as
     /// separate skies. Callers pass something stable per card, like a profile
     /// id, and the clip starts at its own point in the loop.
@@ -36,10 +36,10 @@ struct SkyVideo: View {
 
     @State private var isReady = false
 
-    /// A zone whose clip is missing from the bundle falls back to the gradient
-    /// rather than to a black rectangle.
+    /// A state whose clip is missing from the bundle falls back to the
+    /// gradient rather than to a black rectangle.
     private var asset: URL? {
-        Bundle.main.url(forResource: Self.clipName(for: zone, variant: variant), withExtension: "mp4")
+        Bundle.main.url(forResource: Self.clipName(for: state, variant: variant), withExtension: "mp4")
     }
 
     /// 0..<1 position in the loop to start at. Hashing the caller's key by hand
@@ -53,8 +53,8 @@ struct SkyVideo: View {
         return Double(digest % 1000) / 1000
     }
 
-    static func clipName(for zone: TiiZone, variant: Variant) -> String {
-        "\(variant.prefix)_\(zone.rawValue)"
+    static func clipName(for state: SkyState, variant: Variant) -> String {
+        "\(variant.prefix)_\(state.rawValue)"
     }
 
     var body: some View {

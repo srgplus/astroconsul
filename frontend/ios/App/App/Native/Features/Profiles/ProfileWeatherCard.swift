@@ -24,6 +24,9 @@ struct ProfileWeatherCard: View {
 
     private var tii: Double? { profile.latestTransit?.tii }
     private var zone: TiiZone? { tii.map(TiiZone.init(tii:)) }
+    private var state: SkyState? {
+        zone.map { SkyState(label: profile.latestTransit?.feelsLike, zone: $0) }
+    }
 
     /// The same answer the detail screen's hero gives, so the two agree: this
     /// device's location on your own card, the transit location on the rest.
@@ -97,9 +100,9 @@ struct ProfileWeatherCard: View {
                 // Same footage as the profile's own screen, so tapping a card
                 // lands on a sky the eye already recognises. A profile with no
                 // reading has no zone and keeps the neutral gradient.
-                if let zone {
+                if let state {
                     if isOnScreen {
-                        SkyVideo(zone: zone, variant: .card, phase: profile.profileId)
+                        SkyVideo(state: state, variant: .card, phase: profile.profileId)
                     }
 
                     // The right-hand column sits over the brightest part of the

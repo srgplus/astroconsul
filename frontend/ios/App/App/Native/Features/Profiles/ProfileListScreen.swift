@@ -9,7 +9,7 @@ struct ProfileListScreen: View {
 
     /// The sky of the page this screen was opened from, so the glass behind it
     /// carries that colour.
-    var skyZone: TiiZone?
+    var skyState: SkyState?
 
     /// Opens one of the still-web screens, named by the caller.
     var onOpenWeb: (WebDestination) -> Void
@@ -34,7 +34,7 @@ struct ProfileListScreen: View {
             // below, so it opens in the appearance the app is actually set to
             // rather than inheriting this screen's night sky.
             .sheet(isPresented: $showsSettings) {
-                SettingsView(skyZone: skyZone, onManageAccount: {
+                SettingsView(skyState: skyState, onManageAccount: {
                     showsSettings = false
                     onOpenWeb(.account)
                 })
@@ -43,12 +43,12 @@ struct ProfileListScreen: View {
             // system controls drawn for the appearance the app is set to, not
             // for this screen's night sky.
             .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
-                ProfileEditSheet(skyZone: skyZone) { createdProfile = $0 }
+                ProfileEditSheet(skyState: skyState) { createdProfile = $0 }
             }
             // Glass instead of a slab of grey: the weather page underneath
             // stays visible through it, the way Weather's own sheets read on
             // iOS 26.
-            .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
+            .presentationBackground { WeatherGlassBackdrop(state: skyState) }
             // The pages behind this sheet keep decoding their full-screen skies
             // for a view nobody has — the backdrop above draws its own. Handing
             // those decoders back leaves them for the cards being scrolled.

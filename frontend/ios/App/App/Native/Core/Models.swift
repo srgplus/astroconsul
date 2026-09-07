@@ -154,6 +154,73 @@ enum TiiZone: String {
     }
 }
 
+/// The twelve feels-like states the transit engine reports, and the footage
+/// each one plays.
+///
+/// The gradient underneath stays per-zone — four colours the eye can learn —
+/// but the clip is this granular, so two readings that share a zone no longer
+/// share a sky. Raw values are the clip names in `Design/Sky`.
+enum SkyState: String, Equatable {
+    case calm
+    case subtlePressure = "subtle_pressure"
+    case grinding
+    case flowing
+    case dynamic
+    case pressured
+    case expansive
+    case charged
+    case intense
+    case powerful
+    case volatile
+    case explosive
+
+    /// The engine sends the label as prose, not as a code.
+    init?(label: String?) {
+        switch label {
+        case "Calm": self = .calm
+        case "Subtle pressure": self = .subtlePressure
+        case "Grinding": self = .grinding
+        case "Flowing": self = .flowing
+        case "Dynamic": self = .dynamic
+        case "Pressured": self = .pressured
+        case "Expansive": self = .expansive
+        case "Charged": self = .charged
+        case "Intense": self = .intense
+        case "Powerful": self = .powerful
+        case "Volatile": self = .volatile
+        case "Explosive": self = .explosive
+        default: return nil
+        }
+    }
+
+    /// A reading can carry a TII before its label lands, or a label this build
+    /// does not know. Fall back to the calmest state of the zone: its footage
+    /// is the one that matches the gradient already on screen.
+    init(label: String?, zone: TiiZone) {
+        if let known = SkyState(label: label) {
+            self = known
+        } else {
+            switch zone {
+            case .quiet: self = .calm
+            case .active: self = .flowing
+            case .hot: self = .expansive
+            case .extreme: self = .powerful
+            }
+        }
+    }
+
+    /// The zone this state sits in, so a caller that needs the colour does not
+    /// have to carry the TII alongside the state.
+    var zone: TiiZone {
+        switch self {
+        case .calm, .subtlePressure, .grinding: return .quiet
+        case .flowing, .dynamic, .pressured: return .active
+        case .expansive, .charged, .intense: return .hot
+        case .powerful, .volatile, .explosive: return .extreme
+        }
+    }
+}
+
 enum FeelsLike {
     /// Emoji for each feels-like label produced by the transit engine.
     static let emoji: [String: String] = [

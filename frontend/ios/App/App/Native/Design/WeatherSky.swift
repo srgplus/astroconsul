@@ -98,10 +98,10 @@ private extension UIColor {
 /// disagree often enough to put a green sheet over a blue sky. Pages report
 /// upwards instead. Keyed rather than a single value because a paging TabView
 /// keeps every page alive, so they all contribute.
-struct SkyZoneKey: PreferenceKey {
-    static var defaultValue: [String: TiiZone] = [:]
+struct SkyStateKey: PreferenceKey {
+    static var defaultValue: [String: SkyState] = [:]
 
-    static func reduce(value: inout [String: TiiZone], nextValue: () -> [String: TiiZone]) {
+    static func reduce(value: inout [String: SkyState], nextValue: () -> [String: SkyState]) {
         value.merge(nextValue()) { _, latest in latest }
     }
 }
