@@ -149,6 +149,13 @@ struct WeatherHomeView: View {
             guard state != .idle, state != .loading else { return }
             AppLaunch.shared.markContentReady()
         }
+        // The list suspends the pages' skies while it is up, and resumes them
+        // as it goes. Cleared from here as well, because a sky left frozen
+        // because one disappear did not land is worse than a redundant call.
+        .onChange(of: showsList) { _, isOpen in
+            guard !isOpen else { return }
+            SkyPlayerPool.shared.setPlaying(true, variant: .screen)
+        }
         // A sheet, not a cover: with the toolbar down to one Settings
         // button, a swipe down is how the list is left.
         .sheet(isPresented: $showsList) { listScreen }

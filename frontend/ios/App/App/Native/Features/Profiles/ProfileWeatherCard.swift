@@ -10,6 +10,17 @@ struct ProfileWeatherCard: View {
 
     @ObservedObject private var device = DeviceLocation.shared
 
+    /// Whether this card is on screen.
+    ///
+    /// A `List` keeps a row's views alive long after the row has scrolled out
+    /// of sight — measured on the harness, twenty rows for the eight cards you
+    /// can see — so footage tied to the row's lifetime means twenty decoders
+    /// running for seven visible skies, which is what made a long list stutter
+    /// under the finger. The row's own appear and disappear do land on the
+    /// boundary, so the clip hangs off those instead and the player goes back
+    /// to `SkyPlayerPool` the moment the card leaves.
+    @State private var isOnScreen = false
+
     private var tii: Double? { profile.latestTransit?.tii }
     private var zone: TiiZone? { tii.map(TiiZone.init(tii:)) }
 
@@ -86,7 +97,9 @@ struct ProfileWeatherCard: View {
                 // lands on a sky the eye already recognises. A profile with no
                 // reading has no zone and keeps the neutral gradient.
                 if let zone {
-                    SkyVideo(zone: zone, variant: .card, phase: profile.profileId)
+                    if isOnScreen {
+                        SkyVideo(zone: zone, variant: .card, phase: profile.profileId)
+                    }
 
                     // The right-hand column sits over the brightest part of the
                     // sunlit clips, so the card carries its own scrim the way
@@ -106,6 +119,8 @@ struct ProfileWeatherCard: View {
         )
         .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .combine)
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
     }
 
     private var temperature: String {

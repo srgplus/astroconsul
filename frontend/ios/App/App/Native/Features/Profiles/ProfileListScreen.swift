@@ -47,6 +47,11 @@ struct ProfileListScreen: View {
             // stays visible through it, the way Weather's own sheets read on
             // iOS 26.
             .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
+            // The pages behind this sheet keep decoding their full-screen skies
+            // for a view nobody has — the backdrop above draws its own. Handing
+            // those decoders back leaves them for the cards being scrolled.
+            .onAppear { SkyPlayerPool.shared.setPlaying(false, variant: .screen) }
+            .onDisappear { SkyPlayerPool.shared.setPlaying(true, variant: .screen) }
     }
 
     private var content: some View {
