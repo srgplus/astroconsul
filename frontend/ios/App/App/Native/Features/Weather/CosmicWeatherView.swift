@@ -37,6 +37,10 @@ struct CosmicWeatherView: View {
     @State private var showsSettings = false
     /// The forecast row that was tapped, and so the day whose sheet is open.
     @State private var selectedDay: ForecastDay?
+    /// Raised by Copy report and lowered two seconds later. Copying is
+    /// otherwise invisible — the menu closes over it and the clipboard says
+    /// nothing — so the page says it happened.
+    @State private var didCopy = false
 
     init(
         profile: ProfileSummary,
@@ -142,6 +146,28 @@ struct CosmicWeatherView: View {
             .frame(height: topInset + 8)
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
+        }
+        .overlay(alignment: .bottom) {
+            if didCopy {
+                Label(L("report.copied"), systemImage: "checkmark")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .weatherGlass(in: .capsule)
+                    .padding(.bottom, WeatherBottomBar.height(bottomInset: bottomInset) + 14)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: didCopy)
+        .sensoryFeedback(trigger: didCopy) { _, copied in copied ? .success : nil }
+        // Lowered on its own rather than by a dismiss the reader has to find.
+        // Keyed on the flag, so a second copy restarts the two seconds instead
+        // of inheriting what was left of the first.
+        .task(id: didCopy) {
+            guard didCopy else { return }
+            try? await Task.sleep(for: .seconds(2))
+            didCopy = false
         }
         .tint(.white)
         .preference(key: SkyStateKey.self, value: [profile.profileId: state])
@@ -262,42 +288,57 @@ struct CosmicWeatherView: View {
         .frame(maxWidth: .infinity)
     }
 
-    /// Weather puts its ••• in the same corner. With neither action wired up
-    /// there is nothing to offer, so there is no button either.
+    /// Weather puts its ••• in the same corner. Copy report is in it on every
+    /// page — the reading belongs to whoever is looking at it — and Edit or
+    /// Unfollow join it depending on which one the presenter wired up.
     @ViewBuilder
     private var profileMenu: some View {
-        if onEdit != nil || onUnfollow != nil {
-            Menu {
-                if let onEdit {
-                    Button {
-                        onEdit(profile)
-                    } label: {
-                        Label(L("weather.editProfile"), systemImage: "square.and.pencil")
-                    }
-                }
-
-                if let onUnfollow {
-                    Button(role: .destructive) {
-                        onUnfollow(profile)
-                    } label: {
-                        Label(L("weather.unfollow"), systemImage: "person.badge.minus")
-                    }
-                }
+        Menu {
+            Button {
+                report.copyToClipboard()
+                didCopy = true
             } label: {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: Self.menuButton, height: Self.menuButton)
-                    .contentShape(Circle())
+                Label(L("report.copy"), systemImage: "doc.on.clipboard")
             }
-            // The page tints everything under it white so marks read on the
-            // sky. The menu it opens is not on the sky — it is a system popup
-            // in the system's own appearance — so a white tint left its icons
-            // white beside black labels. Ink, which resolves either way.
-            .tint(Theme.text)
-            .weatherGlass(in: .circle, interactive: true)
-            .accessibilityLabel(L("weather.profileOptions"))
+            // Nothing has landed yet, so there would be nothing on the
+            // clipboard but a heading.
+            .disabled(report.isEmpty)
+
+            if let onEdit {
+                Button {
+                    onEdit(profile)
+                } label: {
+                    Label(L("weather.editProfile"), systemImage: "square.and.pencil")
+                }
+            }
+
+            if let onUnfollow {
+                Button(role: .destructive) {
+                    onUnfollow(profile)
+                } label: {
+                    Label(L("weather.unfollow"), systemImage: "person.badge.minus")
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: Self.menuButton, height: Self.menuButton)
+                .contentShape(Circle())
         }
+        // The page tints everything under it white so marks read on the
+        // sky. The menu it opens is not on the sky — it is a system popup
+        // in the system's own appearance — so a white tint left its icons
+        // white beside black labels. Ink, which resolves either way.
+        .tint(Theme.text)
+        .weatherGlass(in: .circle, interactive: true)
+        .accessibilityLabel(L("weather.profileOptions"))
+    }
+
+    /// What Copy report puts on the clipboard. A handle is not a place, so
+    /// the reading is labelled with one only when the hero has one.
+    private var report: ProfileReport {
+        model.report(for: profile, place: place.source == .handle ? nil : place.name)
     }
 
     private static let menuButton: CGFloat = 36

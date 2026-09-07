@@ -128,6 +128,25 @@ final class CosmicWeatherViewModel: ObservableObject {
 
     var today: ForecastDay? { days.first }
 
+    /// The reading exactly as it stands, spelled out for the clipboard. No
+    /// request of its own: Copy report copies what the page already has.
+    ///
+    /// `place` is what the hero labels the reading with, so the two agree —
+    /// and it is left off entirely when the page had only a handle to show,
+    /// since a handle is not a place.
+    func report(for profile: ProfileSummary, place: String?) -> ProfileReport {
+        ProfileReport(
+            profile: profile,
+            moment: readingMoment,
+            placeName: place,
+            days: days,
+            aspects: activeAspects,
+            climate: cosmicClimate,
+            positions: positions,
+            retrograde: retrogradeObjects
+        )
+    }
+
     /// High and low across the whole forecast window — the closest honest
     /// analogue to Weather's H/L, since the engine yields one TII per day.
     var high: Double? { days.map(\.tii).max() }
