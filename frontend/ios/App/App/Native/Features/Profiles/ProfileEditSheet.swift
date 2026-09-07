@@ -12,7 +12,7 @@ struct ProfileEditSheet: View {
     @StateObject private var model: ProfileEditViewModel
 
     /// The sky behind the glass, passed down from the page that opened this.
-    var skyZone: TiiZone?
+    var skyState: SkyState?
 
     var onSaved: () -> Void
     var onDeleted: () -> Void
@@ -35,12 +35,12 @@ struct ProfileEditSheet: View {
 
     init(
         profile: ProfileSummary,
-        skyZone: TiiZone? = nil,
+        skyState: SkyState? = nil,
         onSaved: @escaping () -> Void,
         onDeleted: @escaping () -> Void
     ) {
         _model = StateObject(wrappedValue: ProfileEditViewModel(profile: profile))
-        self.skyZone = skyZone
+        self.skyState = skyState
         self.onSaved = onSaved
         self.onDeleted = onDeleted
         self.onCreated = { _ in }
@@ -49,9 +49,9 @@ struct ProfileEditSheet: View {
     /// A blank form for a profile that does not exist yet. Same fields, same
     /// geocoding; the save posts instead of patching and there is nothing to
     /// delete.
-    init(skyZone: TiiZone? = nil, onCreated: @escaping (ProfileSummary) -> Void) {
+    init(skyState: SkyState? = nil, onCreated: @escaping (ProfileSummary) -> Void) {
         _model = StateObject(wrappedValue: ProfileEditViewModel())
-        self.skyZone = skyZone
+        self.skyState = skyState
         self.onSaved = {}
         self.onDeleted = {}
         self.onCreated = onCreated
@@ -61,14 +61,14 @@ struct ProfileEditSheet: View {
     /// Autoclosure so the model is built on the main actor when SwiftUI
     /// installs the view, not at the call site.
     init(
-        skyZone: TiiZone? = nil,
+        skyState: SkyState? = nil,
         onSaved: @escaping () -> Void = {},
         onDeleted: @escaping () -> Void = {},
         onCreated: @escaping (ProfileSummary) -> Void = { _ in },
         model: @autoclosure @escaping () -> ProfileEditViewModel
     ) {
         _model = StateObject(wrappedValue: model())
-        self.skyZone = skyZone
+        self.skyState = skyState
         self.onSaved = onSaved
         self.onDeleted = onDeleted
         self.onCreated = onCreated
@@ -505,7 +505,7 @@ struct ProfileEditSheet: View {
     Color.black
         .sheet(isPresented: .constant(true)) {
             ProfileEditSheet(
-                skyZone: .active,
+                skyState: .flowing,
                 model: ProfileEditViewModel(previewProfile: WeatherPreviewData.profile)
             )
         }

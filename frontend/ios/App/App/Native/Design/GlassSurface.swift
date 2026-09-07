@@ -58,12 +58,12 @@ struct WeatherGlassGroup<Content: View>: View {
 /// if the system kept it around.
 struct WeatherGlassBackdrop: View {
 
-    var zone: TiiZone?
+    var state: SkyState?
 
     var body: some View {
         ZStack {
-            if let zone {
-                WeatherSky.gradient(for: zone)
+            if let state {
+                WeatherSky.gradient(for: state.zone)
 
                 // The page draws footage over its gradient, so frosting the
                 // gradient alone leaves the glass a shade the sky no longer
@@ -74,7 +74,7 @@ struct WeatherGlassBackdrop: View {
                 // out the other side of the material is a blur, and decoding
                 // eight times the pixels for it costs the list scrolling on
                 // top of it.
-                SkyVideo(zone: zone, variant: .card)
+                SkyVideo(state: state, variant: .card)
             }
             // Frosted dark whatever the device is set to: the thing being
             // frosted is a night sky, and a light material over it turns the

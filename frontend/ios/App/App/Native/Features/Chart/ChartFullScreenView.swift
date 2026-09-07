@@ -29,7 +29,7 @@ struct ChartFullScreenView: View {
     var now: Date = Date()
     /// Drawn frosted behind the wheel, so the screen stands on the sky it was
     /// opened from instead of on a slab of grey.
-    var zone: TiiZone = .active
+    var state: SkyState = .flowing
 
     /// The card's state, shared rather than copied: what is switched or picked
     /// out here is still switched or picked out on the card underneath.
@@ -72,7 +72,7 @@ struct ChartFullScreenView: View {
             // In the view and not in `.presentationBackground`: a cover with
             // no background of its own shows the window's white, and every
             // glyph and hairline on this screen is white.
-            WeatherGlassBackdrop(zone: zone)
+            WeatherGlassBackdrop(state: state)
 
             VStack(spacing: 0) {
                 topBar
@@ -313,7 +313,7 @@ struct ChartFullScreenView: View {
             ChartFullScreenView(
                 positions: WeatherPreviewData.positions,
                 aspects: WeatherPreviewData.aspects,
-                zone: .active,
+                state: .flowing,
                 mode: $mode,
                 showsSpecialPoints: $showsSpecialPoints,
                 selection: $selection

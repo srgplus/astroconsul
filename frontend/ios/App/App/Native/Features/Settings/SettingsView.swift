@@ -21,7 +21,7 @@ struct SettingsView: View {
 
     /// The sky behind the glass, passed down from the screen that presented
     /// this one.
-    var skyZone: TiiZone?
+    var skyState: SkyState?
 
     /// Opens the account screen, which is still web: it owns the parts of the
     /// account that are not native yet, and the WebView opens straight on

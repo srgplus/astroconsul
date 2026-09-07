@@ -53,8 +53,11 @@ struct WeatherPreviewHarness: View {
         )
     }
 
-    private var previewZone: TiiZone {
-        TiiZone(tii: WeatherPreviewData.profile.latestTransit?.tii ?? 0)
+    private var previewState: SkyState {
+        SkyState(
+            label: WeatherPreviewData.profile.latestTransit?.feelsLike,
+            zone: TiiZone(tii: WeatherPreviewData.profile.latestTransit?.tii ?? 0)
+        )
     }
 
     var body: some View {
@@ -99,7 +102,7 @@ struct WeatherPreviewHarness: View {
         }
         .sheet(item: $editing) { profile in
             ProfileEditSheet(
-                skyZone: .active,
+                skyState: .flowing,
                 model: ProfileEditViewModel(previewProfile: profile)
             )
         }
@@ -116,7 +119,7 @@ struct WeatherPreviewHarness: View {
                     selection = profile.profileId
                     showsList = false
                 },
-                skyZone: previewZone,
+                skyState: previewState,
                 onOpenWeb: { _ in showsList = false }
             )
         }
@@ -127,7 +130,7 @@ struct WeatherPreviewHarness: View {
                     selection = profile.profileId
                     showsSearch = false
                 },
-                skyZone: previewZone,
+                skyState: previewState,
                 // Seeded, because the harness runs without an account to
                 // search with: the "new profiles" group would otherwise be
                 // empty on every query.

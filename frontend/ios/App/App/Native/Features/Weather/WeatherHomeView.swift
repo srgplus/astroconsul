@@ -25,7 +25,7 @@ struct WeatherHomeView: View {
     /// was last left.
     @State private var webDestination: WebDestination?
     @State private var showsAlertsOffer = false
-    @State private var skyZones: [String: TiiZone] = [:]
+    @State private var skyStates: [String: SkyState] = [:]
 
     /// A first profile, made from the empty state: there is no list to open
     /// the plus from until one exists.
@@ -181,13 +181,13 @@ struct WeatherHomeView: View {
         }
         .sheet(isPresented: $showsSearch) { searchScreen }
         .sheet(isPresented: $showsSettings) {
-            SettingsView(skyZone: visibleZone, onManageAccount: {
+            SettingsView(skyState: visibleState, onManageAccount: {
                 showsSettings = false
                 webDestination = .account
             })
         }
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
-            ProfileEditSheet(skyZone: visibleZone) { createdProfile = $0 }
+            ProfileEditSheet(skyState: visibleState) { createdProfile = $0 }
         }
         .fullScreenCover(item: $webDestination) { WebScreen(destination: $0) }
     }
@@ -216,12 +216,12 @@ struct WeatherHomeView: View {
                 )
                 .id("\(profile.profileId)#\(editVersions[profile.profileId] ?? 0)")
             }
-            .onPreferenceChange(SkyZoneKey.self) { skyZones = $0 }
+            .onPreferenceChange(SkyStateKey.self) { skyStates = $0 }
         }
         .sheet(item: $editing) { profile in
             ProfileEditSheet(
                 profile: profile,
-                skyZone: visibleZone,
+                skyState: visibleState,
                 onSaved: {
                     editVersions[profile.profileId, default: 0] += 1
                     Task { await model.load(showSpinner: false) }
@@ -237,10 +237,13 @@ struct WeatherHomeView: View {
     /// from rather than sitting on flat grey. The page reports its own, which
     /// is the forecast's reading; the profile's stored TII is the fallback
     /// until the forecast lands, and can be a zone out of date.
-    private var visibleZone: TiiZone? {
-        if let reported = skyZones[selection] { return reported }
+    private var visibleState: SkyState? {
+        if let reported = skyStates[selection] { return reported }
         guard let profile = profiles.first(where: { $0.profileId == selection }) else { return nil }
-        return TiiZone(tii: profile.latestTransit?.tii ?? 0)
+        return SkyState(
+            label: profile.latestTransit?.feelsLike,
+            zone: TiiZone(tii: profile.latestTransit?.tii ?? 0)
+        )
     }
 
     private var listScreen: some View {
@@ -250,7 +253,7 @@ struct WeatherHomeView: View {
                 selection = profile.profileId
                 showsList = false
             },
-            skyZone: visibleZone,
+            skyState: visibleState,
             onOpenWeb: { destination in
                 showsList = false
                 webDestination = destination
@@ -268,7 +271,7 @@ struct WeatherHomeView: View {
             // The empty state has no page to take a colour from, so the calm
             // sky stands in: left nil, the sheet's glass frosts the window's
             // own white instead of a sky and its white text stops reading.
-            skyZone: visibleZone ?? .quiet
+            skyState: visibleState ?? .calm
         )
     }
 

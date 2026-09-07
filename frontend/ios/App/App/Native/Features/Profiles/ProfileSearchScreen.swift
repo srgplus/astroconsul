@@ -17,16 +17,16 @@ struct ProfileSearchScreen: View {
 
     /// The sky of the page this screen was opened from, so the glass behind it
     /// carries that colour.
-    var skyZone: TiiZone?
+    var skyState: SkyState?
 
     init(
         list: ProfileListViewModel,
         onSelect: @escaping (ProfileSummary) -> Void,
-        skyZone: TiiZone? = nil
+        skyState: SkyState? = nil
     ) {
         self.list = list
         self.onSelect = onSelect
-        self.skyZone = skyZone
+        self.skyState = skyState
         _model = StateObject(wrappedValue: ProfileSearchViewModel())
     }
 
@@ -36,12 +36,12 @@ struct ProfileSearchScreen: View {
     init(
         list: ProfileListViewModel,
         onSelect: @escaping (ProfileSummary) -> Void,
-        skyZone: TiiZone? = nil,
+        skyState: SkyState? = nil,
         model: @autoclosure @escaping () -> ProfileSearchViewModel
     ) {
         self.list = list
         self.onSelect = onSelect
-        self.skyZone = skyZone
+        self.skyState = skyState
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -81,7 +81,7 @@ struct ProfileSearchScreen: View {
         }
         .tint(.white)
         .safeAreaInset(edge: .bottom, spacing: 0) { searchBar }
-        .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
+        .presentationBackground { WeatherGlassBackdrop(state: skyState) }
         // Same reason as the profile list: this screen stands on a frosted
         // night sky, and left to the device's appearance the text field and
         // the keyboard resolve for a white page.

@@ -79,9 +79,16 @@ struct CosmicWeatherView: View {
 
     /// The sky needs a colour before the forecast lands, so fall back to the
     /// TII the profile list already carried in.
-    private var zone: TiiZone {
-        TiiZone(tii: model.today?.tii ?? profile.latestTransit?.tii ?? 0)
+    private var state: SkyState {
+        SkyState(
+            label: model.today?.feelsLike ?? profile.latestTransit?.feelsLike,
+            zone: TiiZone(tii: model.today?.tii ?? profile.latestTransit?.tii ?? 0)
+        )
     }
+
+    /// The gradient follows the state rather than the raw TII, so the colour
+    /// and the footage can never disagree about which reading is on screen.
+    private var zone: TiiZone { state.zone }
 
     var body: some View {
         ZStack {
@@ -89,7 +96,7 @@ struct CosmicWeatherView: View {
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.4), value: zone)
 
-            SkyVideo(zone: zone)
+            SkyVideo(state: state)
 
             // The footage is brightest where the cards sit, so the lower half
             // gets a scrim. Without it a lightning core or a sunlit cloud eats
@@ -145,7 +152,7 @@ struct CosmicWeatherView: View {
             .allowsHitTesting(false)
         }
         .tint(.white)
-        .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
+        .preference(key: SkyStateKey.self, value: [profile.profileId: state])
         .sheet(item: $selectedDay) { day in
             ForecastDayDetailSheet(
                 profile: profile,
@@ -484,7 +491,7 @@ struct CosmicWeatherView: View {
                 positions: model.positions,
                 aspects: model.activeAspects,
                 now: model.readingTime,
-                zone: zone
+                state: state
             )
         }
     }
