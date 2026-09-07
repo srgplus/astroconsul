@@ -484,7 +484,8 @@ struct CosmicWeatherView: View {
             ChartWheelCard(
                 positions: model.positions,
                 aspects: model.activeAspects,
-                now: model.readingTime
+                now: model.readingTime,
+                zone: zone
             )
         }
     }
