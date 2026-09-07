@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Any
 
+from fastapi import Depends, HTTPException
+
+from app.api.auth import get_current_user
+from app.api.paywall import caller_is_pro
 from app.application.services.chart_service import ChartService
 from app.application.services.health_service import HealthService
 from app.application.services.location_lookup_service import LocationLookupService
@@ -46,29 +51,28 @@ def get_repositories():
     return get_repository_bundle(get_settings())
 
 
-def require_pro(user: dict | None = None):
-    """FastAPI dependency that checks Pro subscription status.
+def require_pro(
+    user: dict[str, Any] = Depends(get_current_user),
+    is_pro: bool = Depends(caller_is_pro),
+) -> dict[str, Any]:
+    """FastAPI dependency for a route that is Pro in its *entirety*.
 
-    Usage: user = Depends(require_pro) in route signature.
-    Returns user dict if Pro, raises 403 if free.
+    ``user: dict = Depends(require_pro)`` in the route signature: returns the
+    user when the subscription is active, 403 otherwise. It used to be written
+    as a factory returning the real check, so the usage its own docstring
+    prescribed injected that inner function as the "user" and checked nothing.
+
+    A route that is only *partly* paid must not use this. The transit report
+    and the chart endpoints serve a free tier its allowance of written
+    interpretations, so turning them into 403s would take that away — they
+    trim the response instead, in :mod:`app.api.paywall`.
+
+    ``get_user_subscription`` normalises every non-Pro answer to the free
+    plan, expired subscriptions included, so the detail names it directly.
     """
-    from typing import Any
-
-    from fastapi import Depends, HTTPException
-
-    from app.api.auth import get_current_user
-    from app.api.v1.routes.subscriptions import get_user_subscription
-
-    async def _check(user: dict[str, Any] = Depends(get_current_user)):
-        status = get_user_subscription(user["user_id"])
-        if not status["is_pro"]:
-            raise HTTPException(
-                status_code=403,
-                detail={"error": "pro_required", "plan": status["plan"]},
-            )
-        return user
-
-    return _check
+    if not is_pro:
+        raise HTTPException(status_code=403, detail={"error": "pro_required", "plan": "free"})
+    return user
 
 
 def clear_dependency_caches() -> None:

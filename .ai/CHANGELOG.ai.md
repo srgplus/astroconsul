@@ -4,6 +4,74 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### The paid interpretations are gated by the API, not by React
+`require_pro` in `app/api/dependencies.py` was attached to no route, so the
+transit and chart endpoints handed `meaning`, `action`, `insight`, `keywords`
+and the whole `natal_interpretations` block to every authenticated caller. The
+free/Pro split existed only in the client, which means a free account could
+read the entire paid report out of the browser's network tab, and the public
+profile route served it to callers with no account at all.
+
+`app/api/paywall.py` now trims the response instead. Attaching `require_pro`
+was the other option and does not fit: these endpoints are only *partly*
+paid — the free tier legitimately reads the top 3 aspects — so a 403 would
+take away the free tier along with the paid one.
+
+| Route | Free account now gets |
+|---|---|
+| `POST /profiles/{id}/transits/report` | prose on the free allowance of `active_aspects`; none on `cosmic_climate` or `top_transits` |
+| `GET /profiles/{id}` | `natal_interpretations` for 3 expandable rows and 3 aspects |
+| `GET /profiles/{id}/transits/forecast` | no prose on any day's `top_transits` |
+| `GET /public/profiles/{id}` | the same trim — anonymous is never Pro |
+
+Only the words go. Positions, aspects, orbs, strength, timing, TII and the
+climate cards' own headers are free and untouched: an aspect record keeps its
+shape with the paid fields nulled, while an interpretation entry is dropped
+outright, because every field of it is written text and the body, sign, house
+and orb it was keyed on are already in `natal_positions`/`natal_aspects`.
+
+**The allowance has to agree with the client's ordering**, or a free user taps
+one of their three unlocked rows and finds nothing written in it. So the
+orderings in `paywall.py` mirror `TransitsTab.tsx` (group, then orb — its sort
+by strength-then-orb is the same order, strength being a band of orb),
+`DailyWeather.tsx` (group, then transiting body, then orb, over the "most
+impact" subset it opens on) and `ProfileDetail.tsx`. Where two surfaces order
+the same list differently the allowance is the union of their first three, so
+on a real chart 22 aspects come back with 4 carrying prose instead of 22, and
+45 natal aspect readings come back as 3. Change an ordering in those files and
+`paywall.py` has to follow.
+
+With auth disabled — the local default — every request is the same synthetic
+user and there is no subscription table to read, so development still sees the
+whole report. Railway has auth on and answers from the subscription record.
+
+`ActiveTransitsWidget` gained one predicate on the web: a row with no prose
+reads as locked for a free account. Flipping "most impact" off reorders its
+list, and without this the row at index < 3 could be one whose text was never
+sent — now it shows the padlock and the paywall rather than an expanded card
+with nothing written in it. The rest of the client trimming is unchanged and
+stays presentation.
+
+**iOS is untouched by all of this.** `hidesPaidTier()` forces `is_pro` false in
+the client for every account, which the server gate never contradicts, and the
+iOS paths do not depend on what the response carries: `DailyWeather.tsx` drops
+the gated rows rather than locking them and renders no `meaning`/`action`/
+`keywords` at all, and `ProfileDetail.tsx` makes the natal rows unclickable. A
+Pro subscriber on iOS still gets the full payload from the server — auth says
+they are Pro — and still sees none of it, so guideline 3.1.1 holds.
+
+`require_pro` itself was also a factory returning the real check, so
+`Depends(require_pro)` — the usage its own docstring prescribed — injected
+that inner function as the "user" and verified nothing. It is now a plain
+dependency that works as documented, for whichever route is Pro in its
+entirety.
+
+**Still open:** `POST /profiles/{id}/synastry` returns `meaning`, `keywords`
+and `overall_reading` to anyone. It is Pro in its entirety, so `require_pro`
+is the right tool there, but the client's background prefetch fires before the
+paywall check, so attaching it would put 403s in the console and wants its own
+change.
+
 ### iOS: a slow first load keeps the logo instead of falling back to a spinner
 `RootView` holds `SplashView` for 450ms and then at most two seconds past
 that, so a backend that takes longer than ~2.5s to answer — a cold Railway
@@ -25,6 +93,7 @@ screen's own error state, and `.failed` still calls `markContentReady()`.
 The other spinners stay where they are: the per-page `MinimalSpinner` over a
 sky, the ones in the sheets and buttons. They sit on a screen that already has
 something on it, which is the thing this change is about.
+
 
 ### The word "cosmic" is out of the interface, and stays in the code
 Apple's 4.3(b) rejection is written in the horoscope-app vocabulary, and that

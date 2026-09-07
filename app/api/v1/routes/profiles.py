@@ -16,6 +16,12 @@ from app.api.dependencies import (
     get_synastry_service,
     get_transit_service,
 )
+from app.api.paywall import (
+    caller_is_pro,
+    strip_forecast,
+    strip_profile_detail,
+    strip_transit_report,
+)
 from app.application.services.chart_service import ChartService
 from app.application.services.location_lookup_service import LocationLookupService
 from app.application.services.profile_service import ProfileService
@@ -284,6 +290,7 @@ def profile_detail(
     profile_id: str,
     lang: str = Query("en"),
     user: dict[str, Any] = Depends(get_current_user),
+    is_pro: bool = Depends(caller_is_pro),
     profile_service: ProfileService = Depends(get_profile_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
@@ -305,7 +312,7 @@ def profile_detail(
         result["profile"]["following_count"] = profile_data["following_count"]
         result["profile"]["is_following"] = profile_data["is_following"]
         result["profile"]["is_own"] = profile_data["is_own"]
-        return result
+        return result if is_pro else strip_profile_detail(result)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -367,6 +374,7 @@ def profile_transit_report(
     profile_id: str,
     payload: ProfileTransitReportRequest,
     user: dict[str, Any] = Depends(get_current_user),
+    is_pro: bool = Depends(caller_is_pro),
     transit_service: TransitService = Depends(get_transit_service),
     location_service: LocationLookupService = Depends(get_location_lookup_service),
     repos: RepositoryBundle = Depends(get_repositories),
@@ -374,11 +382,12 @@ def profile_transit_report(
     _load_readable_profile(repos, profile_id, user["user_id"])
     request = TransitReportRequest(profile_id=profile_id, **payload.model_dump())
     try:
-        return transit_service.build_report(
+        report = transit_service.build_report(
             request,
             profile_repository=repos.profiles,
             location_resolver=lambda name: location_service.resolve(name, resolver=resolve_location_name),
         )
+        return report if is_pro else strip_transit_report(report)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except (LocationResolutionError, ValueError) as exc:
@@ -421,6 +430,7 @@ def profile_transit_forecast(
     start_date: date | None = Query(None),
     lang: str = Query("en"),
     user: dict[str, Any] = Depends(get_current_user),
+    is_pro: bool = Depends(caller_is_pro),
     transit_service: TransitService = Depends(get_transit_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
@@ -436,7 +446,8 @@ def profile_transit_forecast(
         lang=lang,
     )
     try:
-        return transit_service.build_forecast(request, profile_repository=repos.profiles)
+        forecast = transit_service.build_forecast(request, profile_repository=repos.profiles)
+        return forecast if is_pro else strip_forecast(forecast)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
