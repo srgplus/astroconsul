@@ -85,23 +85,26 @@ class AccountRouteTests(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.app = create_app()
-        self.client = TestClient(self.app)
+        self.client = TestClient(create_app())
 
-    def test_account_route_is_registered(self) -> None:
-        self.assertIn("/account", {route.path for route in self.app.routes})
-
-    def test_account_route_answers_exactly_as_the_spa_root_does(self) -> None:
-        # CI runs the backend job without building the frontend, so both of
-        # these are the "not built yet" 404 there and the SPA on a machine that
-        # has run `npm run build`. Either way they have to agree: /account is
-        # the same document as /, handed to the app's WebView at its own
-        # address.
+    def test_account_route_answers_as_the_spa_root_and_not_as_a_missing_page(
+        self,
+    ) -> None:
+        # Asked of the app rather than read off `app.routes`, whose entries are
+        # not the same shape across FastAPI versions.
         home = self.client.get("/")
         account = self.client.get("/account")
+        missing = self.client.get("/not-a-route-in-this-app")
 
+        # The same document as the SPA root, whichever state the build is in:
+        # CI's backend job never builds the frontend, so both are the "not
+        # built yet" 404 there and the SPA on a machine that has run
+        # `npm run build`.
         self.assertEqual(account.status_code, home.status_code)
         self.assertEqual(account.text, home.text)
+        # And distinguishable from a bare "Not Found", which is what /account
+        # would answer if the route went away.
+        self.assertNotEqual(account.text, missing.text)
 
     @unittest.skipUnless(
         (Path("frontend") / "dist" / "index.html").exists(),
