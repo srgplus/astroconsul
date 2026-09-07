@@ -4,6 +4,34 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the extreme sky is a storm that lights itself up, not a lightning bolt
+`sky_extreme.mp4` and `card_extreme.mp4` are rebuilt from a 4K storm timelapse
+(`1967950_Lapse_Moody`) in place of the vertical lightning-bolt stock. The bolt
+struck in the same place every 4.2 seconds, which is what a loop of a single
+strike gives you; the timelapse flashes from inside the cloud at four different
+points across a 6-second loop, so the repeat is much harder to catch.
+
+Two things about it depart from the recipe the other three skies follow, both
+noted in `scripts/build_sky_videos.sh`:
+
+- **It keeps the footage's own colour.** Every other clip is graded into its TII
+  zone's palette; this one is a channel-neutral levels stretch, so the sky stays
+  the source's night blue instead of the zone's red. Graded red it read as a
+  furnace rather than a storm. The rest of the extreme zone in `WeatherSky.swift`
+  is still red — including the status-bar scrim over the top of this clip, which
+  is a visible red band in light mode. Left as is deliberately: the red is the
+  hot end of the tension scale and mirrors `frontend/src/tii-zones.ts`.
+- **The window is chosen around the strikes, not the composition.** The source
+  flashes at 0.6, 1.2, 2.6, 3.0, 4.9, 5.4, 8.8 and 9.2 seconds. The build
+  crossfades a clip's last second back over its first to hide the loop seam, so
+  a strike in either of those seconds plays at half strength over calm sky, and
+  one in the last frames before the loop point reads as a flash cut off in the
+  air. 1.5-8.5 is the window that leaves both ends quiet.
+
+`scripts/build_sky_videos.sh` now takes optional zone names
+(`build_sky_videos.sh ~/Downloads/big3.me extreme`) so a re-grade of one sky
+does not re-encode and re-commit the other six.
+
 ### iOS: the app is portrait only
 `Info.plist` listed all four orientations, so every screen rotated into
 landscape, a layout none of them is built for (the chart wheel, the hero and
