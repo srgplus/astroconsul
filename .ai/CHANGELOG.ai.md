@@ -53,6 +53,80 @@ user can delete any profile by id.
 
 ## 2026-09-07
 
+### iOS: the device is told when the feels-like category changes
+The twelve categories in `app/domain/astrology/tii.py` (`_FEELS_LIKE_MATRIX`,
+`Calm` … `Explosive`) now reach the phone as notifications on the days they
+change.
+
+**They are local notifications, not APNs pushes, and that is the design.** The
+engine casts one reading per local *noon*, so a category change always lands on
+a day boundary and `GET /transits/forecast` already knows every one of them up
+to 30 days out. That makes the whole schedule computable in advance and
+handable to iOS in one go, firing whether or not the app is running. A push
+would need an APNs key, a device-token table and a server cron to produce the
+same banner, and would go quiet the moment any of the three broke. If real
+pushes are ever wanted — a same-day revision, say — the change list is the
+seam to move server-side, not the scheduling.
+
+- **`Native/Core/CategoryChange.swift`** is the rule, deliberately free of
+  UserNotifications and UIKit so it can be compiled and exercised on its own:
+  `list(in:)` turns a forecast into the days whose label differs from the day
+  before, and `fireComponents(hour:minute:in:)` dates the alert in the zone the
+  forecast was cast for. **Day zero is skipped on purpose** — it has no
+  predecessor in the window, and the run that scheduled the window today fell
+  in has already queued it.
+- **`Native/Core/CategoryAlerts.swift`** owns permission, the queue and the
+  `BGAppRefreshTask`. It rebuilds wholesale rather than diffing, so a revised
+  forecast can never leave yesterday's alert behind; every request it queues
+  carries the `category-change.` prefix so a rebuild only clears its own work.
+  Horizon 14 days, throttled to one forecast every 6h (each day is a separate
+  ephemeris pass server-side), and the queue is dropped on sign-out.
+- Scheduled for the **primary profile only**. Someone following a dozen charts
+  does not want a dozen banners a day.
+- Settings gains a Notifications section: toggle, time of day, and a live count
+  of what iOS is actually holding — `syncState()` reads the pending list back
+  rather than trusting a counter no rebuild has touched this launch.
+- `Info.plist` gains `UIBackgroundModes: fetch` and the
+  `BGTaskSchedulerPermittedIdentifiers` entry. **`BGTaskScheduler` traps unless
+  every permitted identifier has a handler registered before
+  `didFinishLaunchingWithOptions` returns** — hence the call at the top of
+  `AppDelegate`, above the window.
+- **`-uiPreviewAlerts`** joins `-uiPreviewWeather`: it schedules from the sample
+  forecast, prints the pending queue with its fire dates, and delivers one
+  banner 15s out, so the whole path can be checked on a simulator without an
+  account.
+
+**The temperature is a picture as well as a line.** `Native/Design/CategoryArtwork.swift`
+renders a 512pt square per alert — a pastel gradient picked for the category
+with the reading drawn on it — and attaches it, so the banner reads
+"⚡ Dynamic / 44° / Easing from Flowing" with the card beside it. **The badge at
+the leading edge of a banner cannot be changed**: it is the app icon, drawn
+small by SpringBoard, and no ordinary notification can replace it. An
+attachment is the only slot an app owns, and iOS shows it as the thumbnail next
+to the text and full width once the banner is expanded.
+
+**The reading is in the subtitle as well, and that is not redundancy.** An
+attachment is a thumbnail *the system* renders, through QuickLook, and a system
+that declines has to not take the temperature down with it. It does decline in
+the Simulator: SpringBoard logs `QLThumbnailErrorDomain 102` for every card,
+while `QLThumbnailGenerator` run against the very same file inside the very
+same simulator returns an 80×80 thumbnail happily — so the file is sound, the
+attachment is stored, and it is SpringBoard's own thumbnail path that fails
+there. **The card has therefore never been seen rendered; it is verified only
+as far as "iOS accepted it and QuickLook can read it".** Check it on a device
+before believing the picture half.
+
+- Twelve palettes, one per category, not four per TII zone: sharing a zone would
+  put `Calm` and `Grinding` on the same blue, which defeats a notification whose
+  whole content is that the category changed. Kept in separate hue families so
+  no two are confused at 38pt.
+- System rounded numerals at `.medium`, not the hero's Space Grotesk
+  ultraLight — the card is drawn at 512 and shown at 38, and a display face at
+  a hairline weight disappears at that reduction.
+- `UNNotificationAttachment` **moves** the file into its own store, so every
+  card is written under a fresh UUID; handing the same URL over twice fails,
+  and the schedule is rebuilt on every foreground.
+
 ### iOS: the reading is a moment somewhere, and now you can say which
 A chart is fixed; a transit is not. The weather screens always read the present
 at the profile's own place, which is the right default and was the only option.

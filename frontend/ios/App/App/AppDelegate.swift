@@ -1,5 +1,6 @@
 import UIKit
 import SwiftUI
+import UserNotifications
 import Capacitor
 
 @UIApplicationMain
@@ -8,6 +9,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Both before the window: BGTaskScheduler traps unless every permitted
+        // identifier has a handler by the time this method returns, and the
+        // notification delegate has to be set before any alert can arrive.
+        CategoryAlerts.registerBackgroundTask()
+        UNUserNotificationCenter.current().delegate = self
+
         // The app is migrating from a Capacitor WebView wrapper to native
         // SwiftUI, so the root is a native shell (RootView) and the WebView is
         // one tab inside it. Main.storyboard is no longer the entry point.
@@ -26,6 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+
+        // Asked for here rather than at launch: a request submitted while the
+        // app is in the foreground is the one iOS is least likely to honour.
+        Task { @MainActor in CategoryAlerts.shared.scheduleBackgroundRefresh() }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -53,4 +64,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
+}
+
+// MARK: - Notifications
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+
+    /// A category change that lands while the app is open still shows as a
+    /// banner. Without this iOS swallows it, and the one case where the alert
+    /// is easiest to check is the one case it never appears in.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
+    }
 }

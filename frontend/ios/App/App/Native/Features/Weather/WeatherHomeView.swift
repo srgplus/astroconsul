@@ -7,6 +7,7 @@ struct WeatherHomeView: View {
 
     @StateObject private var model = ProfileListViewModel()
     @ObservedObject private var auth = AuthStore.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var selection = ""
     @State private var showsList = false
@@ -90,9 +91,23 @@ struct WeatherHomeView: View {
             DeviceLocation.shared.start()
             await model.load()
             syncSelection()
+            await refreshAlerts()
         }
-        .onChange(of: auth.session) { _, _ in
-            Task { await model.load() }
+        // The category alerts are scheduled days ahead, so the schedule has to
+        // be topped up from a live forecast whenever the app is in hand. The
+        // scheduler throttles itself; calling it on every foreground is free.
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await refreshAlerts() }
+        }
+        .onChange(of: auth.session) { _, session in
+            Task {
+                // Signing out has to take the queue with it: the alerts name a
+                // profile this device can no longer read.
+                if session == nil { await CategoryAlerts.shared.reset() }
+                await model.load()
+                await refreshAlerts()
+            }
         }
         .onChange(of: model.profiles) { _, _ in syncSelection() }
         // A sheet, not a cover: with the toolbar down to one Settings
@@ -164,6 +179,15 @@ struct WeatherHomeView: View {
                 showsWeb = true
             }
         )
+    }
+
+    /// Rebuilds the notification schedule for the profile marked as the
+    /// owner's. Only that one: a person following a dozen charts does not want
+    /// a dozen banners a day.
+    private func refreshAlerts() async {
+        guard auth.isSignedIn else { return }
+        let primary = profiles.first { $0.profileId == model.primaryProfileId } ?? profiles.first
+        await CategoryAlerts.shared.refresh(profile: primary)
     }
 
     /// Keeps the visible page pointed at a profile that still exists, falling
