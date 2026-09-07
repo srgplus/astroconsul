@@ -218,7 +218,7 @@ struct ProfileSearchScreen: View {
                 Spacer(minLength: 8)
 
                 if let tii = profile.latestTransit?.tii {
-                    Text("\(Int(tii.rounded()))°")
+                    Text("\(Int(tii.rounded()))")
                         .font(.system(size: 20, weight: .light, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.85))

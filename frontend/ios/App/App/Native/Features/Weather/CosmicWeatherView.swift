@@ -248,12 +248,12 @@ struct CosmicWeatherView: View {
             .accessibilityAddTraits(.isButton)
             .accessibilityHint(L("weather.momentHint"))
 
-            Text(temperature)
-                .font(.system(size: 92, weight: .ultraLight, design: .rounded))
-                .foregroundStyle(.white)
-                .monospacedDigit()
-                .padding(.leading, 14)   // optical centring: the ° hangs right
-                .padding(.vertical, -8)
+            IntensityTension(
+                intensity: model.today?.tii ?? profile.latestTransit?.tii,
+                tension: model.today?.tensionRatio ?? profile.latestTransit?.tensionRatio
+            )
+            .padding(.top, 2)
+            .padding(.bottom, 10)
 
             Text(Astro.feels(feelsLike) ?? " ")
                 .font(.system(size: 21, weight: .medium, design: .rounded))
@@ -265,11 +265,6 @@ struct CosmicWeatherView: View {
                     .foregroundStyle(.white.opacity(0.75))
                     .multilineTextAlignment(.center)
                     .padding(.top, 1)
-            }
-
-            if let tension = model.today?.tensionRatio ?? profile.latestTransit?.tensionRatio {
-                TensionBar(ratio: tension)
-                    .padding(.top, 12)
             }
         }
         .frame(maxWidth: .infinity)
@@ -369,11 +364,6 @@ struct CosmicWeatherView: View {
             return (saved, .typed)
         }
         return ("@\(profile.username)", .handle)
-    }
-
-    private var temperature: String {
-        guard let tii = model.today?.tii ?? profile.latestTransit?.tii else { return "--°" }
-        return "\(Int(tii.rounded()))°"
     }
 
     // MARK: - One day
@@ -497,39 +487,161 @@ struct CosmicWeatherView: View {
     }
 }
 
-/// How much of the day's intensity is friction rather than flow, as the
-/// engine's tension ratio. A short track and a number, nothing else: it is a
-/// footnote to the reading above it, not a second headline.
-struct TensionBar: View {
+/// The reading, as the two numbers it is actually made of.
+///
+/// Intensity is the TII: an index from 0 to 100. Not a temperature and not an
+/// angle, so it wears no degree sign — the ° it used to carry was borrowed
+/// from a screen this one is not. Tension is how much of that intensity is
+/// friction rather than flow.
+///
+/// They stand side by side because neither answers the other's question: a
+/// quiet day can be all friction and a strong day all flow. Folding them into
+/// a single score would be the app saying hard days are worse days, which is
+/// not ours to say.
+struct IntensityTension: View {
 
-    /// 0…1 from the transit engine.
-    let ratio: Double
+    /// 0…100 from the transit engine. Nil until a reading has landed.
+    let intensity: Double?
 
-    private var percent: Int { Int((min(max(ratio, 0), 1) * 100).rounded()) }
+    /// 0…1 from the transit engine. Nil when the reading carries no split, in
+    /// which case the intensity stands alone rather than beside a guess.
+    let tension: Double?
 
-    private let width: CGFloat = 132
-    private let track: CGFloat = 4
+    @ObservedObject private var strings = L10n.shared
+
+    /// The tension is set at 65% of the intensity, and that ratio is the point
+    /// of the pair rather than a taste. "100%" is four glyphs against two: at a
+    /// shared size it outweighs the intensity on exactly the quiet days where
+    /// tension matters least, and the hierarchy turns over.
+    private static let intensitySize: CGFloat = 58
+    private static let tensionSize: CGFloat = 38
+
+    /// A column is wider than its bar so the longest label still sits inside
+    /// it: ИНТЕНСИВНОСТЬ runs half again the length of INTENSITY.
+    private static let column: CGFloat = 108
+    private static let bar: CGFloat = 88
+    /// Narrower than the column, so the two labels always have a gutter
+    /// between them. ИНТЕНСИВНОСТЬ set at full size fills the column edge to
+    /// edge and leaves the Russian pair reading as one long word; held to this
+    /// it comes down a fraction of a point instead, which nobody reads and
+    /// everybody can tell apart.
+    private static let label: CGFloat = 96
+    private static let track: CGFloat = 4
+    private static let ruleWidth: CGFloat = 1.5
+    private static let ruleHeight: CGFloat = 50
+
+    /// Where a digit sits inside its line box, as a fraction of the point size.
+    /// SF leaves more air above a big face than a small one, so aligning the
+    /// boxes would leave the smaller number floating; these put the tops of the
+    /// digits together instead, and hang the rule off the digits rather than
+    /// off the box.
+    private static let digitTop: CGFloat = 0.26
+    private static let digitHeight: CGFloat = 0.70
 
     var body: some View {
-        HStack(spacing: 10) {
+        VStack(spacing: 7) {
+            HStack(alignment: .top, spacing: 0) {
+                number(intensityText, size: Self.intensitySize)
+
+                if tension != nil {
+                    rule
+
+                    // Tops together, not baselines: at two sizes a shared
+                    // baseline leaves the smaller number hanging off the
+                    // bottom of the larger one.
+                    number(tensionText, size: Self.tensionSize)
+                        .padding(.top, (Self.intensitySize - Self.tensionSize) * Self.digitTop)
+                }
+            }
+
+            HStack(spacing: 0) {
+                meter(L("weather.intensityLabel"), fill: intensityFill, ink: 0.5)
+
+                if tension != nil {
+                    // Standing in for the rule, so the two rows keep step.
+                    Color.clear.frame(width: Self.ruleWidth, height: 1)
+
+                    meter(L("weather.tensionLabel"), fill: tensionFill, ink: 0.42)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(spoken)
+    }
+
+    private func number(_ text: String, size: CGFloat) -> some View {
+        Text(text)
+            .font(.system(size: size, weight: .ultraLight, design: .rounded))
+            .foregroundStyle(.white)
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(width: Self.column)
+    }
+
+    /// The hairline between the two numbers, centred on the digits.
+    private var rule: some View {
+        Capsule()
+            .fill(.white.opacity(0.30))
+            .frame(width: Self.ruleWidth, height: Self.ruleHeight)
+            .padding(
+                .top,
+                Self.intensitySize * Self.digitTop
+                    + (Self.intensitySize * Self.digitHeight - Self.ruleHeight) / 2
+            )
+    }
+
+    /// A caps label and a bar filled by its own number — the intensity against
+    /// 100, the tension against a whole. The tension's label is the fainter of
+    /// the two, so the pair still reads left to right.
+    private func meter(_ text: String, fill: CGFloat, ink: Double) -> some View {
+        VStack(spacing: 6) {
+            Text(text)
+                .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                .tracking(1.4)
+                .foregroundStyle(.white.opacity(ink))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(width: Self.label)
+
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(.white.opacity(0.22))
-                    .frame(width: width, height: track)
+                    .fill(.white.opacity(0.18))
+                    .frame(width: Self.bar, height: Self.track)
 
                 Capsule()
                     .fill(.white.opacity(0.9))
-                    .frame(width: max(width * CGFloat(min(max(ratio, 0), 1)), track), height: track)
+                    .frame(width: max(Self.bar * fill, Self.track), height: Self.track)
             }
-
-            Text(L("weather.tension", percent))
-                .font(.system(size: 13, design: .rounded))
-                .foregroundStyle(.white.opacity(0.7))
-                .monospacedDigit()
-                .fixedSize()
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(L("weather.tensionA11y", percent))
+        .frame(width: Self.column)
+    }
+
+    private var intensityText: String {
+        guard let intensity else { return "--" }
+        return "\(Int(intensity.rounded()))"
+    }
+
+    private var tensionText: String { "\(percent)%" }
+
+    private var percent: Int { Int((tensionFill * 100).rounded()) }
+
+    private var intensityFill: CGFloat { CGFloat(min(max((intensity ?? 0) / 100, 0), 1)) }
+
+    private var tensionFill: CGFloat { CGFloat(min(max(tension ?? 0, 0), 1)) }
+
+    /// One label for the pair: VoiceOver is reading a hero, not a table. And
+    /// it says the words rather than the abbreviation — "TII 51" is nothing to
+    /// anyone who cannot see what it is written on.
+    private var spoken: String {
+        var parts: [String] = []
+        if let intensity {
+            parts.append(L("weather.intensityValue", Int(intensity.rounded())))
+        }
+        if tension != nil {
+            parts.append(L("weather.tensionA11y", percent))
+        }
+        return parts.isEmpty ? L("profiles.noReading") : parts.joined(separator: ", ")
     }
 }
 

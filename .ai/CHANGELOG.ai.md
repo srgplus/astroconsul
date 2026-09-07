@@ -2,6 +2,41 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-07
+
+### The weather hero shows two numbers, and no degree sign anywhere
+TII is an index from 0 to 100 (`app/domain/astrology/tii.py`, `min(100,
+raw / 320 * 100)`). It is not a temperature and not an angle, so the `°` the
+native screens printed after it was wrong twice over — and set beside Apple's
+own weather glyphs it is one more thing making the screen look like Weather,
+which is what 4.3(b) has already cost us three times.
+
+`IntensityTension` in `Features/Weather/CosmicWeatherView.swift` replaces the
+single 92pt number in both heroes (the page and the day sheet): intensity on
+the left, tension as a percentage on the right, a hairline between them, a caps
+label under each and each label's own bar. It absorbs the old `TensionBar`,
+which is gone — the tension now has a place in the hero instead of a footnote
+under it.
+
+The tension is set at **65%** of the intensity's size, deliberately. "100%" is
+four glyphs against two, so at a shared size it swallows the intensity on
+exactly the quiet days where tension means least, and the hierarchy turns over.
+
+The degree also came off the forecast rows and their range, the profile cards,
+search, the preview sheet, the category alert's subtitle and its artwork. Both
+`padding(.leading, …)` nudges went with it: they existed only to re-centre a
+number the `°` was pulling right. **Real angles keep theirs** — 23°16′ Taurus
+and a 1°14′ orb in the wheel and the transit sheets are honest degrees.
+
+VoiceOver stops saying "TII 51". `weather.intensityValue` says the word, and
+the category alert's subtitle uses the same string rather than a bare number.
+
+Not done, and each rejected on purpose: the Apple weather glyphs stay (every
+alternative tried reads as a jumble next to a coherent family); the alert's
+emoji stays (Weather uses none, so it is the least Apple-like part); no single
+score folded out of the two numbers, because `50 + intensity * (0.5 - tension)`
+asserts that hard days are worse days and that is not ours to assert; no rings.
+
 ## 2026-09-06
 
 ### The paid interpretations are gated by the API, not by React

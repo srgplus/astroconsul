@@ -144,12 +144,9 @@ struct ForecastDayDetailSheet: View {
                 .foregroundStyle(.white.opacity(0.75))
                 .padding(.top, 5)
 
-            Text("\(Int(day.tii.rounded()))°")
-                .font(.system(size: 84, weight: .ultraLight, design: .rounded))
-                .foregroundStyle(.white)
-                .monospacedDigit()
-                .padding(.leading, 13)   // optical centring: the ° hangs right
-                .padding(.vertical, -6)
+            IntensityTension(intensity: day.tii, tension: day.tensionRatio)
+                .padding(.top, 2)
+                .padding(.bottom, 10)
 
             HStack(spacing: 7) {
                 Image(systemName: FeelsLike.symbol(for: day.feelsLike))
@@ -167,11 +164,6 @@ struct ForecastDayDetailSheet: View {
                     .foregroundStyle(.white.opacity(0.75))
                     .multilineTextAlignment(.center)
                     .padding(.top, 1)
-            }
-
-            if let tension = day.tensionRatio {
-                TensionBar(ratio: tension)
-                    .padding(.top, 12)
             }
         }
         .frame(maxWidth: .infinity)
