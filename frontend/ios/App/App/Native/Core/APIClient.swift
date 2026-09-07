@@ -2,6 +2,7 @@ import Foundation
 
 enum APIError: LocalizedError {
     case notSignedIn
+    case cancelled
     case http(status: Int, detail: String?)
     case transport(Error)
     case decoding(Error)
@@ -10,6 +11,10 @@ enum APIError: LocalizedError {
         switch self {
         case .notSignedIn:
             return "Sign in to load your profiles."
+        case .cancelled:
+            // Never shown: every caller drops a cancellation rather than
+            // reporting it. Spelled out anyway so a stray log reads.
+            return "The request was cancelled."
         case let .http(status, detail):
             return detail ?? "Request failed (HTTP \(status))."
         case let .transport(error):
@@ -22,6 +27,24 @@ enum APIError: LocalizedError {
     var isUnauthorized: Bool {
         if case let .http(status, _) = self { return status == 401 }
         return false
+    }
+}
+
+extension Error {
+    /// True when the request was cancelled rather than failing.
+    ///
+    /// URLSession reports that as `URLError.cancelled`, whose message is the
+    /// bare word "cancelled" — which is what the weather screen and the
+    /// profile list were printing at the reader under "Could not load". It
+    /// happens whenever the Swift task around a request goes away: a pager
+    /// page swiped off-screen tears down its `.task`, and the system cancels
+    /// what is in flight when the app is suspended. Neither is a failure and
+    /// neither is worth a message; the caller reloads instead.
+    var isCancellation: Bool {
+        if self is CancellationError { return true }
+        if let api = self as? APIError, case .cancelled = api { return true }
+        let error = self as NSError
+        return error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled
     }
 }
 
@@ -289,7 +312,7 @@ actor APIClient {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw APIError.transport(error)
+            throw error.isCancellation ? APIError.cancelled : APIError.transport(error)
         }
 
         guard let http = response as? HTTPURLResponse else {

@@ -35,6 +35,10 @@ final class CosmicWeatherViewModel: ObservableObject {
 
     private let api: APIClient
 
+    /// The in-flight reading, owned by the model rather than by whoever asked
+    /// for it. See `load(profile:showSpinner:)`.
+    private var loadTask: Task<Void, Never>?
+
     init(api: APIClient = .shared) {
         self.api = api
     }
@@ -70,7 +74,9 @@ final class CosmicWeatherViewModel: ObservableObject {
 
         self.state = .loading
         self.transitsState = .loading
-        Task { @MainActor [weak self] in
+        // Held in `loadTask` so the seeded delay reads as a load in flight and
+        // no foreground reload fires a real request at the harness.
+        self.loadTask = Task { @MainActor [weak self] in
             // The forecast is the fast half in the real app; the report lands
             // a beat later. The harness keeps that order.
             try? await Task.sleep(for: delay)
@@ -90,10 +96,38 @@ final class CosmicWeatherViewModel: ObservableObject {
 
     /// Both halves of the screen at once. They are independent requests, so a
     /// failure in one leaves the other on screen.
+    ///
+    /// The pair runs in a task of the model's own, not in the caller's. The
+    /// page starts this from `.task`, and the pager tears a page's `.task`
+    /// down the moment it scrolls off — which cancelled the requests under it
+    /// and left "No forecast — cancelled" on the card for whoever swiped back.
+    /// An unstructured task does not inherit that cancellation, so a reading
+    /// swiped away from finishes and is waiting when the page returns.
     func load(profile: ProfileSummary, showSpinner: Bool = true) async {
-        async let forecast: Void = loadForecast(profileId: profile.profileId, showSpinner: showSpinner)
-        async let transits: Void = loadTransits(profile: profile)
-        _ = await (forecast, transits)
+        loadTask?.cancel()
+
+        let task = Task { [weak self] in
+            guard let self else { return }
+            async let forecast: Void = self.loadForecast(
+                profileId: profile.profileId,
+                showSpinner: showSpinner
+            )
+            async let transits: Void = self.loadTransits(profile: profile)
+            _ = await (forecast, transits)
+        }
+        loadTask = task
+        await task.value
+        if loadTask == task { loadTask = nil }
+    }
+
+    /// True when the page has no full reading to show and none on its way:
+    /// what a request cancelled by the system leaves behind, and what one that
+    /// failed off the network leaves behind. The page reloads from here when
+    /// the app comes back to the foreground, so neither waits on a tap of Try
+    /// again.
+    var needsReload: Bool {
+        guard loadTask == nil else { return false }
+        return state != .loaded || transitsState != .loaded
     }
 
     /// Read the sky for another moment, or pass nil to go back to this one.
@@ -116,12 +150,16 @@ final class CosmicWeatherViewModel: ObservableObject {
             )
             days = response.days
             state = .loaded
-        } catch let error as APIError {
-            NSLog("[Weather] forecast failed for \(profileId): \(error.localizedDescription)")
-            state = .failed(error.localizedDescription)
         } catch {
+            // A cancelled request is a page swiped away or an app put down,
+            // not a failure. Left alone, so `needsReload` picks it up rather
+            // than the reader being shown the word "cancelled".
+            guard !error.isCancellation else {
+                NSLog("[Weather] forecast cancelled for \(profileId)")
+                return
+            }
             NSLog("[Weather] forecast failed for \(profileId): \(error.localizedDescription)")
-            state = .failed(error.localizedDescription)
+            state = .failed(Self.message(for: error))
         }
     }
 
@@ -145,6 +183,10 @@ final class CosmicWeatherViewModel: ObservableObject {
             )
             apply(report)
         } catch {
+            guard !error.isCancellation else {
+                NSLog("[Weather] transit report cancelled for \(profile.profileId)")
+                return
+            }
             NSLog("[Weather] transit report failed for \(profile.profileId): \(error.localizedDescription)")
 
             // The profile's saved transit settings can be stale — a renamed
@@ -167,6 +209,10 @@ final class CosmicWeatherViewModel: ObservableObject {
                 )
                 apply(report)
             } catch {
+                guard !error.isCancellation else {
+                    NSLog("[Weather] transit retry cancelled for \(profile.profileId)")
+                    return
+                }
                 NSLog("[Weather] transit retry failed for \(profile.profileId): \(error.localizedDescription)")
                 transitsState = .failed(Self.message(for: error))
             }

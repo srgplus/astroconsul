@@ -88,6 +88,40 @@ never drawn beside transit lines any more, so they are always at full strength.
 Nothing else changed: both rings, the glyph rows, hit testing and the
 `.natalAspect` caption branch all stay as they were, and the web chart is
 untouched.
+### iOS: a cancelled request is no longer an error on screen
+Two screens were printing the word "cancelled" at the reader — "Could not load
+profiles / cancelled" over the whole home screen, and "No forecast / cancelled"
+on the weather card. Neither was a failure. `URLError.cancelled` is what
+URLSession throws when the Swift task around a request goes away, and its
+`localizedDescription` is that one word.
+
+Three things cancel a request in this app, and each is fixed at its own level:
+
+- **A pager page swiped off-screen.** `TabView(.page)` tears a page's `.task`
+  down as it scrolls out, and that cancelled the forecast under it. Swiping
+  back showed the dead error card, and `CosmicWeatherView`'s `.task` guard
+  (`state == .idle`) meant it never retried by itself. `load` in both
+  `CosmicWeatherViewModel` and `ProfileListViewModel` now runs its requests in
+  a `Task` of the model's own — unstructured tasks do not inherit the caller's
+  cancellation — so a reading swiped away from finishes and is waiting when
+  the page comes back. The model holds it in `loadTask` and cancels it only
+  when a newer load replaces it.
+- **A full-screen cover over the home screen.** Same shape, same fix: the
+  home's `.task` is cancelled when `WebScreen` goes up, and the list survives
+  it now.
+- **The app being suspended.** The system cancels what is in flight, and
+  `.task` does not run again on the way back in because the screen never
+  disappeared. Both models expose `needsReload` (nothing to show, nothing on
+  its way), and both screens reload from it on `scenePhase == .active`. That
+  also covers a load that failed off the network: coming back to the app
+  retries instead of waiting for a tap on Try again.
+
+`Error.isCancellation` in `Core/APIClient.swift` is the one test for all of
+this — `CancellationError`, `APIError.cancelled` and a bridged
+`NSURLErrorCancelled` — and `APIClient.send` now throws `APIError.cancelled`
+rather than wrapping it as `.transport`. Every model that could put an error
+in front of the reader drops a cancellation instead: the profile list, the
+weather screens, the edit sheet and the search screen.
 
 ### iOS: search across profiles, and a preview before you subscribe
 The bottom bar had one button and a slot held empty for a second. The search

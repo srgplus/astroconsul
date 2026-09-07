@@ -17,6 +17,10 @@ final class ProfileListViewModel: ObservableObject {
 
     private let api: APIClient
 
+    /// The in-flight load, owned by the model rather than by whoever asked
+    /// for it. See `load(showSpinner:)`.
+    private var loadTask: Task<Void, Never>?
+
     init(api: APIClient = .shared) {
         self.api = api
     }
@@ -61,7 +65,42 @@ final class ProfileListViewModel: ObservableObject {
         profiles.filter { !$0.ownedByViewer && $0.profileId != primaryProfileId }
     }
 
+    /// True when the list has nothing to show and nothing on its way: what a
+    /// load cancelled by the system leaves behind, and what a request that
+    /// failed off the network leaves behind. The screen reloads from here when
+    /// the app comes back to the foreground, so neither waits on the reader to
+    /// notice and tap Try again.
+    var needsReload: Bool {
+        guard loadTask == nil else { return false }
+        switch state {
+        case .idle, .loading, .failed:
+            return true
+        case .loaded, .signedOut:
+            return false
+        }
+    }
+
+    /// Reloads the list.
+    ///
+    /// The request runs in a task of the model's own, not in the caller's: the
+    /// screen starts this from `.task`, which SwiftUI cancels the moment a
+    /// full-screen cover goes up over the home screen. Cancelling that also
+    /// cancelled the request under it, and the list came back reading "Could
+    /// not load profiles — cancelled". An unstructured task does not inherit
+    /// that cancellation, so the load finishes either way.
     func load(showSpinner: Bool = true) async {
+        loadTask?.cancel()
+
+        let task = Task { [weak self] in
+            guard let self else { return }
+            await self.performLoad(showSpinner: showSpinner)
+        }
+        loadTask = task
+        await task.value
+        if loadTask == task { loadTask = nil }
+    }
+
+    private func performLoad(showSpinner: Bool) async {
         guard AuthStore.shared.isSignedIn else {
             profiles = []
             state = .signedOut
@@ -78,10 +117,20 @@ final class ProfileListViewModel: ObservableObject {
         } catch let error as APIError {
             if error.isUnauthorized || error == .notSignedIn {
                 state = .signedOut
+            } else if error.isCancellation {
+                // A newer load owns the screen, or the app went away
+                // mid-request. Left alone, so `needsReload` picks it up.
+                NSLog("[Profiles] load cancelled")
             } else {
+                NSLog("[Profiles] load failed: \(error.localizedDescription)")
                 state = .failed(error.localizedDescription)
             }
         } catch {
+            guard !error.isCancellation else {
+                NSLog("[Profiles] load cancelled")
+                return
+            }
+            NSLog("[Profiles] load failed: \(error.localizedDescription)")
             state = .failed(error.localizedDescription)
         }
     }
@@ -94,6 +143,7 @@ final class ProfileListViewModel: ObservableObject {
         } catch {
             NSLog("[Profiles] setPrimary failed: \(error.localizedDescription)")
             primaryProfileId = previous
+            guard !error.isCancellation else { return }
             state = .failed(error.localizedDescription)
         }
     }
@@ -132,6 +182,7 @@ final class ProfileListViewModel: ObservableObject {
         } catch {
             NSLog("[Profiles] unfollow failed: \(error.localizedDescription)")
             profiles = snapshot
+            guard !error.isCancellation else { return }
             state = .failed(error.localizedDescription)
         }
     }

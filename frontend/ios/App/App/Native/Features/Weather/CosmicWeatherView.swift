@@ -32,6 +32,7 @@ struct CosmicWeatherView: View {
 
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showsSettings = false
 
     init(
@@ -157,6 +158,13 @@ struct CosmicWeatherView: View {
             // A seeded model (previews, harness) is already loaded.
             guard model.state == .idle else { return }
             await model.load(profile: profile)
+        }
+        // A reading in flight when the app is suspended comes back cancelled,
+        // and `.task` does not run again on the way in — the page never
+        // disappeared. Picked up here so the skeletons resolve on their own.
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active, model.needsReload else { return }
+            Task { await model.load(profile: profile) }
         }
     }
 
