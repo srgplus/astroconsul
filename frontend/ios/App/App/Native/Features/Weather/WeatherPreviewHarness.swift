@@ -22,6 +22,14 @@ struct WeatherPreviewHarness: View {
         simulatesLoading ? .seconds(3) : nil
     }
 
+    /// Add `-uiPreviewAlerts` to schedule the category-change notifications
+    /// from the sample forecast: the permission sheet, the pending queue
+    /// printed to the log, and one banner a few seconds later so the alert can
+    /// be seen arriving without waiting for tomorrow.
+    static var schedulesAlerts: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewAlerts")
+    }
+
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
@@ -67,7 +75,13 @@ struct WeatherPreviewHarness: View {
                 )
             }
         }
-        .task { DeviceLocation.shared.start() }
+        .task {
+            DeviceLocation.shared.start()
+
+            guard Self.schedulesAlerts else { return }
+            await CategoryAlerts.shared.scheduleForPreview(days: WeatherPreviewData.days)
+            await CategoryAlerts.shared.previewDelivery()
+        }
         .sheet(item: $editing) { profile in
             ProfileEditSheet(
                 skyZone: .active,
