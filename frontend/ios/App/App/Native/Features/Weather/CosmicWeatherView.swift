@@ -165,10 +165,12 @@ struct CosmicWeatherView: View {
     private var hero: some View {
         VStack(spacing: 2) {
             HStack(spacing: 4) {
-                Image(systemName: "location.fill")
-                    .font(.system(size: 11, weight: .semibold))
+                if let symbol = place.source.symbol {
+                    Image(systemName: symbol)
+                        .font(.system(size: 11, weight: .semibold))
+                }
 
-                Text(subtitle.uppercased())
+                Text(place.name.uppercased())
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .tracking(0.5)
                     .lineLimit(1)
@@ -297,20 +299,44 @@ struct CosmicWeatherView: View {
         return formatter.string(from: model.readingTime)
     }
 
+    /// Where a hero label came from, which is what its icon says. Weather
+    /// only earns the arrow for a fix off the device; a place someone typed
+    /// gets the crossed-out one, so the two are never mistaken for each
+    /// other, and a handle standing in for a place gets no icon at all —
+    /// it is not a location and should not be dressed as one.
+    private enum PlaceSource {
+        case device
+        case typed
+        case handle
+
+        var symbol: String? {
+            switch self {
+            case .device: return "location.fill"
+            case .typed: return "location.slash"
+            case .handle: return nil
+            }
+        }
+    }
+
     /// Weather names the place you are standing in, so this is where the
     /// person is, never where they were born: this device's own location on
     /// your page, the transit location on everyone else's. With neither, the
     /// handle stands in rather than a place we cannot vouch for.
-    private var subtitle: String {
+    private var place: (name: String, source: PlaceSource) {
         // A place the reader chose outranks both: they are asking what the
         // sky looks like from there, not from here.
         if let chosen = model.chosen?.locationName {
-            return chosen
+            return (chosen, .typed)
         }
         if isPrimary, let here = device.placeName {
-            return here
+            return (here, .device)
         }
-        return profile.currentLocationName ?? "@\(profile.username)"
+        // Whatever the profile carries was set by hand on the web, so it is
+        // typed however it got here.
+        if let saved = profile.currentLocationName {
+            return (saved, .typed)
+        }
+        return ("@\(profile.username)", .handle)
     }
 
     private var temperature: String {
