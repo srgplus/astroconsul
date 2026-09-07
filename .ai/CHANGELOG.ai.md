@@ -257,6 +257,28 @@ full-width cards; as `Section` headers in a plain list they pin as they reach
 the top, which says the same thing without holding a slot the plus now needs.
 `visibleRows` and `pinnedSection` — the appear/disappear bookkeeping that told
 the bar which group the top card belonged to — are gone with it.
+
+### The simulator stays off until someone asks for it
+
+Every session that touched iOS ended up with its own phone on screen.
+`scripts/ios-simulator.sh` had a single behaviour — create, boot, then answer
+the question — so even `--udid`, asked for nothing more than an `xcodebuild
+-destination`, booted a simulator as a side effect. Sixteen `big3 *` devices had
+piled up, several of them running at once, none of them being watched.
+
+`--udid` now resolves the device (creating it the first time) and stops there:
+`xcodebuild` and simctl both accept a shut-down destination, so a session that
+only builds costs nothing. Booting is what a bare call and `--run` are for, and
+`CLAUDE.md` now says to reach for them only when the user asks to see or try the
+app — not because a session happens to touch Swift, and not to open the
+simulator panel at the start.
+
+Devices also outlive their worktrees, since nothing removes one when a branch
+merges. Three flags for that: `--list` prints every `big3 *` device with the
+worktree that still owns it, `--prune` deletes the ones whose worktree is gone,
+and `--shutdown` frees a booted device's memory without throwing the device
+away.
+
 ### iOS: a forecast day opens in a sheet
 A row of the 10-day forecast was a readout and nothing else. Tapping one now
 opens `ForecastDayDetailSheet` — the same reading the page would show if that

@@ -9,7 +9,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 - **Local backend:** `uvicorn app.main:app --port 8001`
 - **Local frontend:** `cd frontend && npm run dev` (port 5173)
 - **Build check:** `cd frontend && npm run build` (must pass before push)
-- **iOS simulator:** `./scripts/ios-simulator.sh` boots this worktree's own device (`big3 <worktree>`), creating it on first run. `--run` also builds, installs and launches, passing launch arguments through (`--run -uiPreviewWeather` opens the weather harness)
+- **iOS simulator:** stays off unless the user asks for it. `./scripts/ios-simulator.sh --run` builds, installs and launches on this worktree's own device (`big3 <worktree>`), creating and booting it on first run and passing launch arguments through (`--run -uiPreviewWeather` opens the weather harness). `--udid` resolves the device for `xcodebuild` without booting anything; `--list` / `--prune` clean up leftovers
 - **Persistence:** `file` locally, `database` on Railway (env var `ASTRO_CONSUL_PERSISTENCE_BACKEND`)
 - **Auth:** Disabled locally, Supabase Auth on prod
 
@@ -18,9 +18,11 @@ Read `.ai/SKILL.md` before any task for full project context.
 - Check the run after pushing (`gh pr checks` or `gh run list`): a red check leaves the PR open, it does not merge and does not announce itself
 - If main moved ahead and the PR conflicts, rebase onto `origin/main` and force-push the branch
 - Run `npm run build` before pushing
-- Never drive "whatever simulator is booted": several sessions run at once and would install over each other. Boot this worktree's device with `./scripts/ios-simulator.sh`, then pass that name to the simulator tools and `-destination "id=$(./scripts/ios-simulator.sh --udid)"` to `xcodebuild`. A new device needs a one-time "Let Claude use it" in the simulator panel
+- Never boot a simulator on your own initiative, and never open the simulator panel just because a session touches iOS. Swift changes are verified by building: `xcodebuild ... -destination "id=$(./scripts/ios-simulator.sh --udid)"` takes a shut-down device, so a build costs no phone on screen
+- Boot one only when the user asks to see or try the app ("покажи", "запусти", "как выглядит", "run it"): `./scripts/ios-simulator.sh --run`, then pass `big3 <worktree>` to the simulator tools. A new device needs a one-time "Let Claude use it" in the simulator panel
+- Never drive "whatever simulator is booted": several sessions run at once and would install over each other's build and screenshot each other's screen
 - The device name is always `big3 <worktree>`, produced by the script and by nothing else. Hand-made simulators under other names (`big3-something`, a bare worktree name, a stock `iPhone 17 Pro`) belong to no branch and get driven by accident: delete them with `xcrun simctl delete <udid>` and run the script instead
-- Delete this worktree's device when the branch is done: `./scripts/ios-simulator.sh --delete`. Every booted simulator costs memory
+- Put the device away when the branch is done: `--shutdown` frees the memory and keeps it, `--delete` removes this worktree's. `--list` shows every `big3 *` device and `--prune` deletes the ones whose worktree is gone — they accumulate otherwise
 - Respond in Russian when user writes in Russian
 - Use native `<button>` elements for clickable items in scroll containers (iOS fix)
 - Grey spinner (#8e8e93), never purple
