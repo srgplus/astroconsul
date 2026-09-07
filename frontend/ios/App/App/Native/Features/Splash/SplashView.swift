@@ -5,13 +5,19 @@ import SwiftUI
 /// Not a screen of its own so much as a continuation of
 /// `LaunchScreen.storyboard`: same mark, same width, same ground, centred on
 /// the same point, so the handover out of the storyboard and into SwiftUI has
-/// nothing to see. It stays up until the home screen has something to draw,
-/// which used to be a bare spinner over an empty background.
+/// nothing to see. It stays up until the home screen has something to draw —
+/// and the home screen's own loading state draws this same view, so a load
+/// that outlasts `RootView`'s patience keeps the mark rather than uncovering
+/// a spinner on an empty background.
 struct SplashView: View {
 
     /// Kept in step with the imageView's width constraint in
     /// `LaunchScreen.storyboard`. Change one and the mark jumps at handover.
     static let markWidth: CGFloat = 180
+
+    /// What VoiceOver reads. At launch the mark means the app is opening; on
+    /// the home screen behind it, that the load is still running.
+    var label = "big3.me"
 
     var body: some View {
         ZStack {
@@ -25,7 +31,7 @@ struct SplashView: View {
         // area, and the notch and the home indicator are not the same height.
         .ignoresSafeArea()
         .accessibilityElement()
-        .accessibilityLabel("big3.me")
+        .accessibilityLabel(label)
     }
 }
 

@@ -4,6 +4,28 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: a slow first load keeps the logo instead of falling back to a spinner
+`RootView` holds `SplashView` for 450ms and then at most two seconds past
+that, so a backend that takes longer than ~2.5s to answer — a cold Railway
+container, a slow network — had the splash fade out and uncover
+`WeatherHomeView`'s `.idle/.loading` placeholder: a large grey `ProgressView`
+alone on `Theme.bg`. That empty screen with a spinner on it is what a
+TestFlight tester meets on a first open.
+
+The loading state now draws `SplashView` itself. Same mark, same 180pt width,
+same centre, so the splash's 0.3s crossfade has nothing to show and a slow
+start reads as the app still opening rather than as a stall. `SplashView`
+gained one parameter, `label`, because the mark now means two things to
+VoiceOver: "big3.me" at launch, `common.loading` behind the home screen.
+
+`RootView`'s patience window is deliberately unchanged. It is not there to
+hide the spinner — it is there so a request that never lands reaches the home
+screen's own error state, and `.failed` still calls `markContentReady()`.
+
+The other spinners stay where they are: the per-page `MinimalSpinner` over a
+sky, the ones in the sheets and buttons. They sit on a screen that already has
+something on it, which is the thing this change is about.
+
 ### The word "cosmic" is out of the interface, and stays in the code
 Apple's 4.3(b) rejection is written in the horoscope-app vocabulary, and that
 vocabulary was still on the first screen a reviewer meets: the location
