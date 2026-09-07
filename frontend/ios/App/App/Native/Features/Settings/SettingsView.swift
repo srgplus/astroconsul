@@ -160,7 +160,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.segmented)
         } header: {
-            Text(L("settings.language.title"))
+            Text(L("settings.language"))
         } footer: {
             Text(L("settings.languageFooter"))
         }
