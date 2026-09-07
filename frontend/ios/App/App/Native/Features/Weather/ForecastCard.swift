@@ -67,13 +67,41 @@ struct ForecastCard: View {
                 // Narrower than it was: the column no longer has a ° to hold,
                 // and the space it kept for one belongs to the bar.
                 .frame(width: 38, alignment: .trailing)
+
+            // The day's tension, kept quiet: it is a second reading beside
+            // the index, not a warning, so it is small and off-white rather
+            // than coloured. The column stays even when a day has no ratio,
+            // so the ten numbers keep their right edge.
+            Text(Self.percent(day.tensionRatio))
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.55))
+                .lineLimit(1)
+                .frame(width: 30, alignment: .trailing)
         }
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            "\(day.label(isToday: isToday)), \(Astro.feels(day.feelsLike) ?? day.feelsLike), \(L("weather.intensityValue", Int(day.tii.rounded())))"
-        )
+        .accessibilityLabel(a11y(day, isToday: isToday))
         .accessibilityAddTraits(onSelect == nil ? [] : .isButton)
+    }
+
+    /// The ratio as whole percent. Blank rather than "0%" when the day came
+    /// without one, so a missing reading is not printed as a calm one.
+    private static func percent(_ ratio: Double?) -> String {
+        guard let ratio else { return "" }
+        return "\(Int((min(max(ratio, 0), 1) * 100).rounded()))%"
+    }
+
+    private func a11y(_ day: ForecastDay, isToday: Bool) -> String {
+        var parts = [
+            day.label(isToday: isToday),
+            Astro.feels(day.feelsLike) ?? day.feelsLike,
+            L("weather.intensityValue", Int(day.tii.rounded())),
+        ]
+        if let ratio = day.tensionRatio {
+            parts.append(L("weather.tensionA11y", Int((min(max(ratio, 0), 1) * 100).rounded())))
+        }
+        return parts.joined(separator: ", ")
     }
 
 }
