@@ -7,9 +7,14 @@ struct ForecastCard: View {
     let days: [ForecastDay]
     let low: Double
     let high: Double
+    /// The zone the reading is cast in, so "Today" means today there.
+    var zone: TimeZone = .current
 
     var body: some View {
-        WeatherCard {
+        // Once per draw, not once per row.
+        let today = todayKey
+
+        return WeatherCard {
             WeatherCardHeader(
                 icon: "calendar",
                 title: "\(days.count)-day forecast",
@@ -17,13 +22,24 @@ struct ForecastCard: View {
             )
             .padding(.bottom, 10)
 
-            ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
+            ForEach(days) { day in
                 WeatherCardDivider()
 
-                row(day, isToday: index == 0)
+                row(day, isToday: day.date == today)
                     .padding(.vertical, 9)
             }
         }
+    }
+
+    /// Today, spelled the way the forecast spells its days. A window the
+    /// reader moved starts on the day they chose, and calling its first row
+    /// "Today" would date the whole card wrong.
+    private var todayKey: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = zone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
     }
 
     private func row(_ day: ForecastDay, isToday: Bool) -> some View {

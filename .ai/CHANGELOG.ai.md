@@ -4,6 +4,40 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: a chosen day now reaches the cards, and says it is loading
+Two faults in the same feature — reading the sky for a moment other than now
+(`TransitSettingsSheet` → `CosmicWeatherViewModel.choose`).
+
+**The cards were drawn against the clock, not against the reading.**
+`ActiveTransitsCard`, `CosmicClimateCard`, `TransitDetailSheet` and
+`TransitProgressBar` all carry `var now: Date = Date()`, and
+`CosmicWeatherView` passed none of them, so every default resolved to the real
+present. The report itself did update — the backend recomputes per date, which
+`build_transit_report` on two dates two weeks apart confirms — but the one mark
+a reader actually scans, the filled part of each window bar, stayed where today
+is. On a day far from now every fast transit's window sits entirely ahead of
+the real present, `nowFraction` clamps to 0, and the bars all render as the
+same empty stub. It reads exactly like "the rows that were already there did
+not change". They now take `now: model.readingTime`, which is the instant the
+report was cast for.
+
+`ForecastCard` had the same fault in words: it labelled row 0 "Today"
+whatever day the window started on. It takes the reading zone and compares
+dates instead.
+
+**Nothing said a re-read was happening.** `choose` reloads with
+`showSpinner: false`, and both halves only raise `.loading` when they have
+nothing to show (`days.isEmpty` / `activeAspects.isEmpty`), so picking a day
+on a loaded screen changed nothing on screen for a second or two. New:
+`isRefreshing` on the view model, counted rather than a plain flag so an
+overlapping choice does not clear the spinner the later one is still under. The
+hero's `MinimalSpinner` rides it — the stamp is the control that opened the
+sheet, so it is where the answer belongs — and the cards drop to 0.45 opacity
+and stop taking taps while what they show is stale.
+
+A seeded model (`-uiPreviewWeather`) has no session to fetch with, so `choose`
+holds for two seconds there instead of calling the API: the harness can show
+the refresh without an account.
 ### iOS: the Appearance setting actually changes the appearance
 System / Light / Dark wrote the choice and nothing read it, so the app sat on
 whatever the device was set to — dark, for everyone reporting it.

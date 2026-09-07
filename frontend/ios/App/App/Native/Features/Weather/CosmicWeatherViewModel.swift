@@ -33,6 +33,24 @@ final class CosmicWeatherViewModel: ObservableObject {
     /// Nil is the ordinary case and the one the screen opens in.
     @Published private(set) var chosen: TransitMoment?
 
+    /// A reload of a screen that already has a reading on it — another day,
+    /// another place. The cards keep the reading they have until the new one
+    /// lands, so without a mark of its own nothing on screen says the app is
+    /// working; the hero's spinner rides this.
+    @Published private(set) var isRefreshing = false
+
+    /// Choices can overlap — apply a day, then reset to the present before the
+    /// first reading is back — and the earlier one finishing must not clear
+    /// the spinner the later one is still under.
+    private var refreshes = 0
+
+    #if DEBUG
+    /// A seeded model has no session to read with, so a chosen moment cannot
+    /// be fetched. The harness still has to show what choosing one looks like,
+    /// so it holds the refresh for a beat over the reading already on screen.
+    private var isSeeded = false
+    #endif
+
     private let api: APIClient
 
     /// The in-flight reading, owned by the model rather than by whoever asked
@@ -60,6 +78,7 @@ final class CosmicWeatherViewModel: ObservableObject {
         loadingFor delay: Duration? = nil
     ) {
         self.api = .shared
+        self.isSeeded = true
         self.days = previewDays
         self.activeAspects = previewAspects
         self.cosmicClimate = previewClimate
@@ -136,6 +155,21 @@ final class CosmicWeatherViewModel: ObservableObject {
     /// cards themselves are the same day.
     func choose(_ moment: TransitMoment?, profile: ProfileSummary) async {
         chosen = moment
+
+        refreshes += 1
+        isRefreshing = true
+        defer {
+            refreshes -= 1
+            if refreshes == 0 { isRefreshing = false }
+        }
+
+        #if DEBUG
+        if isSeeded {
+            try? await Task.sleep(for: .seconds(2))
+            return
+        }
+        #endif
+
         await load(profile: profile, showSpinner: false)
     }
 
