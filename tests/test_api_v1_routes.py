@@ -85,14 +85,33 @@ class AccountRouteTests(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.client = TestClient(create_app())
+        self.app = create_app()
+        self.client = TestClient(self.app)
 
+    def test_account_route_is_registered(self) -> None:
+        self.assertIn("/account", {route.path for route in self.app.routes})
+
+    def test_account_route_answers_exactly_as_the_spa_root_does(self) -> None:
+        # CI runs the backend job without building the frontend, so both of
+        # these are the "not built yet" 404 there and the SPA on a machine that
+        # has run `npm run build`. Either way they have to agree: /account is
+        # the same document as /, handed to the app's WebView at its own
+        # address.
+        home = self.client.get("/")
+        account = self.client.get("/account")
+
+        self.assertEqual(account.status_code, home.status_code)
+        self.assertEqual(account.text, home.text)
+
+    @unittest.skipUnless(
+        (Path("frontend") / "dist" / "index.html").exists(),
+        "needs a built frontend in frontend/dist",
+    )
     def test_account_route_serves_the_spa(self) -> None:
         response = self.client.get("/account")
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("text/html", response.headers["content-type"])
-        self.assertEqual(response.text, self.client.get("/").text)
 
 
 if __name__ == "__main__":
