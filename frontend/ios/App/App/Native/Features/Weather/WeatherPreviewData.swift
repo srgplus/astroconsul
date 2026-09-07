@@ -230,6 +230,14 @@ enum WeatherPreviewData {
             position("Mercury", 11, 2, "Taurus", house: 1, retrograde: true),
             position("ASC", 1, 44, "Gemini"),
             position("MC", 8, 9, "Aquarius"),
+            // The rest of the wheel, so the natal card's drawer has both of
+            // its bands to draw rather than half of one.
+            position("Jupiter", 4, 33, "Cancer", house: 2),
+            position("Uranus", 7, 18, "Capricorn", house: 9, retrograde: true),
+            position("Selena", 19, 5, "Aquarius", house: 10),
+            position("South Node", 9, 2, "Cancer", house: 2),
+            position("Part of Fortune", 2, 57, "Cancer", house: 2),
+            position("Vertex", 25, 21, "Libra", house: 6),
         ])
         // Placidus cusps for that ascendant: the opposite pairs line up, so
         // the wheel's house ring reads the way a real chart's would.
