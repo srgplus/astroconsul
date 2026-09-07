@@ -116,6 +116,11 @@ both run the months an outer-planet transit actually runs. `climate` is then
 filtered out of that same list the way the backend filters it, so an aspect
 cannot carry one window on the transits card and a different one below it.
 
+A row answers "when", so tapping one opens `TransitDetailSheet` for "what" —
+the same sheet the Active transits rows open, retrograde marker and all. The
+card takes `retrograde` and `positions` for it, the way the transits card
+already does.
+
 ### CI: the red run on every merge was not a failure
 Every merge left a red `CI` run behind, triggered by `pull_request`, with a
 "workflow file issue" and **zero jobs**. Three in one evening, each one costing
