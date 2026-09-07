@@ -65,15 +65,23 @@ struct TransitSettingsSheet: View {
                             dismiss()
                         }
                     }
+                    .listRowBackground(Color.primary.opacity(0.06))
                 }
             }
             // No title. Cancel and a tick either side of two labelled
             // sections say what the sheet is for; a title over them is a
             // caption on a picture of itself.
             .navigationBarTitleDisplayMode(.inline)
+            // The form's own grouped background is opaque and would cover the
+            // frosted sheet underneath it; the rows keep a light raise of
+            // their own so they still read as grouped.
+            .scrollContentBackground(.hidden)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
+                    // Ink, not blue. Blue is the colour of the thing that
+                    // happens when you are done; leaving is not that.
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(Theme.text)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -91,18 +99,26 @@ struct TransitSettingsSheet: View {
                     } label: {
                         Image(systemName: "checkmark")
                             .fontWeight(.semibold)
+                            .foregroundStyle(.white)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
                     .accessibilityLabel("Read this moment")
                 }
             }
         }
-        // Blue Cancel and blue tick: the weather page tints everything under
-        // it white for the sky, and a form is not on the sky.
+        // The weather page tints everything under it white for the sky, and a
+        // form is not on the sky.
         .tint(.blue)
         .presentationDetents([.medium, .large])
-        // Opaque, for the same reason. The page behind reads straight through
-        // the default backing and turns the form into a smear of rain.
-        .presentationBackground(Theme.sheetBg)
+        // Frosted rather than filled: this sheet is short, sits over the page
+        // it is about, and the page carries on behind it. `regular` and not
+        // `ultraThin` — the thin one lets enough of the sky's video through
+        // that the labels have to compete with rain.
+        .presentationBackground(.regularMaterial)
+        // A grabber under Cancel and a tick is a third thing saying the sheet
+        // can be got rid of.
+        .presentationDragIndicator(.hidden)
         .onDisappear { searchTask?.cancel() }
     }
 
@@ -117,6 +133,7 @@ struct TransitSettingsSheet: View {
         } footer: {
             Text(zone.identifier)
         }
+        .listRowBackground(Color.primary.opacity(0.06))
         // Read in the zone the reading is cast for, not the device's, so nine
         // in the morning means nine where the chart is being read.
         .environment(\.timeZone, zone)
@@ -183,6 +200,7 @@ struct TransitSettingsSheet: View {
         } header: {
             Text("Place")
         }
+        .listRowBackground(Color.primary.opacity(0.06))
     }
 
     // MARK: - Search

@@ -16,16 +16,6 @@ struct LatestTransit: Codable, Hashable {
     let feelsLike: String?
 }
 
-/// A place the reading can be cast for, as the locations endpoint returns it.
-struct PlaceCandidate: Codable, Hashable, Identifiable {
-    let displayName: String
-    let latitude: Double
-    let longitude: Double
-    let timezone: String?
-
-    var id: String { "\(displayName)-\(latitude)-\(longitude)" }
-}
-
 /// When and where a reading is cast for.
 ///
 /// The screen reads "now, where the profile says it lives" until someone picks
