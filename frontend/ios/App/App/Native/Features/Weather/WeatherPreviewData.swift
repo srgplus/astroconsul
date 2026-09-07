@@ -72,10 +72,16 @@ enum WeatherPreviewData {
     }
 
     static let days: [ForecastDay] = {
-        let readings: [(Double, String)] = [
-            (51, "Flowing"), (44, "Dynamic"), (38, "Subtle pressure"), (62, "Expansive"),
-            (74, "Charged"), (69, "Pressured"), (48, "Dynamic"), (33, "Calm"),
-            (27, "Calm"), (58, "Flowing"),
+        // The third number is the day's tension. It moves day to day the way
+        // the engine's does — the sample used to hold 0.4 ten times over,
+        // which drew the forecast's tension column as one number repeated and
+        // so proved nothing about it. One day is left without a ratio, since
+        // the column has to be looked at empty too.
+        let readings: [(Double, String, Double?)] = [
+            (51, "Flowing", 0.40), (44, "Dynamic", 0.12), (38, "Subtle pressure", 0.55),
+            (62, "Expansive", 0.19), (74, "Charged", 0.86), (69, "Pressured", 0.71),
+            (48, "Dynamic", 0.33), (33, "Calm", 0.08), (27, "Calm", nil),
+            (58, "Flowing", 1.0),
         ]
         let start = Date()
 
@@ -83,7 +89,7 @@ enum WeatherPreviewData {
             ForecastDay(
                 date: isoDay(start.addingTimeInterval(Double(index) * 86_400)),
                 tii: reading.0,
-                tensionRatio: 0.4,
+                tensionRatio: reading.2,
                 feelsLike: reading.1,
                 retrogradeCount: index < 3 ? 3 : 2,
                 retrogradePlanets: ["Mercury", "Saturn", "Neptune"],
