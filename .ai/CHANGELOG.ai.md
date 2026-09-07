@@ -70,6 +70,37 @@ permission sheet out of first impressions entirely, at the cost of the place
 label no longer filling itself in on a first run. That is a product call, not
 a copy fix. The `cosmic_weather_*` post slugs on big3.me/news are also
 untouched.
+### iOS: the empty home screen is a screen, not a dead end
+An account with no profiles landed on a bare centred message on `Theme.bg`:
+title, one line of body, one "Create profile" button. Everything else the app
+offers lives on the profile list's toolbar (the wordmark, the plus, Settings),
+the list opens from the pager's bottom bar, and the pager needs a profile
+before it draws one. So a new account could not search for a profile to
+follow, and could not reach Settings at all, which is where **Sign out** is:
+signing into the wrong account was a reinstall.
+
+`Features/Weather/WeatherEmptyState.swift` replaces that message with a screen
+carrying the same chrome as `ProfileListScreen`, item for item, hand-built
+rather than hung on a navigation bar this screen has no stack for:
+
+- **Header** — plus on the left, the `B3Wordmark` in the middle, `gearshape`
+  on the right. The glyphs are tinted `Theme.text`, not white: unlike the
+  weather pages this screen stands on the app background, which is light in
+  the light appearance.
+- **Search** — a field to look at, a button to tap. It opens the same
+  `ProfileSearchScreen` the bottom bar's magnifying glass does; a second live
+  field here would be two of them to keep in step.
+- **The hint** names both ways out. `home.noProfilesBody` is reworded from
+  "Create your first profile to get a reading" to "Create a profile of your
+  own, or find one to follow" (RU: «Создайте свой профиль или найдите чужой,
+  чтобы подписаться»). The button under it takes the first path, the field
+  above it takes the second.
+
+`WeatherHomeView` gained a `showsSettings` sheet for the gear, and the search
+sheet is now presented with `visibleZone ?? .quiet`: with no page to take a
+colour from, `WeatherGlassBackdrop` was frosting the window's own white and the
+sheet's white text stopped reading. The other three placeholder states
+(loading, signed out, load failed) still use the old `message` helper.
 
 ### iOS: the extreme sky is a storm that lights itself up, not a lightning bolt
 `sky_extreme.mp4` and `card_extreme.mp4` are rebuilt from a 4K storm timelapse

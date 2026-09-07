@@ -16,6 +16,10 @@ struct WeatherHomeView: View {
     @State private var selection = ""
     @State private var showsList = false
     @State private var showsSearch = false
+    /// Settings is on the profile list's toolbar, which cannot be opened until
+    /// a profile exists. Presented from here as well so the empty state can
+    /// reach it — signing out is on it.
+    @State private var showsSettings = false
     /// The still-web screen on show, if any, and which one. Named rather than
     /// a bare flag: the WebView is shared and would otherwise open wherever it
     /// was last left.
@@ -91,15 +95,15 @@ struct WeatherHomeView: View {
 
             case .loaded:
                 if profiles.isEmpty {
-                    placeholder {
-                        message(
-                            icon: "person.2",
-                            title: L("home.noProfiles"),
-                            body: L("home.noProfilesBody"),
-                            action: L("home.createProfile"),
-                            perform: { showsNewProfile = true }
-                        )
-                    }
+                    // Its own screen rather than a bare message, because with
+                    // no pager there is no bottom bar and no way to reach the
+                    // list's toolbar: the plus, search and Settings have to be
+                    // on this screen or they are on none.
+                    WeatherEmptyState(
+                        onCreateProfile: { showsNewProfile = true },
+                        onOpenSearch: { showsSearch = true },
+                        onOpenSettings: { showsSettings = true }
+                    )
                 } else {
                     pager
                 }
@@ -176,6 +180,12 @@ struct WeatherHomeView: View {
             )
         }
         .sheet(isPresented: $showsSearch) { searchScreen }
+        .sheet(isPresented: $showsSettings) {
+            SettingsView(skyZone: visibleZone, onManageAccount: {
+                showsSettings = false
+                webDestination = .account
+            })
+        }
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyZone: visibleZone) { createdProfile = $0 }
         }
@@ -255,7 +265,10 @@ struct WeatherHomeView: View {
                 selection = profile.profileId
                 showsSearch = false
             },
-            skyZone: visibleZone
+            // The empty state has no page to take a colour from, so the calm
+            // sky stands in: left nil, the sheet's glass frosts the window's
+            // own white instead of a sky and its white text stops reading.
+            skyZone: visibleZone ?? .quiet
         )
     }
 
