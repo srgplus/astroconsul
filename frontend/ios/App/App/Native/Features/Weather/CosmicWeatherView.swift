@@ -18,6 +18,18 @@ struct CosmicWeatherView: View {
     /// is somewhere else entirely.
     var isPrimary: Bool = false
 
+    /// What the ••• menu offers, and so what this page lets the viewer do:
+    /// `onEdit` on a profile the account owns, `onUnfollow` on a followed one.
+    /// Which of the two is handed in is the presenter's call — the page does
+    /// not decide ownership for itself, because `is_own` has come back false
+    /// on an owner's own primary profile and that would hide Edit from the
+    /// person it belongs to.
+    ///
+    /// Both are handed up rather than acted on here: a sheet presented from
+    /// inside a `TabView` page goes with the page when it scrolls away.
+    var onEdit: ((ProfileSummary) -> Void)?
+    var onUnfollow: ((ProfileSummary) -> Void)?
+
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
 
@@ -25,12 +37,16 @@ struct CosmicWeatherView: View {
         profile: ProfileSummary,
         topInset: CGFloat = 0,
         bottomInset: CGFloat = 0,
-        isPrimary: Bool = false
+        isPrimary: Bool = false,
+        onEdit: ((ProfileSummary) -> Void)? = nil,
+        onUnfollow: ((ProfileSummary) -> Void)? = nil
     ) {
         self.profile = profile
         self.topInset = topInset
         self.bottomInset = bottomInset
         self.isPrimary = isPrimary
+        self.onEdit = onEdit
+        self.onUnfollow = onUnfollow
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
 
@@ -42,12 +58,16 @@ struct CosmicWeatherView: View {
         topInset: CGFloat = 0,
         bottomInset: CGFloat = 0,
         isPrimary: Bool = false,
+        onEdit: ((ProfileSummary) -> Void)? = nil,
+        onUnfollow: ((ProfileSummary) -> Void)? = nil,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
     ) {
         self.profile = profile
         self.topInset = topInset
         self.bottomInset = bottomInset
         self.isPrimary = isPrimary
+        self.onEdit = onEdit
+        self.onUnfollow = onUnfollow
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -101,6 +121,11 @@ struct CosmicWeatherView: View {
             .ignoresSafeArea(edges: .top)
             .allowsHitTesting(false)
         }
+        .overlay(alignment: .topTrailing) {
+            profileMenu
+                .padding(.top, topInset + 6)
+                .padding(.trailing, 16)
+        }
         .tint(.white)
         .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
         .task {
@@ -125,11 +150,14 @@ struct CosmicWeatherView: View {
             }
             .foregroundStyle(.white.opacity(0.75))
 
+            // Inset by the corner button's width on both sides so a long
+            // name shrinks rather than sliding under the •••.
             Text(profile.profileName)
                 .font(.system(size: 34, weight: .regular, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
+                .padding(.horizontal, Self.menuButton)
 
             // A transit reading is a moment, not a day, so the hero says
             // which moment — in the profile's own zone, not the device's.
@@ -177,6 +205,41 @@ struct CosmicWeatherView: View {
         }
         .frame(maxWidth: .infinity)
     }
+
+    /// Weather puts its ••• in the same corner. With neither action wired up
+    /// there is nothing to offer, so there is no button either.
+    @ViewBuilder
+    private var profileMenu: some View {
+        if onEdit != nil || onUnfollow != nil {
+            Menu {
+                if let onEdit {
+                    Button {
+                        onEdit(profile)
+                    } label: {
+                        Label("Edit Profile", systemImage: "square.and.pencil")
+                    }
+                }
+
+                if let onUnfollow {
+                    Button(role: .destructive) {
+                        onUnfollow(profile)
+                    } label: {
+                        Label("Unfollow", systemImage: "person.badge.minus")
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: Self.menuButton, height: Self.menuButton)
+                    .contentShape(Circle())
+            }
+            .weatherGlass(in: .circle, interactive: true)
+            .accessibilityLabel("Profile options")
+        }
+    }
+
+    private static let menuButton: CGFloat = 36
 
     private var feelsLike: String? {
         model.today?.feelsLike ?? profile.latestTransit?.feelsLike
@@ -338,6 +401,15 @@ struct MinimalSpinner: View {
     var color: Color = .white.opacity(0.75)
 
     @State private var turning = false
+
+    /// Spelled out because the private `turning` makes the synthesized
+    /// memberwise initializer private too, and the arc is used from other
+    /// files.
+    init(size: CGFloat = 13, lineWidth: CGFloat = 1.6, color: Color = .white.opacity(0.75)) {
+        self.size = size
+        self.lineWidth = lineWidth
+        self.color = color
+    }
 
     var body: some View {
         Circle()

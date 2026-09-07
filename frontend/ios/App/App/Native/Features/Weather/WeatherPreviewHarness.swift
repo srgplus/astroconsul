@@ -25,6 +25,7 @@ struct WeatherPreviewHarness: View {
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
+    @State private var editing: ProfileSummary?
 
     init() {
         _listModel = StateObject(
@@ -51,6 +52,10 @@ struct WeatherPreviewHarness: View {
                     topInset: topInset,
                     bottomInset: geometry.safeAreaInsets.bottom,
                     isPrimary: profile.profileId == WeatherPreviewData.profile.profileId,
+                    // The sample account owns every page, so the ••• offers
+                    // Edit throughout, over a seeded sheet — there is no
+                    // session here to load a real profile with.
+                    onEdit: { editing = $0 },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
@@ -63,6 +68,12 @@ struct WeatherPreviewHarness: View {
             }
         }
         .task { DeviceLocation.shared.start() }
+        .sheet(item: $editing) { profile in
+            ProfileEditSheet(
+                skyZone: .active,
+                model: ProfileEditViewModel(previewProfile: profile)
+            )
+        }
         .sheet(isPresented: $showsList) {
             ProfileListScreen(
                 model: listModel,

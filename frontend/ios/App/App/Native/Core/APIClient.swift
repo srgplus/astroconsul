@@ -61,6 +61,68 @@ actor APIClient {
         let _: EmptyResponse = try await send(path, method: "DELETE", body: Optional<EmptyResponse>.none)
     }
 
+    /// The full profile, chart and all. The birth data the edit sheet works
+    /// from lives only here — the list payload carries none of it.
+    func fetchProfileDetail(id: String) async throws -> ProfileDetailResponse {
+        try await get("/api/v1/profiles/\(Self.escape(id))")
+    }
+
+    /// Fields the edit sheet can change. Snake case spelled out: the encoder
+    /// converts nothing.
+    struct ProfileUpdate: Encodable {
+        let profile_name: String
+        let username: String
+        let birth_date: String
+        let birth_time: String
+        let timezone: String?
+        let location_name: String?
+        let latitude: Double
+        let longitude: Double
+        /// `nil` lets the API infer it from the timezone: local when there is
+        /// one, UT when there is not.
+        let time_basis: String?
+    }
+
+    @discardableResult
+    func updateProfile(id: String, update: ProfileUpdate) async throws -> ProfileDetailResponse {
+        try await send("/api/v1/profiles/\(Self.escape(id))", method: "PATCH", body: update)
+    }
+
+    func deleteProfile(id: String) async throws {
+        let _: EmptyResponse = try await send(
+            "/api/v1/profiles/\(Self.escape(id))",
+            method: "DELETE",
+            body: Optional<EmptyResponse>.none
+        )
+    }
+
+    // MARK: - Locations
+
+    /// Geocoder autocomplete. The picked candidate is what supplies the
+    /// coordinates and the timezone, so nothing on the edit sheet asks the
+    /// person to type either.
+    func searchPlaces(query: String) async throws -> [PlaceCandidate] {
+        let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard term.count >= 2 else { return [] }
+        return try await get("/api/v1/locations/search", query: [URLQueryItem(name: "q", value: term)])
+    }
+
+    /// Geocodes a place typed out in full, for a birthplace that was edited
+    /// without picking a suggestion. It answers 400 when the name matches
+    /// nothing, which is the answer the sheet needs.
+    func resolvePlace(name: String) async throws -> ResolvedLocation {
+        struct Body: Encodable { let location_name: String }
+        return try await send(
+            "/api/v1/locations/resolve",
+            method: "POST",
+            body: Body(location_name: name)
+        )
+    }
+
+    private static func escape(_ id: String) -> String {
+        id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id
+    }
+
     // MARK: - Cosmic weather
 
     /// One call feeds the whole weather screen: today plus the next days, each

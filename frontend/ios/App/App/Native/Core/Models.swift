@@ -529,3 +529,54 @@ extension FeelsLike {
         ),
     ]
 }
+
+// MARK: - Profile detail
+
+/// The birth data a profile's chart was cast from. `GET /profiles/{id}`
+/// returns it inside the chart payload, and it is the only place the raw
+/// date, time, timezone and coordinates survive — everything else on the
+/// profile is derived from them.
+struct BirthInput: Codable, Hashable {
+    let name: String?
+    let birthDate: String?
+    let birthTime: String?
+    let timezone: String?
+    let locationName: String?
+    let localBirthDatetime: String?
+    let latitude: Double?
+    let longitude: Double?
+    let timeBasis: String?
+}
+
+struct ChartDetail: Codable, Hashable {
+    let chartId: String?
+    let locationName: String?
+    let localBirthDatetime: String?
+    let birthInput: BirthInput?
+}
+
+struct ProfileDetailResponse: Codable {
+    let profile: ProfileSummary
+    let chart: ChartDetail?
+}
+
+/// One geocoder hit from `/locations/search`. Picking one fills in the
+/// coordinates and the timezone, which is why they are never typed by hand.
+struct PlaceCandidate: Codable, Hashable, Identifiable {
+    let displayName: String
+    let latitude: Double
+    let longitude: Double
+    let timezone: String?
+
+    var id: String { "\(displayName)|\(latitude)|\(longitude)" }
+}
+
+/// The single best match for a place typed out in full, from
+/// `/locations/resolve`. Unlike search, it either geocodes or fails.
+struct ResolvedLocation: Codable, Hashable {
+    let locationName: String
+    let resolvedName: String
+    let latitude: Double
+    let longitude: Double
+    let timezone: String
+}
