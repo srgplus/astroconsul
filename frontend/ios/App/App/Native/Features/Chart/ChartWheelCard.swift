@@ -4,9 +4,11 @@ import SwiftUI
 /// forecast and the transits use.
 ///
 /// Two switches, both borrowed from the web chart. Chart/Transit adds the
-/// second pair of rings and the transit-to-natal lines; Special points adds
-/// the inner row of each pair — Chiron, Lilith, the nodes, the parts. All four
-/// combinations are drawable, from two rings to five.
+/// second pair of rings and swaps the natal aspect grid for the
+/// transit-to-natal lines — one grid at a time, because both at once is fifty
+/// lines through one circle; Special points adds the inner row of each pair —
+/// Chiron, Lilith, the nodes, the parts. All four combinations are drawable,
+/// from two rings to five.
 ///
 /// Transit is the opening view: this card sits on the cosmic weather screen,
 /// and what is happening now is why anyone scrolled this far.

@@ -4,6 +4,22 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the transit wheel drops the natal aspect grid
+Transit mode drew both grids at once — natal-to-natal lines dimmed to half ink
+underneath the transit-to-natal ones. On a phone that is roughly fifty lines
+through one circle and neither grid reads.
+
+`ChartWheelData.init(positions:aspects:showsTransits:hidesSpecialPoints:)`
+(`Features/Chart/ChartWheelLayout.swift`) now fills `natalAspects` only when
+`showsTransits` is false, so the mode picker swaps grids rather than stacking
+them: Chart draws the natal aspects, Transit draws the transit-to-natal ones.
+The `natalInk` dimming in `WheelLayout.lines` went with it — natal lines are
+never drawn beside transit lines any more, so they are always at full strength.
+
+Nothing else changed: both rings, the glyph rows, hit testing and the
+`.natalAspect` caption branch all stay as they were, and the web chart is
+untouched.
+
 ### iOS: search across profiles, and a preview before you subscribe
 The bottom bar had one button and a slot held empty for a second. The search
 button fills that slot, on the left, which is also what keeps the dots on the
