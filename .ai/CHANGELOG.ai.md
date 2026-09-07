@@ -4,6 +4,55 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the birth chart opens full screen, and zooms
+On the card the wheel is about 270 points across — the screen minus a margin
+minus the card's own padding — and a glyph on it is thirteen points. That is
+enough to say *there is a chart here* and not enough to read one off, which is
+what the report was: too small.
+
+**`ChartFullScreenView`** (`Features/Chart/`) draws the same wheel across the
+whole screen, with the controls the card kept under it moved into a bar above
+and a bar below: title, the Birth/Transit switch and a close button on top; the
+caption that names the last tap, and the Special points switch, on a
+`WeatherCard` at the bottom. It stands on `WeatherGlassBackdrop`, the frosted
+sky the profile list and the search screen stand on — drawn inside the view
+rather than through `.presentationBackground`, because a cover with no
+background of its own shows the window's white and every glyph on this screen
+is white.
+
+**Both, not either.** Full screen alone is only a third wider, so the wheel is
+also pinchable to 3× on top of that, which is where a stellium in one sign
+becomes four separate glyphs. The zoom moves the wheel's own *size*, not the
+drawn result: it is one `Canvas`, so a `scaleEffect` of 3 is a stretched bitmap
+of soft hairlines. The effect carries only the pinch in progress and the size
+is committed the moment the fingers lift, so at rest the ring is always redrawn
+sharp at its new radius — and the tap targets follow, because `WheelLayout` is
+rebuilt at the size it is drawn at.
+
+Pinch rather than tap-to-zoom: the wheel already spends its single tap on
+picking out a planet or a line, and a double tap over it would put a
+quarter-second of hesitation on every one of those taps. `DragGesture` cannot
+be asked for two fingers the way UIKit's pan can, so it stands down while a
+pinch is running — without that the wheel slides out from under the zoom. The
+pan is clamped so an edge of the drawing stops at the matching edge of the
+screen, and an axis with room to spare stays centred.
+
+**How it opens:** any tap that lands on nothing. `ChartWheelView` gained
+`onTapEmpty`, which the card hands in — a tap in the empty middle of the rings,
+in the margin around them, on the header, or on the caption with nothing to
+open. There is also an expand glyph on the header line, because the tap is a
+shortcut and something has to say the shortcut is there. Left nil, which is
+what the full-screen wheel does, an empty tap still clears the selection.
+
+The two switches and the selection stay `@State` on the card and are handed
+down as bindings, so what is switched full screen is still switched on the card
+underneath, and the rule that a rebuilt ring drops the selection lives in one
+place. `ChartWheelCard.Mode` became top-level `ChartMode`, and the caption, the
+Special points row and the mode picker became `ChartCaption`,
+`ChartSpecialPointsRow` and `ChartModePicker` so the two surfaces cannot drift.
+The card now takes the page's `TiiZone` so the full-screen sky matches the one
+it was opened from.
+
 ### iOS: the alerts are offered, land at midday, and stop deleting themselves
 Three things about category-change notifications, one of them a real defect.
 
@@ -63,6 +112,7 @@ calendar-triggered requests so a test never shows up as a scheduled change.
 
 Debug: `-uiPreviewAlertsOffer` raises the card in the weather harness, where it
 shows on every launch rather than once.
+
 ### iOS: the app opens on its own mark
 Launch showed a near-invisible white outline of the app icon on a hardcoded
 dark ground, then handed over to a bare spinner on an empty background. Two
@@ -92,6 +142,7 @@ screens of nothing before the first pixel of content.
   rounded face.
 - `Splash.imageset` is deleted: Capacitor generated it, the storyboard was its
   only reader, and it is 720KB of an icon nobody could see.
+
 
 ### iOS: a profile can be made on the phone, and the groups moved into the list
 Creating a profile was the one thing the native screens still handed to the web
@@ -192,6 +243,7 @@ and stop taking taps while what they show is stale.
 A seeded model (`-uiPreviewWeather`) has no session to fetch with, so `choose`
 holds for two seconds there instead of calling the API: the harness can show
 the refresh without an account.
+
 ### iOS: the Appearance setting actually changes the appearance
 System / Light / Dark wrote the choice and nothing read it, so the app sat on
 whatever the device was set to — dark, for everyone reporting it.
