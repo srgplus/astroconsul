@@ -4,6 +4,16 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### "Сегодня" fits on one line in the forecast rows
+The day column in `Features/Weather/ForecastCard.swift` was 58pt wide, which
+holds "Today" (47pt at 17pt semibold rounded) but not "Сегодня" (70pt). In
+Russian it wrapped to "Сегод / ня" and the first row stood taller than the
+other nine. The column is now 72pt with `lineLimit(1)` and a 0.8
+`minimumScaleFactor` — the scale factor never fires in either language we
+ship, it is there so a longer word in a future one is squeezed, not wrapped.
+The bar gives up the 14pt; on the narrowest supported screen it still has
+90pt of track. Pre-existing, not from the intensity/tension change below.
+
 ### The weather hero shows two numbers, and no degree sign anywhere
 TII is an index from 0 to 100 (`app/domain/astrology/tii.py`, `min(100,
 raw / 320 * 100)`). It is not a temperature and not an angle, so the `°` the

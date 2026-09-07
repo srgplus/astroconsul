@@ -45,7 +45,14 @@ struct ForecastCard: View {
         HStack(spacing: 10) {
             Text(day.label(isToday: isToday))
                 .font(.system(size: 17, weight: isToday ? .semibold : .medium, design: .rounded))
-                .frame(width: 58, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                // Wide enough for the longest label the column ever holds —
+                // "Today" in Russian is "Сегодня", which wrapped to two lines
+                // at 58 and made the first row taller than the other nine.
+                // Weekday names need half of this; the scale factor is only
+                // there so a future language is squeezed rather than wrapped.
+                .frame(width: 72, alignment: .leading)
 
             Image(systemName: FeelsLike.symbol(for: day.feelsLike))
                 .symbolRenderingMode(.multicolor)
