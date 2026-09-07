@@ -21,10 +21,11 @@ the note at the top of `WeatherSky`), so a pale veil under the light theme
 would push the contrast the wrong way and swallow the numbers it is there to
 rescue. The light theme gets *more* of the same veil, not a different one.
 
-`SkyVideo` blurs the full-screen variant by **2pt**. Brightness was only half
+`SkyVideo` blurs the full-screen variant by **1pt**. Brightness was only half
 the problem; the other half is detail, and a cloud edge crossing a hairline
-cuts it. Two points takes the grain off and leaves the weather. Nine points was
-tried and reads as a fogged photograph — the sky stops being the reading. Cards
+cuts it. One point takes the grain off and leaves the footage otherwise alone.
+Nine points was tried first and reads as a fogged photograph, five still read
+as softened; one is the floor, below which it is not a blur at all. Cards
 are not blurred at all: 108pt tall, their own scrim already, no thin type to
 rescue, and one blur per row is a cost a list of thirty profiles should not pay.
 

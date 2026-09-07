@@ -53,16 +53,18 @@ struct SkyVideo: View {
         return Double(digest % 1000) / 1000
     }
 
-    /// Barely there, and meant to be: two points takes the grain and the
-    /// hard cloud edges off without defocusing the sky. Anything more and the
-    /// footage stops being weather and starts being a fogged photograph —
-    /// nine points read as exactly that.
+    /// Barely there, and meant to be: one point takes the grain off the
+    /// footage and softens the hard cloud edge that cuts a hairline, and does
+    /// nothing else. Anything more and the sky stops being weather and starts
+    /// being a fogged photograph — nine points read as exactly that, five
+    /// still read as soft. This is the floor; below a point the blur is not a
+    /// blur at all.
     ///
     /// A card is 108pt tall and already carries its own scrim; there is no
     /// thin type on it to rescue, and blurring one per row is a cost a list of
     /// thirty profiles should not pay.
     static func blur(for variant: Variant) -> CGFloat {
-        variant == .screen ? 2 : 0
+        variant == .screen ? 1 : 0
     }
 
     static func clipName(for state: SkyState, variant: Variant) -> String {
