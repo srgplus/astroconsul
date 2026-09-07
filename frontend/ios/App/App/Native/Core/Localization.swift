@@ -158,33 +158,38 @@ func L(_ key: String, _ arguments: CVarArg...) -> String {
 }
 
 /// Russian counts in three forms where English counts in two, and the app has
-/// two places that print a count with its noun — the days to the full moon and
-/// the number of scheduled alerts. So the noun is picked here rather than by
-/// pluralising a single string.
+/// three places that print a count with its noun — the days to the full moon,
+/// a chart's age and the number of scheduled alerts. So the noun is picked
+/// here rather than by pluralising a single string.
 ///
 /// `key` names a group of three: `<key>.one`, `<key>.few`, `<key>.many`. The
-/// English table sets `few` and `many` to the same plural, which is what makes
-/// one call site serve both languages.
+/// English table sets `few` and `many` to the same plural, so the two rules can
+/// read from one group of keys.
 func L(count: Int, _ key: String) -> String {
-    let form: String
-    let mod100 = abs(count) % 100
-    let mod10 = abs(count) % 10
-
-    if mod100 >= 11, mod100 <= 14 {
-        form = "many"
-    } else if mod10 == 1 {
-        form = "one"
-    } else if mod10 >= 2, mod10 <= 4 {
-        form = "few"
-    } else {
-        form = "many"
-    }
-
-    return String(
-        format: LanguageStore.string("\(key).\(form)"),
+    String(
+        format: LanguageStore.string("\(key).\(pluralForm(count))"),
         locale: LanguageStore.locale,
         count
     )
+}
+
+/// The rule is the language's own, not one rule for both: run through the
+/// Russian one, English 21 comes out as "21 year".
+private func pluralForm(_ count: Int) -> String {
+    let mod100 = abs(count) % 100
+    let mod10 = abs(count) % 10
+
+    switch LanguageStore.current {
+    case .en:
+        return abs(count) == 1 ? "one" : "many"
+    case .ru:
+        // 1, 21, 31 take the singular; 2-4 and 22-24 the paucal; 11-14 are
+        // the exception that has to be tested before the last digit is.
+        if mod100 >= 11, mod100 <= 14 { return "many" }
+        if mod10 == 1 { return "one" }
+        if mod10 >= 2, mod10 <= 4 { return "few" }
+        return "many"
+    }
 }
 
 // MARK: - Dates
