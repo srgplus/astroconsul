@@ -124,6 +124,29 @@ actor APIClient {
         )
     }
 
+    // MARK: - Transfer
+
+    /// What the API answers when an invite is created. `emailSent` is `false`
+    /// when the mailer is not configured or refused the address — the invite
+    /// itself still exists, so the sheet falls back to handing over the link.
+    struct InviteResponse: Decodable {
+        let token: String
+        let inviteUrl: String
+        let emailSent: Bool
+    }
+
+    /// Invites someone to take ownership of a profile. The recipient accepts
+    /// on the web, at the link this returns; nothing changes hands until they
+    /// do. Owner-only — the route answers 403 for anyone else.
+    func createProfileInvite(profileId: String, email: String) async throws -> InviteResponse {
+        struct Body: Encodable { let email: String }
+        return try await send(
+            "/api/v1/profiles/\(Self.escape(profileId))/invite",
+            method: "POST",
+            body: Body(email: email)
+        )
+    }
+
     // MARK: - Locations
 
     /// Geocoder autocomplete. The picked candidate is what supplies the

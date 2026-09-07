@@ -4,6 +4,30 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: transfer a profile to someone else
+The web has had this since the invite tables landed: an owner gives a profile
+away by email, and it only changes hands once the recipient accepts. iOS had
+the backend and none of the UI, so the same flow now lives in the edit sheet.
+
+`ProfileEditSheet` gains a **Transfer Profile** row between the coordinates
+card and Delete. It is drawn as an ordinary row, not a destructive one — the
+invite offers the profile, it does not move it, and nothing is lost if the
+recipient never opens the mail. Delete stays last, where a destructive action
+belongs.
+
+`ProfileTransferSheet` / `ProfileTransferViewModel`
+(`Features/Profiles/`) take the address and `POST
+/api/v1/profiles/{id}/invite` — the same route `InviteModal.tsx` posts to,
+owner-only, 403 for anyone else. The response carries `email_sent`, and the
+confirmation reads off it: when the mailer went through it names the
+recipient, and when it did not it says so and leans on Copy Link / Share Link
+instead. Both are offered either way, because a link handed over on WhatsApp
+beats an email nobody checks.
+
+Accepting still happens on the web, at `big3.me/invite/{token}` — the app
+claims no associated domain, so the link opens Safari. Nothing to do on the
+iOS side until it does.
+
 ### iOS: the transit wheel drops the natal aspect grid
 Transit mode drew both grids at once — natal-to-natal lines dimmed to half ink
 underneath the transit-to-natal ones. On a phone that is roughly fifty lines

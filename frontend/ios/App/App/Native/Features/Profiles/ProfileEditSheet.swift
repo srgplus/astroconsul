@@ -19,6 +19,7 @@ struct ProfileEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showsDeleteConfirmation = false
     @State private var showsCoordinates = false
+    @State private var showsTransfer = false
     @FocusState private var focused: Field?
 
     private enum Field: Hashable { case name, username, place }
@@ -104,6 +105,9 @@ struct ProfileEditSheet: View {
             guard model.state == .loading else { return }
             await model.load()
         }
+        .sheet(isPresented: $showsTransfer) {
+            ProfileTransferSheet(profile: model.profile)
+        }
         .alert("Delete this profile?", isPresented: $showsDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
@@ -168,6 +172,7 @@ struct ProfileEditSheet: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
+                transferButton
                 deleteButton
             }
             .padding(.horizontal, 16)
@@ -333,6 +338,37 @@ struct ProfileEditSheet: View {
     }
 
     // MARK: - Actions
+
+    /// Gifting the profile to someone else. It sits above the delete row and
+    /// is drawn in ordinary text: handing a profile over is not destructive
+    /// here — the invite only offers it, and nothing moves until it is
+    /// accepted on the web.
+    private var transferButton: some View {
+        Button {
+            focused = nil
+            showsTransfer = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "gift")
+                Text("Transfer Profile")
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.textDim)
+            }
+            .font(.system(.body, design: .rounded).weight(.medium))
+            .foregroundStyle(Theme.text)
+            .padding(.horizontal, 14)
+            .frame(height: 48)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(cardBackground)
+        .disabled(model.isSaving || model.isDeleting)
+        .padding(.top, 4)
+    }
 
     private var deleteButton: some View {
         Button(role: .destructive) {
