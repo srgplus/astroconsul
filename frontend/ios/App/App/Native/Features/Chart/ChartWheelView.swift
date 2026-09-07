@@ -363,9 +363,11 @@ struct ChartWheelView: View {
             let natalMid = WheelMath.point(center: center, radius: natalEnd.mid, angle: natalEnd.angle)
             let transitMid = WheelMath.point(center: center, radius: transitEnd.mid, angle: transitEnd.angle)
 
+            let natalPoint = edge(of: natalEnd, facing: transitMid, from: natalMid, center: center, notch: metrics.notch)
+            let transitPoint = edge(of: transitEnd, facing: natalMid, from: transitMid, center: center, notch: metrics.notch)
             stroke(
-                from: edge(of: natalEnd, facing: transitMid, from: natalMid, center: center, notch: metrics.notch),
-                to: edge(of: transitEnd, facing: natalMid, from: transitMid, center: center, notch: metrics.notch),
+                from: natalPoint,
+                to: transitPoint,
                 style: .named(aspect.aspect),
                 ink: AspectStyle.ink(orb: aspect.orb),
                 in: context
