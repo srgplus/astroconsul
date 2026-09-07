@@ -4,6 +4,35 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the alerts ask for themselves, and land at noon
+Category alerts were opt-in through a switch in Settings, and the permission
+sheet only appeared when that switch went on. Nobody found it, so a feature
+that works reached nobody's device.
+
+- **`CategoryAlerts.defaultEnabled = true`**, registered into `UserDefaults`'
+  *registration* domain alongside the hour and minute. An explicit answer is
+  written to the standard domain, which wins, so a person who has switched the
+  alerts off or moved the time keeps their choice; only accounts that never
+  touched the switch are moved. `SettingsView`'s `@AppStorage` default is the
+  same constant rather than a second literal, so the two cannot drift.
+- **`requestAuthorizationIfNeeded()`** is asked from `WeatherHomeView`'s
+  `refreshAlerts()`, next to `DeviceLocation.shared.start()` and for the same
+  reason: the home screen is the one the alerts are about, and it is the first
+  screen a signed-in account sees. It acts only on `notDetermined` and only
+  once per run (`hasRequestedAuthorization`) — `refreshAlerts()` also runs on
+  every foreground, and reading a status is not the same as having written the
+  answer back. Someone who refused is never re-asked from here; the Settings
+  section already offers the trip to iOS Settings.
+- The location sheet still comes first: `.task` starts it, then awaits the
+  profile load, and only then reaches the alerts, so iOS queues the second
+  prompt behind the first rather than racing it.
+- **`defaultHour` 8 → 12.** The engine casts one reading per local *noon*, so
+  noon is the hour the banner is actually describing.
+
+`requestAuthorization()` is still there and unchanged in behaviour, for the
+Settings toggle and the `-uiPreviewAlerts` harness; it now sets the once-per-run
+flag so the two paths cannot both raise a sheet.
+
 ### iOS: the hero icon says where the place came from, the dots say which page is yours
 The hero always drew `location.fill` beside the place name, whatever the name
 was — a fix off the device and a city someone typed on the web looked

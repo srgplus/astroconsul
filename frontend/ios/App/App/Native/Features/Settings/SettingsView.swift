@@ -7,7 +7,7 @@ struct SettingsView: View {
     @ObservedObject private var alerts = CategoryAlerts.shared
     @Environment(\.dismiss) private var dismiss
     @AppStorage("nativeAppearance") private var appearance = Appearance.system.rawValue
-    @AppStorage(CategoryAlerts.Key.enabled) private var alertsEnabled = false
+    @AppStorage(CategoryAlerts.Key.enabled) private var alertsEnabled = CategoryAlerts.defaultEnabled
     @AppStorage(CategoryAlerts.Key.hour) private var alertHour = CategoryAlerts.defaultHour
     @AppStorage(CategoryAlerts.Key.minute) private var alertMinute = CategoryAlerts.defaultMinute
 

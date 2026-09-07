@@ -200,6 +200,11 @@ struct WeatherHomeView: View {
     /// a dozen banners a day.
     private func refreshAlerts() async {
         guard auth.isSignedIn else { return }
+        // Permission is asked here, next to the location prompt and for the
+        // same reason: this is the screen the alerts are about, and it is the
+        // first one a signed-in account sees. Asked once, and only while the
+        // answer is still open.
+        await CategoryAlerts.shared.requestAuthorizationIfNeeded()
         let primary = profiles.first { $0.profileId == model.primaryProfileId } ?? profiles.first
         await CategoryAlerts.shared.refresh(profile: primary)
     }
