@@ -51,6 +51,10 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     let isFollowing: Bool?
     let followersCount: Int?
     let followingCount: Int?
+    /// Sun, Moon and Ascendant as formatted strings. The list endpoint leaves
+    /// it out; search and discovery send it, and the preview sheet is the only
+    /// screen that shows a profile's chart before you follow it.
+    let natalSummary: NatalSummary?
 
     var id: String { profileId }
 
@@ -78,11 +82,59 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
         guard parts.count > 1, let city = parts.last else { return nil }
         return city.replacingOccurrences(of: "_", with: " ")
     }
+
+    /// Name, handle, birthplace and current location all match, so typing a
+    /// city finds a profile whichever of the two a card happens to show. The
+    /// saved list and the search sheet filter through the same test, so the
+    /// two never disagree about what "matches" means.
+    func matches(_ term: String) -> Bool {
+        let needle = term.trimmingCharacters(in: .whitespaces)
+        guard !needle.isEmpty else { return true }
+
+        return [profileName, username, locationName ?? "", currentLocationName ?? ""]
+            .contains { $0.localizedCaseInsensitiveContains(needle) }
+    }
+
+    /// The birth moment split for display, taken from the local birth
+    /// datetime rather than a `Date`: converting to one and back drags the
+    /// device's calendar and time zone into it and can land a day away from
+    /// the birth certificate.
+    var birthMoment: (date: String, time: String)? {
+        guard let raw = localBirthDatetime, raw.count >= 16 else { return nil }
+        let parts = raw.split(separator: "T", maxSplits: 1)
+        guard parts.count == 2 else { return nil }
+
+        let ymd = parts[0].split(separator: "-")
+        guard ymd.count == 3 else { return nil }
+
+        return ("\(ymd[2]).\(ymd[1]).\(ymd[0])", String(parts[1].prefix(5)))
+    }
+}
+
+/// The Big 3 as the chart builder formats them, e.g. "Aries 27°04'12\"".
+struct NatalSummary: Codable, Hashable {
+    let sun: String?
+    let moon: String?
+    let asc: String?
 }
 
 struct ProfilesResponse: Codable {
     let profiles: [ProfileSummary]
     let primaryProfileId: String?
+}
+
+/// `GET /api/v1/profiles/search`. The rows are profile summaries with the
+/// birth fields attached, so they decode into `ProfileSummary` like any other
+/// — but with no `is_own`/`is_following`, which is why the search screen works
+/// out what is already followed from the saved list instead of trusting these.
+struct ProfileSearchResponse: Codable {
+    let results: [ProfileSummary]
+}
+
+/// `GET /api/v1/public/featured` — what the search screen offers before the
+/// first keystroke.
+struct FeaturedProfilesResponse: Codable {
+    let profiles: [ProfileSummary]
 }
 
 // MARK: - TII zones

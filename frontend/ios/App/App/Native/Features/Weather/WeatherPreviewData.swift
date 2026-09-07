@@ -35,7 +35,8 @@ enum WeatherPreviewData {
         isOwn: false,
         isFollowing: false,
         followersCount: 12,
-        followingCount: 8
+        followingCount: 8,
+        natalSummary: NatalSummary(sun: "Aries 27°04'12\"", moon: "Leo 03°41'55\"", asc: "Cancer 18°22'07\"")
     )
 
     /// Everyone here was born in one city and lives in another. The two used
@@ -354,14 +355,15 @@ enum WeatherPreviewData {
         bornIn: String,
         livesIn: String?,
         tii: Double,
-        feels: String
+        feels: String,
+        isOwn: Bool = true
     ) -> ProfileSummary {
         ProfileSummary(
             profileId: "preview-\(handle)",
             profileName: name,
             username: handle,
             locationName: bornIn,
-            localBirthDatetime: nil,
+            localBirthDatetime: "19\(70 + abs(handle.hashValue) % 30)-0\(1 + abs(handle.hashValue) % 9)-1\(abs(handle.hashValue) % 9)T0\(abs(handle.hashValue) % 9):\(String(format: "%02d", abs(handle.hashValue) % 60)):00",
             latestTransit: LatestTransit(
                 transitDate: nil,
                 transitTime: nil,
@@ -374,12 +376,32 @@ enum WeatherPreviewData {
                 tensionRatio: nil,
                 feelsLike: feels
             ),
-            isOwn: true,
+            isOwn: isOwn,
             isFollowing: false,
             followersCount: nil,
-            followingCount: nil
+            followingCount: nil,
+            natalSummary: NatalSummary(
+                sun: signs[abs(handle.hashValue) % signs.count] + " 14°12'30\"",
+                moon: signs[abs(handle.hashValue + 3) % signs.count] + " 02°55'01\"",
+                asc: signs[abs(handle.hashValue + 7) % signs.count] + " 21°08'44\""
+            )
         )
     }
+
+    private static let signs = [
+        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+    ]
+
+    /// Profiles the harness account has not subscribed to, so the search
+    /// screen has something to put in its "new profiles" group.
+    static let discoveries: [ProfileSummary] = [
+        make(name: "Ada Lovelace", handle: "adalovelace", bornIn: "London, England", livesIn: "London, England", tii: 34, feels: "Flowing", isOwn: false),
+        make(name: "Adam Nowak", handle: "adamnowak", bornIn: "Kraków, Poland", livesIn: "Warsaw, Poland", tii: 61, feels: "Expansive", isOwn: false),
+        make(name: "Adele", handle: "adele", bornIn: "Tottenham, England", livesIn: "Los Angeles, California", tii: 79, feels: "Charged", isOwn: false),
+        make(name: "Adrian Rossi", handle: "adrianrossi", bornIn: "Milan, Italy", livesIn: "Rome, Italy", tii: 22, feels: "Calm", isOwn: false),
+        make(name: "Aisha Karim", handle: "aishakarim", bornIn: "Lahore, Pakistan", livesIn: "Dubai, UAE", tii: 47, feels: "Dynamic", isOwn: false),
+    ]
 
     /// A UTC instant this many days from now, spelled the way the timing
     /// engine spells one.

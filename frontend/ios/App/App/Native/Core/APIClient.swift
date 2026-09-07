@@ -57,8 +57,36 @@ actor APIClient {
     }
 
     func unfollowProfile(id: String) async throws {
-        let path = "/api/v1/profiles/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/follow"
-        let _: EmptyResponse = try await send(path, method: "DELETE", body: Optional<EmptyResponse>.none)
+        let _: EmptyResponse = try await send(followPath(id), method: "DELETE", body: Optional<EmptyResponse>.none)
+    }
+
+    func followProfile(id: String) async throws {
+        let _: EmptyResponse = try await send(followPath(id), method: "POST", body: Optional<EmptyResponse>.none)
+    }
+
+    private func followPath(_ id: String) -> String {
+        "/api/v1/profiles/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/follow"
+    }
+
+    // MARK: - Discovery
+
+    /// Public profile search. The route drops the caller's own profiles but
+    /// says nothing about which of the rest are already followed, so the
+    /// caller matches these against the saved list.
+    func searchProfiles(query: String) async throws -> [ProfileSummary] {
+        let response: ProfileSearchResponse = try await get(
+            "/api/v1/profiles/search",
+            query: [URLQueryItem(name: "q", value: query)]
+        )
+        return response.results
+    }
+
+    /// What to offer before the first keystroke. Featured profiles are curated
+    /// server-side and the list can be empty, which the screen treats as "no
+    /// suggestions" rather than as a failure.
+    func fetchFeaturedProfiles() async throws -> [ProfileSummary] {
+        let response: FeaturedProfilesResponse = try await get("/api/v1/public/featured")
+        return response.profiles
     }
 
     /// The full profile, chart and all. The birth data the edit sheet works

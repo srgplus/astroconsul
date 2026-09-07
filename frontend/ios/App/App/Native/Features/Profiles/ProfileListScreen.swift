@@ -211,20 +211,9 @@ struct ProfileListScreen: View {
         return nil
     }
 
-    /// Name, handle, birthplace and current location all match, so typing a
-    /// city finds a profile whichever of the two the card happens to show.
+    /// The same test the search screen applies, so a term that finds a profile
+    /// there finds it here too.
     private func filter(_ profiles: [ProfileSummary]) -> [ProfileSummary] {
-        let term = query.trimmingCharacters(in: .whitespaces)
-        guard !term.isEmpty else { return profiles }
-
-        return profiles.filter { profile in
-            [
-                profile.profileName,
-                profile.username,
-                profile.locationName ?? "",
-                profile.currentLocationName ?? "",
-            ]
-            .contains { $0.localizedCaseInsensitiveContains(term) }
-        }
+        profiles.filter { $0.matches(query) }
     }
 }

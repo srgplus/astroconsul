@@ -11,6 +11,7 @@ struct WeatherHomeView: View {
 
     @State private var selection = ""
     @State private var showsList = false
+    @State private var showsSearch = false
     @State private var showsWeb = false
     @State private var skyZones: [String: TiiZone] = [:]
 
@@ -113,6 +114,7 @@ struct WeatherHomeView: View {
         // A sheet, not a cover: with the toolbar down to one Settings
         // button, a swipe down is how the list is left.
         .sheet(isPresented: $showsList) { listScreen }
+        .sheet(isPresented: $showsSearch) { searchScreen }
         .fullScreenCover(isPresented: $showsWeb) { WebScreen() }
     }
 
@@ -125,6 +127,7 @@ struct WeatherHomeView: View {
                 selection: $selection,
                 primaryProfileId: model.primaryProfileId,
                 bottomInset: geometry.safeAreaInsets.bottom,
+                onOpenSearch: { showsSearch = true },
                 onOpenList: { showsList = true }
             ) { profile in
                 let isOwn = ownedIds.contains(profile.profileId)
@@ -178,6 +181,17 @@ struct WeatherHomeView: View {
                 showsList = false
                 showsWeb = true
             }
+        )
+    }
+
+    private var searchScreen: some View {
+        ProfileSearchScreen(
+            list: model,
+            onSelect: { profile in
+                selection = profile.profileId
+                showsSearch = false
+            },
+            skyZone: visibleZone
         )
     }
 
