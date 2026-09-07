@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { ProfileSummary, TransitReportResponse } from "../types"
 import { useLanguage, type Lang } from "../contexts/LanguageContext"
 import { deleteAccount, getAuthHeaders } from "../api"
@@ -24,6 +24,12 @@ type SettingsModalProps = {
   isPro?: boolean
   plan?: string
   expiresAt?: string | null
+  /**
+   * Opened from the iOS app's Settings -> "Manage account". Lands on the
+   * Account page and brings the delete card into view: account deletion is
+   * what Apple checks under 5.1.1(v), and it should not be below the fold.
+   */
+  highlightDelete?: boolean
 }
 
 type SettingsPage = "account" | "appearance" | "system" | "about"
@@ -55,12 +61,30 @@ export function SettingsModal({
   isPro = false,
   plan = "free",
   expiresAt = null,
+  highlightDelete = false,
 }: SettingsModalProps) {
   const [page, setPage] = useState<SettingsPage>("account")
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [flashDelete, setFlashDelete] = useState(false)
+  const deleteCardRef = useRef<HTMLDivElement | null>(null)
   const { t, lang, setLang } = useLanguage()
+
+  useEffect(() => {
+    if (!open || !highlightDelete) return
+    setPage("account")
+    setFlashDelete(true)
+    // One frame late: the card only exists once the Account page is on.
+    const scroll = window.setTimeout(() => {
+      deleteCardRef.current?.scrollIntoView({ block: "center", behavior: "smooth" })
+    }, 60)
+    const stop = window.setTimeout(() => setFlashDelete(false), 2400)
+    return () => {
+      window.clearTimeout(scroll)
+      window.clearTimeout(stop)
+    }
+  }, [open, highlightDelete])
 
   const handleDeleteAccount = async () => {
     setDeleteError(null)
@@ -225,7 +249,10 @@ export function SettingsModal({
                     </button>
                   ) : null}
                 </div>
-                <div className="stg-card stg-card--danger">
+                <div
+                  ref={deleteCardRef}
+                  className={`stg-card stg-card--danger${flashDelete ? " stg-card--flash" : ""}`}
+                >
                   <div className="stg-card-title">{t("settings.deleteAccount")}</div>
                   <p className="stg-card-desc">{t("settings.deleteAccountDesc")}</p>
                   <button

@@ -157,6 +157,13 @@ def create_app() -> FastAPI:
     def invite_page(token: str) -> HTMLResponse:
         return _serve_spa()
 
+    # Account settings, deletion included. A route of its own so the iOS app
+    # can point its WebView straight at it — Apple reviews account deletion
+    # under 5.1.1(v) and a button that lands on the home screen fails that.
+    @app.get("/account", response_class=HTMLResponse)
+    def account_page() -> HTMLResponse:
+        return _serve_spa()
+
     # News routes: server-rendered Jinja2 HTML (SEO), mounted at /news
     app.include_router(news_router)
     # Legal pages: Terms of Service, etc.

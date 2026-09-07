@@ -4,6 +4,39 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: "Manage account" opens the account screen, not the home screen
+Settings → "Manage account" presented the shared WebView and left it wherever
+it happened to be, which on a first open is big3.me's home screen. Account
+deletion was then several taps deep in a web app the reviewer had just been
+dropped into the front door of. Apple flagged exactly this under 5.1.1(v) in
+April and asked for a video.
+
+The button now names where it is going. `WebDestination` (in
+`Features/Web/WebScreen.swift`) is the small enum of still-web screens — `.home`
+and `.account` — and `WebScreen`, `WebContainerView` and the `webDestination`
+state on `WeatherHomeView` carry it end to end, in place of the bare `showsWeb`
+flag. `CustomViewController.navigate(to:)` points the WebView at it and skips
+the load when it is already there and settled: the WebView is shared and
+long-lived, and reloading it would throw away the SPA's state for nothing. A
+load in flight deliberately does *not* count as "already there" — that is the
+first open, where Capacitor has just started on the home URL and this is what
+redirects it.
+
+`/account` is a real route now, served by `app/main.py` next to `/invite/{token}`
+and covered by a test, and `App.tsx` opens the settings modal when the app is
+entered there. It leaves the address bar the moment the modal closes, so a
+reload does not reopen it over the app. The delete card is scrolled into view
+and pulsed briefly on the way in, because the point of the change is that
+nobody should have to hunt for it.
+
+`settings.accountFooter` says what the button does now rather than where it
+lands you ("Opens the account screen, where you can delete your account and
+manage your subscription"), in both locales.
+
+Tap path for the review notes: **Profiles list → Settings → Manage account →
+Delete Account → Delete my account.** Written up, with the recording script,
+in `.ai/apple-review-notes-5.1.1v.md`.
+
 ### iOS: Russian, and a language switch in Settings
 The native screens were written in English inline, and the web half has had a
 full Russian translation since it shipped. So the strings moved into a table
@@ -192,7 +225,6 @@ screens of nothing before the first pixel of content.
   rounded face.
 - `Splash.imageset` is deleted: Capacitor generated it, the storyboard was its
   only reader, and it is 720KB of an icon nobody could see.
-
 
 ### iOS: a profile can be made on the phone, and the groups moved into the list
 Creating a profile was the one thing the native screens still handed to the web

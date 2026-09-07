@@ -40,8 +40,19 @@ final class WebControllerHolder {
 /// Bridges the Capacitor WebView into SwiftUI as one tab.
 struct WebContainerView: UIViewControllerRepresentable {
 
+    /// Which web screen to open. The WebView is shared and stays where it was
+    /// last left, so this is asserted on every appearance.
+    var destination: WebDestination = .home
+
     func makeUIViewController(context: Context) -> CustomViewController {
-        WebControllerHolder.shared.makeOrReuseController()
+        let controller = WebControllerHolder.shared.makeOrReuseController()
+        // Forces `viewDidLoad`, which is where Capacitor builds the WebView and
+        // starts it on the home URL. Without this there is nothing to point at
+        // `destination` the first time this is shown, and the first load would
+        // win whatever we asked for.
+        controller.loadViewIfNeeded()
+        controller.navigate(to: destination)
+        return controller
     }
 
     func updateUIViewController(_ controller: CustomViewController, context: Context) {

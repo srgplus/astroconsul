@@ -132,6 +132,30 @@ class CustomViewController: CAPBridgeViewController {
         }
     }
 
+    // MARK: - Navigation
+
+    /// Points the WebView at one of the web app's screens.
+    ///
+    /// A no-op when it is already there and settled: this WebView is shared and
+    /// long-lived, so reloading it would throw away the SPA's state and scroll
+    /// position for nothing. A load in flight is not "already there" — that is
+    /// the first open, where Capacitor has just started on the home URL and
+    /// this is what redirects it.
+    func navigate(to destination: WebDestination) {
+        guard let webView, let url = destination.url else {
+            NSLog("[WebScreen] no WebView to open \(destination.rawValue) in")
+            return
+        }
+
+        // `path` is empty for a bare origin, and the SPA rewrites it with
+        // `replaceState` as screens open and close, so it is read live rather
+        // than remembered.
+        let currentPath = webView.url.map { $0.path.isEmpty ? "/" : $0.path }
+        if currentPath == destination.rawValue, !webView.isLoading { return }
+
+        webView.load(URLRequest(url: url))
+    }
+
     // MARK: - Session bridge to the native layer
 
     /// Pushes a session obtained by the native sign-in screen into the WebView,

@@ -11,7 +11,8 @@ struct ProfileListScreen: View {
     /// carries that colour.
     var skyZone: TiiZone?
 
-    var onOpenWeb: () -> Void
+    /// Opens one of the still-web screens, named by the caller.
+    var onOpenWeb: (WebDestination) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var strings = L10n.shared
@@ -33,9 +34,9 @@ struct ProfileListScreen: View {
             // below, so it opens in the appearance the app is actually set to
             // rather than inheriting this screen's night sky.
             .sheet(isPresented: $showsSettings) {
-                SettingsView(skyZone: skyZone, onOpenWeb: {
+                SettingsView(skyZone: skyZone, onManageAccount: {
                     showsSettings = false
-                    onOpenWeb()
+                    onOpenWeb(.account)
                 })
             }
             // Out here for the same reason as Settings: the form is made of

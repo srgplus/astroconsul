@@ -76,5 +76,46 @@ class ApiV1RouteTests(unittest.TestCase):
         self.assertGreater(len(timeline_response.json()["timeline"]), 0)
 
 
+class AccountRouteTests(unittest.TestCase):
+    """The iOS app's Settings -> "Manage account" points its WebView here.
+
+    Apple reviews account deletion under 5.1.1(v): if this route stops serving
+    the SPA the button lands on a 404 and the deletion flow is unreachable from
+    the app, which is exactly what got flagged.
+    """
+
+    def setUp(self) -> None:
+        self.client = TestClient(create_app())
+
+    def test_account_route_answers_as_the_spa_root_and_not_as_a_missing_page(
+        self,
+    ) -> None:
+        # Asked of the app rather than read off `app.routes`, whose entries are
+        # not the same shape across FastAPI versions.
+        home = self.client.get("/")
+        account = self.client.get("/account")
+        missing = self.client.get("/not-a-route-in-this-app")
+
+        # The same document as the SPA root, whichever state the build is in:
+        # CI's backend job never builds the frontend, so both are the "not
+        # built yet" 404 there and the SPA on a machine that has run
+        # `npm run build`.
+        self.assertEqual(account.status_code, home.status_code)
+        self.assertEqual(account.text, home.text)
+        # And distinguishable from a bare "Not Found", which is what /account
+        # would answer if the route went away.
+        self.assertNotEqual(account.text, missing.text)
+
+    @unittest.skipUnless(
+        (Path("frontend") / "dist" / "index.html").exists(),
+        "needs a built frontend in frontend/dist",
+    )
+    def test_account_route_serves_the_spa(self) -> None:
+        response = self.client.get("/account")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+
+
 if __name__ == "__main__":
     unittest.main()
