@@ -16,6 +16,9 @@ struct ChartWheelCard: View {
 
     let positions: TransitPositions
     var aspects: [ActiveAspect] = []
+    /// The moment the reading was cast for. The detail sheet marks it on the
+    /// transit's window, so it follows a day the reader picked.
+    var now: Date = Date()
 
     @State private var mode: Mode = .transit
     @State private var showsSpecialPoints = false
@@ -76,7 +79,8 @@ struct ChartWheelCard: View {
                 TransitDetailSheet(
                     aspect: aspect,
                     isRetrograde: positions.transiting[aspect.transitObject]?.retrograde == true,
-                    positions: positions
+                    positions: positions,
+                    now: now
                 )
             }
         }

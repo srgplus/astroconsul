@@ -116,7 +116,14 @@ struct CosmicWeatherView: View {
                             profileMenu
                         }
 
+                    // A re-read keeps the reading it has on screen — there
+                    // is nothing better to put there — so the cards step back
+                    // while it is stale, and stop taking taps that would open
+                    // a detail sheet on a row about to be replaced.
                     content
+                        .opacity(model.isRefreshing ? 0.45 : 1)
+                        .allowsHitTesting(!model.isRefreshing)
+                        .animation(.easeInOut(duration: 0.2), value: model.isRefreshing)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, WeatherBottomBar.height(bottomInset: bottomInset) + 12)
@@ -204,7 +211,7 @@ struct CosmicWeatherView: View {
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.85))
 
-                if model.state == .loading || model.transitsState == .loading {
+                if isBusy {
                     MinimalSpinner()
                 } else {
                     // The stamp is the way into the settings, so it says so.
@@ -219,7 +226,7 @@ struct CosmicWeatherView: View {
             .padding(.horizontal, 4)
             .padding(.vertical, 5)
             .padding(.top, 6)
-            .animation(.easeInOut(duration: 0.2), value: model.transitsState)
+            .animation(.easeInOut(duration: 0.2), value: isBusy)
             .contentShape(Capsule())
             // A tap gesture rather than a Button: inside the pager's scroll
             // view a plain-styled Button never fires, which is the same
@@ -294,6 +301,12 @@ struct CosmicWeatherView: View {
     }
 
     private static let menuButton: CGFloat = 36
+
+    /// Anything the reader should see the app working on: the first load of
+    /// either half, and a re-read for a moment they picked.
+    private var isBusy: Bool {
+        model.state == .loading || model.transitsState == .loading || model.isRefreshing
+    }
 
     private var feelsLike: String? {
         model.today?.feelsLike ?? profile.latestTransit?.feelsLike
@@ -395,7 +408,7 @@ struct CosmicWeatherView: View {
 
         case .loaded:
             if let today = model.today, let high = model.high, let low = model.low {
-                ForecastCard(days: model.days, low: low, high: high)
+                ForecastCard(days: model.days, low: low, high: high, zone: model.readingZone)
 
                 if let moon = today.moonPhase {
                     MoonCard(phase: moon)
@@ -422,19 +435,28 @@ struct CosmicWeatherView: View {
             WeatherSkeleton(kind: .transits)
 
         case .loaded:
+            // `now` is the moment the reading was cast for, not the clock:
+            // every window bar marks where the reader is standing on the
+            // transit's arc, and on a chosen day that is the day they chose.
             ActiveTransitsCard(
                 aspects: model.activeAspects,
                 retrograde: model.retrogradeObjects,
-                positions: model.positions
+                positions: model.positions,
+                now: model.readingTime
             )
 
             CosmicClimateCard(
                 aspects: model.cosmicClimate,
                 retrograde: model.retrogradeObjects,
-                positions: model.positions
+                positions: model.positions,
+                now: model.readingTime
             )
 
-            ChartWheelCard(positions: model.positions, aspects: model.activeAspects)
+            ChartWheelCard(
+                positions: model.positions,
+                aspects: model.activeAspects,
+                now: model.readingTime
+            )
         }
     }
 }
