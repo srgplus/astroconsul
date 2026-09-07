@@ -643,8 +643,17 @@ export function ActiveTransitsWidget({ transitReport, isPro = true, onPaywall }:
       .filter((group) => group.aspects.length > 0)
   }
 
-  const toggleCardIdx = (idx: number) => {
-    if (!isPro && idx >= FREE_LIMIT) {
+  // On the web the interpretation text now arrives only for the aspects a free
+  // account is entitled to — the server picks them (app/api/paywall.py) from
+  // the ordering this widget opens on. Flipping "most impact" off reorders the
+  // list, so the row at index < FREE_LIMIT can be one whose text was never
+  // sent: lock it rather than expand a card with nothing written in it. iOS
+  // has already dropped those rows and draws no padlock either way.
+  const isLockedAspect = (a: ActiveAspect, idx: number) =>
+    !isPro && !hidesPaidTier() && (idx >= FREE_LIMIT || !a.meaning)
+
+  const toggleCardIdx = (a: ActiveAspect, idx: number) => {
+    if (isLockedAspect(a, idx)) {
       onPaywall?.()
       return
     }
@@ -655,9 +664,9 @@ export function ActiveTransitsWidget({ transitReport, isPro = true, onPaywall }:
       return next
     })
   }
-  const toggleCard = (e: React.MouseEvent, idx: number) => {
+  const toggleCard = (e: React.MouseEvent, a: ActiveAspect, idx: number) => {
     e.stopPropagation()
-    toggleCardIdx(idx)
+    toggleCardIdx(a, idx)
   }
 
   // Global index for expand tracking across groups
@@ -684,7 +693,7 @@ export function ActiveTransitsWidget({ transitReport, isPro = true, onPaywall }:
             {group.aspects.map((a) => {
               const idx = globalIdx++
               const strengthColor = STRENGTH_COLORS[a.strength] ?? "#8E8E93"
-              const isLocked = !isPro && !hidesPaidTier() && idx >= FREE_LIMIT
+              const isLocked = isLockedAspect(a, idx)
               const isExpanded = expandedCards.has(idx)
               const tp = transitMap[a.transit_object]
               const np = natalMap[a.natal_object]
@@ -694,7 +703,7 @@ export function ActiveTransitsWidget({ transitReport, isPro = true, onPaywall }:
                   className={`cw-transit-item${isExpanded ? " cw-transit-item--expanded" : ""}${isLocked ? " cw-transit-item--locked" : ""}`}
                   style={{ cursor: "pointer" }}
                 >
-                  <button type="button" className="tap-target" {...tap(() => toggleCardIdx(idx))} />
+                  <button type="button" className="tap-target" {...tap(() => toggleCardIdx(a, idx))} />
                   <div className="cw-transit-row">
                     <span className="cw-transit-left">
                       <span className="cw-transit-glyphs">

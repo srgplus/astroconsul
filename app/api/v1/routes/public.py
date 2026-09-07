@@ -11,6 +11,7 @@ from app.api.dependencies import (
     get_profile_service,
     get_repositories,
 )
+from app.api.paywall import strip_profile_detail
 from app.api.v1.routes.profiles import _build_natal_interpretations
 from app.application.services.profile_service import ProfileService
 from app.infrastructure.repositories.factory import RepositoryBundle
@@ -51,7 +52,11 @@ def get_public_profile_detail(
         )
         # Public view: only followers_count, no user-specific fields
         result["profile"]["followers_count"] = profile_data["followers_count"]
-        return result
+        # An anonymous caller is never Pro, and this route reads any profile by
+        # id — without the same trim it is a way around the gate on
+        # GET /profiles/{id}. No screen renders these interpretations anyway:
+        # LandingDetail, the one caller, never touches natal_interpretations.
+        return strip_profile_detail(result)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
