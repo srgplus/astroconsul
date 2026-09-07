@@ -99,7 +99,17 @@ struct WeatherHomeView: View {
         // scheduler throttles itself; calling it on every foreground is free.
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
-            Task { await refreshAlerts() }
+            Task {
+                // The system cancels whatever is in flight when the app is
+                // suspended, and `.task` does not run again on the way back —
+                // the screen never disappeared. Without this the list sat on
+                // its spinner until it was left and reopened.
+                if model.needsReload {
+                    await model.load()
+                    syncSelection()
+                }
+                await refreshAlerts()
+            }
         }
         .onChange(of: auth.session) { _, session in
             Task {

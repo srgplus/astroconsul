@@ -95,10 +95,10 @@ final class ProfileSearchViewModel: ObservableObject {
             try Task.checkCancellation()
             discoveries = results
             state = .results
-        } catch is CancellationError {
-            // A newer keystroke owns the screen now; leave it alone.
         } catch {
-            guard !Task.isCancelled else { return }
+            // A newer keystroke owns the screen now, or the app was put down
+            // mid-request; either way, leave it alone.
+            guard !error.isCancellation, !Task.isCancelled else { return }
             NSLog("[Search] query \"\(term)\" failed: \(error.localizedDescription)")
             discoveries = []
             state = .failed(error.localizedDescription)
@@ -114,7 +114,7 @@ final class ProfileSearchViewModel: ObservableObject {
         defer { following.remove(profile.profileId) }
 
         if let error = await list.follow(profile) {
-            followError = error.localizedDescription
+            followError = error.isCancellation ? nil : error.localizedDescription
             return false
         }
 

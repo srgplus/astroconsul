@@ -113,6 +113,12 @@ final class ProfileEditViewModel: ObservableObject {
             apply(detail)
             state = .ready
         } catch {
+            // The sheet closing is what cancels this, so there is no one left
+            // to read a message about it.
+            guard !error.isCancellation else {
+                NSLog("[ProfileEdit] load cancelled")
+                return
+            }
             NSLog("[ProfileEdit] load failed: \(error.localizedDescription)")
             state = .failed(error.localizedDescription)
         }
@@ -237,7 +243,7 @@ final class ProfileEditViewModel: ObservableObject {
             return true
         } catch {
             NSLog("[ProfileEdit] save failed: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.isCancellation ? nil : error.localizedDescription
             return false
         }
     }
@@ -252,7 +258,7 @@ final class ProfileEditViewModel: ObservableObject {
             return true
         } catch {
             NSLog("[ProfileEdit] delete failed: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.isCancellation ? nil : error.localizedDescription
             return false
         }
     }
