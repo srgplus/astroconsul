@@ -23,12 +23,6 @@ struct SettingsView: View {
     /// this one.
     var skyState: SkyState?
 
-    /// Opens the account screen, which is still web: it owns the parts of the
-    /// account that are not native yet, and the WebView opens straight on
-    /// `/account` rather than on the home screen. Deletion is no longer among
-    /// them, so this is no longer the route guideline 5.1.1(v) is answered by.
-    var onManageAccount: () -> Void
-
     @State private var confirmsDelete = false
     @State private var isDeleting = false
     @State private var deleteError: String?
@@ -80,8 +74,6 @@ struct SettingsView: View {
             Button(L("settings.signOut"), role: .destructive) {
                 auth.signOut()
             }
-
-            Button(L("settings.manageAccount")) { onManageAccount() }
 
             // Last, and destructive, the way an irreversible action is drawn
             // everywhere else in the app.

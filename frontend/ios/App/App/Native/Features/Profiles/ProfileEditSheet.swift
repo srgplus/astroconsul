@@ -237,7 +237,7 @@ struct ProfileEditSheet: View {
     private var birthCard: some View {
         VStack(spacing: 0) {
             card {
-                row(L("edit.date")) {
+                row(L("edit.date"), alignment: .trailing) {
                     DatePicker(
                         "",
                         selection: $model.birthDate,
@@ -249,7 +249,7 @@ struct ProfileEditSheet: View {
 
                 divider
 
-                row(L("edit.time")) {
+                row(L("edit.time"), alignment: .trailing) {
                     DatePicker("", selection: $model.birthTime, displayedComponents: .hourAndMinute)
                         .labelsHidden()
                 }
@@ -445,8 +445,13 @@ struct ProfileEditSheet: View {
             .padding(.leading, 14)
     }
 
+    /// `alignment` is the side the control sits on. Text is typed from the
+    /// left, so it stays leading; a control that hugs its own content — a date
+    /// or time chip — is trailing, against the card's edge, the way system
+    /// form rows read.
     private func row<Control: View>(
         _ title: String,
+        alignment: Alignment = .leading,
         @ViewBuilder control: () -> Control
     ) -> some View {
         HStack(spacing: 12) {
@@ -456,7 +461,7 @@ struct ProfileEditSheet: View {
             control()
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Theme.text)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: alignment)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
