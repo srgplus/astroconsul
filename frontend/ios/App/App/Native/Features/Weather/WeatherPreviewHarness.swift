@@ -54,6 +54,7 @@ struct WeatherPreviewHarness: View {
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
+                        previewClimate: WeatherPreviewData.climate,
                         previewRetrograde: WeatherPreviewData.retrograde,
                         previewPositions: WeatherPreviewData.positions,
                         loadingFor: Self.previewDelay
@@ -82,6 +83,7 @@ struct WeatherPreviewHarness: View {
         model: CosmicWeatherViewModel(
             previewDays: WeatherPreviewData.days,
             previewAspects: WeatherPreviewData.aspects,
+            previewClimate: WeatherPreviewData.climate,
             previewRetrograde: WeatherPreviewData.retrograde,
             previewPositions: WeatherPreviewData.positions
         )

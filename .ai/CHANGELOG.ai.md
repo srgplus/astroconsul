@@ -4,6 +4,30 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### iOS: Cosmic Climate, one line per season
+The web widget gives each long transit a card: emoji, name, a paragraph of
+meaning, a line of advice, a bar. On the native weather screen it is a
+dashboard row instead — glyphs, the arc of the window, the months it spans,
+nothing else — in the same shape the Active transits rows have, sitting
+directly under them (`CosmicClimateCard`).
+
+`cosmic_climate` has been in the report payload all along and was going
+undecoded on iOS. `TransitReport` now carries it and `CosmicWeatherViewModel`
+publishes it in the order the engine already ranked it — window over orb,
+longest and tightest first — so the card ranks nothing itself.
+
+Rows the report sends without timing are dropped rather than drawn empty: the
+bar and the months are the whole row here, and the report's fast phase sends
+aspects with no window at all.
+
+The harness had nothing to show in the new card, so two more rows joined the
+sample aspects: Neptune sextile AC (orb 1.53) and Neptune square Moon (orb
+1.92). Both are true to the arcminute against the sample positions — the rule
+that any preview row has to survive being drawn on the wheel still holds — and
+both run the months an outer-planet transit actually runs. `climate` is then
+filtered out of that same list the way the backend filters it, so an aspect
+cannot carry one window on the transits card and a different one below it.
+
 ### CI: the red run on every merge was not a failure
 Every merge left a red `CI` run behind, triggered by `pull_request`, with a
 "workflow file issue" and **zero jobs**. Three in one evening, each one costing

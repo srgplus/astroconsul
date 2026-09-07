@@ -199,11 +199,36 @@ enum WeatherPreviewData {
         aspect("Saturn", "square", "Moon", orb: 1.23, strength: "moderate", opened: -12, closes: 16, peaks: 3),
         aspect("Uranus", "conjunction", "ASC", orb: 0.18, strength: "exact", opened: -21, closes: 24, peaks: -2),
         aspect("Neptune", "square", "Saturn", orb: 0.25, strength: "exact", opened: -30, closes: 34, peaks: 1),
+        aspect("Neptune", "sextile", "ASC", orb: 1.53, strength: "moderate", opened: -130, closes: 160, peaks: -20),
+        aspect("Neptune", "square", "Moon", orb: 1.92, strength: "moderate", opened: -150, closes: 210, peaks: 40),
         aspect("Pluto", "trine", "ASC", orb: 0.07, strength: "exact", opened: -44, closes: 47, peaks: 0.8),
         aspect("Lilith", "square", "MC", orb: 1.28, strength: "exact", opened: -9, closes: 8, peaks: -0.5),
         aspect("Chiron", "sextile", "Moon", orb: 3.25, strength: "moderate", opened: -16, closes: 19, peaks: 6),
         aspect("Venus", "square", "Pluto", orb: 1.93, strength: "moderate", opened: -2, closes: 2, peaks: 0.2),
     ]
+
+    /// The climate rows, filtered out of the list above the way the backend
+    /// filters them: an outer planet on a personal point or an angle, inside
+    /// orb for at least 45 days, ranked by window over orb. Derived rather
+    /// than written out a second time, so an aspect cannot carry one window on
+    /// the transits card and a different one here.
+    static let climate: [ActiveAspect] = {
+        let slow: Set<String> = ["Pluto", "Neptune", "Uranus", "Jupiter"]
+        let points: Set<String> = ["Sun", "Moon", "Venus", "Mars", "ASC", "MC"]
+
+        func weight(_ aspect: ActiveAspect) -> Double {
+            days(aspect) / max(aspect.orb, 0.01)
+        }
+
+        func days(_ aspect: ActiveAspect) -> Double {
+            (aspect.timing?.durationHours ?? 0) / 24
+        }
+
+        return aspects
+            .filter { slow.contains($0.transitObject) && points.contains($0.natalObject) }
+            .filter { days($0) >= 45 }
+            .sorted { weight($0) > weight($1) }
+    }()
 
     /// Transiting bodies drawn with an ℞ on their rows.
     static let retrograde: Set<String> = ["Neptune", "Saturn", "Pluto"]
