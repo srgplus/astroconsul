@@ -79,6 +79,11 @@ struct ChartWheelView: View {
 
     let chart: ChartWheelData
     @Binding var selection: ChartWheelSelection?
+    /// A tap that landed between the rings, in the empty middle, or anywhere
+    /// else that names nothing. Handed up so the card can treat its wheel's
+    /// empty surface as the way into the full-screen one; left nil — which is
+    /// what the full-screen wheel does — an empty tap clears the selection.
+    var onTapEmpty: (() -> Void)?
 
     @Environment(\.transitPalette) private var palette
 
@@ -107,6 +112,15 @@ struct ChartWheelView: View {
     }
 
     private func select(_ hit: ChartWheelSelection?) {
+        // Nothing under the finger, and somewhere for that to go: on the card
+        // this is the largest target on the panel and it means "show me this
+        // properly". The selection is carried across rather than cleared, so
+        // whatever was picked out is still named on the screen that opens.
+        if hit == nil, let onTapEmpty {
+            onTapEmpty()
+            return
+        }
+
         // Tapping the same thing again lets go of it, so the caption can be
         // cleared without hunting for empty space between the rings.
         let next = hit == selection ? nil : hit
