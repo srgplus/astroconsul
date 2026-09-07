@@ -188,23 +188,28 @@ struct SignInView: View {
                 )
             }
 
+            // The mark, the surface and the border are Google's, not ours:
+            // their branding guidelines forbid redrawing or recolouring the G.
             Button(action: signInWithGoogle) {
                 HStack(spacing: Theme.Spacing.tight) {
-                    Text("G")
-                        .font(.system(size: 17, weight: .bold, design: .serif))
+                    Image("GoogleLogo")
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
                     Text("Continue with Google")
                         .font(.system(.body, design: .rounded).weight(.medium))
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .foregroundStyle(Theme.text)
+                .foregroundStyle(GoogleBrand.label)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                        .fill(Theme.surfaceSoft)
+                        .fill(GoogleBrand.surface)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                        .strokeBorder(Theme.line, lineWidth: 1)
+                        .strokeBorder(GoogleBrand.border, lineWidth: 1)
                 )
             }
         }
@@ -342,5 +347,19 @@ struct SignInView: View {
         if case AppleSignInController.AppleSignInError.cancelled = error { return true }
         if case GoogleSignInController.GoogleSignInError.cancelled = error { return true }
         return false
+    }
+}
+
+/// Google's button palette, taken from their sign-in branding guidelines.
+/// Deliberately outside Theme: these colours are Google's to set, not ours.
+private enum GoogleBrand {
+    static let surface = dynamic(dark: 0x131314, light: 0xFFFFFF)
+    static let border = dynamic(dark: 0x8E918F, light: 0x747775)
+    static let label = dynamic(dark: 0xE3E3E3, light: 0x1F1F1F)
+
+    private static func dynamic(dark: UInt32, light: UInt32) -> Color {
+        Color(UIColor { traits in
+            UIColor(Color(hex: traits.userInterfaceStyle == .dark ? dark : light))
+        })
     }
 }

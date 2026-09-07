@@ -4,6 +4,19 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the Google button carries Google's own mark
+The native sign-in screen drew the provider as a serif letter "G", which read
+as a typo next to Apple's real glyph. It now uses the official four-colour
+mark, shipped as a vector asset (`Assets.xcassets/GoogleLogo.imageset`, the
+same 18x18 SVG the web `AuthScreen` inlines) so both platforms show one logo.
+
+Surface, border and label colours come from Google's sign-in branding
+guidelines, not from `Theme`: white on `#747775` in light, `#131314` on
+`#8E918F` in dark. They live in a `GoogleBrand` enum at the bottom of
+`SignInView.swift` precisely because they are not ours to retheme. Height,
+corner radius and the rounded label font stay the app's, which the guidelines
+allow, so the button still lines up with Continue with Apple.
+
 ### iOS: the weather page grew a ••• menu, and Edit Profile went native
 The ••• sits in the hero's top-right corner, Weather's own placement, and
 offers exactly one thing depending on the page: **Edit Profile** on a profile
