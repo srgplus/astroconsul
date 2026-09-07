@@ -53,6 +53,20 @@ struct SkyVideo: View {
         return Double(digest % 1000) / 1000
     }
 
+    /// Barely there, and meant to be: one point takes the grain off the
+    /// footage and softens the hard cloud edge that cuts a hairline, and does
+    /// nothing else. Anything more and the sky stops being weather and starts
+    /// being a fogged photograph — nine points read as exactly that, five
+    /// still read as soft. This is the floor; below a point the blur is not a
+    /// blur at all.
+    ///
+    /// A card is 108pt tall and already carries its own scrim; there is no
+    /// thin type on it to rescue, and blurring one per row is a cost a list of
+    /// thirty profiles should not pay.
+    static func blur(for variant: Variant) -> CGFloat {
+        variant == .screen ? 1 : 0
+    }
+
     static func clipName(for state: SkyState, variant: Variant) -> String {
         "\(variant.prefix)_\(state.rawValue)"
     }
@@ -63,6 +77,15 @@ struct SkyVideo: View {
                 SkyPlayerLayer(url: asset, phase: phaseFraction, variant: variant, isReady: $isReady)
                     .opacity(isReady ? 1 : 0)
                     .animation(.easeIn(duration: 0.35), value: isReady)
+                    // Softened, not hidden. What breaks the hero's ultraLight
+                    // numbers is not the sky's brightness alone but its
+                    // detail: a cloud edge crossing a 1pt stroke cuts it in
+                    // half. Taking the detail out leaves the weather — the
+                    // shape, the colour, the drift — and gives the type a
+                    // ground to sit on. `opaque` because the clip fills the
+                    // frame edge to edge; without it the blur samples the
+                    // nothing outside and draws a pale border.
+                    .blur(radius: Self.blur(for: variant), opaque: true)
             }
         }
         // Only the full-screen sky bleeds past the insets; a card must stay

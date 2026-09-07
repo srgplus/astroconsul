@@ -98,16 +98,8 @@ struct CosmicWeatherView: View {
 
             SkyVideo(state: state)
 
-            // The footage is brightest where the cards sit, so the lower half
-            // gets a scrim. Without it a lightning core or a sunlit cloud eats
-            // the white text on the forecast rows.
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.10), .black.opacity(0.38)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
+            SkyScrim()
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 18) {
