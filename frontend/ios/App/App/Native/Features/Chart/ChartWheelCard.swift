@@ -3,7 +3,7 @@ import SwiftUI
 /// The birth chart, on the weather screen, in the same frosted panel the
 /// forecast and the transits use.
 ///
-/// Two controls, both borrowed from the web chart. Chart/Transit adds the
+/// Two switches, both borrowed from the web chart. Chart/Transit adds the
 /// second pair of rings and the transit-to-natal lines; Special points adds
 /// the inner row of each pair — Chiron, Lilith, the nodes, the parts. All four
 /// combinations are drawable, from two rings to five.
@@ -17,6 +17,8 @@ struct ChartWheelCard: View {
 
     @State private var mode: Mode = .transit
     @State private var showsSpecialPoints = false
+    @State private var selection: ChartWheelSelection?
+    @State private var detail: ActiveAspect?
 
     enum Mode: String, CaseIterable, Identifiable {
         case chart, transit
@@ -25,17 +27,21 @@ struct ChartWheelCard: View {
         var title: String { rawValue.capitalized }
     }
 
-    var body: some View {
-        if let wheel = ChartWheelView(
+    private var chart: ChartWheelData? {
+        ChartWheelData(
             positions: positions,
             aspects: aspects,
             showsTransits: mode == .transit,
             hidesSpecialPoints: !showsSpecialPoints
-        ) {
+        )
+    }
+
+    var body: some View {
+        if let chart {
             WeatherCard {
                 header
 
-                wheel
+                ChartWheelView(chart: chart, selection: $selection)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 12)
                     .padding(.bottom, 4)
@@ -44,7 +50,23 @@ struct ChartWheelCard: View {
 
                 WeatherCardDivider()
 
+                caption(chart)
+
+                WeatherCardDivider()
+
                 specialPointsRow
+            }
+            // A selection is a position on a ring, so it cannot survive the
+            // rings being rebuilt: the body may not be drawn any more, and if
+            // it is, it has moved.
+            .onChange(of: mode) { selection = nil }
+            .onChange(of: showsSpecialPoints) { selection = nil }
+            .sheet(item: $detail) { aspect in
+                TransitDetailSheet(
+                    aspect: aspect,
+                    isRetrograde: positions.transiting[aspect.transitObject]?.retrograde == true,
+                    positions: positions
+                )
             }
         }
     }
@@ -66,6 +88,42 @@ struct ChartWheelCard: View {
         .foregroundStyle(.white.opacity(0.7))
     }
 
+    /// What the last tap landed on, or how to make one.
+    ///
+    /// This is the phone's answer to the web ring's hover tooltip. It sits
+    /// under the wheel rather than in the middle of it because the middle is
+    /// only about seventy points across once five rings are drawn, and a
+    /// readout that fits there in one combination is clipped in another.
+    @ViewBuilder
+    private func caption(_ chart: ChartWheelData) -> some View {
+        let readout = ChartWheelReadout(selection: selection, chart: chart)
+
+        HStack(spacing: 8) {
+            Text(readout.text)
+                .font(.system(size: 14, design: .rounded))
+                .foregroundStyle(.white.opacity(selection == nil ? 0.45 : 0.95))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 4)
+
+            if readout.aspect != nil {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+        }
+        .frame(minHeight: 34)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            // Only a transit aspect has a sheet: it is the only one the report
+            // gives a window and a meaning for.
+            if let aspect = readout.aspect { detail = aspect }
+        }
+        .animation(.easeOut(duration: 0.15), value: readout.text)
+    }
+
     private var specialPointsRow: some View {
         HStack(spacing: 8) {
             Text("Special points")
@@ -82,6 +140,72 @@ struct ChartWheelCard: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.2)) { showsSpecialPoints.toggle() }
         }
+    }
+}
+
+/// One selection, spelled out for the caption.
+struct ChartWheelReadout {
+
+    let text: String
+    /// The aspect the caption can open a sheet for, if any.
+    let aspect: ActiveAspect?
+
+    init(selection: ChartWheelSelection?, chart: ChartWheelData) {
+        switch selection {
+        case nil:
+            text = "Tap a planet or a line"
+            aspect = nil
+
+        case let .body(body, isTransit):
+            text = Self.position(of: body, isTransit: isTransit, chart: chart)
+            aspect = nil
+
+        case let .natalAspect(natal):
+            text = Self.pair(natal.p1, natal.aspect, natal.p2, orb: natal.orb)
+            aspect = nil
+
+        case let .transitAspect(transit):
+            text = Self.pair(transit.transitObject, transit.aspect, transit.natalObject, orb: transit.orb)
+            aspect = transit
+        }
+    }
+
+    /// "Transit ♀ Venus · 23°16′ ♉ Taurus · House 1"
+    private static func position(of body: ChartWheelBody, isTransit: Bool, chart: ChartWheelData) -> String {
+        let sign = Zodiac.index(ofLongitude: body.longitude)
+        let inSign = Zodiac.normalize(body.longitude).truncatingRemainder(dividingBy: 30)
+
+        // Which ring it came from only needs saying when both are on screen.
+        var parts: [String] = []
+        if chart.showsTransits {
+            parts.append(isTransit ? "Transit" : "Natal")
+        }
+        parts.append("\(body.glyph) \(body.id)")
+        parts.append("\(degrees(inSign)) \(Zodiac.glyphs[sign]) \(Zodiac.names[sign])")
+
+        if let house = WheelMath.house(of: body.longitude, cusps: chart.houses) {
+            parts.append("House \(house)")
+        }
+        if body.isRetrograde {
+            parts.append("\u{211E}")
+        }
+
+        return parts.joined(separator: " · ")
+    }
+
+    /// "♄ □ ☽ · Square · orb 1°14′"
+    private static func pair(_ first: String, _ aspect: String, _ second: String, orb: Double) -> String {
+        let glyphs = "\(AstroGlyph.object(first)) \(AstroGlyph.aspect(aspect)) \(AstroGlyph.object(second))"
+        return "\(glyphs) · \(aspect.capitalized) · orb \(degrees(orb))"
+    }
+
+    /// 23°16′, the form the rest of the app prints.
+    private static func degrees(_ value: Double) -> String {
+        let degree = Int(value)
+        let minute = Int(((value - Double(degree)) * 60).rounded())
+        return minute == 60
+            ? "\(degree + 1)°00′"
+            : "\(degree)°\(String(format: "%02d", minute))′"
     }
 }
 
