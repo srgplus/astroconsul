@@ -1,10 +1,11 @@
 import SwiftUI
 
 /// The profile's own settings: the name it is listed under and the birth data
-/// every reading is cast from. Reached from the ••• menu on the weather page,
-/// and only on a profile the viewer owns.
+/// every reading is cast from. Reached from the ••• menu on the weather page
+/// on a profile the viewer owns, and from the plus on the profile list for a
+/// profile that does not exist yet.
 ///
-/// Saving recasts the chart, so the sheet asks its presenter to reload rather
+/// Saving casts the chart, so the sheet asks its presenter to reload rather
 /// than patching the list in place.
 struct ProfileEditSheet: View {
 
@@ -16,11 +17,18 @@ struct ProfileEditSheet: View {
     var onSaved: () -> Void
     var onDeleted: () -> Void
 
+    /// The new profile, handed back so the list can turn straight to it.
+    /// Called instead of `onSaved` and only when the sheet was opened blank.
+    var onCreated: (ProfileSummary) -> Void
+
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var strings = L10n.shared
     @State private var showsDeleteConfirmation = false
     @State private var showsCoordinates = false
-    @State private var showsTransfer = false
+    /// The profile the transfer sheet is offering. Held rather than a flag:
+    /// a new profile has none, and there is nothing to hand over until it is
+    /// saved.
+    @State private var transferring: ProfileSummary?
     @FocusState private var focused: Field?
 
     private enum Field: Hashable { case name, username, place }
@@ -35,6 +43,18 @@ struct ProfileEditSheet: View {
         self.skyZone = skyZone
         self.onSaved = onSaved
         self.onDeleted = onDeleted
+        self.onCreated = { _ in }
+    }
+
+    /// A blank form for a profile that does not exist yet. Same fields, same
+    /// geocoding; the save posts instead of patching and there is nothing to
+    /// delete.
+    init(skyZone: TiiZone? = nil, onCreated: @escaping (ProfileSummary) -> Void) {
+        _model = StateObject(wrappedValue: ProfileEditViewModel())
+        self.skyZone = skyZone
+        self.onSaved = {}
+        self.onDeleted = {}
+        self.onCreated = onCreated
     }
 
     #if DEBUG
@@ -44,19 +64,21 @@ struct ProfileEditSheet: View {
         skyZone: TiiZone? = nil,
         onSaved: @escaping () -> Void = {},
         onDeleted: @escaping () -> Void = {},
+        onCreated: @escaping (ProfileSummary) -> Void = { _ in },
         model: @autoclosure @escaping () -> ProfileEditViewModel
     ) {
         _model = StateObject(wrappedValue: model())
         self.skyZone = skyZone
         self.onSaved = onSaved
         self.onDeleted = onDeleted
+        self.onCreated = onCreated
     }
     #endif
 
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle(L("edit.title"))
+                .navigationTitle(L(model.isCreating ? "edit.newTitle" : "edit.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -74,10 +96,9 @@ struct ProfileEditSheet: View {
                         Button {
                             focused = nil
                             Task {
-                                if await model.save() {
-                                    onSaved()
-                                    dismiss()
-                                }
+                                guard let saved = await model.save() else { return }
+                                if model.isCreating { onCreated(saved) } else { onSaved() }
+                                dismiss()
                             }
                         } label: {
                             if model.isSaving {
@@ -106,8 +127,8 @@ struct ProfileEditSheet: View {
             guard model.state == .loading else { return }
             await model.load()
         }
-        .sheet(isPresented: $showsTransfer) {
-            ProfileTransferSheet(profile: model.profile)
+        .sheet(item: $transferring) { profile in
+            ProfileTransferSheet(profile: profile)
         }
         .alert(L("edit.deleteTitle"), isPresented: $showsDeleteConfirmation) {
             Button(L("common.cancel"), role: .cancel) {}
@@ -120,7 +141,7 @@ struct ProfileEditSheet: View {
                 }
             }
         } message: {
-            Text(L("edit.deleteBody", model.profile.profileName))
+            Text(L("edit.deleteBody", model.profileName))
         }
     }
 
@@ -173,8 +194,12 @@ struct ProfileEditSheet: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                transferButton
-                deleteButton
+                // Nothing to hand over or destroy on a profile that does
+                // not exist yet.
+                if !model.isCreating {
+                    transferButton
+                    deleteButton
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
@@ -347,7 +372,7 @@ struct ProfileEditSheet: View {
     private var transferButton: some View {
         Button {
             focused = nil
-            showsTransfer = true
+            transferring = model.profile
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "gift")

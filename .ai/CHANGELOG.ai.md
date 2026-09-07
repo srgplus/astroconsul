@@ -54,6 +54,37 @@ stored changes: those banners are written days before they land.
 iOS reads in the *device's* language whatever the app is set to. They live
 under `Native/` because that folder is the target's synchronized group, so a
 `.lproj` dropped in is picked up with no project file to edit.
+### iOS: a profile can be made on the phone, and the groups moved into the list
+Creating a profile was the one thing the native screens still handed to the web
+app: the empty state's "Create profile" opened `WebScreen`, and a signed-in
+person with profiles had no way in at all. The plus at the top left of
+`ProfileListScreen` opens the same form the ••• opens for an existing profile
+— `ProfileEditSheet` now takes an `init(skyZone:onCreated:)` that seeds
+`ProfileEditViewModel()` with no profile, and `save()` posts to
+`POST /api/v1/profiles` instead of patching. The empty state on
+`WeatherHomeView` opens that sheet too rather than the web.
+
+Worth knowing about the create path:
+
+- `save()` returns the `ProfileSummary` the API answered with rather than a
+  `Bool`, so the caller can turn the pager to the new page.
+- A new profile cannot be saved without a birthplace (`canSave`). An edit can:
+  it still has the coordinates it was loaded with, a create would cast its
+  chart at 0°/0°. Typed is enough — the save geocodes it, same as an edit does.
+- The list waits for `model.load()` before calling `onSelect`, and does it from
+  the sheet's `onDismiss`. The pager's page comes from the list model, so
+  turning to an id that is not in it yet lands on a page that does not exist,
+  and two sheets dismissing in one frame is its own kind of ugly.
+- The sheet is presented from `body`, outside the `.environment(\.colorScheme,
+  .dark)` the list forces on itself — same reason Settings is. It is system
+  controls on `Theme.sheetBg`, which is a dynamic colour.
+
+**Mine / Following** are list headers now instead of a toolbar label. They were
+in the bar because a row of their own cost a whole line of a screen made of
+full-width cards; as `Section` headers in a plain list they pin as they reach
+the top, which says the same thing without holding a slot the plus now needs.
+`visibleRows` and `pinnedSection` — the appear/disappear bookkeeping that told
+the bar which group the top card belonged to — are gone with it.
 ### iOS: a forecast day opens in a sheet
 A row of the 10-day forecast was a readout and nothing else. Tapping one now
 opens `ForecastDayDetailSheet` — the same reading the page would show if that

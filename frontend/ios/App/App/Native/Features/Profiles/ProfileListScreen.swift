@@ -17,12 +17,12 @@ struct ProfileListScreen: View {
     @ObservedObject private var strings = L10n.shared
     @State private var query = ""
     @State private var showsSettings = false
-    /// Which cards are on screen, by profile id. A `List` recycles its rows,
-    /// so this is maintained from their own appear and disappear rather than
-    /// measured: a list's rows are hosted separately and their preferences do
-    /// not reach back out here, which is the obvious way to do this and does
-    /// not work.
-    @State private var visibleRows: Set<String> = []
+    @State private var showsNewProfile = false
+
+    /// The profile the create sheet just made. Held rather than acted on at
+    /// once: the pager is turned to it after that sheet has closed, so the
+    /// two dismissals do not land in the same frame.
+    @State private var createdProfile: ProfileSummary?
 
     private var own: [ProfileSummary] { filter(model.ownProfiles) }
     private var followed: [ProfileSummary] { filter(model.followedProfiles) }
@@ -38,6 +38,12 @@ struct ProfileListScreen: View {
                     onOpenWeb()
                 })
             }
+            // Out here for the same reason as Settings: the form is made of
+            // system controls drawn for the appearance the app is set to, not
+            // for this screen's night sky.
+            .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
+                ProfileEditSheet(skyZone: skyZone) { createdProfile = $0 }
+            }
             // Glass instead of a slab of grey: the weather page underneath
             // stays visible through it, the way Weather's own sheets read on
             // iOS 26.
@@ -50,24 +56,16 @@ struct ProfileListScreen: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $query, prompt: L("profiles.searchPrompt"))
                 .toolbar {
-                    // Which group the list is currently in, on the same line
-                    // as the wordmark. As a row of its own it cost a whole
-                    // line of a screen made of full-width cards, and it is one
-                    // word.
-                    if let section = pinnedSection {
-                        // A label, not a control, so it skips the glass pill
-                        // iOS 26 puts behind toolbar items — the same reason
-                        // the wordmark does.
-                        if #available(iOS 26.0, *) {
-                            ToolbarItem(placement: .topBarLeading) {
-                                sectionLabel(section)
-                            }
-                            .sharedBackgroundVisibility(.hidden)
-                        } else {
-                            ToolbarItem(placement: .topBarLeading) {
-                                sectionLabel(section)
-                            }
+                    // A new profile of your own, opposite Settings. The group
+                    // names used to sit here; they are headers in the list
+                    // now, where they scroll with the cards they name.
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showsNewProfile = true
+                        } label: {
+                            Image(systemName: "plus")
                         }
+                        .accessibilityLabel(L("profiles.new"))
                     }
 
                     // The wordmark reads as a title, so it keeps its own
@@ -129,6 +127,8 @@ struct ProfileListScreen: View {
                                 }
                             }
                     }
+                } header: {
+                    sectionHeader(L("profiles.mine"))
                 }
             }
 
@@ -144,6 +144,8 @@ struct ProfileListScreen: View {
                                 }
                             }
                     }
+                } header: {
+                    sectionHeader(L("profiles.following"))
                 }
             }
 
@@ -167,16 +169,15 @@ struct ProfileListScreen: View {
             ProfileWeatherCard(profile: profile, isPrimary: profile.profileId == model.primaryProfileId)
         }
         .buttonStyle(.plain)
-        .onAppear { visibleRows.insert(profile.profileId) }
-        .onDisappear { visibleRows.remove(profile.profileId) }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
     }
 
-    /// What holds the wordmark and the group name legible over whatever card
-    /// happens to be sliding under them. It sits in the content, below the
-    /// bar's own items, and fades to nothing rather than ending in a line.
+    /// What holds the wordmark, the buttons and the pinned group name legible
+    /// over whatever card happens to be sliding under them. It sits in the
+    /// content, below the bar's own items, and fades to nothing rather than
+    /// ending in a line.
     private var topWash: some View {
         LinearGradient(
             colors: [.black.opacity(0.42), .black.opacity(0.24), .clear],
@@ -188,28 +189,29 @@ struct ProfileListScreen: View {
         .allowsHitTesting(false)
     }
 
-    private func sectionLabel(_ title: String) -> some View {
+    /// The group's name over its own cards, flush with their left edge. A
+    /// plain list pins these as they reach the top, so the name stays with
+    /// the group you are scrolling through without holding a line of the bar.
+    private func sectionHeader(_ title: String) -> some View {
         Text(title.uppercased())
             .font(.system(size: 12, design: .rounded).weight(.semibold))
             .foregroundStyle(.white.opacity(0.75))
             .tracking(0.6)
-            .fixedSize()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(Color.clear)
     }
 
-    /// The group the topmost card on screen belongs to.
-    ///
-    /// Nil until the list has actually scrolled, on purpose: at rest the first
-    /// group's name over its own first card is a caption on something already
-    /// in view. It appears once cards start going up under the bar and the
-    /// name is the only thing still saying which group you are in.
-    private var pinnedSection: String? {
-        guard let first = (own.first ?? followed.first)?.profileId,
-              !visibleRows.contains(first)
-        else { return nil }
+    /// The pager's page comes from the list model, so the new profile has to
+    /// be in it before the pager is pointed at it.
+    private func openCreatedProfile() {
+        guard let created = createdProfile else { return }
+        createdProfile = nil
 
-        if own.contains(where: { visibleRows.contains($0.profileId) }) { return L("profiles.mine") }
-        if followed.contains(where: { visibleRows.contains($0.profileId) }) { return L("profiles.following") }
-        return nil
+        Task {
+            await model.load(showSpinner: false)
+            onSelect(created)
+        }
     }
 
     /// The same test the search screen applies, so a term that finds a profile

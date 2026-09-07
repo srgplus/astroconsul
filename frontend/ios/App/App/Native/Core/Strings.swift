@@ -177,6 +177,7 @@ private let enUI: [String: String] = [
     // Profile list
     "profiles.searchPrompt": "Search profiles",
     "profiles.mine": "Mine",
+    "profiles.new": "New profile",
     "profiles.following": "Following",
     "profiles.primary": "Primary",
     "profiles.primaryA11y": "Primary profile",
@@ -201,6 +202,7 @@ private let enUI: [String: String] = [
 
     // Profile edit
     "edit.title": "Edit Profile",
+    "edit.newTitle": "New Profile",
     "edit.save": "Save profile",
     "edit.name": "Name",
     "edit.fullName": "Full name",
@@ -538,6 +540,7 @@ private let ruUI: [String: String] = [
     // Profile list
     "profiles.searchPrompt": "Поиск профилей",
     "profiles.mine": "Мои",
+    "profiles.new": "Новый профиль",
     "profiles.following": "Подписки",
     "profiles.primary": "Основной",
     "profiles.primaryA11y": "Основной профиль",
@@ -562,6 +565,7 @@ private let ruUI: [String: String] = [
 
     // Profile edit
     "edit.title": "Изменить профиль",
+    "edit.newTitle": "Новый профиль",
     "edit.save": "Сохранить профиль",
     "edit.name": "Имя",
     "edit.fullName": "Полное имя",

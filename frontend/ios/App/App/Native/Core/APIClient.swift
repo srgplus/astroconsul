@@ -142,6 +142,13 @@ actor APIClient {
         try await send("/api/v1/profiles/\(Self.escape(id))", method: "PATCH", body: update)
     }
 
+    /// A profile that did not exist yet, from the same fields an edit writes.
+    /// The API casts its natal chart on the way in, so the birthplace has to
+    /// be a resolved one — the create sheet geocodes before it calls this.
+    func createProfile(_ profile: ProfileUpdate) async throws -> ProfileDetailResponse {
+        try await send("/api/v1/profiles", method: "POST", body: profile)
+    }
+
     func deleteProfile(id: String) async throws {
         let _: EmptyResponse = try await send(
             "/api/v1/profiles/\(Self.escape(id))",
