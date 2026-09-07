@@ -77,7 +77,9 @@ struct ForecastCard: View {
                 .monospacedDigit()
                 .foregroundStyle(.white.opacity(0.55))
                 .lineLimit(1)
-                .frame(width: 30, alignment: .trailing)
+                // Wide enough for "100%", which a day at full tension prints
+                // and which was clipped to "10…" at 30.
+                .frame(width: 34, alignment: .trailing)
         }
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
