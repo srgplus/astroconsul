@@ -149,12 +149,21 @@ final class CategoryAlerts: ObservableObject {
         return true
     }
 
-    /// Records that the question has been put, however it was answered — "Not
-    /// now", the system sheet, or the card being swiped away, which is an
-    /// answer too. Idempotent, so the card can call it on the way out without
-    /// caring which of those happened.
+    /// Records that the question has been put. Idempotent.
     func markOffered() {
         defaults.set(true, forKey: Key.offered)
+    }
+
+    /// "Not now" — including a refused system sheet and a card swiped away,
+    /// both of which are answers.
+    ///
+    /// The switch has to come off with it. It is on by default, so leaving it
+    /// alone would show Settings a feature switched on with no permission
+    /// behind it and nothing scheduled — a toggle that lies. Off is honest,
+    /// and switching it back on asks again.
+    func declineOffer() {
+        markOffered()
+        defaults.set(false, forKey: Key.enabled)
     }
 
     private var hour: Int { defaults.integer(forKey: Key.hour) }

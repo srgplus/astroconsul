@@ -25,6 +25,11 @@ struct CategoryAlertsOffer: View {
     @ObservedObject private var alerts = CategoryAlerts.shared
     @State private var working = false
 
+    /// Whether permission was actually granted. Everything else — "Not now", a
+    /// refused system sheet, a swipe — is a decline, and `onDisappear` is what
+    /// records it, so no way of leaving the card goes unanswered.
+    @State private var accepted = false
+
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -53,7 +58,7 @@ struct CategoryAlertsOffer: View {
         .presentationDragIndicator(.hidden)
         // Swiping the card away is an answer, and it is recorded as one — so
         // the card is not a dead end if the system sheet fails to come back.
-        .onDisappear { alerts.markOffered() }
+        .onDisappear { if !accepted { alerts.declineOffer() } }
     }
 
     private var icon: some View {
@@ -113,7 +118,7 @@ struct CategoryAlertsOffer: View {
             // the second tap itself.
 
             Button("Not now") {
-                alerts.markOffered()
+                alerts.declineOffer()
                 onFinish()
             }
             .font(.system(.body, design: .rounded))
@@ -132,7 +137,7 @@ struct CategoryAlertsOffer: View {
             // Closes on the answer, granted or refused. A refusal is the
             // system's own sheet and the person has just read it; holding this
             // card up afterwards to say so again is a lecture.
-            await alerts.acceptOffer(profile: profile)
+            accepted = await alerts.acceptOffer(profile: profile)
             working = false
             onFinish()
         }

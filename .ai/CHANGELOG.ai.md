@@ -26,15 +26,26 @@ and re-lays it from the changes on file without asking the server, so the
 default moving does not leave Settings saying noon over a fortnight of eight
 o'clocks.
 
-**The offer.** The feature shipped behind a switch in Settings, which is the one
-screen a new account has no reason to open, so it was off for everyone who never
-went looking. `CategoryAlertsOffer` asks once, on the first run that reaches a
-loaded weather screen with a profile on it. It is an in-app card and not the
-system prompt on its own: iOS grants one permission sheet per install, and
-spending it cold is how an app ends up permanently denied — only "Turn them on"
-spends it. The answer is remembered either way (`Key.offered`), and
-`shouldOffer` additionally requires `authorization == .notDetermined`, so nobody
-who has already answered is asked again.
+**The offer.** `CategoryAlertsOffer` asks once, on the first run that reaches a
+loaded weather screen with a profile on it.
+
+This replaces the bare `requestAuthorizationIfNeeded()` that the entry below
+(«notifications ask for themselves, and land at noon») called from
+`refreshAlerts`, and that function is gone: two things asking from the same
+`task` is a race the raw system prompt wins, spending the sheet before any card
+can appear. iOS grants one permission sheet per install, and spending it cold —
+over a screen the person has just met, with nothing said about what the alerts
+are — is how an app ends up permanently denied with no way back except iOS
+Settings. The card says what they are first, and only "Turn them on" spends it.
+The default-on switch from that entry stays.
+
+The answer is remembered either way (`Key.offered`), and `shouldOffer` requires
+`authorization == .notDetermined`, so nobody who has already answered — in this
+app, in an earlier build, or in iOS Settings — is asked again. It is
+deliberately *not* gated on `isEnabled`: the switch is on by default, so that
+test would never pass. A decline also switches the toggle off, because a switch
+that is on with no permission behind it and nothing scheduled is a switch that
+lies; switching it back on asks again.
 
 `DeviceLocation` gained `isSettled`, and the offer waits on it. Both questions
 go up from the same `task` on the home screen, and the one underneath a stacked
