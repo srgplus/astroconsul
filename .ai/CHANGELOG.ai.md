@@ -51,7 +51,8 @@ through one circle and neither grid reads.
 `ChartWheelData.init(positions:aspects:showsTransits:hidesSpecialPoints:)`
 (`Features/Chart/ChartWheelLayout.swift`) now fills `natalAspects` only when
 `showsTransits` is false, so the mode picker swaps grids rather than stacking
-them: Chart draws the natal aspects, Transit draws the transit-to-natal ones.
+them: Birth draws the natal aspects, Transit draws the transit-to-natal ones
+(the left segment was labelled Chart until the picker was renamed).
 The `natalInk` dimming in `WheelLayout.lines` went with it — natal lines are
 never drawn beside transit lines any more, so they are always at full strength.
 

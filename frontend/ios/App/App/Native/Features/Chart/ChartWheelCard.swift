@@ -3,7 +3,7 @@ import SwiftUI
 /// The birth chart, on the weather screen, in the same frosted panel the
 /// forecast and the transits use.
 ///
-/// Two switches, both borrowed from the web chart. Chart/Transit adds the
+/// Two switches, both borrowed from the web chart. Birth/Transit adds the
 /// second pair of rings and swaps the natal aspect grid for the
 /// transit-to-natal lines — one grid at a time, because both at once is fifty
 /// lines through one circle; Special points adds the inner row of each pair —
@@ -26,7 +26,16 @@ struct ChartWheelCard: View {
         case chart, transit
 
         var id: String { rawValue }
-        var title: String { rawValue.capitalized }
+
+        /// "Birth", not "Chart": the card is already called Birth chart, and a
+        /// button repeating the second half of the title says nothing about
+        /// what it switches to.
+        var title: String {
+            switch self {
+            case .chart: "Birth"
+            case .transit: "Transit"
+            }
+        }
     }
 
     private var chart: ChartWheelData? {
