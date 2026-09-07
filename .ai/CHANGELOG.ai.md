@@ -4,6 +4,21 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the hero icon says where the place came from, the dots say which page is yours
+The hero always drew `location.fill` beside the place name, whatever the name
+was — a fix off the device and a city someone typed on the web looked
+identical. `CosmicWeatherView.place` now returns the label *and* its source, and
+the icon follows it: `location.fill` for the device's own fix, `location.slash`
+for a place that was typed (the transit location on the profile, or one chosen
+in the settings sheet), and nothing at all when the handle is standing in for a
+place — `@someone` is not a location and should not be dressed as one. It
+replaces `subtitle`, which returned only the string.
+
+The primary profile's page dot was carrying the same arrow, which is now the
+house it should have been: the arrow is the hero's word for "read off a fix",
+and the dot means something else — the page that is *yours*, wherever it is
+being read from.
+
 ### iOS: transfer a profile to someone else
 The web has had this since the invite tables landed: an owner gives a profile
 away by email, and it only changes hands once the recipient accepts. iOS had

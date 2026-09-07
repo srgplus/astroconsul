@@ -7,7 +7,7 @@ import UIKit
 /// profiles a plain row of dots is wider than the screen and pushes the whole
 /// bar sideways, while the system control compresses and windows the dots the
 /// way Weather's does. It also takes a per-page image, which is how the
-/// primary profile gets Weather's location arrow.
+/// primary profile gets its house.
 struct WeatherPageDots: UIViewRepresentable {
 
     let count: Int
@@ -42,9 +42,12 @@ struct WeatherPageDots: UIViewRepresentable {
         }
         control.currentPage = index
 
-        let arrow = UIImage(systemName: "location.fill")
+        // A house, not the location arrow: the arrow is the hero's word for
+        // "this reading came off a device fix", and the dot means something
+        // else — the page that is *yours*, wherever it is being read from.
+        let house = UIImage(systemName: "house.fill")
         for page in 0..<count {
-            control.setIndicatorImage(page == primaryIndex ? arrow : nil, forPage: page)
+            control.setIndicatorImage(page == primaryIndex ? house : nil, forPage: page)
         }
     }
 
