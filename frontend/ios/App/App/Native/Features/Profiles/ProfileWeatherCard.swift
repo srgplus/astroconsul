@@ -9,6 +9,7 @@ struct ProfileWeatherCard: View {
     let isPrimary: Bool
 
     @ObservedObject private var device = DeviceLocation.shared
+    @ObservedObject private var strings = L10n.shared
 
     private var tii: Double? { profile.latestTransit?.tii }
     private var zone: TiiZone? { tii.map(TiiZone.init(tii:)) }
@@ -34,7 +35,7 @@ struct ProfileWeatherCard: View {
                         Image(systemName: "star.fill")
                             .font(.system(size: 11))
                             .opacity(0.85)
-                            .accessibilityLabel("Primary profile")
+                            .accessibilityLabel(L("profiles.primaryA11y"))
                     }
                 }
 
@@ -45,7 +46,7 @@ struct ProfileWeatherCard: View {
 
                 Spacer(minLength: 6)
 
-                Text(profile.latestTransit?.feelsLike ?? "No reading yet")
+                Text(Astro.feels(profile.latestTransit?.feelsLike) ?? L("profiles.noReading"))
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .opacity(0.9)
                     .lineLimit(1)

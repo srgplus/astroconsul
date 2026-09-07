@@ -27,9 +27,9 @@ enum Appearance: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
+        case .system: return L("settings.theme.system")
+        case .light: return L("settings.theme.light")
+        case .dark: return L("settings.theme.dark")
         }
     }
 

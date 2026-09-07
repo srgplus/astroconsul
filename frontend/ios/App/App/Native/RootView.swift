@@ -8,6 +8,7 @@ import SwiftUI
 struct RootView: View {
 
     @ObservedObject private var auth = AuthStore.shared
+    @ObservedObject private var strings = L10n.shared
     @AppStorage(Appearance.storageKey) private var appearance = Appearance.system.rawValue
 
     var body: some View {
@@ -30,6 +31,11 @@ struct RootView: View {
         .onChange(of: appearance) { _, choice in
             Appearance.apply(Appearance(rawValue: choice) ?? .system)
         }
+        // The app's own language, not the device's, so the system controls
+        // under it — the date and time pickers, the pull-to-refresh label,
+        // the swipe actions' own words — are set in the language the labels
+        // beside them are.
+        .environment(\.locale, LanguageStore.locale)
     }
 
     @ViewBuilder

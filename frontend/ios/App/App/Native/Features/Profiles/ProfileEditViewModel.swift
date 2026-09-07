@@ -215,7 +215,7 @@ final class ProfileEditViewModel: ObservableObject {
                 geocodedLocationName = locationName.trimmingCharacters(in: .whitespaces)
             } catch {
                 NSLog("[ProfileEdit] resolve failed: \(error.localizedDescription)")
-                errorMessage = "Could not find “\(locationName)”. Pick a place from the list instead."
+                errorMessage = L("edit.resolveFailed", locationName)
                 return false
             }
         }

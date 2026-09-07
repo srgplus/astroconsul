@@ -212,8 +212,10 @@ struct TopTransit: Codable, Hashable, Identifiable {
 
     var id: String { "\(transitObject)-\(aspect)-\(natalObject)" }
 
-    /// "Saturn square Moon" — the headline form used across the app.
-    var title: String { "\(transitObject) \(aspect) \(natalObject)" }
+    /// "Saturn square Moon", in the app's language.
+    var title: String {
+        Astro.aspectTitle(transit: transitObject, aspect: aspect, natal: natalObject)
+    }
 }
 
 struct MoonPhase: Codable, Hashable {
@@ -282,17 +284,17 @@ struct ForecastDay: Codable, Hashable, Identifiable {
 
     /// "Today" for the first day, otherwise a short weekday name.
     func label(isToday: Bool) -> String {
-        guard !isToday else { return "Today" }
+        guard !isToday else { return L("common.today") }
         guard let day else { return date }
-        return Self.weekdayFormatter.string(from: day)
+        return LocalizedDate.string(day, template: "EEE")
     }
 
     /// "Tuesday, 9 September" — the long form, for a screen about this day
     /// alone rather than a row in a list of ten.
     func longLabel(isToday: Bool) -> String {
         guard let day else { return date }
-        let name = Self.longFormatter.string(from: day)
-        return isToday ? "Today, \(name)" : name
+        let name = LocalizedDate.string(day, template: "EEEEdMMMM")
+        return isToday ? L("forecast.todayLong", name) : name
     }
 
     /// This day as a moment to read: its date at `time`'s hour and minute, in
@@ -337,18 +339,6 @@ struct ForecastDay: Codable, Hashable, Identifiable {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
-
-    private static let weekdayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("EEE")
-        return formatter
-    }()
-
-    private static let longFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM")
         return formatter
     }()
 }
@@ -427,8 +417,13 @@ struct ActiveAspect: Codable, Hashable, Identifiable {
     /// the aspect name identify a row.
     var id: String { "\(transitObject)-\(aspect)-\(natalObject)" }
 
-    /// "Saturn square Moon" — the headline form used across the app.
-    var title: String { "\(transitObject) \(aspect) \(natalObject)" }
+    /// "Saturn square Moon" — the headline form used across the app, in
+    /// whichever language the app is being read in. The API answers in
+    /// English for all three parts and every one of them is shown, so the
+    /// server's words are ids here and the reading is looked up.
+    var title: String {
+        Astro.aspectTitle(transit: transitObject, aspect: aspect, natal: natalObject)
+    }
 
     /// Exact and strong are what the web app calls "most impact".
     var isImpactful: Bool { strength == "exact" || strength == "strong" }
@@ -530,7 +525,7 @@ struct TransitPositions: Hashable {
 
 /// The four windows the feels-like headline is written for. Mirrors
 /// `frontend/src/time-modifiers.ts`.
-enum TimeWindow {
+enum TimeWindow: String {
     case morning, afternoon, evening, night
 
     init(hour: Int) {
@@ -547,113 +542,6 @@ enum TimeWindow {
         calendar.timeZone = zone
         self.init(hour: calendar.component(.hour, from: date))
     }
-}
-
-struct TimeHeadlines {
-    let morning: String
-    let afternoon: String
-    let evening: String
-    let night: String
-
-    subscript(window: TimeWindow) -> String {
-        switch window {
-        case .morning: return morning
-        case .afternoon: return afternoon
-        case .evening: return evening
-        case .night: return night
-        }
-    }
-}
-
-extension FeelsLike {
-
-    /// The short line under the feels-like label: "Drift into peace" for a
-    /// flowing night, "Bold moves time" for a dynamic afternoon.
-    ///
-    /// The English half of `data/feels_like_time_modifiers.json`, which the
-    /// web app reads directly. It is inlined rather than bundled because the
-    /// native screens are English only and 48 short strings do not warrant a
-    /// resource and a decode path — but that file stays the source of truth,
-    /// so edits there belong here too.
-    static func headline(for label: String?, at date: Date, in zone: TimeZone) -> String? {
-        guard let label, let headlines = headlines[label] else { return nil }
-        return headlines[TimeWindow(date: date, in: zone)]
-    }
-
-    private static let headlines: [String: TimeHeadlines] = [
-        "Calm": TimeHeadlines(
-            morning: "Gentle start ahead",
-            afternoon: "Calm and steady",
-            evening: "Peaceful wind-down",
-            night: "Deep stillness"
-        ),
-        "Subtle pressure": TimeHeadlines(
-            morning: "Something stirring beneath",
-            afternoon: "Haze of tension",
-            evening: "Undercurrent surfaces",
-            night: "Restless quiet"
-        ),
-        "Grinding": TimeHeadlines(
-            morning: "Heavy start, pace yourself",
-            afternoon: "Endurance mode",
-            evening: "Release the weight",
-            night: "Let the body recover"
-        ),
-        "Flowing": TimeHeadlines(
-            morning: "Promising start",
-            afternoon: "In the flow",
-            evening: "Savor the harmony",
-            night: "Drift into peace"
-        ),
-        "Dynamic": TimeHeadlines(
-            morning: "Active day building",
-            afternoon: "Bold moves time",
-            evening: "Process the buzz",
-            night: "Mind still racing"
-        ),
-        "Pressured": TimeHeadlines(
-            morning: "Brace for demands",
-            afternoon: "Adapt to pressure",
-            evening: "Decompress gently",
-            night: "Release and restore"
-        ),
-        "Expansive": TimeHeadlines(
-            morning: "Big energy awakening",
-            afternoon: "Doors are opening",
-            evening: "Celebrate the expansion",
-            night: "Dream big tonight"
-        ),
-        "Charged": TimeHeadlines(
-            morning: "Storm energy building",
-            afternoon: "Ready to discharge",
-            evening: "Let the charge settle",
-            night: "Electric dreams ahead"
-        ),
-        "Intense": TimeHeadlines(
-            morning: "Fiery day ahead",
-            afternoon: "Fire and pressure",
-            evening: "Cool the flames",
-            night: "Let the fire die down"
-        ),
-        "Powerful": TimeHeadlines(
-            morning: "Rare launch window",
-            afternoon: "Breakthrough energy",
-            evening: "Ride the momentum",
-            night: "Power in stillness"
-        ),
-        "Volatile": TimeHeadlines(
-            morning: "Expect the unexpected",
-            afternoon: "Unpredictable shifts",
-            evening: "Ground after the storm",
-            night: "Turbulent dreams possible"
-        ),
-        "Explosive": TimeHeadlines(
-            morning: "Maximum intensity day",
-            afternoon: "Everything at once",
-            evening: "Survive and reflect",
-            night: "Deep recovery needed"
-        ),
-    ]
 }
 
 // MARK: - Profile detail

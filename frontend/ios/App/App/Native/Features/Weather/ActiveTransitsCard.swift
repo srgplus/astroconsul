@@ -16,6 +16,8 @@ struct ActiveTransitsCard: View {
     var positions: TransitPositions = .init()
     var now: Date = Date()
 
+    @ObservedObject private var strings = L10n.shared
+
     /// On by default, the way the web widget opens: exact and strong only.
     @State private var mostImpact = true
     @State private var selected: ActiveAspect?
@@ -43,7 +45,7 @@ struct ActiveTransitsCard: View {
                 if visible.isEmpty {
                     WeatherCardDivider()
 
-                    Text("Nothing exact or strong right now.")
+                    Text(L("transits.nothingStrong"))
                         .font(.system(size: 14, design: .rounded))
                         .foregroundStyle(.white.opacity(0.7))
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -87,17 +89,17 @@ struct ActiveTransitsCard: View {
             Image(systemName: "circle.hexagongrid")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Active transits".uppercased())
+            Text(L("transits.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
 
             Spacer(minLength: 8)
 
-            Text("Most impact")
+            Text(L("transits.mostImpact"))
                 .font(.system(size: 13, design: .rounded))
 
             SmallSwitch(isOn: $mostImpact)
-                .accessibilityLabel("Most impact")
+                .accessibilityLabel(L("transits.mostImpact"))
         }
         .foregroundStyle(.white.opacity(0.7))
         .contentShape(Rectangle())
@@ -131,7 +133,12 @@ struct ActiveTransitsCard: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(aspect.title), \(aspect.strength), orb \(String(format: "%.2f", aspect.orb)) degrees"
+            L(
+                "transits.orbA11y",
+                aspect.title,
+                Astro.strength(aspect.strength),
+                String(format: "%.2f", aspect.orb)
+            )
         )
         .accessibilityAddTraits(.isButton)
     }
@@ -180,7 +187,7 @@ struct StrengthLabel: View {
     @Environment(\.transitPalette) private var palette
 
     var body: some View {
-        Text(strength.uppercased())
+        Text(Astro.strength(strength))
             .font(.system(size: 11, weight: .semibold, design: .rounded))
             .tracking(0.4)
             .foregroundStyle(palette.primary)

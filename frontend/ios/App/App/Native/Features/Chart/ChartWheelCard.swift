@@ -20,6 +20,8 @@ struct ChartWheelCard: View {
     /// transit's window, so it follows a day the reader picked.
     var now: Date = Date()
 
+    @ObservedObject private var strings = L10n.shared
+
     @State private var mode: Mode = .transit
     @State private var showsSpecialPoints = false
     @State private var selection: ChartWheelSelection?
@@ -33,12 +35,7 @@ struct ChartWheelCard: View {
         /// "Birth", not "Chart": the card is already called Birth chart, and a
         /// button repeating the second half of the title says nothing about
         /// what it switches to.
-        var title: String {
-            switch self {
-            case .chart: "Birth"
-            case .transit: "Transit"
-            }
-        }
+        var title: String { L(self == .chart ? "wheel.natal" : "wheel.transit") }
     }
 
     private var chart: ChartWheelData? {
@@ -91,7 +88,7 @@ struct ChartWheelCard: View {
             Image(systemName: "circle.dotted.circle")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Birth chart".uppercased())
+            Text(L("chart.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
                 .foregroundStyle(.white.opacity(0.7))
@@ -141,13 +138,13 @@ struct ChartWheelCard: View {
 
     private var specialPointsRow: some View {
         HStack(spacing: 8) {
-            Text("Special points")
+            Text(L("chart.specialPoints"))
                 .font(.system(size: 14, design: .rounded))
 
             Spacer(minLength: 8)
 
             SmallSwitch(isOn: $showsSpecialPoints)
-                .accessibilityLabel("Special points")
+                .accessibilityLabel(L("chart.specialPoints"))
         }
         .foregroundStyle(.white.opacity(0.7))
         .padding(.top, 12)
@@ -168,7 +165,7 @@ struct ChartWheelReadout {
     init(selection: ChartWheelSelection?, chart: ChartWheelData) {
         switch selection {
         case nil:
-            text = "Tap a planet or a line"
+            text = L("chart.tapHint")
             aspect = nil
 
         case let .body(body, isTransit):
@@ -193,13 +190,15 @@ struct ChartWheelReadout {
         // Which ring it came from only needs saying when both are on screen.
         var parts: [String] = []
         if chart.showsTransits {
-            parts.append(isTransit ? "Transit" : "Natal")
+            parts.append(L(isTransit ? "chart.transit" : "chart.natal"))
         }
-        parts.append("\(body.glyph) \(body.id)")
-        parts.append("\(degrees(inSign)) \(Zodiac.glyphs[sign]) \(Zodiac.names[sign])")
+        parts.append("\(body.glyph) \(Astro.object(body.id))")
+        parts.append(
+            "\(degrees(inSign)) \(Zodiac.glyphs[sign]) \(Astro.sign(Zodiac.names[sign]) ?? Zodiac.names[sign])"
+        )
 
         if let house = WheelMath.house(of: body.longitude, cusps: chart.houses) {
-            parts.append("House \(house)")
+            parts.append(L("chart.house", house))
         }
         if body.isRetrograde {
             parts.append("\u{211E}")
@@ -211,7 +210,7 @@ struct ChartWheelReadout {
     /// "♄ □ ☽ · Square · orb 1°14′"
     private static func pair(_ first: String, _ aspect: String, _ second: String, orb: Double) -> String {
         let glyphs = "\(AstroGlyph.object(first)) \(AstroGlyph.aspect(aspect)) \(AstroGlyph.object(second))"
-        return "\(glyphs) · \(aspect.capitalized) · orb \(degrees(orb))"
+        return "\(glyphs) · \(Astro.aspect(aspect).capitalized) · \(L("chart.orb", degrees(orb)))"
     }
 
     /// 23°16′, the form the rest of the app prints.

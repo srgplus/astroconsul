@@ -14,6 +14,7 @@ struct ProfileListScreen: View {
     var onOpenWeb: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var strings = L10n.shared
     @State private var query = ""
     @State private var showsSettings = false
     /// Which cards are on screen, by profile id. A `List` recycles its rows,
@@ -47,7 +48,7 @@ struct ProfileListScreen: View {
         NavigationStack {
             list
                 .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: $query, prompt: "Search profiles")
+                .searchable(text: $query, prompt: L("profiles.searchPrompt"))
                 .toolbar {
                     // Which group the list is currently in, on the same line
                     // as the wordmark. As a row of its own it cost a whole
@@ -92,7 +93,7 @@ struct ProfileListScreen: View {
                         } label: {
                             Image(systemName: "gearshape")
                         }
-                        .accessibilityLabel("Settings")
+                        .accessibilityLabel(L("settings.title"))
                     }
                 }
                 // The system bar draws a material that stops dead in a line
@@ -122,7 +123,7 @@ struct ProfileListScreen: View {
                                     Button {
                                         Task { await model.setPrimary(profile) }
                                     } label: {
-                                        Label("Primary", systemImage: "star.fill")
+                                        Label(L("profiles.primary"), systemImage: "star.fill")
                                     }
                                     .tint(Theme.zoneColor(.active))
                                 }
@@ -139,7 +140,7 @@ struct ProfileListScreen: View {
                                 Button(role: .destructive) {
                                     Task { await model.unfollow(profile) }
                                 } label: {
-                                    Label("Unfollow", systemImage: "person.badge.minus")
+                                    Label(L("weather.unfollow"), systemImage: "person.badge.minus")
                                 }
                             }
                     }
@@ -147,7 +148,7 @@ struct ProfileListScreen: View {
             }
 
             if own.isEmpty && followed.isEmpty {
-                Text(query.isEmpty ? "No profiles yet." : "Nothing matches “\(query)”.")
+                Text(query.isEmpty ? L("profiles.none") : L("profiles.noMatch", query))
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Theme.textDim)
                     .listRowBackground(Color.clear)
@@ -206,8 +207,8 @@ struct ProfileListScreen: View {
               !visibleRows.contains(first)
         else { return nil }
 
-        if own.contains(where: { visibleRows.contains($0.profileId) }) { return "Mine" }
-        if followed.contains(where: { visibleRows.contains($0.profileId) }) { return "Following" }
+        if own.contains(where: { visibleRows.contains($0.profileId) }) { return L("profiles.mine") }
+        if followed.contains(where: { visibleRows.contains($0.profileId) }) { return L("profiles.following") }
         return nil
     }
 

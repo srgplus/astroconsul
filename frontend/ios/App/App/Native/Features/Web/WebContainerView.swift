@@ -28,6 +28,13 @@ final class WebControllerHolder {
 
     /// The live controller, or nil if the Chart tab has never been opened.
     var current: CustomViewController? { controllerIfCreated }
+
+    /// Hands the WebView the language the native side is set to. A no-op when
+    /// the web half has never been opened: it reads the setting out of
+    /// localStorage on its next boot, and that store is shared.
+    func syncLanguage() {
+        controllerIfCreated?.syncLanguage()
+    }
 }
 
 /// Bridges the Capacitor WebView into SwiftUI as one tab.

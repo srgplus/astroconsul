@@ -32,6 +32,7 @@ struct CosmicWeatherView: View {
 
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
+    @ObservedObject private var strings = L10n.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var showsSettings = false
     /// The forecast row that was tapped, and so the day whose sheet is open.
@@ -238,7 +239,7 @@ struct CosmicWeatherView: View {
             // conflict SmallSwitch was drawn from shapes to avoid.
             .onTapGesture { showsSettings = true }
             .accessibilityAddTraits(.isButton)
-            .accessibilityHint("Choose the moment and place to read")
+            .accessibilityHint(L("weather.momentHint"))
 
             Text(temperature)
                 .font(.system(size: 92, weight: .ultraLight, design: .rounded))
@@ -247,11 +248,11 @@ struct CosmicWeatherView: View {
                 .padding(.leading, 14)   // optical centring: the ° hangs right
                 .padding(.vertical, -8)
 
-            Text(feelsLike ?? " ")
+            Text(Astro.feels(feelsLike) ?? " ")
                 .font(.system(size: 21, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.9))
 
-            if let headline = FeelsLike.headline(for: feelsLike, at: model.readingTime, in: model.readingZone) {
+            if let headline = Astro.headline(for: feelsLike, at: model.readingTime, in: model.readingZone) {
                 Text(headline)
                     .font(.system(size: 15, design: .rounded))
                     .foregroundStyle(.white.opacity(0.75))
@@ -277,7 +278,7 @@ struct CosmicWeatherView: View {
                     Button {
                         onEdit(profile)
                     } label: {
-                        Label("Edit Profile", systemImage: "square.and.pencil")
+                        Label(L("weather.editProfile"), systemImage: "square.and.pencil")
                     }
                 }
 
@@ -285,7 +286,7 @@ struct CosmicWeatherView: View {
                     Button(role: .destructive) {
                         onUnfollow(profile)
                     } label: {
-                        Label("Unfollow", systemImage: "person.badge.minus")
+                        Label(L("weather.unfollow"), systemImage: "person.badge.minus")
                     }
                 }
             } label: {
@@ -301,7 +302,7 @@ struct CosmicWeatherView: View {
             // white beside black labels. Ink, which resolves either way.
             .tint(Theme.text)
             .weatherGlass(in: .circle, interactive: true)
-            .accessibilityLabel("Profile options")
+            .accessibilityLabel(L("weather.profileOptions"))
         }
     }
 
@@ -317,12 +318,10 @@ struct CosmicWeatherView: View {
         model.today?.feelsLike ?? profile.latestTransit?.feelsLike
     }
 
-    /// "Mon, Sep 7 at 1:05 AM", in the zone the reading was cast for.
+    /// "Mon, Sep 7 at 1:05 AM", in the zone the reading was cast for and in
+    /// the language the app is set to.
     private var readingStamp: String {
-        let formatter = DateFormatter()
-        formatter.timeZone = model.readingZone
-        formatter.setLocalizedDateFormatFromTemplate("EEE d MMM jmm")
-        return formatter.string(from: model.readingTime)
+        LocalizedDate.string(model.readingTime, template: "EEE d MMM jmm", in: model.readingZone)
     }
 
     /// Where a hero label came from, which is what its icon says. Weather
@@ -417,7 +416,7 @@ struct CosmicWeatherView: View {
 
         case let .failed(message):
             WeatherCard {
-                WeatherCardHeader(icon: "exclamationmark.triangle", title: "No forecast")
+                WeatherCardHeader(icon: "exclamationmark.triangle", title: L("weather.noForecast"))
                     .padding(.bottom, 8)
 
                 Text(message)
@@ -425,7 +424,7 @@ struct CosmicWeatherView: View {
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button("Try again") {
+                Button(L("common.tryAgain")) {
                     Task { await model.load(profile: profile) }
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -444,7 +443,7 @@ struct CosmicWeatherView: View {
                 }
             } else {
                 WeatherCard {
-                    Text("No forecast days came back for this profile.")
+                    Text(L("weather.noForecastDays"))
                         .font(.system(size: 15, design: .rounded))
                         .foregroundStyle(.white)
                 }
@@ -515,14 +514,14 @@ struct TensionBar: View {
                     .frame(width: max(width * CGFloat(min(max(ratio, 0), 1)), track), height: track)
             }
 
-            Text("Tension \(percent)%")
+            Text(L("weather.tension", percent))
                 .font(.system(size: 13, design: .rounded))
                 .foregroundStyle(.white.opacity(0.7))
                 .monospacedDigit()
                 .fixedSize()
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Tension \(percent) percent")
+        .accessibilityLabel(L("weather.tensionA11y", percent))
     }
 }
 
@@ -559,6 +558,6 @@ struct MinimalSpinner: View {
             .rotationEffect(.degrees(turning ? 360 : 0))
             .animation(.linear(duration: 0.9).repeatForever(autoreverses: false), value: turning)
             .onAppear { turning = true }
-            .accessibilityLabel("Loading")
+            .accessibilityLabel(L("common.loading"))
     }
 }

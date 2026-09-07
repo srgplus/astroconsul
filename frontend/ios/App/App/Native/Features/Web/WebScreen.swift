@@ -12,7 +12,7 @@ struct WebScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button("Done") { dismiss() }
+                Button(L("common.done")) { dismiss() }
                     .font(.system(.body, design: .rounded).weight(.medium))
                     .foregroundStyle(Theme.text)
 

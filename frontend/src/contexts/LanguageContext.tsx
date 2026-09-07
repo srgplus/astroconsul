@@ -32,6 +32,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLang = useCallback((l: Lang) => {
     setLangState(l)
     localStorage.setItem("lang", l)
+    // Inside the iOS app the native screens keep their own copy of this
+    // setting, so they are told too. Nothing listens on the web.
+    try {
+      (window as unknown as {
+        webkit?: { messageHandlers?: { language?: { postMessage: (value: string) => void } } }
+      }).webkit?.messageHandlers?.language?.postMessage(l)
+    } catch (error) {
+      console.warn("[lang] could not reach the native handler", error)
+    }
   }, [])
 
   const t = useCallback((key: string): string => {

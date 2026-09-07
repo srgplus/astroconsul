@@ -18,14 +18,14 @@ enum SupabaseAuthAPI {
             case let .http(status, message):
                 if let message, !message.isEmpty { return message }
                 switch status {
-                case 429: return "Too many attempts. Wait a minute and try again."
-                case 400, 401, 403: return "That did not work. Check the details and try again."
-                default: return "Request failed (HTTP \(status))."
+                case 429: return L("error.tooMany")
+                case 400, 401, 403: return L("error.badDetails")
+                default: return L("error.http", status)
                 }
             case let .transport(error):
                 return error.localizedDescription
             case .badResponse:
-                return "The server sent an unexpected response."
+                return L("error.unexpected")
             }
         }
     }

@@ -103,7 +103,7 @@ struct ChartWheelView: View {
             )
         }
         .aspectRatio(1, contentMode: .fit)
-        .accessibilityLabel("Birth chart wheel")
+        .accessibilityLabel(L("chart.wheelA11y"))
     }
 
     private func select(_ hit: ChartWheelSelection?) {

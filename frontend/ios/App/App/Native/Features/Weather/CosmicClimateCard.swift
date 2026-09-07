@@ -20,6 +20,8 @@ struct CosmicClimateCard: View {
 
     @Environment(\.transitPalette) private var palette
 
+    @ObservedObject private var strings = L10n.shared
+
     @State private var selected: ActiveAspect?
 
     /// Wide enough for "Aug 2026 – Mar 2027", and fixed so the bars end on the
@@ -37,7 +39,7 @@ struct CosmicClimateCard: View {
     var body: some View {
         if !visible.isEmpty {
             WeatherCard {
-                WeatherCardHeader(icon: "sun.haze", title: "Cosmic climate")
+                WeatherCardHeader(icon: "sun.haze", title: L("climate.title"))
                     .padding(.bottom, 10)
 
                 ForEach(visible) { aspect in
@@ -92,19 +94,9 @@ struct CosmicClimateCard: View {
 
         let calendar = Calendar.current
         let sameYear = calendar.component(.year, from: start) == calendar.component(.year, from: end)
-        let head = sameYear ? month.string(from: start) : monthYear.string(from: start)
-        return "\(head) – \(monthYear.string(from: end))"
+        let head = sameYear
+            ? LocalizedDate.string(start, template: "MMM")
+            : LocalizedDate.string(start, template: "MMM y")
+        return "\(head) – \(LocalizedDate.string(end, template: "MMM y"))"
     }
-
-    private static let month: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMM")
-        return formatter
-    }()
-
-    private static let monthYear: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMM y")
-        return formatter
-    }()
 }

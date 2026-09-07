@@ -1,0 +1,8 @@
+/* The permission prompts, which iOS reads out of the bundle in the device's
+   language rather than the app's own setting.
+
+   These live under Native/ because that folder is the target's synchronized
+   group: a .lproj added here is picked up as a localized resource with no
+   project file to edit. */
+
+"NSLocationWhenInUseUsageDescription" = "Your cosmic weather is read for where you are now, not where you were born. big3.me uses your location only to name that place.";

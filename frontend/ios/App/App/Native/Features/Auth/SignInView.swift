@@ -15,6 +15,7 @@ struct SignInView: View {
     }
 
     @ObservedObject private var auth = AuthStore.shared
+    @ObservedObject private var strings = L10n.shared
 
     @State private var step: Step = .email
     @State private var email = ""
@@ -87,9 +88,9 @@ struct SignInView: View {
 
     private var subtitle: String {
         switch step {
-        case .email: return "Sign in with your email"
-        case .code: return "We sent a code to \(email.trimmed)"
-        case .password: return "Sign in with your password"
+        case .email: return L("auth.subtitleEmail")
+        case .code: return L("auth.subtitleCode", email.trimmed)
+        case .password: return L("auth.subtitlePassword")
         }
     }
 
@@ -97,7 +98,7 @@ struct SignInView: View {
 
     private var emailStep: some View {
         VStack(spacing: Theme.Spacing.base) {
-            field(placeholder: "Email", text: $email)
+            field(placeholder: L("auth.email"), text: $email)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
@@ -105,24 +106,24 @@ struct SignInView: View {
                 .focused($focus, equals: .email)
                 .onSubmit(sendCode)
 
-            primaryButton("Send code", enabled: emailLooksValid, action: sendCode)
+            primaryButton(L("auth.sendCode"), enabled: emailLooksValid, action: sendCode)
         }
     }
 
     private var codeStep: some View {
         VStack(spacing: Theme.Spacing.base) {
-            field(placeholder: "6-digit code", text: $code)
+            field(placeholder: L("auth.code"), text: $code)
                 .textContentType(.oneTimeCode)
                 .keyboardType(.numberPad)
                 .font(.system(.title3, design: .monospaced))
                 .multilineTextAlignment(.center)
                 .focused($focus, equals: .code)
 
-            primaryButton("Sign in", enabled: code.count >= 6, action: verifyCode)
+            primaryButton(L("auth.signIn"), enabled: code.count >= 6, action: verifyCode)
 
             HStack(spacing: Theme.Spacing.loose) {
-                Button("Resend", action: sendCode)
-                Button("Change email") {
+                Button(L("auth.resend"), action: sendCode)
+                Button(L("auth.changeEmail")) {
                     code = ""
                     message = nil
                     step = .email
@@ -136,19 +137,19 @@ struct SignInView: View {
 
     private var passwordStep: some View {
         VStack(spacing: Theme.Spacing.base) {
-            field(placeholder: "Email", text: $email)
+            field(placeholder: L("auth.email"), text: $email)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($focus, equals: .email)
 
-            secureField(placeholder: "Password", text: $password)
+            secureField(placeholder: L("auth.password"), text: $password)
                 .focused($focus, equals: .password)
                 .onSubmit(signInWithPassword)
 
             primaryButton(
-                "Sign in",
+                L("auth.signIn"),
                 enabled: emailLooksValid && !password.isEmpty,
                 action: signInWithPassword
             )
@@ -160,7 +161,7 @@ struct SignInView: View {
     private var divider: some View {
         HStack(spacing: Theme.Spacing.base) {
             Rectangle().fill(Theme.line).frame(height: 1)
-            Text("or")
+            Text(L("auth.or"))
                 .font(.system(.footnote, design: .rounded))
                 .foregroundStyle(Theme.textDim)
             Rectangle().fill(Theme.line).frame(height: 1)
@@ -176,7 +177,7 @@ struct SignInView: View {
                 HStack(spacing: Theme.Spacing.tight) {
                     Image(systemName: "apple.logo")
                         .font(.system(size: 17, weight: .medium))
-                    Text("Continue with Apple")
+                    Text(L("auth.continueApple"))
                         .font(.system(.body, design: .rounded).weight(.medium))
                 }
                 .frame(maxWidth: .infinity)
@@ -197,7 +198,7 @@ struct SignInView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 18, height: 18)
-                    Text("Continue with Google")
+                    Text(L("auth.continueGoogle"))
                         .font(.system(.body, design: .rounded).weight(.medium))
                 }
                 .frame(maxWidth: .infinity)
@@ -216,7 +217,7 @@ struct SignInView: View {
     }
 
     private var passwordToggle: some View {
-        Button(step == .password ? "Sign in with a code instead" : "Sign in with password") {
+        Button(L(step == .password ? "auth.useCode" : "auth.usePassword")) {
             message = nil
             code = ""
             password = ""
@@ -294,7 +295,7 @@ struct SignInView: View {
             code = ""
             step = .code
             focus = .code
-            show("Check your inbox for the code.", error: false)
+            show(L("auth.checkInbox"), error: false)
         }
     }
 

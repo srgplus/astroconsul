@@ -4,6 +4,56 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: Russian, and a language switch in Settings
+The native screens were written in English inline, and the web half has had a
+full Russian translation since it shipped. So the strings moved into a table
+(`Native/Core/Strings.swift`) keyed the way the web's `frontend/src/i18n` is
+keyed: `feels.*`, `mood.*`, `planet.*`, `sign.*`, `aspect.*`, `strength.*`,
+`moon.*` are the same keys with the same readings in both halves, and a phrase
+translated once is translated for both.
+
+**Not `Localizable.strings`.** The language is a setting inside the app, and
+swapping the bundle out from under `NSLocalizedString` at runtime is a
+swizzle. `L10n.shared` publishes the choice instead, so a screen that observes
+it redraws in the new language on the spot: `@ObservedObject private var
+strings = L10n.shared` on every view that shows a label, and `L("key")` at the
+call site. The lookup itself is nonisolated (`LanguageStore`) because an
+error's `errorDescription`, the date formatters and the notification builder
+all want a string and none of them is on the main actor.
+
+**What the API answers in is not what the reader sees.** The engine's
+feels-like label is a key into a matrix, the planets and signs are ids, the
+strength bands are enum names — all English, all shown. `Astro.feels`,
+`Astro.object`, `Astro.sign`, `Astro.strength`, `Astro.status` and
+`Astro.moonPhase` keep the server's word as the key and look the reading up,
+which is exactly what the web does. So `ActiveAspect.title` reads "Сатурн
+квадрат Луна" without the report changing. The `lang` parameter is now sent
+anyway, on the forecast, the transit report and the profile detail, for the
+text those routes do write themselves.
+
+**Dates** go through `LocalizedDate`, a per-language formatter cache:
+`setLocalizedDateFormatFromTemplate` resolves against the locale it is handed
+at the time, so a formatter built once at launch keeps printing "Mon" after
+the app is switched to Russian.
+
+**Russian counts in three forms** where English counts in two, so
+`L(count:_:)` picks between `<key>.one/.few/.many` — 1 день, 2 дня, 5 дней.
+Two call sites need it: the days to the full moon and the scheduled alert
+count.
+
+**Both halves, one setting.** The picker is System / English / Русский, and
+System is the default, resolved from `Locale.preferredLanguages` rather than
+`Locale.current` — that one is narrowed to the bundle's declared languages.
+Changing it writes the web's `localStorage.lang` and reloads the WebView if it
+was showing the other language (`CustomViewController.syncLanguage`), and the
+web's own switch posts back through a `language` script handler, so the two
+settings are one setting. It also rebuilds the category-alert queue from the
+stored changes: those banners are written days before they land.
+
+`Native/{en,ru}.lproj/InfoPlist.strings` carries the location prompt, which
+iOS reads in the *device's* language whatever the app is set to. They live
+under `Native/` because that folder is the target's synchronized group, so a
+`.lproj` dropped in is picked up with no project file to edit.
 ### iOS: a forecast day opens in a sheet
 A row of the 10-day forecast was a readout and nothing else. Tapping one now
 opens `ForecastDayDetailSheet` — the same reading the page would show if that

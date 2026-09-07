@@ -24,6 +24,8 @@ struct TransitSettingsSheet: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @ObservedObject private var strings = L10n.shared
+
     @State private var instant: Date
     @State private var zone: TimeZone
     @State private var locationName: String?
@@ -60,7 +62,7 @@ struct TransitSettingsSheet: View {
 
                 if isChosen {
                     Section {
-                        Button("Read the present moment") {
+                        Button(L("moment.readPresent")) {
                             onReset()
                             dismiss()
                         }
@@ -80,7 +82,7 @@ struct TransitSettingsSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     // Ink, not blue. Blue is the colour of the thing that
                     // happens when you are done; leaving is not that.
-                    Button("Cancel") { dismiss() }
+                    Button(L("common.cancel")) { dismiss() }
                         .foregroundStyle(Theme.text)
                 }
 
@@ -103,7 +105,7 @@ struct TransitSettingsSheet: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
-                    .accessibilityLabel("Read this moment")
+                    .accessibilityLabel(L("moment.readThis"))
                 }
             }
         }
@@ -126,17 +128,19 @@ struct TransitSettingsSheet: View {
 
     private var moment: some View {
         Section {
-            DatePicker("Date", selection: $instant, displayedComponents: .date)
-            DatePicker("Time", selection: $instant, displayedComponents: .hourAndMinute)
+            DatePicker(L("moment.date"), selection: $instant, displayedComponents: .date)
+            DatePicker(L("moment.time"), selection: $instant, displayedComponents: .hourAndMinute)
         } header: {
-            Text("Moment")
+            Text(L("moment.title"))
         } footer: {
             Text(zone.identifier)
         }
         .listRowBackground(Color.primary.opacity(0.06))
         // Read in the zone the reading is cast for, not the device's, so nine
-        // in the morning means nine where the chart is being read.
+        // in the morning means nine where the chart is being read, and in the
+        // app's own language rather than the phone's.
         .environment(\.timeZone, zone)
+        .environment(\.locale, LanguageStore.locale)
     }
 
     // MARK: - Where
@@ -148,7 +152,7 @@ struct TransitSettingsSheet: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.secondary)
 
-                TextField("Search city", text: $query)
+                TextField(L("moment.searchCity"), text: $query)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
                     .submitLabel(.search)
@@ -165,13 +169,13 @@ struct TransitSettingsSheet: View {
                             .foregroundStyle(.tertiary)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Clear")
+                    .accessibilityLabel(L("common.clear"))
                 }
             }
 
             if results.isEmpty {
-                LabeledContent("Place") {
-                    Text(locationName ?? "The profile's own")
+                LabeledContent(L("moment.place")) {
+                    Text(locationName ?? L("moment.profileOwn"))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
@@ -198,7 +202,7 @@ struct TransitSettingsSheet: View {
                 .buttonStyle(.plain)
             }
         } header: {
-            Text("Place")
+            Text(L("moment.place"))
         }
         .listRowBackground(Color.primary.opacity(0.06))
     }
