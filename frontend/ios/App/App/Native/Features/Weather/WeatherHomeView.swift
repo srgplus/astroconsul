@@ -15,6 +15,11 @@ struct WeatherHomeView: View {
     @State private var showsWeb = false
     @State private var skyZones: [String: TiiZone] = [:]
 
+    /// A first profile, made from the empty state: there is no list to open
+    /// the plus from until one exists.
+    @State private var showsNewProfile = false
+    @State private var createdProfile: ProfileSummary?
+
     /// The profile the ••• menu opened the edit sheet for. Presented from
     /// here rather than from the page: the pager tears its pages down as they
     /// scroll out, and a sheet owned by one of them goes with it.
@@ -78,7 +83,7 @@ struct WeatherHomeView: View {
                             title: "No profiles yet",
                             body: "Create your first profile to get a reading.",
                             action: "Create profile",
-                            perform: { showsWeb = true }
+                            perform: { showsNewProfile = true }
                         )
                     }
                 } else {
@@ -125,6 +130,9 @@ struct WeatherHomeView: View {
         // button, a swipe down is how the list is left.
         .sheet(isPresented: $showsList) { listScreen }
         .sheet(isPresented: $showsSearch) { searchScreen }
+        .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
+            ProfileEditSheet(skyZone: visibleZone) { createdProfile = $0 }
+        }
         .fullScreenCover(isPresented: $showsWeb) { WebScreen() }
     }
 
@@ -217,6 +225,19 @@ struct WeatherHomeView: View {
         await CategoryAlerts.shared.requestAuthorizationIfNeeded()
         let primary = profiles.first { $0.profileId == model.primaryProfileId } ?? profiles.first
         await CategoryAlerts.shared.refresh(profile: primary)
+    }
+
+    /// Turns the pager to a profile the empty state just made, once the list
+    /// holding its page has come back.
+    private func openCreatedProfile() {
+        guard let created = createdProfile else { return }
+        createdProfile = nil
+
+        Task {
+            await model.load(showSpinner: false)
+            selection = created.profileId
+            await refreshAlerts()
+        }
     }
 
     /// Keeps the visible page pointed at a profile that still exists, falling
