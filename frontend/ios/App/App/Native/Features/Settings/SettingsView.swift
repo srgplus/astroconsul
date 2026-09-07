@@ -14,6 +14,11 @@ struct SettingsView: View {
     @AppStorage(CategoryAlerts.Key.hour) private var alertHour = CategoryAlerts.defaultHour
     @AppStorage(CategoryAlerts.Key.minute) private var alertMinute = CategoryAlerts.defaultMinute
 
+    /// The outcome of the test row, shown as an alert. Without it the tap does
+    /// nothing visible for five seconds, which is the same complaint the row
+    /// exists to answer.
+    @State private var testMessage: String?
+
     /// The sky behind the glass, passed down from the screen that presented
     /// this one.
     var skyZone: TiiZone?
@@ -33,6 +38,18 @@ struct SettingsView: View {
                 aboutSection
             }
             .task { await alerts.syncState() }
+            .alert(
+                L("settings.testAlert"),
+                isPresented: Binding(
+                    get: { testMessage != nil },
+                    set: { if !$0 { testMessage = nil } }
+                ),
+                presenting: testMessage
+            ) { _ in
+                Button(L("common.ok"), role: .cancel) {}
+            } message: { message in
+                Text(message)
+            }
             .navigationTitle(L("settings.title"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -87,6 +104,22 @@ struct SettingsView: View {
                         Text(L(count: alerts.scheduledCount, "common.change"))
                             .foregroundStyle(Theme.textDim)
                     }
+
+                    // The count on its own is what made the feature look
+                    // broken: a fortnight holding eight changes can still
+                    // mean nothing for the next six days, and a count of
+                    // eight reads as eight banners owed. The date is the part
+                    // that can be checked against.
+                    if let next = alerts.nextAlert {
+                        LabeledContent(L("settings.nextAlert")) {
+                            Text(next, format: Self.nextFormat)
+                                .foregroundStyle(Theme.textDim)
+                        }
+                    }
+
+                    if alerts.hasStoredChanges {
+                        Button(L("settings.sendTest")) { sendTest() }
+                    }
                 }
             }
         } header: {
@@ -102,6 +135,22 @@ struct SettingsView: View {
         }
         .onChange(of: alertHour) { _, _ in Task { await alerts.reschedule() } }
         .onChange(of: alertMinute) { _, _ in Task { await alerts.reschedule() } }
+    }
+
+    /// "Tue 9 Sep at 12:00" — weekday and day, because "in 6 days" is the one
+    /// thing the row must not be vague about.
+    private static let nextFormat = Date.FormatStyle()
+        .weekday(.abbreviated)
+        .day()
+        .month(.abbreviated)
+        .hour()
+        .minute()
+
+    private func sendTest() {
+        Task {
+            let sent = await alerts.sendTestAlert()
+            testMessage = L(sent ? "settings.testSent" : "settings.testFailed")
+        }
     }
 
     private var notificationsFooter: String {

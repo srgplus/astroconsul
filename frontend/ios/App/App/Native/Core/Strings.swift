@@ -61,6 +61,11 @@ private let enUI: [String: String] = [
     "settings.scheduled": "Scheduled",
     "settings.notificationsDenied": "Notifications are switched off for big3.me in iOS Settings, so nothing can be scheduled.",
     "settings.notificationsFooter": "Your cosmic weather reads as one of twelve categories, from Calm to Explosive. Get a notification on the days ahead when it moves to a different one, for the profile marked as yours.",
+    "settings.nextAlert": "Next",
+    "settings.sendTest": "Send a test notification",
+    "settings.testAlert": "Test notification",
+    "settings.testSent": "It arrives in a few seconds. Leave this screen to see the banner.",
+    "settings.testFailed": "Nothing could be sent. Check that notifications are allowed for big3.me in iOS Settings.",
     "settings.appearance": "Appearance",
     "settings.theme": "Theme",
     "settings.theme.system": "System",
@@ -89,6 +94,13 @@ private let enUI: [String: String] = [
     "auth.usePassword": "Sign in with password",
     "auth.useCode": "Sign in with a code instead",
     "auth.checkInbox": "Check your inbox for the code.",
+
+    // First-run offer of the category alerts
+    "offer.title": "Know when the weather turns",
+    "offer.body": "Your cosmic weather reads as one of twelve categories, from Calm to Explosive. We'll tell you on the days ahead when it moves to a different one.",
+    "offer.footnote": "Around midday, and only on the days it actually changes.",
+    "offer.accept": "Turn them on",
+    "offer.decline": "Not now",
 
     // Home
     "home.notSignedIn": "Not signed in",
@@ -424,6 +436,11 @@ private let ruUI: [String: String] = [
     "settings.scheduled": "Запланировано",
     "settings.notificationsDenied": "Уведомления для big3.me отключены в настройках iOS, поэтому запланировать их нельзя.",
     "settings.notificationsFooter": "Космическая погода читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Приходит уведомление о днях, когда она сменится на другую, для профиля, отмеченного как ваш.",
+    "settings.nextAlert": "Следующее",
+    "settings.sendTest": "Отправить тестовое уведомление",
+    "settings.testAlert": "Тестовое уведомление",
+    "settings.testSent": "Придёт через несколько секунд. Выйдите с этого экрана, чтобы увидеть баннер.",
+    "settings.testFailed": "Отправить не удалось. Проверьте, что уведомления для big3.me разрешены в настройках iOS.",
     "settings.appearance": "Оформление",
     "settings.theme": "Тема",
     "settings.theme.system": "Системная",
@@ -452,6 +469,13 @@ private let ruUI: [String: String] = [
     "auth.usePassword": "Войти с паролем",
     "auth.useCode": "Войти по коду",
     "auth.checkInbox": "Проверьте почту, там код.",
+
+    // First-run offer of the category alerts
+    "offer.title": "Узнавайте, когда погода меняется",
+    "offer.body": "Космическая погода читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Мы скажем заранее о днях, когда она сменится на другую.",
+    "offer.footnote": "Около полудня и только в те дни, когда она правда меняется.",
+    "offer.accept": "Включить",
+    "offer.decline": "Не сейчас",
 
     // Home
     "home.notSignedIn": "Вход не выполнен",
