@@ -4,6 +4,51 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### The word "cosmic" is out of the interface, and stays in the code
+Apple's 4.3(b) rejection is written in the horoscope-app vocabulary, and that
+vocabulary was still on the first screen a reviewer meets: the location
+permission sheet opened with "Your cosmic weather is read for where you are
+now". Metadata has avoided the word since April; the binary had not.
+
+Every user-visible occurrence is gone, in both languages:
+
+| Surface | Was | Is |
+|---|---|---|
+| `NSLocationWhenInUseUsageDescription` | "Your cosmic weather is read for..." | "The forecast is calculated for..." |
+| `climate.title` | Cosmic climate / Космический климат | Climate / Климат |
+| `offer.body`, `settings.notificationsFooter` | "Your cosmic weather reads as one of twelve categories" | "Each day reads as one of twelve categories" |
+| `home.notSignedInBody` | "Sign in to see your cosmic weather." | "Sign in to see your forecast." |
+| web `guide.tiiDesc` | "a thermometer for cosmic weather" | "a thermometer for the day" |
+| web `guide.timeModifiersDesc` | "the same cosmic energy" | "the same energy" |
+| web `guide.feelsCalmQuiet` | "...attention cosmically." | "...attention." |
+| web `pro.feature.climate`, `pro.paymentSuccess`, `widget.followToSeeClimate` | "cosmic climate" / "cosmic weather" | "climate" / "forecast" |
+
+The permission string lives in three places that all have to agree:
+`Info.plist` (the fallback) plus `Native/en.lproj` and `Native/ru.lproj`
+`InfoPlist.strings` (what iOS actually reads, in the device's language).
+`Paywall.tsx` carries its own hardcoded bilingual copy of
+`pro.feature.climate`, so that line is edited twice.
+
+Dropping the adjective rather than swapping in a synonym: weather is today,
+climate is the months-long backdrop, and the metaphor carries the meaning on
+its own. "Reading" was considered for the permission string and rejected, it
+is the tarot/psychic register and reads as more of the same genre, not less.
+
+**Not renamed, deliberately:** `CosmicWeatherView`, `CosmicWeatherViewModel`,
+`CosmicClimateCard`, the `cosmic_climate` / `cosmicClimate` API field,
+`app/domain/astrology/cosmic_climate.py` and the CSS section comments. A
+reviewer never sees a symbol name, and renaming the API field is a breaking
+change across the backend, the web app and the native client for no review
+benefit.
+
+**Left alone, and still open:** the location prompt fires from
+`WeatherHomeView`'s `.task`, so it is still the first thing on screen.
+Deferring it to the moment someone opens the place picker would take the
+permission sheet out of first impressions entirely, at the cost of the place
+label no longer filling itself in on a first run. That is a product call, not
+a copy fix. The `cosmic_weather_*` post slugs on big3.me/news are also
+untouched.
+
 ### iOS: the extreme sky is a storm that lights itself up, not a lightning bolt
 `sky_extreme.mp4` and `card_extreme.mp4` are rebuilt from a 4K storm timelapse
 (`1967950_Lapse_Moody`) in place of the vertical lightning-bolt stock. The bolt

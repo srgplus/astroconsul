@@ -181,7 +181,7 @@ export function Paywall({ t, lang, feature, onClose, userId, onPurchaseComplete 
         <ul className="paywall-benefits">
           <li>{isRu ? "Все активные транзитные аспекты дня" : "All active daily transit aspects"}</li>
           <li>{isRu ? "Детальные описания транзитов" : "Detailed transit descriptions"}</li>
-          <li>{isRu ? "Полный космический климат" : "Full cosmic climate analysis"}</li>
+          <li>{isRu ? "Полный анализ климата" : "Full climate analysis"}</li>
           <li>{isRu ? "Полные интерпретации натальной карты" : "Full natal chart interpretations"}</li>
         </ul>
 

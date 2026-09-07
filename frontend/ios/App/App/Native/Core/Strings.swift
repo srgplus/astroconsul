@@ -60,7 +60,7 @@ private let enUI: [String: String] = [
     "settings.timeOfDay": "Time of day",
     "settings.scheduled": "Scheduled",
     "settings.notificationsDenied": "Notifications are switched off for big3.me in iOS Settings, so nothing can be scheduled.",
-    "settings.notificationsFooter": "Your cosmic weather reads as one of twelve categories, from Calm to Explosive. Get a notification on the days ahead when it moves to a different one, for the profile marked as yours.",
+    "settings.notificationsFooter": "Each day reads as one of twelve categories, from Calm to Explosive. Get a notification on the days ahead when it moves to a different one, for the profile marked as yours.",
     "settings.nextAlert": "Next",
     "settings.sendTest": "Send a test notification",
     "settings.testAlert": "Test notification",
@@ -97,14 +97,14 @@ private let enUI: [String: String] = [
 
     // First-run offer of the category alerts
     "offer.title": "Know when the weather turns",
-    "offer.body": "Your cosmic weather reads as one of twelve categories, from Calm to Explosive. We'll tell you on the days ahead when it moves to a different one.",
+    "offer.body": "Each day reads as one of twelve categories, from Calm to Explosive. We'll tell you on the days ahead when it moves to a different one.",
     "offer.footnote": "Around midday, and only on the days it actually changes.",
     "offer.accept": "Turn them on",
     "offer.decline": "Not now",
 
     // Home
     "home.notSignedIn": "Not signed in",
-    "home.notSignedInBody": "Sign in to see your cosmic weather.",
+    "home.notSignedInBody": "Sign in to see your forecast.",
     "home.openSignIn": "Open sign in",
     "home.loadFailed": "Could not load profiles",
     "home.noProfiles": "No profiles yet",
@@ -137,8 +137,8 @@ private let enUI: [String: String] = [
     "group.outer": "Outer planets",
     "group.special": "Special points",
 
-    // Cosmic climate
-    "climate.title": "Cosmic climate",
+    // Climate
+    "climate.title": "Climate",
 
     // Transit detail
     "detail.window": "Window",
@@ -438,7 +438,7 @@ private let ruUI: [String: String] = [
     "settings.timeOfDay": "Время дня",
     "settings.scheduled": "Запланировано",
     "settings.notificationsDenied": "Уведомления для big3.me отключены в настройках iOS, поэтому запланировать их нельзя.",
-    "settings.notificationsFooter": "Космическая погода читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Приходит уведомление о днях, когда она сменится на другую, для профиля, отмеченного как ваш.",
+    "settings.notificationsFooter": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Приходит уведомление о днях, когда она сменится на другую, для профиля, отмеченного как ваш.",
     "settings.nextAlert": "Следующее",
     "settings.sendTest": "Отправить тестовое уведомление",
     "settings.testAlert": "Тестовое уведомление",
@@ -475,14 +475,14 @@ private let ruUI: [String: String] = [
 
     // First-run offer of the category alerts
     "offer.title": "Узнавайте, когда погода меняется",
-    "offer.body": "Космическая погода читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Мы скажем заранее о днях, когда она сменится на другую.",
+    "offer.body": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Мы скажем заранее о днях, когда она сменится на другую.",
     "offer.footnote": "Около полудня и только в те дни, когда она правда меняется.",
     "offer.accept": "Включить",
     "offer.decline": "Не сейчас",
 
     // Home
     "home.notSignedIn": "Вход не выполнен",
-    "home.notSignedInBody": "Войдите, чтобы увидеть свою космическую погоду.",
+    "home.notSignedInBody": "Войдите, чтобы увидеть свой прогноз.",
     "home.openSignIn": "Открыть вход",
     "home.loadFailed": "Не удалось загрузить профили",
     "home.noProfiles": "Профилей пока нет",
@@ -515,8 +515,8 @@ private let ruUI: [String: String] = [
     "group.outer": "Высшие планеты",
     "group.special": "Особые точки",
 
-    // Cosmic climate
-    "climate.title": "Космический климат",
+    // Climate
+    "climate.title": "Климат",
 
     // Transit detail
     "detail.window": "Окно",
