@@ -32,7 +32,15 @@ final class CategoryAlerts: ObservableObject {
         static let lastRefresh = "categoryAlertsLastRefresh"
     }
 
-    static let defaultHour = 8
+    /// On by default. The alerts are the feature, not an opt-in extra, and the
+    /// switch in Settings is there to turn them *off* — an account that never
+    /// opens Settings still hears about the day its weather changes.
+    static let defaultEnabled = true
+
+    /// Local noon. The engine casts one reading per local noon, so that is the
+    /// hour the notification is actually describing, and it lands in the middle
+    /// of the day rather than in whatever the morning already holds.
+    static let defaultHour = 12
     static let defaultMinute = 0
 
     static let backgroundTaskIdentifier = "me.big3.app.category-alerts"
@@ -68,10 +76,19 @@ final class CategoryAlerts: ObservableObject {
     private let defaults: UserDefaults
     private var inFlight: Task<Void, Never>?
 
+    /// One permission request per app run. `notDetermined` already stops a
+    /// second sheet from appearing, but two calls can read that status before
+    /// either has written the answer back.
+    private var hasRequestedAuthorization = false
+
     init(api: APIClient = .shared, defaults: UserDefaults = .standard) {
         self.api = api
         self.defaults = defaults
+        // The registration domain, so someone who has switched the alerts off
+        // or moved the time keeps their answer: an explicit choice is written
+        // to the standard domain, which wins over anything registered here.
         defaults.register(defaults: [
+            Key.enabled: Self.defaultEnabled,
             Key.hour: Self.defaultHour,
             Key.minute: Self.defaultMinute,
         ])
@@ -88,10 +105,13 @@ final class CategoryAlerts: ObservableObject {
         authorization == .authorized || authorization == .provisional
     }
 
-    /// Asks for permission. Called when the toggle goes on, not at launch: the
-    /// sheet means something next to the switch that caused it.
+    /// Asks for permission outright. The toggle in Settings calls this when it
+    /// goes back on after a refusal; ordinary first runs go through
+    /// `requestAuthorizationIfNeeded()`.
     @discardableResult
     func requestAuthorization() async -> Bool {
+        hasRequestedAuthorization = true
+
         var granted = false
         do {
             granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
@@ -100,6 +120,27 @@ final class CategoryAlerts: ObservableObject {
         }
         await syncAuthorization()
         return granted
+    }
+
+    /// Asks the first time the signed-in home screen appears, the way the
+    /// location prompt is asked from that same screen: the alerts are on by
+    /// default, so waiting for someone to find the switch in Settings would
+    /// mean a feature that is armed everywhere except on the device.
+    ///
+    /// Only `notDetermined` is acted on. Someone who has already answered —
+    /// either way — is never asked again from here; turning the alerts back on
+    /// after a refusal is a trip to iOS Settings, which the Settings screen
+    /// offers a button for.
+    func requestAuthorizationIfNeeded() async {
+        guard isEnabled, !hasRequestedAuthorization else { return }
+
+        await syncAuthorization()
+        guard authorization == .notDetermined else {
+            hasRequestedAuthorization = true
+            return
+        }
+
+        await requestAuthorization()
     }
 
     func syncAuthorization() async {
