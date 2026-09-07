@@ -26,6 +26,23 @@ phase named in the header, a short column of readings, the sphere on the right.
   set need a horizon and the forecast is cast for a chart, not a viewing spot.
   `AstroGlyph.sign` gained the zodiac, each pinned to text presentation with
   U+FE0E — bare, those code points render as purple emoji tiles.
+### iOS: the natal card sets the big three apart and opens the rest
+Two things the card was missing. Sun, Moon and Ascendant — the three the app
+is named for — sat in the same run as Midheaven and the personal planets, and
+tapping the card did nothing, so the rest of the chart had nowhere to live.
+
+- The big three are now their own block, set off by a gap rather than a
+  heading: over three rows a label costs more room than it earns. Their names
+  carry slightly more weight than the rows below them.
+- Tapping the card unfolds the outer planets and the special points, banded
+  and labelled the way `ActiveTransitsCard` bands its aspects, with a chevron
+  in the header saying which way it goes. `onTapGesture` on the card body does
+  not cost the pager its horizontal swipe — checked on the simulator.
+- No new request: `natal_positions` already carries all 19 objects, so the
+  drawer is reading what the card had all along.
+- `WeatherPreviewData` gained the six natal points it was missing (Jupiter,
+  Uranus, Selena, South Node, Part of Fortune, Vertex), so `-uiPreviewWeather`
+  draws both bands in full rather than half of one.
 
 ### iOS: the wheel's aspect lines lost their colour, on purpose
 The web ring gives each aspect a hue. That works on white; it does not work
