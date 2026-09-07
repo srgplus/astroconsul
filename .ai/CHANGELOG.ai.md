@@ -4,6 +4,28 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### CI: the red run on every merge was not a failure
+Every merge left a red `CI` run behind, triggered by `pull_request`, with a
+"workflow file issue" and **zero jobs**. Three in one evening, each one costing
+a manual check of whether the merge was actually broken. It was not.
+
+The push run and the pull_request run fire on the same commit, and the push run
+is the one branch protection reads: required checks match by name against the
+head SHA, and the push run is on that SHA. The PR run was a duplicate that
+raced the auto-merge and lost — the merge deletes the branch and
+`refs/pull/N/merge` with it, GitHub can no longer resolve the workflow, and the
+run dies before it creates a single job.
+
+The three jobs already carried an `if` meant to skip that run. A job-level `if`
+is evaluated only once the jobs exist, which is the thing that never happened,
+so it worked exactly when the race was won and not otherwise (hence some runs
+"skipped" and some "failure"). There is no head-branch filter for the
+`pull_request` trigger, so the only way to not lose the race is to not enter
+it: the trigger is gone and `push` now covers `'**'` instead of
+`[main, 'claude/**']`, which is what a hand-raised PR from another branch name
+needed the PR trigger for. A PR from a fork now gets no checks; this repository
+has none.
+
 ### iOS: the wheel draws aspects to the angles, and the preview data stopped lying
 Two findings from checking, endpoint by endpoint, where the wheel's aspect
 lines actually attach.

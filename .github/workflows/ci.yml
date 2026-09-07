@@ -1,24 +1,35 @@
 name: CI
 
+# Push only, every branch. There is deliberately no `pull_request` trigger.
+#
+# A push to claude/** and the pull_request event for the PR that push opens
+# fire on the same commit, and the push run is the one that counts: branch
+# protection matches required checks by name against the head SHA, and the
+# push run is on that SHA. The PR run was pure duplicate.
+#
+# Worse, it was a duplicate that reported failure. The three jobs used to carry
+# `if: github.event_name != 'pull_request' || !startsWith(github.head_ref,
+# 'claude/')` to skip it, but a job-level `if` is evaluated only once the run
+# has created its jobs, and this run is racing the auto-merge. When the merge
+# lands first the branch and `refs/pull/N/merge` are gone, GitHub cannot
+# resolve the workflow for the run, and it ends with zero jobs and a red
+# "workflow file issue" — three of them in one evening, each one needing to be
+# ruled out by hand. There is no head-branch filter for the `pull_request`
+# trigger, so the only way to not lose that race is to not enter it.
+#
+# The cost is that a PR from a fork gets no checks, since a fork's push does
+# not run here. This repository has none.
+
 on:
   push:
-    branches: [main, 'claude/**']
-  pull_request:
-    branches: [main]
+    branches: ['**']
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# A push to claude/** and the pull_request event for the PR that push opens
-# both fire on the same commit. The push run is the one that counts (a PR
-# opened by GITHUB_TOKEN raises no pull_request event at all, so push is the
-# only trigger a fresh branch gets), so the PR run is skipped for those
-# branches and kept for PRs raised by hand from other branch names.
-
 jobs:
   backend:
-    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +60,6 @@ jobs:
         run: python -m unittest discover -s tests
 
   frontend:
-    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +79,6 @@ jobs:
         working-directory: frontend
 
   ios:
-    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'claude/')
     # Must carry the same Xcode the app is developed against: the native code
     # calls iOS 26 APIs (`glassEffect`, `sharedBackgroundVisibility`) that are
     # absent from the SDK on macos-15, where the newest Xcode is 16.4.
