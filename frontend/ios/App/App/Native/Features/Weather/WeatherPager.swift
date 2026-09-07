@@ -89,7 +89,7 @@ struct WeatherBottomBar: View {
                 // One button each side, which is what keeps the dots on the
                 // centre line of the screen — and what leaves the capsule its
                 // width. Both on the right cost it about three dots.
-                circleButton(icon: "magnifyingglass", label: "Search profiles", action: onOpenSearch)
+                circleButton(icon: "magnifyingglass", label: L("home.searchProfiles"), action: onOpenSearch)
 
                 Spacer(minLength: 0)
 
@@ -97,7 +97,7 @@ struct WeatherBottomBar: View {
 
                 Spacer(minLength: 0)
 
-                circleButton(icon: "list.bullet", label: "All profiles", action: onOpenList)
+                circleButton(icon: "list.bullet", label: L("home.allProfiles"), action: onOpenList)
             }
         }
         .padding(.horizontal, 16)
@@ -122,7 +122,7 @@ struct WeatherBottomBar: View {
         .padding(.horizontal, 10)
         .weatherGlass(in: .capsule)
         .frame(height: Self.control)
-        .accessibilityLabel("Profile \(index + 1) of \(count)")
+        .accessibilityLabel(L("home.pagerPosition", index + 1, count))
     }
 
     private func circleButton(icon: String, label: String, action: @escaping () -> Void) -> some View {

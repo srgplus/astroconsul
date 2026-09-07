@@ -12,9 +12,11 @@ struct MoonCard: View {
 
     let phase: MoonPhase
 
+    @ObservedObject private var strings = L10n.shared
+
     var body: some View {
         WeatherCard {
-            WeatherCardHeader(icon: symbol, title: phase.phaseName)
+            WeatherCardHeader(icon: symbol, title: Astro.moonPhase(phase.phaseName))
 
             HStack(alignment: .center, spacing: 14) {
                 VStack(spacing: 0) {
@@ -41,17 +43,18 @@ struct MoonCard: View {
 
         if let illumination = phase.illuminationPct {
             rows.append(
-                .init(label: "Illumination", value: "\(Int(illumination.rounded()))%", unit: nil)
+                .init(label: L("moon.illumination"), value: "\(Int(illumination.rounded()))%", unit: nil)
             )
         }
 
         if let sign = phase.moonSign, !sign.isEmpty {
             let glyph = AstroGlyph.sign(sign)
+            let name = Astro.sign(sign) ?? sign
             let degree = phase.moonDegree.map { " \($0)°" } ?? ""
             rows.append(
                 .init(
-                    label: "Moon sign",
-                    value: glyph.isEmpty ? "\(sign)\(degree)" : "\(glyph) \(sign)\(degree)",
+                    label: L("moon.sign"),
+                    value: glyph.isEmpty ? "\(name)\(degree)" : "\(glyph) \(name)\(degree)",
                     unit: nil
                 )
             )
@@ -68,11 +71,15 @@ struct MoonCard: View {
         let toFull = phase.daysToFullMoon
         let toNew = phase.daysToNewMoon
 
-        if toFull < 1 { return .init(label: "Full moon", value: "Today", unit: nil) }
-        if toNew < 1 { return .init(label: "New moon", value: "Today", unit: nil) }
+        if toFull < 1 { return .init(label: L("moon.fullMoon"), value: L("common.today"), unit: nil) }
+        if toNew < 1 { return .init(label: L("moon.newMoon"), value: L("common.today"), unit: nil) }
 
         let days = Int(toFull.rounded())
-        return .init(label: "Next full moon", value: "\(days)", unit: days == 1 ? "day" : "days")
+        return .init(
+            label: L("moon.nextFullMoon"),
+            value: "\(days)",
+            unit: L(count: days, "common.day")
+        )
     }
 
     private var symbol: String {

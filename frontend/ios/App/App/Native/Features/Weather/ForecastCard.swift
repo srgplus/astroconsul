@@ -13,6 +13,8 @@ struct ForecastCard: View {
     /// Tapping a row opens that day. Left unset the rows are just rows.
     var onSelect: ((ForecastDay) -> Void)?
 
+    @ObservedObject private var strings = L10n.shared
+
     var body: some View {
         // Once per draw, not once per row.
         let today = ForecastDay.todayKey(in: zone)
@@ -20,7 +22,7 @@ struct ForecastCard: View {
         return WeatherCard {
             WeatherCardHeader(
                 icon: "calendar",
-                title: "\(days.count)-day forecast",
+                title: L("weather.forecastTitle", days.count),
                 trailing: "\(Int(low.rounded()))°–\(Int(high.rounded()))°"
             )
             .padding(.bottom, 10)
@@ -58,7 +60,9 @@ struct ForecastCard: View {
         }
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(day.label(isToday: isToday)), \(day.feelsLike), TII \(Int(day.tii.rounded()))")
+        .accessibilityLabel(
+            "\(day.label(isToday: isToday)), \(Astro.feels(day.feelsLike) ?? day.feelsLike), TII \(Int(day.tii.rounded()))"
+        )
         .accessibilityAddTraits(onSelect == nil ? [] : .isButton)
     }
 

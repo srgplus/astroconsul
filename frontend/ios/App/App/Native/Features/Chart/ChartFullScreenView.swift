@@ -111,7 +111,7 @@ struct ChartFullScreenView: View {
             Image(systemName: "circle.dotted.circle")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Birth chart".uppercased())
+            Text(L("chart.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
 
@@ -138,7 +138,7 @@ struct ChartFullScreenView: View {
             .weatherGlass(in: Circle())
             .contentShape(Circle())
             .onTapGesture { dismiss() }
-            .accessibilityLabel("Close")
+            .accessibilityLabel(L("common.close"))
             .accessibilityAddTraits(.isButton)
     }
 
@@ -150,7 +150,7 @@ struct ChartFullScreenView: View {
                 chart: chart,
                 selection: selection,
                 // The one gesture on this screen that nothing else announces.
-                hint: "Tap a planet or a line · pinch to zoom",
+                hint: L("chart.tapHintZoom"),
                 onAspect: { detail = $0 }
             )
 
@@ -255,7 +255,7 @@ struct ChartFullScreenView: View {
                 isPinching = false
             }
         }
-        .accessibilityLabel("Fit the whole chart")
+        .accessibilityLabel(L("chart.fit"))
         .accessibilityAddTraits(.isButton)
     }
 

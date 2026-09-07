@@ -22,6 +22,7 @@ struct ProfileEditSheet: View {
     var onCreated: (ProfileSummary) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var strings = L10n.shared
     @State private var showsDeleteConfirmation = false
     @State private var showsCoordinates = false
     /// The profile the transfer sheet is offering. Held rather than a flag:
@@ -77,11 +78,11 @@ struct ProfileEditSheet: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle(model.isCreating ? "New Profile" : "Edit Profile")
+                .navigationTitle(L(model.isCreating ? "edit.newTitle" : "edit.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Close") { dismiss() }
+                        Button(L("common.close")) { dismiss() }
                             .font(.system(.body, design: .rounded).weight(.medium))
                             .foregroundStyle(Theme.text)
                             .disabled(model.isSaving || model.isDeleting)
@@ -111,7 +112,7 @@ struct ProfileEditSheet: View {
                         .buttonStyle(.borderedProminent)
                         .tint(.blue)
                         .disabled(!model.canSave)
-                        .accessibilityLabel("Save profile")
+                        .accessibilityLabel(L("edit.save"))
                     }
                 }
         }
@@ -129,9 +130,9 @@ struct ProfileEditSheet: View {
         .sheet(item: $transferring) { profile in
             ProfileTransferSheet(profile: profile)
         }
-        .alert("Delete this profile?", isPresented: $showsDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .alert(L("edit.deleteTitle"), isPresented: $showsDeleteConfirmation) {
+            Button(L("common.cancel"), role: .cancel) {}
+            Button(L("common.delete"), role: .destructive) {
                 Task {
                     if await model.delete() {
                         onDeleted()
@@ -140,7 +141,7 @@ struct ProfileEditSheet: View {
                 }
             }
         } message: {
-            Text("“\(model.profileName)” and its natal chart are removed for good. This cannot be undone.")
+            Text(L("edit.deleteBody", model.profileName))
         }
     }
 
@@ -157,7 +158,7 @@ struct ProfileEditSheet: View {
                         .font(.system(size: 34, weight: .light))
                         .foregroundStyle(Theme.textDim)
 
-                    Text("Could not load this profile")
+                    Text(L("edit.loadFailed"))
                         .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Theme.text)
 
@@ -166,7 +167,7 @@ struct ProfileEditSheet: View {
                         .foregroundStyle(Theme.textDim)
                         .multilineTextAlignment(.center)
 
-                    Button("Try again") { Task { await model.load() } }
+                    Button(L("common.tryAgain")) { Task { await model.load() } }
                         .font(.system(.body, design: .rounded).weight(.medium))
                         .padding(.top, 4)
                 }
@@ -211,8 +212,8 @@ struct ProfileEditSheet: View {
 
     private var identityCard: some View {
         card {
-            row("Name") {
-                TextField("Full name", text: $model.profileName)
+            row(L("edit.name")) {
+                TextField(L("edit.fullName"), text: $model.profileName)
                     .textContentType(.name)
                     .submitLabel(.next)
                     .focused($focused, equals: .name)
@@ -221,10 +222,10 @@ struct ProfileEditSheet: View {
 
             divider
 
-            row("Username") {
+            row(L("edit.username")) {
                 HStack(spacing: 1) {
                     Text("@").foregroundStyle(Theme.textDim)
-                    TextField("username", text: $model.username)
+                    TextField(L("edit.usernamePlaceholder"), text: $model.username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($focused, equals: .username)
@@ -236,7 +237,7 @@ struct ProfileEditSheet: View {
     private var birthCard: some View {
         VStack(spacing: 0) {
             card {
-                row("Date") {
+                row(L("edit.date")) {
                     DatePicker(
                         "",
                         selection: $model.birthDate,
@@ -248,7 +249,7 @@ struct ProfileEditSheet: View {
 
                 divider
 
-                row("Time") {
+                row(L("edit.time")) {
                     DatePicker("", selection: $model.birthTime, displayedComponents: .hourAndMinute)
                         .labelsHidden()
                 }
@@ -258,10 +259,10 @@ struct ProfileEditSheet: View {
                 // The one field that needs the full width: a geocoded place
                 // name runs to three commas, and the suggestions hang under it.
                 VStack(alignment: .leading, spacing: 8) {
-                    label("Birthplace")
+                    label(L("edit.birthplace"))
 
                     HStack(spacing: 8) {
-                        TextField("City, country", text: $model.locationName)
+                        TextField(L("edit.birthplacePlaceholder"), text: $model.locationName)
                             .autocorrectionDisabled()
                             .focused($focused, equals: .place)
                             .onChange(of: model.locationName) { _, _ in model.searchPlaces() }
@@ -272,7 +273,7 @@ struct ProfileEditSheet: View {
                     .foregroundStyle(Theme.text)
 
                     if model.locationNeedsResolving && model.suggestions.isEmpty && !model.isSearching {
-                        Text("Pick a place from the list, or save and we will look this one up.")
+                        Text(L("edit.pickPlace"))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(Theme.textDim)
                     }
@@ -327,7 +328,7 @@ struct ProfileEditSheet: View {
                 withAnimation(.easeInOut(duration: 0.2)) { showsCoordinates.toggle() }
             } label: {
                 HStack {
-                    Text("Coordinates & Timezone")
+                    Text(L("edit.coordinates"))
                         .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .foregroundStyle(Theme.text)
 
@@ -346,13 +347,13 @@ struct ProfileEditSheet: View {
 
             if showsCoordinates {
                 divider
-                readOnlyRow("Timezone", model.timezone.isEmpty ? "Not set" : model.timezone)
+                readOnlyRow(L("edit.timezone"), model.timezone.isEmpty ? L("common.notSet") : model.timezone)
                 divider
-                readOnlyRow("Latitude", Self.coordinate(model.latitude))
+                readOnlyRow(L("edit.latitude"), Self.coordinate(model.latitude))
                 divider
-                readOnlyRow("Longitude", Self.coordinate(model.longitude))
+                readOnlyRow(L("edit.longitude"), Self.coordinate(model.longitude))
 
-                Text("These come from the birthplace you pick, so they are never typed by hand.")
+                Text(L("edit.coordinatesFooter"))
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(Theme.textDim)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -375,7 +376,7 @@ struct ProfileEditSheet: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "gift")
-                Text("Transfer Profile")
+                Text(L("transfer.title"))
 
                 Spacer(minLength: 0)
 
@@ -406,7 +407,7 @@ struct ProfileEditSheet: View {
                 } else {
                     Image(systemName: "trash")
                 }
-                Text("Delete Profile")
+                Text(L("edit.deleteButton"))
             }
             .font(.system(.body, design: .rounded).weight(.medium))
             .foregroundStyle(Theme.error)

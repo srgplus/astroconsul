@@ -18,6 +18,8 @@ struct TransitDetailSheet: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @ObservedObject private var strings = L10n.shared
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -58,7 +60,7 @@ struct TransitDetailSheet: View {
                     .frame(width: 30, height: 30)
                     .background(Circle().fill(Theme.sheetCard))
             }
-            .accessibilityLabel("Close")
+            .accessibilityLabel(L("common.close"))
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -80,20 +82,20 @@ struct TransitDetailSheet: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(Theme.textDim)
                         .fixedSize()
-                        .accessibilityLabel("retrograde")
+                        .accessibilityLabel(L("detail.retrograde"))
                 }
             }
 
             HStack(spacing: 8) {
                 StrengthLabel(strength: aspect.strength)
 
-                Text(String(format: "%.2f° orb", aspect.orb))
+                Text(L("detail.orb", String(format: "%.2f", aspect.orb)))
                     .font(.system(size: 14, design: .rounded))
                     .foregroundStyle(Theme.textStrong)
                     .monospacedDigit()
 
                 if let status = aspect.timing?.status, !status.isEmpty {
-                    Text("· \(status)")
+                    Text("· \(Astro.status(status))")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundStyle(Theme.textDim)
                 }
@@ -107,7 +109,7 @@ struct TransitDetailSheet: View {
     private var window: some View {
         if let timing = aspect.timing, timing.start != nil, timing.end != nil {
             SheetCard {
-                SheetCardHeader(icon: "calendar", title: "Window", trailing: duration(timing))
+                SheetCardHeader(icon: "calendar", title: L("detail.window"), trailing: duration(timing))
                     .padding(.bottom, 14)
 
                 TransitProgressBar(
@@ -118,7 +120,13 @@ struct TransitDetailSheet: View {
                 )
 
                 if timing.passes.count > 1 {
-                    Text("Exact \(timing.passes.count) times: \(timing.passes.map(TransitProgressBar.day).joined(separator: ", "))")
+                    Text(
+                        L(
+                            "detail.exactTimes",
+                            timing.passes.count,
+                            timing.passes.map(TransitProgressBar.day).joined(separator: ", ")
+                        )
+                    )
                         .font(.system(size: 13, design: .rounded))
                         .foregroundStyle(Theme.textDim)
                         .fixedSize(horizontal: false, vertical: true)
@@ -131,8 +139,8 @@ struct TransitDetailSheet: View {
     /// "18 days" / "9 h" — the span in whichever unit reads plainly.
     private func duration(_ timing: AspectTiming) -> String? {
         guard let hours = timing.durationHours, hours > 0 else { return nil }
-        if hours < 48 { return "\(Int(hours.rounded())) h" }
-        return "\(Int((hours / 24).rounded())) days"
+        if hours < 48 { return L("detail.hours", Int(hours.rounded())) }
+        return L("detail.days", Int((hours / 24).rounded()))
     }
 
     // MARK: - Positions
@@ -144,16 +152,24 @@ struct TransitDetailSheet: View {
 
         if transiting != nil || natal != nil {
             SheetCard {
-                SheetCardHeader(icon: "location.circle", title: "Positions")
+                SheetCardHeader(icon: "location.circle", title: L("detail.positions"))
                     .padding(.bottom, 4)
 
                 if let transiting {
-                    positionRow(object: aspect.transitObject, position: transiting, label: "transiting")
+                    positionRow(
+                        object: aspect.transitObject,
+                        position: transiting,
+                        label: L("detail.transiting")
+                    )
                         .padding(.top, 10)
                 }
 
                 if let natal {
-                    positionRow(object: aspect.natalObject, position: natal, label: "natal")
+                    positionRow(
+                        object: aspect.natalObject,
+                        position: natal,
+                        label: L("detail.natal")
+                    )
                         .padding(.top, 10)
                 }
             }
@@ -167,7 +183,7 @@ struct TransitDetailSheet: View {
                 .foregroundStyle(Theme.text)
                 .frame(width: 22, alignment: .leading)
 
-            Text(object)
+            Text(Astro.object(object))
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.text)
                 .lineLimit(1)
@@ -185,7 +201,7 @@ struct TransitDetailSheet: View {
             // Sign name, no glyph: U+2648-2653 resolve through the emoji font,
             // which the simulator draws as tofu and a device draws in colour.
             // Neither is what this row wants.
-            if let sign = position.sign {
+            if let sign = Astro.sign(position.sign) {
                 Text(sign)
                     .font(.system(size: 14, design: .rounded))
                     .foregroundStyle(Theme.textStrong)
@@ -207,11 +223,11 @@ struct TransitDetailSheet: View {
                 .foregroundStyle(Theme.textDim)
                 .fixedSize()
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("house \(house)")
+                .accessibilityLabel(L("detail.house", house))
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label) \(object)")
+        .accessibilityLabel("\(label) \(Astro.object(object))")
     }
 }
 

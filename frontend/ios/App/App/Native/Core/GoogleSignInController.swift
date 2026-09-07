@@ -20,7 +20,7 @@ final class GoogleSignInController: NSObject {
             case .cancelled:
                 return nil
             case .noSession:
-                return "Google sign-in returned without a session."
+                return L("error.googleNoSession")
             case let .failed(message):
                 return message
             }

@@ -118,14 +118,8 @@ struct TransitProgressBar: View {
     }
 
     static func day(_ date: Date) -> String {
-        formatter.string(from: date)
+        LocalizedDate.string(date, template: "d MMM")
     }
-
-    private static let formatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("d MMM")
-        return formatter
-    }()
 }
 
 // MARK: - Geometry

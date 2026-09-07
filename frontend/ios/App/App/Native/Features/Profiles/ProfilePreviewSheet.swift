@@ -32,6 +32,8 @@ struct ProfilePreviewSheet: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @ObservedObject private var strings = L10n.shared
+
     private var zone: TiiZone? { profile.latestTransit?.tii.map(TiiZone.init(tii:)) }
 
     var body: some View {
@@ -65,13 +67,13 @@ struct ProfilePreviewSheet: View {
         .foregroundStyle(.white)
         .presentationBackground(.black)
         .alert(
-            "Could not subscribe",
+            L("search.followError"),
             isPresented: Binding(
                 get: { errorText != nil },
                 set: { if !$0 { errorText = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { errorText = nil }
+            Button(L("common.ok"), role: .cancel) { errorText = nil }
         } message: {
             Text(errorText ?? "")
         }
@@ -84,7 +86,7 @@ struct ProfilePreviewSheet: View {
     private var chrome: some View {
         WeatherGlassGroup(spacing: 12) {
             HStack {
-                circle(icon: "xmark", label: "Cancel") { dismiss() }
+                circle(icon: "xmark", label: L("common.cancel")) { dismiss() }
 
                 Spacer()
 
@@ -103,7 +105,7 @@ struct ProfilePreviewSheet: View {
                 .buttonStyle(.plain)
                 .disabled(isSubscribing)
                 .weatherGlass(in: .circle, interactive: true)
-                .accessibilityLabel("Subscribe to \(profile.profileName)")
+                .accessibilityLabel(L("search.subscribeTo", profile.profileName))
             }
         }
         .padding(.horizontal, 16)
@@ -147,7 +149,7 @@ struct ProfilePreviewSheet: View {
                         .foregroundStyle(.white.opacity(0.9))
                 }
             } else {
-                Text("No reading yet")
+                Text(L("profiles.noReading"))
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(.top, 24)
@@ -170,11 +172,11 @@ struct ProfilePreviewSheet: View {
     private var bigThree: some View {
         if let summary = profile.natalSummary,
            summary.sun != nil || summary.moon != nil || summary.asc != nil {
-            card(title: "Big 3", icon: "circle.dotted") {
+            card(title: L("preview.bigThree"), icon: "circle.dotted") {
                 VStack(spacing: 0) {
                     placement("Sun", glyph: AstroGlyph.object("Sun"), value: summary.sun)
                     placement("Moon", glyph: AstroGlyph.object("Moon"), value: summary.moon)
-                    placement("Rising", glyph: AstroGlyph.object("ASC"), value: summary.asc)
+                    placement("ASC", glyph: AstroGlyph.object("ASC"), value: summary.asc)
                 }
             }
         }
@@ -183,7 +185,7 @@ struct ProfilePreviewSheet: View {
     @ViewBuilder
     private var birth: some View {
         if profile.locationName != nil || profile.birthMoment != nil {
-            card(title: "Born", icon: "mappin.and.ellipse") {
+            card(title: L("preview.born"), icon: "mappin.and.ellipse") {
                 VStack(alignment: .leading, spacing: 3) {
                     if let place = profile.locationName {
                         Text(place).font(.system(size: 15, design: .rounded))
@@ -200,8 +202,11 @@ struct ProfilePreviewSheet: View {
         }
     }
 
+    /// One row of the big three. `id` is the object's own id — "Sun", "ASC" —
+    /// so the row can both look up its name and tell whether it is the last of
+    /// the three.
     @ViewBuilder
-    private func placement(_ label: String, glyph: String, value: String?) -> some View {
+    private func placement(_ id: String, glyph: String, value: String?) -> some View {
         if let value {
             HStack(spacing: 10) {
                 // "AC" is two characters wide where the planets are one, so
@@ -211,21 +216,22 @@ struct ProfilePreviewSheet: View {
                     .lineLimit(1)
                     .frame(width: 28, alignment: .leading)
 
-                Text(label)
+                Text(Astro.object(id))
                     .font(.system(size: 15, design: .rounded))
 
                 Spacer(minLength: 8)
 
                 // The sign leads the string the chart builder produced
-                // ("Aries 27°04'12\""), so the row can show its glyph without
-                // parsing degrees back out of it.
+                // ("Aries 27°04'12\""), so the row can show its glyph, and
+                // read the sign in the app's language, without parsing the
+                // degrees back out of it.
                 if let sign = value.split(separator: " ").first {
                     Text(AstroGlyph.sign(String(sign)))
                         .font(.system(size: 15))
                         .foregroundStyle(.white.opacity(0.75))
                 }
 
-                Text(value)
+                Text(Self.localizedSign(in: value))
                     .font(.system(size: 15, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.85))
@@ -233,13 +239,21 @@ struct ProfilePreviewSheet: View {
             }
             .padding(.vertical, 9)
             .overlay(alignment: .bottom) {
-                if label != "Rising" {
+                if id != "ASC" {
                     Rectangle()
                         .fill(.white.opacity(0.12))
                         .frame(height: 1)
                 }
             }
         }
+    }
+
+    /// "Aries 27°04'12\"" → "Овен 27°04'12\"". The chart builder puts the
+    /// sign first and the degrees after it, so only the first word moves.
+    private static func localizedSign(in value: String) -> String {
+        let parts = value.split(separator: " ", maxSplits: 1)
+        guard let head = parts.first, let sign = Astro.sign(String(head)) else { return value }
+        return parts.count > 1 ? "\(sign) \(parts[1])" : sign
     }
 
     private func card<Content: View>(

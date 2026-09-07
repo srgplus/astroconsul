@@ -1,0 +1,3 @@
+/* See en.lproj/InfoPlist.strings. */
+
+"NSLocationWhenInUseUsageDescription" = "Космическая погода читается для места, где вы сейчас, а не где вы родились. big3.me использует геопозицию только чтобы назвать это место.";

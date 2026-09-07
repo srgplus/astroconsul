@@ -23,6 +23,7 @@ struct CategoryAlertsOffer: View {
     var onFinish: () -> Void
 
     @ObservedObject private var alerts = CategoryAlerts.shared
+    @ObservedObject private var strings = L10n.shared
     @State private var working = false
 
     /// Whether permission was actually granted. Everything else — "Not now", a
@@ -71,23 +72,17 @@ struct CategoryAlertsOffer: View {
 
     private var words: some View {
         VStack(spacing: Theme.Spacing.base) {
-            Text("Know when the weather turns")
+            Text(L("offer.title"))
                 .font(.system(.title2, design: .rounded).weight(.semibold))
                 .foregroundStyle(Theme.text)
                 .multilineTextAlignment(.center)
 
-            Text(
-                """
-                Your cosmic weather reads as one of twelve categories, from \
-                Calm to Explosive. We'll tell you on the days ahead when it \
-                moves to a different one.
-                """
-            )
+            Text(L("offer.body"))
             .font(.system(.subheadline, design: .rounded))
             .foregroundStyle(Theme.textStrong)
             .multilineTextAlignment(.center)
 
-            Text("Around midday, and only on the days it actually changes.")
+            Text(L("offer.footnote"))
                 .font(.system(.footnote, design: .rounded))
                 .foregroundStyle(Theme.textDim)
                 .multilineTextAlignment(.center)
@@ -102,7 +97,7 @@ struct CategoryAlertsOffer: View {
                 ZStack {
                     // The label stays in the layout while the spinner runs, so
                     // the button does not change height mid-tap.
-                    Text("Turn them on").opacity(working ? 0 : 1)
+                    Text(L("offer.accept")).opacity(working ? 0 : 1)
                     if working {
                         ProgressView().tint(.white)
                     }
@@ -117,7 +112,7 @@ struct CategoryAlertsOffer: View {
             // spinner on grey is a spinner nobody can see. `accept()` guards
             // the second tap itself.
 
-            Button("Not now") {
+            Button(L("offer.decline")) {
                 alerts.declineOffer()
                 onFinish()
             }

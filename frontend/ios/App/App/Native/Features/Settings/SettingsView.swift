@@ -5,6 +5,9 @@ struct SettingsView: View {
 
     @ObservedObject private var auth = AuthStore.shared
     @ObservedObject private var alerts = CategoryAlerts.shared
+    /// Watched, not just read: this is the screen the language is changed on,
+    /// so its own labels have to follow the switch as it is flipped.
+    @ObservedObject private var strings = L10n.shared
     @Environment(\.dismiss) private var dismiss
     @AppStorage(Appearance.storageKey) private var appearance = Appearance.system.rawValue
     @AppStorage(CategoryAlerts.Key.enabled) private var alertsEnabled = CategoryAlerts.defaultEnabled
@@ -31,25 +34,26 @@ struct SettingsView: View {
                 accountSection
                 notificationsSection
                 appearanceSection
+                languageSection
                 aboutSection
             }
             .task { await alerts.syncState() }
             .alert(
-                "Test notification",
+                L("settings.testAlert"),
                 isPresented: Binding(
                     get: { testMessage != nil },
                     set: { if !$0 { testMessage = nil } }
                 ),
                 presenting: testMessage
             ) { _ in
-                Button("OK", role: .cancel) {}
+                Button(L("common.ok"), role: .cancel) {}
             } message: { message in
                 Text(message)
             }
-            .navigationTitle("Settings")
+            .navigationTitle(L("settings.title"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(L("common.done")) { dismiss() }
                         .font(.system(.body, design: .rounded).weight(.medium))
                 }
             }
@@ -63,20 +67,20 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         Section {
-            LabeledContent("Email") {
-                Text(auth.email ?? "Not signed in")
+            LabeledContent(L("settings.email")) {
+                Text(auth.email ?? L("settings.notSignedIn"))
                     .foregroundStyle(Theme.textDim)
             }
 
-            Button("Sign out", role: .destructive) {
+            Button(L("settings.signOut"), role: .destructive) {
                 auth.signOut()
             }
 
-            Button("Manage account") { onOpenWeb() }
+            Button(L("settings.manageAccount")) { onOpenWeb() }
         } header: {
-            Text("Account")
+            Text(L("settings.account"))
         } footer: {
-            Text("Account deletion and subscription management open in the app's web view.")
+            Text(L("settings.accountFooter"))
         }
     }
 
@@ -84,20 +88,20 @@ struct SettingsView: View {
     /// stops being one of the twelve categories and becomes another.
     private var notificationsSection: some View {
         Section {
-            Toggle("Category changes", isOn: $alertsEnabled)
+            Toggle(L("settings.categoryChanges"), isOn: $alertsEnabled)
 
             if alertsEnabled {
                 if alerts.authorization == .denied {
-                    Button("Turn on in iOS Settings") { openSystemSettings() }
+                    Button(L("settings.openIosSettings")) { openSystemSettings() }
                 } else {
                     DatePicker(
-                        "Time of day",
+                        L("settings.timeOfDay"),
                         selection: alertTime,
                         displayedComponents: .hourAndMinute
                     )
 
-                    LabeledContent("Scheduled") {
-                        Text(alerts.scheduledCount == 1 ? "1 change" : "\(alerts.scheduledCount) changes")
+                    LabeledContent(L("settings.scheduled")) {
+                        Text(L(count: alerts.scheduledCount, "common.change"))
                             .foregroundStyle(Theme.textDim)
                     }
 
@@ -107,19 +111,19 @@ struct SettingsView: View {
                     // eight reads as eight banners owed. The date is the part
                     // that can be checked against.
                     if let next = alerts.nextAlert {
-                        LabeledContent("Next") {
+                        LabeledContent(L("settings.nextAlert")) {
                             Text(next, format: Self.nextFormat)
                                 .foregroundStyle(Theme.textDim)
                         }
                     }
 
                     if alerts.hasStoredChanges {
-                        Button("Send a test notification") { sendTest() }
+                        Button(L("settings.sendTest")) { sendTest() }
                     }
                 }
             }
         } header: {
-            Text("Notifications")
+            Text(L("settings.notifications"))
         } footer: {
             Text(notificationsFooter)
         }
@@ -145,21 +149,15 @@ struct SettingsView: View {
     private func sendTest() {
         Task {
             let sent = await alerts.sendTestAlert()
-            testMessage = sent
-                ? "It arrives in a few seconds. Leave this screen to see the banner."
-                : "Nothing could be sent. Check that notifications are allowed for big3.me in iOS Settings."
+            testMessage = L(sent ? "settings.testSent" : "settings.testFailed")
         }
     }
 
     private var notificationsFooter: String {
         if alertsEnabled, alerts.authorization == .denied {
-            return "Notifications are switched off for big3.me in iOS Settings, so nothing can be scheduled."
+            return L("settings.notificationsDenied")
         }
-        return """
-        Your cosmic weather reads as one of twelve categories, from Calm to \
-        Explosive. Get a notification on the days ahead when it moves to a \
-        different one, for the profile marked as yours.
-        """
+        return L("settings.notificationsFooter")
     }
 
     /// `@AppStorage` holds the hour and minute; `DatePicker` wants a `Date`.
@@ -188,8 +186,8 @@ struct SettingsView: View {
     }
 
     private var appearanceSection: some View {
-        Section("Appearance") {
-            Picker("Theme", selection: $appearance) {
+        Section(L("settings.appearance")) {
+            Picker(L("settings.theme"), selection: $appearance) {
                 ForEach(Appearance.allCases) { option in
                     Text(option.label).tag(option.rawValue)
                 }
@@ -198,9 +196,28 @@ struct SettingsView: View {
         }
     }
 
+    /// The app is read in one language and lived in another often enough that
+    /// the device setting is not the last word. `System` is the default and
+    /// follows the device; the other two override it, for the native screens
+    /// and the web ones alike.
+    private var languageSection: some View {
+        Section {
+            Picker(L("settings.language"), selection: $strings.language) {
+                ForEach(AppLanguage.allCases) { option in
+                    Text(option.label).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text(L("settings.language"))
+        } footer: {
+            Text(L("settings.languageFooter"))
+        }
+    }
+
     private var aboutSection: some View {
-        Section("About") {
-            LabeledContent("Version") {
+        Section(L("settings.about")) {
+            LabeledContent(L("settings.version")) {
                 Text(Self.versionString).foregroundStyle(Theme.textDim)
             }
         }

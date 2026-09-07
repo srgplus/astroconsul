@@ -16,39 +16,22 @@ struct NatalChartCard: View {
     /// Natal positions by object id — `TransitPositions.natal`.
     let positions: [String: ChartPosition]
 
+    @ObservedObject private var strings = L10n.shared
+
     @State private var isExpanded = false
 
-    /// Sun, Moon and Ascendant. Names are written out because "ASC" and "MC"
-    /// are ids, not something to show a reader.
-    private static let bigThree: [(id: String, name: String)] = [
-        ("Sun", "Sun"),
-        ("Moon", "Moon"),
-        ("ASC", "Ascendant"),
-    ]
+    /// The rows each band can draw, as object ids. The names are looked up
+    /// rather than listed beside them: "ASC" and "MC" are ids, not something
+    /// to show a reader, and every one of these has a Russian reading.
+    private static let bigThree = ["Sun", "Moon", "ASC"]
 
-    private static let personal: [(id: String, name: String)] = [
-        ("MC", "Midheaven"),
-        ("Mercury", "Mercury"),
-        ("Venus", "Venus"),
-        ("Mars", "Mars"),
-    ]
+    private static let personal = ["MC", "Mercury", "Venus", "Mars"]
 
-    private static let outer: [(id: String, name: String)] = [
-        ("Jupiter", "Jupiter"),
-        ("Saturn", "Saturn"),
-        ("Uranus", "Uranus"),
-        ("Neptune", "Neptune"),
-        ("Pluto", "Pluto"),
-    ]
+    private static let outer = ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
 
-    private static let special: [(id: String, name: String)] = [
-        ("Chiron", "Chiron"),
-        ("Lilith", "Lilith"),
-        ("Selena", "Selena"),
-        ("North Node", "North Node"),
-        ("South Node", "South Node"),
-        ("Part of Fortune", "Part of Fortune"),
-        ("Vertex", "Vertex"),
+    private static let special = [
+        "Chiron", "Lilith", "Selena",
+        "North Node", "South Node", "Part of Fortune", "Vertex",
     ]
 
     private struct Row: Identifiable {
@@ -57,10 +40,10 @@ struct NatalChartCard: View {
         let position: ChartPosition
     }
 
-    private func rows(_ points: [(id: String, name: String)]) -> [Row] {
-        points.compactMap { point in
-            guard let position = positions[point.id] else { return nil }
-            return Row(id: point.id, name: point.name, position: position)
+    private func rows(_ ids: [String]) -> [Row] {
+        ids.compactMap { id in
+            guard let position = positions[id] else { return nil }
+            return Row(id: id, name: Astro.object(id), position: position)
         }
     }
 
@@ -94,8 +77,8 @@ struct NatalChartCard: View {
                 }
 
                 if isExpanded {
-                    group("Outer planets", rows(Self.outer))
-                    group("Special points", rows(Self.special))
+                    group(TransitGroup.outer.title, rows(Self.outer))
+                    group(TransitGroup.special.title, rows(Self.special))
                 }
 
                 if birth != nil || profile.locationName != nil {
@@ -110,7 +93,7 @@ struct NatalChartCard: View {
                 withAnimation(.easeInOut(duration: 0.22)) { isExpanded.toggle() }
             }
             .accessibilityAddTraits(.isButton)
-            .accessibilityHint(isExpanded ? "Hides the rest of the profile" : "Shows the rest of the profile")
+            .accessibilityHint(L(isExpanded ? "natal.collapse" : "natal.expand"))
         }
     }
 
@@ -119,7 +102,7 @@ struct NatalChartCard: View {
             Image(systemName: "circle.dotted")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Astro profile".uppercased())
+            Text(L("natal.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
 
@@ -187,7 +170,7 @@ struct NatalChartCard: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.7))
                     .fixedSize()
-                    .accessibilityLabel("retrograde")
+                    .accessibilityLabel(L("detail.retrograde"))
             }
 
             Spacer(minLength: 4)
@@ -201,7 +184,7 @@ struct NatalChartCard: View {
 
             // Sign name, no glyph: U+2648-2653 resolve through the emoji font,
             // which the simulator draws as tofu and a device draws in colour.
-            Text(row.position.sign ?? "—")
+            Text(Astro.sign(row.position.sign) ?? "—")
                 .font(.system(size: 14, design: .rounded))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -235,7 +218,7 @@ struct NatalChartCard: View {
             .foregroundStyle(.white.opacity(0.7))
             .fixedSize()
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("house \(number)")
+            .accessibilityLabel(L("detail.house", number))
         } else {
             Color.clear.frame(height: 1)
         }
@@ -297,7 +280,7 @@ struct NatalChartCard: View {
               years >= 0
         else { return nil }
 
-        return "\(years) years"
+        return L(count: years, "common.year")
     }
 }
 

@@ -95,9 +95,9 @@ enum TransitGroup: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .personal: return "Personal planets"
-        case .outer: return "Outer planets"
-        case .special: return "Special points"
+        case .personal: return L("group.personal")
+        case .outer: return L("group.outer")
+        case .special: return L("group.special")
         }
     }
 

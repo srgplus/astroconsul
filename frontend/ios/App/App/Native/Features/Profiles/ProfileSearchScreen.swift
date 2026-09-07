@@ -47,6 +47,7 @@ struct ProfileSearchScreen: View {
     #endif
 
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var strings = L10n.shared
     @State private var query = ""
     @State private var preview: ProfileSummary?
     @FocusState private var isFocused: Bool
@@ -69,7 +70,7 @@ struct ProfileSearchScreen: View {
             // A plain title rather than a navigation bar: this screen pushes
             // nothing, and a bar here draws its own material and paints the
             // title in the system's colour, which over the sky came out black.
-            Text("Search")
+            Text(L("search.title"))
                 .font(.system(size: 17, design: .rounded).weight(.semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -122,13 +123,13 @@ struct ProfileSearchScreen: View {
         // to show it — so a plus tapped inside the preview would throw the
         // user back to the list.
         .alert(
-            "Could not subscribe",
+            L("search.followError"),
             isPresented: Binding(
                 get: { model.followError != nil && preview == nil },
                 set: { if !$0 { model.followError = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { model.followError = nil }
+            Button(L("common.ok"), role: .cancel) { model.followError = nil }
         } message: {
             Text(model.followError ?? "")
         }
@@ -139,15 +140,15 @@ struct ProfileSearchScreen: View {
     private var results: some View {
         List {
             if !mine.isEmpty {
-                section("Mine", profiles: mine) { saved($0) }
+                section(L("profiles.mine"), profiles: mine) { saved($0) }
             }
 
             if !following.isEmpty {
-                section("Following", profiles: following) { saved($0) }
+                section(L("profiles.following"), profiles: following) { saved($0) }
             }
 
             if !discoveries.isEmpty {
-                section(term.isEmpty ? "Discover" : "New profiles", profiles: discoveries) {
+                section(L(term.isEmpty ? "search.discover" : "search.new"), profiles: discoveries) {
                     discovery($0)
                 }
             }
@@ -165,7 +166,7 @@ struct ProfileSearchScreen: View {
         case .searching where discoveries.isEmpty:
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small).tint(Theme.spinner)
-                Text("Searching…")
+                Text(L("search.searching"))
             }
             .modifier(StatusRow())
 
@@ -173,10 +174,10 @@ struct ProfileSearchScreen: View {
             Text(text).modifier(StatusRow())
 
         case .suggestions where mine.isEmpty && following.isEmpty && discoveries.isEmpty:
-            Text("Search for a profile by name or @handle.").modifier(StatusRow())
+            Text(L("search.hint")).modifier(StatusRow())
 
         case .results where mine.isEmpty && following.isEmpty && discoveries.isEmpty:
-            Text("Nothing matches “\(term)”.").modifier(StatusRow())
+            Text(L("profiles.noMatch", term)).modifier(StatusRow())
 
         default:
             EmptyView()
@@ -268,7 +269,7 @@ struct ProfileSearchScreen: View {
         }
         .buttonStyle(.plain)
         .weatherGlass(in: .circle, interactive: true)
-        .accessibilityLabel("Subscribe to \(profile.profileName)")
+        .accessibilityLabel(L("search.subscribeTo", profile.profileName))
     }
 
     // MARK: - Search bar
@@ -286,7 +287,7 @@ struct ProfileSearchScreen: View {
                     TextField(
                         "",
                         text: $query,
-                        prompt: Text("Search profiles").foregroundColor(.white.opacity(0.55))
+                        prompt: Text(L("profiles.searchPrompt")).foregroundColor(.white.opacity(0.55))
                     )
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -304,7 +305,7 @@ struct ProfileSearchScreen: View {
                                 .foregroundStyle(.white.opacity(0.6))
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Clear search")
+                        .accessibilityLabel(L("search.clear"))
                     }
                 }
                 .padding(.horizontal, 14)
@@ -321,7 +322,7 @@ struct ProfileSearchScreen: View {
                 }
                 .buttonStyle(.plain)
                 .weatherGlass(in: .circle, interactive: true)
-                .accessibilityLabel("Close search")
+                .accessibilityLabel(L("search.close"))
             }
         }
         .padding(.horizontal, 16)

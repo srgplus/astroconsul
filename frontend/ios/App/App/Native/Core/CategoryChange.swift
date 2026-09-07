@@ -78,8 +78,9 @@ struct CategoryChange: Codable, Equatable {
     // MARK: - Copy
 
     var title: String {
-        guard let emoji = FeelsLike.emoji(for: to) else { return to }
-        return "\(emoji) \(to)"
+        let category = Astro.feels(to) ?? to
+        guard let emoji = FeelsLike.emoji(for: to) else { return category }
+        return "\(emoji) \(category)"
     }
 
     /// The reading, on a line of its own.
@@ -99,12 +100,12 @@ struct CategoryChange: Codable, Equatable {
     var body: String {
         let verb: String
         if tii > fromTii {
-            verb = "Rising"
+            verb = L("alert.rising")
         } else if tii < fromTii {
-            verb = "Easing"
+            verb = L("alert.easing")
         } else {
-            verb = "Shifting"
+            verb = L("alert.shifting")
         }
-        return "\(verb) from \(from)"
+        return L("alert.body", verb, Astro.feels(from) ?? from)
     }
 }

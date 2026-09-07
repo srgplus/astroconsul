@@ -35,7 +35,7 @@ struct WeatherSkeleton: View {
         .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: dim)
         .onAppear { dim = true }
         .accessibilityElement()
-        .accessibilityLabel("Loading")
+        .accessibilityLabel(L("common.loading"))
     }
 
     // MARK: - Shapes

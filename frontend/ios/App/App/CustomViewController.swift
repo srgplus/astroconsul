@@ -54,6 +54,10 @@ class CustomViewController: CAPBridgeViewController {
             }
         }
 
+        // The web half posts here when its own language switch is used, so
+        // the two settings stay one setting.
+        webView?.configuration.userContentController.add(self, name: "language")
+
         // Register StoreKit2 JS bridge (iOS 15+)
         if #available(iOS 15.0, *), let wv = webView {
             let manager = StoreKit2Manager(webView: wv)
@@ -169,6 +173,50 @@ class CustomViewController: CAPBridgeViewController {
         }
     }
 
+    // MARK: - Language bridge to the web half
+
+    /// Copies the native language setting into the WebView's localStorage,
+    /// which is where the React app reads it from, and reloads the page if it
+    /// was showing the other language.
+    ///
+    /// The store is the WebView's own and survives relaunches, so this only
+    /// ever has to correct a page: a fresh install has never been told, and
+    /// falls back to `navigator.language` — which is the device's language,
+    /// the same default the native side starts on.
+    ///
+    /// At most one reload: after this the stored value matches, so the call
+    /// made on the next `didFinish` answers "same" and stops.
+    func syncLanguage() {
+        let language = LanguageStore.code
+        let js = """
+        (() => {
+            try {
+                if (localStorage.getItem('lang') === '\(language)') { return 'same'; }
+                localStorage.setItem('lang', '\(language)');
+                return 'changed';
+            } catch (e) {
+                return 'threw: ' + (e && e.message ? e.message : e);
+            }
+        })()
+        """
+
+        webView?.evaluateJavaScript(js) { [weak self] result, error in
+            if let error {
+                NSLog("[Language bridge] could not set lang: \(error.localizedDescription)")
+                return
+            }
+            guard let outcome = result as? String else { return }
+            switch outcome {
+            case "same":
+                break
+            case "changed":
+                self?.webView?.reload()
+            default:
+                NSLog("[Language bridge] rejected: \(outcome)")
+            }
+        }
+    }
+
     /// Signs the WebView out, so a native sign-out clears both halves.
     func clearWebSession() {
         let js = """
@@ -268,6 +316,29 @@ class CustomViewController: CAPBridgeViewController {
             expiresAt: expiresAt,
             email: email
         )
+    }
+}
+
+// MARK: - WKScriptMessageHandler (language)
+
+extension CustomViewController: WKScriptMessageHandler {
+
+    /// The web app's own language switch, adopted into the native setting.
+    ///
+    /// The page has already written its localStorage by the time it posts, so
+    /// the `syncLanguage` that follows a native change answers "same" and no
+    /// reload comes back at it.
+    func userContentController(
+        _ controller: WKUserContentController,
+        didReceive message: WKScriptMessage
+    ) {
+        guard message.name == "language",
+              let code = message.body as? String,
+              let language = Language(identifier: code) else { return }
+
+        Task { @MainActor in
+            L10n.shared.language = AppLanguage(rawValue: language.rawValue) ?? .system
+        }
     }
 }
 
@@ -388,6 +459,7 @@ extension CustomViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         originalDelegate?.webView?(webView, didFinish: navigation)
         importSupabaseSession()
+        syncLanguage()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

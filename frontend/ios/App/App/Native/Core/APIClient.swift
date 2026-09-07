@@ -10,17 +10,17 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notSignedIn:
-            return "Sign in to load your profiles."
+            return L("error.notSignedIn")
         case .cancelled:
             // Never shown: every caller drops a cancellation rather than
             // reporting it. Spelled out anyway so a stray log reads.
-            return "The request was cancelled."
+            return L("error.cancelled")
         case let .http(status, detail):
-            return detail ?? "Request failed (HTTP \(status))."
+            return detail ?? L("error.http", status)
         case let .transport(error):
             return error.localizedDescription
         case .decoding:
-            return "The server sent an unexpected response."
+            return L("error.unexpected")
         }
     }
 
@@ -115,7 +115,10 @@ actor APIClient {
     /// The full profile, chart and all. The birth data the edit sheet works
     /// from lives only here — the list payload carries none of it.
     func fetchProfileDetail(id: String) async throws -> ProfileDetailResponse {
-        try await get("/api/v1/profiles/\(Self.escape(id))")
+        try await get(
+            "/api/v1/profiles/\(Self.escape(id))",
+            query: [URLQueryItem(name: "lang", value: LanguageStore.code)]
+        )
     }
 
     /// Fields the edit sheet can change. Snake case spelled out: the encoder
@@ -220,6 +223,7 @@ actor APIClient {
         var query = [
             URLQueryItem(name: "timezone", value: timezone),
             URLQueryItem(name: "days", value: String(days)),
+            URLQueryItem(name: "lang", value: LanguageStore.code),
         ]
         if let startDate {
             query.append(URLQueryItem(name: "start_date", value: startDate))
@@ -272,8 +276,9 @@ actor APIClient {
                 latitude: latitude,
                 longitude: longitude,
                 include_timing: includeTiming,
-                // The route defaults to Russian; the native screens are English.
-                lang: "en"
+                // The route defaults to Russian, so it is always told which
+                // language the app is being read in rather than left to guess.
+                lang: LanguageStore.code
             )
         )
     }
@@ -301,7 +306,7 @@ actor APIClient {
         components?.queryItems = query.isEmpty ? nil : query
 
         guard let url = components?.url else {
-            throw APIError.http(status: -1, detail: "Could not build a URL for \(path).")
+            throw APIError.http(status: -1, detail: L("error.noURL", path))
         }
 
         var request = URLRequest(url: url)

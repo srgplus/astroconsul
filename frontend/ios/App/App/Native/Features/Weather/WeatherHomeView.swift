@@ -7,6 +7,7 @@ struct WeatherHomeView: View {
 
     @StateObject private var model = ProfileListViewModel()
     @ObservedObject private var auth = AuthStore.shared
+    @ObservedObject private var strings = L10n.shared
     /// Watched only for `isSettled`: the notification offer waits until the
     /// location question has been answered before putting its own.
     @ObservedObject private var location = DeviceLocation.shared
@@ -61,9 +62,9 @@ struct WeatherHomeView: View {
                 placeholder {
                     message(
                         icon: "person.crop.circle.badge.questionmark",
-                        title: "Not signed in",
-                        body: "Sign in to see your cosmic weather.",
-                        action: "Open sign in",
+                        title: L("home.notSignedIn"),
+                        body: L("home.notSignedInBody"),
+                        action: L("home.openSignIn"),
                         perform: { showsWeb = true }
                     )
                 }
@@ -72,9 +73,9 @@ struct WeatherHomeView: View {
                 placeholder {
                     message(
                         icon: "exclamationmark.triangle",
-                        title: "Could not load profiles",
+                        title: L("home.loadFailed"),
                         body: text,
-                        action: "Try again",
+                        action: L("common.tryAgain"),
                         perform: { Task { await model.load() } }
                     )
                 }
@@ -84,9 +85,9 @@ struct WeatherHomeView: View {
                     placeholder {
                         message(
                             icon: "person.2",
-                            title: "No profiles yet",
-                            body: "Create your first profile to get a reading.",
-                            action: "Create profile",
+                            title: L("home.noProfiles"),
+                            body: L("home.noProfilesBody"),
+                            action: L("home.createProfile"),
                             perform: { showsNewProfile = true }
                         )
                     }

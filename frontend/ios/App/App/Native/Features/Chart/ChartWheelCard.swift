@@ -13,12 +13,7 @@ enum ChartMode: String, CaseIterable, Identifiable {
     /// "Birth", not "Chart": the card is already called Birth chart, and a
     /// button repeating the second half of the title says nothing about what
     /// it switches to.
-    var title: String {
-        switch self {
-        case .chart: "Birth"
-        case .transit: "Transit"
-        }
-    }
+    var title: String { L(self == .chart ? "wheel.natal" : "wheel.transit") }
 }
 
 /// The birth chart, on the weather screen, in the same frosted panel the
@@ -50,6 +45,8 @@ struct ChartWheelCard: View {
     /// The sky this card is floating on, so the full-screen wheel can stand on
     /// the same one frosted rather than on a slab of grey.
     var zone: TiiZone = .active
+
+    @ObservedObject private var strings = L10n.shared
 
     /// The two switches and the selection live here and are handed to the
     /// full-screen wheel as bindings: the same chart, in two sizes, not two
@@ -135,7 +132,7 @@ struct ChartWheelCard: View {
             Image(systemName: "circle.dotted.circle")
                 .font(.system(size: 12, weight: .semibold))
 
-            Text("Birth chart".uppercased())
+            Text(L("chart.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
                 .foregroundStyle(.white.opacity(0.7))
@@ -151,7 +148,7 @@ struct ChartWheelCard: View {
                 .frame(width: 24, height: 24)
                 .contentShape(Rectangle())
                 .onTapGesture { isFullScreen = true }
-                .accessibilityLabel("Open the chart full screen")
+                .accessibilityLabel(L("chart.openFullScreen"))
                 .accessibilityAddTraits(.isButton)
         }
         .foregroundStyle(.white.opacity(0.7))
@@ -238,13 +235,13 @@ struct ChartSpecialPointsRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text("Special points")
+            Text(L("chart.specialPoints"))
                 .font(.system(size: 14, design: .rounded))
 
             Spacer(minLength: 8)
 
             SmallSwitch(isOn: $isOn)
-                .accessibilityLabel("Special points")
+                .accessibilityLabel(L("chart.specialPoints"))
         }
         .foregroundStyle(.white.opacity(0.7))
         .contentShape(Rectangle())
@@ -300,7 +297,8 @@ struct ChartWheelReadout {
     /// The aspect the caption can open a sheet for, if any.
     let aspect: ActiveAspect?
 
-    init(selection: ChartWheelSelection?, chart: ChartWheelData, hint: String = "Tap a planet or a line") {
+    init(selection: ChartWheelSelection?, chart: ChartWheelData, hint: String? = nil) {
+        let hint = hint ?? L("chart.tapHint")
         switch selection {
         case nil:
             text = hint
@@ -328,13 +326,15 @@ struct ChartWheelReadout {
         // Which ring it came from only needs saying when both are on screen.
         var parts: [String] = []
         if chart.showsTransits {
-            parts.append(isTransit ? "Transit" : "Natal")
+            parts.append(L(isTransit ? "chart.transit" : "chart.natal"))
         }
-        parts.append("\(body.glyph) \(body.id)")
-        parts.append("\(degrees(inSign)) \(Zodiac.glyphs[sign]) \(Zodiac.names[sign])")
+        parts.append("\(body.glyph) \(Astro.object(body.id))")
+        parts.append(
+            "\(degrees(inSign)) \(Zodiac.glyphs[sign]) \(Astro.sign(Zodiac.names[sign]) ?? Zodiac.names[sign])"
+        )
 
         if let house = WheelMath.house(of: body.longitude, cusps: chart.houses) {
-            parts.append("House \(house)")
+            parts.append(L("chart.house", house))
         }
         if body.isRetrograde {
             parts.append("\u{211E}")
@@ -346,7 +346,7 @@ struct ChartWheelReadout {
     /// "♄ □ ☽ · Square · orb 1°14′"
     private static func pair(_ first: String, _ aspect: String, _ second: String, orb: Double) -> String {
         let glyphs = "\(AstroGlyph.object(first)) \(AstroGlyph.aspect(aspect)) \(AstroGlyph.object(second))"
-        return "\(glyphs) · \(aspect.capitalized) · orb \(degrees(orb))"
+        return "\(glyphs) · \(Astro.aspect(aspect).capitalized) · \(L("chart.orb", degrees(orb)))"
     }
 
     /// 23°16′, the form the rest of the app prints.
