@@ -4,6 +4,23 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### A forecast row's bar is on the index, not on the window
+`ForecastBar` in `Features/Weather/ForecastCard.swift` mapped the day's TII
+onto the window's own low…high (`(value - low) / (high - low)`), so the
+quietest of the ten days always drew an empty track and the loudest always drew
+a full one, whatever the two readings were. On a flat window that is a lie the
+reader can see: a day printing **79** sat beside a bar showing nothing, and the
+five days at 100 above it were five identical full bars.
+
+The fraction is now `value / 100` — the TII's own ceiling
+(`app/domain/astrology/tii.py` caps at 100), the range `TiiZone` bands, and the
+scale the hero's intensity meter has always used. A row's bar now says the same
+thing as the number printed beside it and as the same day's sheet. The window
+still shows up in the card header's `27–74`, which is where it belongs.
+
+`low` and `high` are no longer passed to `ForecastBar`; `ForecastCard` keeps
+them for the header.
+
 ### "Сегодня" fits on one line in the forecast rows
 The day column in `Features/Weather/ForecastCard.swift` was 58pt wide, which
 holds "Today" (47pt at 17pt semibold rounded) but not "Сегодня" (70pt). In

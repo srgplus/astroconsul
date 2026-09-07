@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The 10-day list. Each row places the day's TII on the shared scale of the
-/// whole window, so the reader sees which days stand out at a glance.
+/// The 10-day list. Each row places the day's TII on the 0…100 index, and the
+/// header carries the window's low and high, so the reader sees both the day
+/// and the shape of the ten.
 struct ForecastCard: View {
 
     let days: [ForecastDay]
@@ -59,7 +60,7 @@ struct ForecastCard: View {
                 .font(.system(size: 17))
                 .frame(width: 26)
 
-            ForecastBar(value: day.tii, low: low, high: high, zone: day.zone)
+            ForecastBar(value: day.tii, zone: day.zone)
 
             Text("\(Int(day.tii.rounded()))")
                 .font(.system(size: 19, weight: .semibold, design: .rounded))
@@ -77,13 +78,21 @@ struct ForecastCard: View {
 
 }
 
-/// Track spanning the forecast's low…high, filled up to this day's value.
+/// Track spanning the whole index, filled up to this day's value.
+///
+/// The scale is 0…100 and not the window's low…high. A window scale draws the
+/// quietest of the ten days as an empty track and the loudest as a full one,
+/// whatever the two readings are — so a 79 beside an untouched bar read as a
+/// zero, and five days at 100 read as one day repeated. On the index the fill
+/// says the same thing as the number printed next to it, and as the intensity
+/// meter on the day's own screen, which was always on 0…100.
 struct ForecastBar: View {
 
     let value: Double
-    let low: Double
-    let high: Double
     let zone: TiiZone
+
+    /// The TII's ceiling. `TiiZone` bands the same range.
+    private let scale: Double = 100
 
     private let track: CGFloat = 5
     private let dot: CGFloat = 9
@@ -91,8 +100,7 @@ struct ForecastBar: View {
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
-            let span = max(high - low, 1)
-            let fraction = min(max((value - low) / span, 0), 1)
+            let fraction = min(max(value / scale, 0), 1)
             let filled = max(width * fraction, track)
 
             ZStack(alignment: .leading) {
