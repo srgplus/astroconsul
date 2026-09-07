@@ -32,6 +32,7 @@ struct CosmicWeatherView: View {
 
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
+    @State private var showsSettings = false
 
     init(
         profile: ProfileSummary,
@@ -128,6 +129,24 @@ struct CosmicWeatherView: View {
         }
         .tint(.white)
         .preference(key: SkyZoneKey.self, value: [profile.profileId: zone])
+        .sheet(isPresented: $showsSettings) {
+            TransitSettingsSheet(
+                current: model.chosen ?? TransitMoment(
+                    instant: model.readingTime,
+                    zone: model.readingZone,
+                    locationName: profile.latestTransit?.locationName,
+                    latitude: profile.latestTransit?.latitude,
+                    longitude: profile.latestTransit?.longitude
+                ),
+                isChosen: model.chosen != nil,
+                onApply: { moment in
+                    Task { await model.choose(moment, profile: profile) }
+                },
+                onReset: {
+                    Task { await model.choose(nil, profile: profile) }
+                }
+            )
+        }
         .task {
             // A seeded model (previews, harness) is already loaded.
             guard model.state == .idle else { return }
@@ -171,13 +190,27 @@ struct CosmicWeatherView: View {
 
                 if model.state == .loading || model.transitsState == .loading {
                     MinimalSpinner()
+                } else {
+                    // The stamp is the way into the settings, so it says so.
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.6))
                 }
             }
-            .padding(.horizontal, 12)
+            // No plate behind it. The chevron already says the stamp is a
+            // control, and a capsule saying it a second time was the only
+            // thing in the hero standing on one.
+            .padding(.horizontal, 4)
             .padding(.vertical, 5)
-            .background(Capsule().fill(.white.opacity(0.16)))
             .padding(.top, 6)
             .animation(.easeInOut(duration: 0.2), value: model.transitsState)
+            .contentShape(Capsule())
+            // A tap gesture rather than a Button: inside the pager's scroll
+            // view a plain-styled Button never fires, which is the same
+            // conflict SmallSwitch was drawn from shapes to avoid.
+            .onTapGesture { showsSettings = true }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint("Choose the moment and place to read")
 
             Text(temperature)
                 .font(.system(size: 92, weight: .ultraLight, design: .rounded))
@@ -258,6 +291,11 @@ struct CosmicWeatherView: View {
     /// your page, the transit location on everyone else's. With neither, the
     /// handle stands in rather than a place we cannot vouch for.
     private var subtitle: String {
+        // A place the reader chose outranks both: they are asking what the
+        // sky looks like from there, not from here.
+        if let chosen = model.chosen?.locationName {
+            return chosen
+        }
         if isPrimary, let here = device.placeName {
             return here
         }

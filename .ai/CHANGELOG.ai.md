@@ -53,6 +53,58 @@ user can delete any profile by id.
 
 ## 2026-09-07
 
+### iOS: the reading is a moment somewhere, and now you can say which
+A chart is fixed; a transit is not. The weather screens always read the present
+at the profile's own place, which is the right default and was the only option.
+
+- **`TransitMoment`** is what the reader picked instead — an instant, a zone,
+  and optionally a place. `CosmicWeatherViewModel.chosen` holds it, and both
+  halves of the screen follow: the report is cast for that instant, and the
+  forecast window starts on its date rather than today, so the sky over the
+  cards and the cards are the same day. It never falls back to the device zone
+  the way a saved setting does — retrying a chosen moment somewhere else would
+  answer a question nobody asked.
+- **`start_date`** is a new optional query parameter on
+  `GET /profiles/{id}/transits/forecast`, defaulting to today as before.
+- **`TransitSettingsSheet`** is the form, opened from the stamp under the
+  profile's name: date, time, a city search on `/locations/search`, and the
+  zone the picked city carries — moving the clock with it, since the hour on
+  the picker is a wall clock reading. It is a plain grouped `Form` in a half
+  sheet with Cancel and a tick, so the row metrics and inset hairlines come
+  from the system instead of from constants that only nearly match.
+
+### iOS: sheets stop being frosted, and the list stops pretending it is not on a sky
+Two opposite mistakes, one cause: a surface has to know what it is standing on.
+
+- **The sheets are opaque.** The transit detail sheet and Settings both drew a
+  blurred sky behind system controls built for a background of a known colour,
+  and every one of them was being propped up by hand — translucent row fills,
+  a hairline round each card. They use the system's grouped pair now
+  (`Theme.sheetBg` / `Theme.sheetCard`), no borders, with Weather's own close
+  button and no grabber beside it.
+- **The profile list is told it is dark.** It stands on a frosted night sky, so
+  left to the device's appearance its search field, group name and Settings
+  button all resolved for a white page and landed as dark ink and light pills
+  on the dark wash. The screen forces `.colorScheme(.dark)`; Settings is
+  presented from outside that override so it still opens in the app's own
+  appearance.
+- **The wordmark is centred**, the group name moved onto its line, and it
+  appears only once cards start going under the bar. Tracking which group is
+  on screen is done from the rows' own appear and disappear: a `List` hosts its
+  rows separately and their preferences never reach the screen, which is the
+  obvious way to do it and does not work. The bar's own material is hidden for
+  a wash that fades out, so cards pass under it rather than being cut off.
+
+### iOS: two marks removed, because the line already said it
+`TransitProgressBar` drew a tick standing above the track for each moment the
+aspect is exact, and a 10pt dot for now. The ticks are gone; each exact moment
+is a dot the width of the track, sitting in the line — a tick has to be read
+against the line to be placed at all, a dot is the point itself. Now needs no
+mark either: the filled length is where now is.
+
+The stamp in the hero lost its capsule for the same reason. The chevron says it
+is a control, and the plate was saying it a second time.
+
 ### iOS: the wheel answers a tap
 Stage three. A glyph or an aspect line is tapped and named in a caption under
 the wheel, and a transit aspect's caption opens the detail sheet the transits

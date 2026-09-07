@@ -16,6 +16,38 @@ struct LatestTransit: Codable, Hashable {
     let feelsLike: String?
 }
 
+/// A place the reading can be cast for, as the locations endpoint returns it.
+struct PlaceCandidate: Codable, Hashable, Identifiable {
+    let displayName: String
+    let latitude: Double
+    let longitude: Double
+    let timezone: String?
+
+    var id: String { "\(displayName)-\(latitude)-\(longitude)" }
+}
+
+/// When and where a reading is cast for.
+///
+/// The screen reads "now, where the profile says it lives" until someone picks
+/// something else; this is that something else. It carries the instant rather
+/// than a date and a time string because everything on the screen — the stamp,
+/// the moon, the forecast window — has to agree on one moment.
+struct TransitMoment: Equatable {
+    var instant: Date
+    var zone: TimeZone
+    var locationName: String?
+    var latitude: Double?
+    var longitude: Double?
+
+    /// True when this is today in its own zone, so the screen can tell a
+    /// reading for another day from a reading for another place.
+    var isToday: Bool {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        return calendar.isDateInToday(instant)
+    }
+}
+
 struct ProfileSummary: Codable, Hashable, Identifiable {
     let profileId: String
     let profileName: String

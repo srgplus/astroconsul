@@ -13,6 +13,16 @@ enum Theme {
     static let surface = dynamic(dark: 0x242426, light: 0xFFFFFF)
     static let surfaceSoft = dynamicAlpha(dark: (0xFFFFFF, 0.04), light: (0x000000, 0.03))
 
+    // MARK: Sheets
+
+    /// A sheet is the one place the app is not painted over the sky, so it uses
+    /// the system's own grouped pair rather than the brand surfaces: black
+    /// under raised charcoal in the dark, grey under white in the light. It is
+    /// the ground every Apple sheet stands on, and the reason the panels inside
+    /// need no border to separate them from it.
+    static let sheetBg = Color(UIColor.systemGroupedBackground)
+    static let sheetCard = Color(UIColor.secondarySystemGroupedBackground)
+
     // MARK: Lines
 
     static let line = dynamicAlpha(dark: (0xFFFFFF, 0.10), light: (0x000000, 0.10))

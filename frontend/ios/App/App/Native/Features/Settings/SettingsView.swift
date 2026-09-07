@@ -43,7 +43,6 @@ struct SettingsView: View {
                 appearanceSection
                 aboutSection
             }
-            .scrollContentBackground(.hidden)
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -52,14 +51,11 @@ struct SettingsView: View {
                 }
             }
         }
-        .presentationBackground { WeatherGlassBackdrop(zone: skyZone) }
-    }
-
-    /// Rows keep a card of their own so the form still reads as grouped, but a
-    /// translucent one: a solid `Theme.surface` fill would put opaque white
-    /// blocks back on top of the glass.
-    private var rowBackground: some View {
-        Rectangle().fill(.ultraThinMaterial)
+        // Filled, not frosted. Settings is a form of system controls — a
+        // segmented picker, a destructive button, labelled rows — and every
+        // one of them is drawn for a background of a known colour. Over a
+        // blurred sky they were all being propped up by hand.
+        .presentationBackground(Theme.sheetBg)
     }
 
     private var accountSection: some View {
@@ -79,7 +75,6 @@ struct SettingsView: View {
         } footer: {
             Text("Account deletion and subscription management open in the app's web view.")
         }
-        .listRowBackground(rowBackground)
     }
 
     private var appearanceSection: some View {
@@ -91,7 +86,6 @@ struct SettingsView: View {
             }
             .pickerStyle(.segmented)
         }
-        .listRowBackground(rowBackground)
     }
 
     private var aboutSection: some View {
@@ -100,7 +94,6 @@ struct SettingsView: View {
                 Text(Self.versionString).foregroundStyle(Theme.textDim)
             }
         }
-        .listRowBackground(rowBackground)
     }
 
     private static var versionString: String {

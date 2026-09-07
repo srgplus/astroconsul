@@ -394,6 +394,10 @@ def profile_transit_forecast(
     profile_id: str,
     timezone: str = Query(...),
     days: int = Query(10, ge=1, le=30),
+    # The forecast normally starts today. A client reading a transit for some
+    # other moment — a date the user picked — needs the window to start there
+    # instead, or the screen shows one day's sky over another day's forecast.
+    start_date: date | None = Query(None),
     lang: str = Query("en"),
     user: dict[str, Any] = Depends(get_current_user),
     transit_service: TransitService = Depends(get_transit_service),
@@ -409,7 +413,7 @@ def profile_transit_forecast(
 
     request = ForecastRequest(
         profile_id=profile_id,
-        start_date=date_cls.today(),
+        start_date=start_date or date_cls.today(),
         days=days,
         timezone=timezone,
         lang=lang,

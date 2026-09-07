@@ -71,8 +71,29 @@ struct WeatherGlassBackdrop: View {
                 // the sky's own wash.
                 SkyVideo(zone: zone)
             }
-            Rectangle().fill(.ultraThinMaterial)
+            // Frosted dark whatever the device is set to: the thing being
+            // frosted is a night sky, and a light material over it turns the
+            // backdrop into milk that neither the sky nor the screen's own
+            // white text survives.
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
         }
         .ignoresSafeArea()
+    }
+}
+
+extension View {
+
+    /// Drops the navigation bar's own background so a screen can draw its
+    /// own. The modifier was renamed in iOS 18 and the old one is a no-op on
+    /// the new bars, so both are here.
+    @ViewBuilder
+    func hidingBarBackground() -> some View {
+        if #available(iOS 18.0, *) {
+            toolbarBackgroundVisibility(.hidden, for: .navigationBar)
+        } else {
+            toolbarBackground(.hidden, for: .navigationBar)
+        }
     }
 }

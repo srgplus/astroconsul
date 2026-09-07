@@ -23,8 +23,6 @@ struct TransitProgressBar: View {
     @Environment(\.transitPalette) private var palette
 
     private let track: CGFloat = 6
-    private let dot: CGFloat = 10
-    private let notch: CGFloat = 11
 
     var body: some View {
         if let span = Span(timing: timing, now: now) {
@@ -68,23 +66,21 @@ struct TransitProgressBar: View {
                             .frame(width: elapsed, height: track)
                     }
 
+                // Each moment the aspect is exact, as a dot the width of the
+                // track. A tick standing above the line has to be read against
+                // the line to be placed at all; a dot sitting in it is the
+                // point itself. Where now is needs no mark of its own — the
+                // filled length is already saying it.
                 ForEach(Array(span.passFractions.enumerated()), id: \.offset) { _, fraction in
-                    RoundedRectangle(cornerRadius: 1, style: .continuous)
-                        .fill(palette.secondary)
-                        .frame(width: 2, height: notch)
-                        .offset(x: clamp(width * fraction - 1, in: width - 2))
+                    Circle()
+                        .fill(palette.primary)
+                        .frame(width: track, height: track)
+                        .offset(x: clamp(width * fraction - track / 2, in: width - track))
                 }
-
-                // Solid, no ring: the gradient already carries the colour,
-                // and a rimmed dot reads as a control.
-                Circle()
-                    .fill(palette.primary)
-                    .frame(width: dot, height: dot)
-                    .offset(x: clamp(width * span.nowFraction - dot / 2, in: width - dot))
             }
             .frame(height: geometry.size.height, alignment: .center)
         }
-        .frame(height: notch)
+        .frame(height: track)
     }
 
     @ViewBuilder
@@ -96,7 +92,7 @@ struct TransitProgressBar: View {
                     .foregroundStyle(palette.secondary)
                     .fixedSize()
                     // `.position` centres on the point, so the label sits over
-                    // its notch without measuring the text.
+                    // its dot without measuring the text.
                     .position(
                         x: min(max(geometry.size.width * span.peakFraction, 22), geometry.size.width - 22),
                         y: geometry.size.height / 2
