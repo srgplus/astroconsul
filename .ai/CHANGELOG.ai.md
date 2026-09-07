@@ -4,6 +4,54 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the alerts are offered, land at midday, and stop deleting themselves
+Three things about category-change notifications, one of them a real defect.
+
+**The defect.** `CategoryAlerts.rebuild` asked for a forecast starting *today*,
+and `CategoryChange.list` cannot judge the first day of a window — it has no
+predecessor to compare against. So today was never a candidate. That alone would
+have been a missing alert, except that the rebuild runs on **every foreground**
+and `apply` clears the queue before re-laying it: opening the app on the morning
+of a change, before the alert fired, deleted that day's alert and did not put it
+back. With the default at 08:00, breakfast destroyed the notification being
+waited for. The window now starts *yesterday* (`days: horizonDays + 1`), so
+today has a predecessor and survives a rebuild. `apply`'s `fireDate > now` guard
+still drops a time already past.
+
+**The default hour** is 12, not 8. The reading the alert carries is cast for
+local noon, and an early hour is the one most likely to be overtaken by someone
+opening the app before it fires. `refresh` now notices a queue laid at a
+different hour than the one set — `Key.scheduledHour` / `Key.scheduledMinute` —
+and re-lays it from the changes on file without asking the server, so the
+default moving does not leave Settings saying noon over a fortnight of eight
+o'clocks.
+
+**The offer.** The feature shipped behind a switch in Settings, which is the one
+screen a new account has no reason to open, so it was off for everyone who never
+went looking. `CategoryAlertsOffer` asks once, on the first run that reaches a
+loaded weather screen with a profile on it. It is an in-app card and not the
+system prompt on its own: iOS grants one permission sheet per install, and
+spending it cold is how an app ends up permanently denied — only "Turn them on"
+spends it. The answer is remembered either way (`Key.offered`), and
+`shouldOffer` additionally requires `authorization == .notDetermined`, so nobody
+who has already answered is asked again.
+
+`DeviceLocation` gained `isSettled`, and the offer waits on it. Both questions
+go up from the same `task` on the home screen, and the one underneath a stacked
+pair is the one dismissed without being read.
+
+**Settings** prints the next alert's date beside the count. "8 changes" was
+indistinguishable from a schedule that had silently failed — eight changes over
+a fortnight can still mean nothing for six days. There is also a "Send a test
+notification" row, shown once there are changes on file: a calendar trigger
+cannot land sooner than the day it names, so it was otherwise impossible to
+establish that delivery works on a given device without waiting for the weather
+to turn. It reuses `content(for:)`, carries the shared identifier prefix so a
+toggle switched off takes it too, and `readPending` counts only
+calendar-triggered requests so a test never shows up as a scheduled change.
+
+Debug: `-uiPreviewAlertsOffer` raises the card in the weather harness, where it
+shows on every launch rather than once.
 ### iOS: the app opens on its own mark
 Launch showed a near-invisible white outline of the app icon on a hardcoded
 dark ground, then handed over to a bare spinner on an empty background. Two

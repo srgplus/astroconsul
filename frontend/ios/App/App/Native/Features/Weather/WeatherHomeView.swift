@@ -7,12 +7,16 @@ struct WeatherHomeView: View {
 
     @StateObject private var model = ProfileListViewModel()
     @ObservedObject private var auth = AuthStore.shared
+    /// Watched only for `isSettled`: the notification offer waits until the
+    /// location question has been answered before putting its own.
+    @ObservedObject private var location = DeviceLocation.shared
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var selection = ""
     @State private var showsList = false
     @State private var showsSearch = false
     @State private var showsWeb = false
+    @State private var showsAlertsOffer = false
     @State private var skyZones: [String: TiiZone] = [:]
 
     /// A first profile, made from the empty state: there is no list to open
@@ -98,6 +102,7 @@ struct WeatherHomeView: View {
             await model.load()
             syncSelection()
             await refreshAlerts()
+            await offerAlerts()
         }
         // The category alerts are scheduled days ahead, so the schedule has to
         // be topped up from a live forecast whenever the app is in hand. The
@@ -125,7 +130,19 @@ struct WeatherHomeView: View {
                 await refreshAlerts()
             }
         }
-        .onChange(of: model.profiles) { _, _ in syncSelection() }
+        .onChange(of: model.profiles) { _, _ in
+            syncSelection()
+            // A brand-new account reaches this screen with nothing on it; the
+            // offer waits for the first profile rather than being spent on an
+            // empty sky.
+            Task { await offerAlerts() }
+        }
+        // The location prompt goes up from the same `task` as the offer, so on
+        // a first run the offer is held back until that one is answered.
+        .onChange(of: location.isSettled) { _, settled in
+            guard settled else { return }
+            Task { await offerAlerts() }
+        }
         // Whatever the first load settles on — pages, an empty state or an
         // error — is worth more than the splash standing in front of it.
         .onChange(of: model.state) { _, state in
@@ -135,6 +152,12 @@ struct WeatherHomeView: View {
         // A sheet, not a cover: with the toolbar down to one Settings
         // button, a swipe down is how the list is left.
         .sheet(isPresented: $showsList) { listScreen }
+        .sheet(isPresented: $showsAlertsOffer) {
+            CategoryAlertsOffer(
+                profile: primaryProfile,
+                onFinish: { showsAlertsOffer = false }
+            )
+        }
         .sheet(isPresented: $showsSearch) { searchScreen }
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyZone: visibleZone) { createdProfile = $0 }
@@ -224,13 +247,34 @@ struct WeatherHomeView: View {
     /// a dozen banners a day.
     private func refreshAlerts() async {
         guard auth.isSignedIn else { return }
-        // Permission is asked here, next to the location prompt and for the
-        // same reason: this is the screen the alerts are about, and it is the
-        // first one a signed-in account sees. Asked once, and only while the
-        // answer is still open.
-        await CategoryAlerts.shared.requestAuthorizationIfNeeded()
-        let primary = profiles.first { $0.profileId == model.primaryProfileId } ?? profiles.first
-        await CategoryAlerts.shared.refresh(profile: primary)
+        await CategoryAlerts.shared.refresh(profile: primaryProfile)
+    }
+
+    /// The profile the notifications are for: the one marked as the owner's,
+    /// falling back to whatever is first.
+    private var primaryProfile: ProfileSummary? {
+        profiles.first { $0.profileId == model.primaryProfileId } ?? profiles.first
+    }
+
+    /// Puts the notification question, once, on the first run that gets as far
+    /// as a weather screen with something on it.
+    ///
+    /// This replaces the bare `requestAuthorization` that `refreshAlerts` used
+    /// to make from the same `task`. iOS grants one permission sheet per
+    /// install, and spending it cold — over a screen the person has just met,
+    /// with nothing said about what the alerts are — is how an app ends up
+    /// permanently denied with no way back except iOS Settings. The card says
+    /// what they are first, and only "Turn them on" spends the sheet.
+    ///
+    /// `shouldOffer` holds the once-only part; this holds the *when*, which is
+    /// after there is a reading on the screen to explain what is being
+    /// offered, and after the location prompt has been dealt with.
+    private func offerAlerts() async {
+        guard auth.isSignedIn, !profiles.isEmpty, !showsAlertsOffer else { return }
+        guard location.isSettled else { return }
+        await CategoryAlerts.shared.syncAuthorization()
+        guard CategoryAlerts.shared.shouldOffer else { return }
+        showsAlertsOffer = true
     }
 
     /// Turns the pager to a profile the empty state just made, once the list

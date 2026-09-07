@@ -30,11 +30,19 @@ struct WeatherPreviewHarness: View {
         ProcessInfo.processInfo.arguments.contains("-uiPreviewAlerts")
     }
 
+    /// Add `-uiPreviewAlertsOffer` to raise the first-run notification card.
+    /// On an account it shows once and never again; here it shows every launch,
+    /// which is the only way to look at it twice.
+    static var offersAlerts: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewAlertsOffer")
+    }
+
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
     @State private var editing: ProfileSummary?
     @State private var showsSearch = false
+    @State private var showsAlertsOffer = false
 
     init() {
         _listModel = StateObject(
@@ -83,6 +91,7 @@ struct WeatherPreviewHarness: View {
         }
         .task {
             DeviceLocation.shared.start()
+            showsAlertsOffer = Self.offersAlerts
 
             guard Self.schedulesAlerts else { return }
             await CategoryAlerts.shared.scheduleForPreview(days: WeatherPreviewData.days)
@@ -92,6 +101,12 @@ struct WeatherPreviewHarness: View {
             ProfileEditSheet(
                 skyZone: .active,
                 model: ProfileEditViewModel(previewProfile: profile)
+            )
+        }
+        .sheet(isPresented: $showsAlertsOffer) {
+            CategoryAlertsOffer(
+                profile: WeatherPreviewData.profile,
+                onFinish: { showsAlertsOffer = false }
             )
         }
         .sheet(isPresented: $showsList) {
