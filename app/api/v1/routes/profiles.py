@@ -155,6 +155,34 @@ def _verify_ownership(profile: dict[str, Any], user_id: str) -> None:
         raise HTTPException(status_code=403, detail="Not your profile")
 
 
+def _load_own_profile(repos: RepositoryBundle, profile_id: str, user_id: str) -> dict[str, Any]:
+    """Load a profile this user owns: 404 if it is missing, 403 if it is someone else's."""
+    try:
+        profile = repos.profiles.load_profile(profile_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    _verify_ownership(profile, user_id)
+    return profile
+
+
+def _load_readable_profile(repos: RepositoryBundle, profile_id: str, user_id: str) -> dict[str, Any]:
+    """Load a profile this user may read — their own, or one they follow.
+
+    Kept separate from :func:`_load_own_profile` because the transit and synastry
+    routes deliberately serve followed profiles too. Callers must invoke this
+    *outside* their own ``try`` block: the 403 it raises is an HTTPException, and
+    a broad ``except Exception`` would turn it into a 500.
+    """
+    try:
+        profile = repos.profiles.load_profile(profile_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    owner = profile.get("user_id", "user_local_dev")
+    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
+        raise HTTPException(status_code=403, detail="Not your profile")
+    return profile
+
+
 @router.get("", response_model=ProfileListResponse)
 def list_profiles(
     user: dict[str, Any] = Depends(get_current_user),
@@ -175,6 +203,7 @@ def set_primary_profile(
     profile_id = payload.get("profile_id")
     if not profile_id or not isinstance(profile_id, str):
         raise HTTPException(status_code=400, detail="profile_id is required")
+    _load_own_profile(repos, profile_id, user["user_id"])
     repos.profiles.set_primary_profile_id(user["user_id"], profile_id)
     return {"status": "ok"}
 
@@ -342,11 +371,7 @@ def profile_transit_report(
     location_service: LocationLookupService = Depends(get_location_lookup_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
-    profile = repos.profiles.load_profile(profile_id)
-    owner = profile.get("user_id", "user_local_dev")
-    user_id = user["user_id"]
-    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
-        raise HTTPException(status_code=403, detail="Not your profile")
+    _load_readable_profile(repos, profile_id, user["user_id"])
     request = TransitReportRequest(profile_id=profile_id, **payload.model_dump())
     try:
         return transit_service.build_report(
@@ -370,11 +395,7 @@ def profile_transit_timeline(
     transit_service: TransitService = Depends(get_transit_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
-    profile = repos.profiles.load_profile(profile_id)
-    owner = profile.get("user_id", "user_local_dev")
-    user_id = user["user_id"]
-    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
-        raise HTTPException(status_code=403, detail="Not your profile")
+    _load_readable_profile(repos, profile_id, user["user_id"])
     request = TransitTimelineRequest(
         profile_id=profile_id,
         start_date=start_date,
@@ -403,11 +424,7 @@ def profile_transit_forecast(
     transit_service: TransitService = Depends(get_transit_service),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
-    profile = repos.profiles.load_profile(profile_id)
-    owner = profile.get("user_id", "user_local_dev")
-    user_id = user["user_id"]
-    if owner != user_id and not repos.profiles.is_following(user_id, profile_id):
-        raise HTTPException(status_code=403, detail="Not your profile")
+    _load_readable_profile(repos, profile_id, user["user_id"])
 
     from datetime import date as date_cls
 
@@ -436,11 +453,7 @@ def synastry_report(
 ) -> dict[str, object]:
     """Compute synastry (inter-chart compatibility) between two profiles."""
     # Verify access to profile A
-    profile_a = repos.profiles.load_profile(profile_id)
-    owner_a = profile_a.get("user_id", "user_local_dev")
-    user_id = user["user_id"]
-    if owner_a != user_id and not repos.profiles.is_following(user_id, profile_id):
-        raise HTTPException(status_code=403, detail="Not your profile")
+    _load_readable_profile(repos, profile_id, user["user_id"])
 
     # Verify partner profile exists
     try:
