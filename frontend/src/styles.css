@@ -5698,6 +5698,18 @@ button.natal-pos__row--clickable {
   color: #E24B4A;
   opacity: 1;
 }
+/* Pulsed for a couple of seconds when settings is opened straight at the
+   account page, so the delete card is the thing the eye lands on. */
+.stg-card--flash {
+  animation: stg-card-flash 0.8s ease-in-out 3;
+}
+@keyframes stg-card-flash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(226, 75, 74, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(226, 75, 74, 0.35); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stg-card--flash { animation: none; box-shadow: 0 0 0 3px rgba(226, 75, 74, 0.35); }
+}
 .stg-card-desc {
   font-size: 0.82rem;
   color: var(--text-secondary, #8e8e93);

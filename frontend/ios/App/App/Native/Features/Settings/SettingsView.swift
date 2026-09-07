@@ -23,10 +23,11 @@ struct SettingsView: View {
     /// this one.
     var skyZone: TiiZone?
 
-    /// Opens the WebView tab. Account deletion still lives there: that flow is
-    /// what Apple reviewed under 5.1.1(v), so it is not reimplemented until
-    /// the rest of the account screen is native.
-    var onOpenWeb: () -> Void
+    /// Opens the account screen. It is still web — that flow is what Apple
+    /// reviewed under 5.1.1(v), so it is not reimplemented until the rest of
+    /// the account screen is native — but the WebView opens straight on
+    /// `/account`, with deletion on it, rather than on the home screen.
+    var onManageAccount: () -> Void
 
     var body: some View {
         NavigationStack {
@@ -76,7 +77,7 @@ struct SettingsView: View {
                 auth.signOut()
             }
 
-            Button(L("settings.manageAccount")) { onOpenWeb() }
+            Button(L("settings.manageAccount")) { onManageAccount() }
         } header: {
             Text(L("settings.account"))
         } footer: {

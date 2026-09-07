@@ -25,6 +25,15 @@ import SynastryReport from "./components/SynastryReport"
 import ChartSidebar from "./components/ChartSidebar"
 import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitReportResponse, SynastryReportResponse, NatalPosition, PublicSearchResult } from "./types"
 
+/**
+ * Route that opens account settings directly, deletion included.
+ *
+ * The iOS app's Settings -> "Manage account" points its WebView here rather
+ * than at the home screen: Apple reviews account deletion under 5.1.1(v) and
+ * a reviewer should reach it in one tap, not by hunting through the web view.
+ */
+const ACCOUNT_ROUTE = "/account"
+
 const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
   Jupiter: "\u2643", Saturn: "\u2644", Uranus: "\u2645", Neptune: "\u2646", Pluto: "\u2647",
@@ -311,7 +320,22 @@ export function App() {
     }
   }, [expandedWidget])
   const [guideOpen, setGuideOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  // Opened straight away when the app was entered at ACCOUNT_ROUTE, so the
+  // native "Manage account" button lands on the account page itself.
+  const [accountDeepLink, setAccountDeepLink] = useState(
+    () => window.location.pathname === ACCOUNT_ROUTE
+  )
+  const [settingsOpen, setSettingsOpen] = useState(accountDeepLink)
+
+  // Closing settings takes /account out of the address bar with it, so a
+  // reload from here does not reopen the modal over the app.
+  const closeSettings = useCallback(() => {
+    setSettingsOpen(false)
+    setAccountDeepLink((wasDeepLinked) => {
+      if (wasDeepLinked) window.history.replaceState(null, "", "/")
+      return false
+    })
+  }, [])
   const [paywallOpen, setPaywallOpen] = useState(false)
   const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(() => localStorage.getItem("primaryProfileId"))
   const [profileOrder, setProfileOrder] = useState<string[]>(() => {
@@ -1813,12 +1837,13 @@ export function App() {
 
       <SettingsModal
         open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
+        onClose={closeSettings}
+        highlightDelete={accountDeepLink}
         email={user.email ?? null}
         theme={theme}
         onThemeChange={setTheme}
         onSignOut={() => {
-          setSettingsOpen(false)
+          closeSettings()
           signOut()
           setProfiles([])
           setActiveProfileId(null)
@@ -1839,7 +1864,7 @@ export function App() {
             k.startsWith("cachedProfiles") || k.startsWith("cachedDetail_") || k.startsWith("cachedTransit_") || k === "cachedTiiMap" || k === "transitParams"
           )
           keysToRemove.forEach((k) => localStorage.removeItem(k))
-          setSettingsOpen(false)
+          closeSettings()
           // Force full reload from server
           window.location.reload()
         }}

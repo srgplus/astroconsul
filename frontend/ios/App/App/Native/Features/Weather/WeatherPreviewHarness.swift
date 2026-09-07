@@ -117,7 +117,7 @@ struct WeatherPreviewHarness: View {
                     showsList = false
                 },
                 skyZone: previewZone,
-                onOpenWeb: { showsList = false }
+                onOpenWeb: { _ in showsList = false }
             )
         }
         .sheet(isPresented: $showsSearch) {

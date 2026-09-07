@@ -16,7 +16,10 @@ struct WeatherHomeView: View {
     @State private var selection = ""
     @State private var showsList = false
     @State private var showsSearch = false
-    @State private var showsWeb = false
+    /// The still-web screen on show, if any, and which one. Named rather than
+    /// a bare flag: the WebView is shared and would otherwise open wherever it
+    /// was last left.
+    @State private var webDestination: WebDestination?
     @State private var showsAlertsOffer = false
     @State private var skyZones: [String: TiiZone] = [:]
 
@@ -65,7 +68,7 @@ struct WeatherHomeView: View {
                         title: L("home.notSignedIn"),
                         body: L("home.notSignedInBody"),
                         action: L("home.openSignIn"),
-                        perform: { showsWeb = true }
+                        perform: { webDestination = .home }
                     )
                 }
 
@@ -170,7 +173,7 @@ struct WeatherHomeView: View {
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyZone: visibleZone) { createdProfile = $0 }
         }
-        .fullScreenCover(isPresented: $showsWeb) { WebScreen() }
+        .fullScreenCover(item: $webDestination) { WebScreen(destination: $0) }
     }
 
     private var pager: some View {
@@ -232,9 +235,9 @@ struct WeatherHomeView: View {
                 showsList = false
             },
             skyZone: visibleZone,
-            onOpenWeb: {
+            onOpenWeb: { destination in
                 showsList = false
-                showsWeb = true
+                webDestination = destination
             }
         )
     }

@@ -76,5 +76,24 @@ class ApiV1RouteTests(unittest.TestCase):
         self.assertGreater(len(timeline_response.json()["timeline"]), 0)
 
 
+class AccountRouteTests(unittest.TestCase):
+    """The iOS app's Settings -> "Manage account" points its WebView here.
+
+    Apple reviews account deletion under 5.1.1(v): if this route stops serving
+    the SPA the button lands on a 404 and the deletion flow is unreachable from
+    the app, which is exactly what got flagged.
+    """
+
+    def setUp(self) -> None:
+        self.client = TestClient(create_app())
+
+    def test_account_route_serves_the_spa(self) -> None:
+        response = self.client.get("/account")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertEqual(response.text, self.client.get("/").text)
+
+
 if __name__ == "__main__":
     unittest.main()
