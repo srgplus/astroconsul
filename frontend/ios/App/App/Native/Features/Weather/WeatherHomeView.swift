@@ -13,12 +13,31 @@ struct WeatherHomeView: View {
     @State private var showsWeb = false
     @State private var skyZones: [String: TiiZone] = [:]
 
+    /// The profile the ••• menu opened the edit sheet for. Presented from
+    /// here rather than from the page: the pager tears its pages down as they
+    /// scroll out, and a sheet owned by one of them goes with it.
+    @State private var editing: ProfileSummary?
+
+    /// Bumped per profile when its birth data is saved. It rides in the
+    /// page's `id`, so the page is rebuilt and its forecast recast against
+    /// the new chart — the profile summary alone can come back identical
+    /// after an edit that only moved the birthplace.
+    @State private var editVersions: [String: Int] = [:]
+
     /// Primary profile first, the way Weather keeps My Location at page one,
     /// then the rest of the owner's profiles and the followed ones. The model
     /// pins the primary for both this pager and the list, so the order here is
     /// just its two sections in order.
     private var profiles: [ProfileSummary] {
         model.ownProfiles + model.followedProfiles
+    }
+
+    /// Which profiles this account owns, taken from the model's own split
+    /// rather than from each profile's `is_own`: the API has reported an
+    /// owner's own primary profile as `is_own: false`, and trusting that
+    /// would offer its owner "Unfollow" instead of "Edit Profile".
+    private var ownedIds: Set<String> {
+        Set(model.ownProfiles.map(\.profileId))
     }
 
     var body: some View {
@@ -93,14 +112,32 @@ struct WeatherHomeView: View {
                 bottomInset: geometry.safeAreaInsets.bottom,
                 onOpenList: { showsList = true }
             ) { profile in
+                let isOwn = ownedIds.contains(profile.profileId)
+
                 CosmicWeatherView(
                     profile: profile,
                     topInset: topInset,
                     bottomInset: geometry.safeAreaInsets.bottom,
-                    isPrimary: profile.profileId == model.primaryProfileId
+                    isPrimary: profile.profileId == model.primaryProfileId,
+                    onEdit: isOwn ? { editing = $0 } : nil,
+                    onUnfollow: isOwn ? nil : { profile in Task { await model.unfollow(profile) } }
                 )
+                .id("\(profile.profileId)#\(editVersions[profile.profileId] ?? 0)")
             }
             .onPreferenceChange(SkyZoneKey.self) { skyZones = $0 }
+        }
+        .sheet(item: $editing) { profile in
+            ProfileEditSheet(
+                profile: profile,
+                skyZone: visibleZone,
+                onSaved: {
+                    editVersions[profile.profileId, default: 0] += 1
+                    Task { await model.load(showSpinner: false) }
+                },
+                onDeleted: {
+                    Task { await model.load(showSpinner: false) }
+                }
+            )
         }
     }
 

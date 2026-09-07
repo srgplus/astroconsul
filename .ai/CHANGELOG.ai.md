@@ -2,6 +2,55 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-06
+
+### iOS: the weather page grew a ••• menu, and Edit Profile went native
+The ••• sits in the hero's top-right corner, Weather's own placement, and
+offers exactly one thing depending on the page: **Edit Profile** on a profile
+the account owns, **Unfollow** on a followed one.
+
+**Ownership is decided by the presenter, not by the page.** `CosmicWeatherView`
+takes `onEdit` and `onUnfollow` as optionals and shows whichever it was handed.
+`WeatherHomeView` picks by membership in `model.ownProfiles`, not by
+`profile.ownedByViewer` — the API has reported an owner's own primary profile
+with `is_own: false` (`ProfileListViewModel` already works around this), and
+trusting the flag would offer that profile's owner "Unfollow".
+
+**The sheet is presented from `WeatherHomeView`, not from the page.** A sheet
+owned by a `TabView` page goes with the page when the pager tears it down, the
+same reason Settings is presented from `ProfileListScreen` rather than the
+pager.
+
+**New: `ProfileEditSheet` + `ProfileEditViewModel`.** Name, username, birth
+date, birth time, birthplace, plus a collapsed Coordinates & Timezone group
+that is read-only — those come from picking a place, never from typing. Delete
+Profile lives at the bottom behind a confirmation alert naming the profile.
+New API calls: `GET /profiles/{id}` (the only payload carrying `birth_input`,
+which is where the raw birth data lives), `PATCH /profiles/{id}`,
+`DELETE /profiles/{id}`, `GET /locations/search`, `POST /locations/resolve`.
+
+**A birthplace typed over without picking a suggestion is geocoded on save**
+via `/locations/resolve`, and the save is abandoned if that fails. Saving the
+new name against the old city's coordinates would recast the chart for a place
+the profile no longer claims — which is what the web form does today.
+
+**Seconds of the birth time survive a save.** The picker only offers hours and
+minutes, so `ProfileEditViewModel` carries the stored seconds through instead
+of rounding a birth minute recorded to the second down to `:00`.
+
+**After a save the page is rebuilt, not refreshed.** `WeatherHomeView` bumps a
+per-profile counter that rides in the page's `.id`, so the forecast is recast
+against the new chart. Comparing the profile summary would not do: an edit that
+only moved the birthplace comes back byte-identical.
+
+**`MinimalSpinner` has an explicit `init` now.** Its `@State private var
+turning` made the synthesized memberwise initializer private, so the arc could
+not be used outside `CosmicWeatherView.swift`.
+
+**Known, unrelated:** `DELETE /api/v1/profiles/{profile_id}` verifies no
+ownership — `PATCH` calls `_verify_ownership`, `DELETE` does not. Any signed-in
+user can delete any profile by id.
+
 ## 2026-09-07
 
 ### iOS: the wheel draws aspects to the angles, and the preview data stopped lying
