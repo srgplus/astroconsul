@@ -23,7 +23,7 @@ struct ForecastCard: View {
             WeatherCardHeader(
                 icon: "calendar",
                 title: L("weather.forecastTitle", days.count),
-                trailing: "\(Int(low.rounded()))°–\(Int(high.rounded()))°"
+                trailing: "\(Int(low.rounded()))–\(Int(high.rounded()))"
             )
             .padding(.bottom, 10)
 
@@ -54,14 +54,16 @@ struct ForecastCard: View {
 
             ForecastBar(value: day.tii, low: low, high: high, zone: day.zone)
 
-            Text("\(Int(day.tii.rounded()))°")
+            Text("\(Int(day.tii.rounded()))")
                 .font(.system(size: 19, weight: .semibold, design: .rounded))
-                .frame(width: 44, alignment: .trailing)
+                // Narrower than it was: the column no longer has a ° to hold,
+                // and the space it kept for one belongs to the bar.
+                .frame(width: 38, alignment: .trailing)
         }
         .foregroundStyle(.white)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(day.label(isToday: isToday)), \(Astro.feels(day.feelsLike) ?? day.feelsLike), TII \(Int(day.tii.rounded()))"
+            "\(day.label(isToday: isToday)), \(Astro.feels(day.feelsLike) ?? day.feelsLike), \(L("weather.intensityValue", Int(day.tii.rounded())))"
         )
         .accessibilityAddTraits(onSelect == nil ? [] : .isButton)
     }

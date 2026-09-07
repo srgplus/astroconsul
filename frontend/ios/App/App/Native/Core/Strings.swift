@@ -124,7 +124,12 @@ private let enUI: [String: String] = [
     "weather.unfollow": "Unfollow",
     "weather.profileOptions": "Profile options",
     "weather.momentHint": "Choose the moment and place to read",
-    "weather.tension": "Tension %d%%",
+    // Under the hero's two numbers. Caps and small, so they name the numbers
+    // without competing with them.
+    "weather.intensityLabel": "INTENSITY",
+    "weather.tensionLabel": "TENSION",
+    // Spoken, and carried by the category alert: the word, never "TII".
+    "weather.intensityValue": "Intensity %d",
     "weather.tensionA11y": "Tension %d percent",
     "weather.noForecast": "No forecast",
     "weather.noForecastDays": "No forecast days came back for this profile.",
@@ -507,7 +512,9 @@ private let ruUI: [String: String] = [
     "weather.unfollow": "Отписаться",
     "weather.profileOptions": "Действия с профилем",
     "weather.momentHint": "Выберите момент и место для прогноза",
-    "weather.tension": "Напряжение %d%%",
+    "weather.intensityLabel": "ИНТЕНСИВНОСТЬ",
+    "weather.tensionLabel": "НАПРЯЖЕНИЕ",
+    "weather.intensityValue": "Интенсивность %d",
     "weather.tensionA11y": "Напряжение %d процентов",
     "weather.noForecast": "Прогноза нет",
     "weather.noForecastDays": "Для этого профиля не пришло ни одного дня прогноза.",

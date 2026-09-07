@@ -158,7 +158,7 @@ enum CategoryArtwork {
                 size: size
             )
 
-            let text = "\(Int(temperature.rounded()))°" as NSString
+            let text = "\(Int(temperature.rounded()))" as NSString
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: font,
                 .foregroundColor: UIColor(hex: palette.ink),

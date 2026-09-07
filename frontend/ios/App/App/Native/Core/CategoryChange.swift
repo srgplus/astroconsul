@@ -89,7 +89,7 @@ struct CategoryChange: Codable, Equatable {
     /// but an attachment is a thumbnail the system renders, and a system that
     /// declines to render it must not take the temperature down with it. The
     /// subtitle always shows.
-    var subtitle: String { "\(Int(tii.rounded()))°" }
+    var subtitle: String { L("weather.intensityValue", Int(tii.rounded())) }
 
     /// The title names the new category and the subtitle carries the reading,
     /// so the body is only what neither of them says: where the day came from.

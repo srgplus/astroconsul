@@ -69,7 +69,7 @@ struct ProfileWeatherCard: View {
             Spacer(minLength: 0)
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(temperature)
+                Text(reading)
                     .font(.system(size: 42, weight: .thin, design: .rounded))
                     .monospacedDigit()
                     .lineLimit(1)
@@ -127,8 +127,8 @@ struct ProfileWeatherCard: View {
         .onDisappear { isOnScreen = false }
     }
 
-    private var temperature: String {
-        guard let tii else { return "--°" }
-        return "\(Int(tii.rounded()))°"
+    private var reading: String {
+        guard let tii else { return "--" }
+        return "\(Int(tii.rounded()))"
     }
 }

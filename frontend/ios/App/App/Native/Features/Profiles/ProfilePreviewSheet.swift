@@ -141,7 +141,7 @@ struct ProfilePreviewSheet: View {
                 .foregroundStyle(.white.opacity(0.7))
 
             if let tii = profile.latestTransit?.tii {
-                Text("\(Int(tii.rounded()))°")
+                Text("\(Int(tii.rounded()))")
                     .font(.system(size: 88, weight: .thin, design: .rounded))
                     .monospacedDigit()
                     .padding(.top, 2)
