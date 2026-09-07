@@ -30,6 +30,13 @@ final class CategoryAlerts: ObservableObject {
         static let profileId = "categoryAlertsProfileId"
         static let changes = "categoryAlertsChanges"
         static let lastRefresh = "categoryAlertsLastRefresh"
+        /// Whether the first-run card has had its answer. Written either way,
+        /// so "Not now" is not asked again on the next launch.
+        static let offered = "categoryAlertsOffered"
+        /// The time of day the queue on file was actually laid at, which is
+        /// not always the time now set — see `refresh(profile:force:)`.
+        static let scheduledHour = "categoryAlertsScheduledHour"
+        static let scheduledMinute = "categoryAlertsScheduledMinute"
     }
 
     /// On by default. The alerts are the feature, not an opt-in extra, and the
@@ -38,8 +45,10 @@ final class CategoryAlerts: ObservableObject {
     static let defaultEnabled = true
 
     /// Local noon. The engine casts one reading per local noon, so that is the
-    /// hour the notification is actually describing, and it lands in the middle
-    /// of the day rather than in whatever the morning already holds.
+    /// hour the notification is actually describing. It also competes with an
+    /// app that rebuilds its schedule whenever it comes forward, and an early
+    /// hour is the one most likely to be overtaken by someone opening the app
+    /// before it fires.
     static let defaultHour = 12
     static let defaultMinute = 0
 
@@ -71,6 +80,14 @@ final class CategoryAlerts: ObservableObject {
     /// only honest confirmation that the feature is actually armed.
     @Published private(set) var scheduledCount = 0
 
+    /// When the first of them fires.
+    ///
+    /// A count on its own is what made the feature look broken: eight changes
+    /// spread over a fortnight can mean nothing at all for the next six days,
+    /// and there was no way to tell that apart from a schedule that had
+    /// silently failed to arrive.
+    @Published private(set) var nextAlert: Date?
+
     private let center = UNUserNotificationCenter.current()
     private let api: APIClient
     private let defaults: UserDefaults
@@ -98,6 +115,57 @@ final class CategoryAlerts: ObservableObject {
 
     var isEnabled: Bool { defaults.bool(forKey: Key.enabled) }
 
+    /// Whether a forecast has been read and turned into a list of changes.
+    /// Settings' test row needs one to build a banner from.
+    var hasStoredChanges: Bool { !(storedChanges() ?? []).isEmpty }
+
+    /// Whether the first-run card should put the question.
+    ///
+    /// Once only, and only while iOS itself has not been asked: someone who
+    /// has already answered the system prompt — in this app or in Settings —
+    /// has answered, and a card offering them the choice again is a card that
+    /// cannot act on either reply.
+    ///
+    /// Deliberately not gated on `isEnabled`. The switch is on by default, so
+    /// that test would never pass; what decides whether to ask is whether the
+    /// *permission* question is still open.
+    var shouldOffer: Bool {
+        !defaults.bool(forKey: Key.offered)
+            && !hasRequestedAuthorization
+            && authorization == .notDetermined
+    }
+
+    /// Turns the feature on from outside Settings: the permission sheet, then
+    /// the switch, then a schedule.
+    ///
+    /// The switch is set only once permission is granted, so a refused sheet
+    /// does not leave Settings showing a toggle with nothing behind it.
+    @discardableResult
+    func acceptOffer(profile: ProfileSummary? = nil) async -> Bool {
+        markOffered()
+        guard await requestAuthorization() else { return false }
+        defaults.set(true, forKey: Key.enabled)
+        await refresh(profile: profile, force: true)
+        return true
+    }
+
+    /// Records that the question has been put. Idempotent.
+    func markOffered() {
+        defaults.set(true, forKey: Key.offered)
+    }
+
+    /// "Not now" — including a refused system sheet and a card swiped away,
+    /// both of which are answers.
+    ///
+    /// The switch has to come off with it. It is on by default, so leaving it
+    /// alone would show Settings a feature switched on with no permission
+    /// behind it and nothing scheduled — a toggle that lies. Off is honest,
+    /// and switching it back on asks again.
+    func declineOffer() {
+        markOffered()
+        defaults.set(false, forKey: Key.enabled)
+    }
+
     private var hour: Int { defaults.integer(forKey: Key.hour) }
     private var minute: Int { defaults.integer(forKey: Key.minute) }
 
@@ -105,9 +173,10 @@ final class CategoryAlerts: ObservableObject {
         authorization == .authorized || authorization == .provisional
     }
 
-    /// Asks for permission outright. The toggle in Settings calls this when it
-    /// goes back on after a refusal; ordinary first runs go through
-    /// `requestAuthorizationIfNeeded()`.
+    /// Asks for permission outright. Two callers, and never a launch: the
+    /// first-run card, and the toggle in Settings when it goes back on after a
+    /// refusal. Both have already said what the alerts are for by the time the
+    /// system sheet appears.
     @discardableResult
     func requestAuthorization() async -> Bool {
         hasRequestedAuthorization = true
@@ -122,27 +191,6 @@ final class CategoryAlerts: ObservableObject {
         return granted
     }
 
-    /// Asks the first time the signed-in home screen appears, the way the
-    /// location prompt is asked from that same screen: the alerts are on by
-    /// default, so waiting for someone to find the switch in Settings would
-    /// mean a feature that is armed everywhere except on the device.
-    ///
-    /// Only `notDetermined` is acted on. Someone who has already answered —
-    /// either way — is never asked again from here; turning the alerts back on
-    /// after a refusal is a trip to iOS Settings, which the Settings screen
-    /// offers a button for.
-    func requestAuthorizationIfNeeded() async {
-        guard isEnabled, !hasRequestedAuthorization else { return }
-
-        await syncAuthorization()
-        guard authorization == .notDetermined else {
-            hasRequestedAuthorization = true
-            return
-        }
-
-        await requestAuthorization()
-    }
-
     func syncAuthorization() async {
         authorization = await center.notificationSettings().authorizationStatus
     }
@@ -153,8 +201,21 @@ final class CategoryAlerts: ObservableObject {
     /// fortnight of them sat in the queue.
     func syncState() async {
         await syncAuthorization()
-        let pending = await center.pendingNotificationRequests()
-        scheduledCount = pending.filter { $0.identifier.hasPrefix(Self.identifierPrefix) }.count
+        await readPending()
+    }
+
+    /// Reads the queue back off iOS: how many of ours are in it, and when the
+    /// first one fires.
+    ///
+    /// Only the calendar-triggered ones count. A test banner queued from
+    /// Settings carries the same prefix so that `clear()` sweeps it up, and it
+    /// has no business being reported as a category change.
+    private func readPending() async {
+        let ours = await center.pendingNotificationRequests()
+            .filter { $0.identifier.hasPrefix(Self.identifierPrefix) }
+            .compactMap { $0.trigger as? UNCalendarNotificationTrigger }
+        scheduledCount = ours.count
+        nextAlert = ours.compactMap { $0.nextTriggerDate() }.min()
     }
 
     // MARK: - Scheduling
@@ -179,6 +240,16 @@ final class CategoryAlerts: ObservableObject {
             NSLog("[Alerts] not authorised (status \(authorization.rawValue)); nothing scheduled")
             await clear()
             return
+        }
+
+        // A queue laid at a different time of day than the one now set.
+        // `reschedule()` only runs when the picker is touched, so without this
+        // a change to the *default* hour — 8 became 12 — would leave Settings
+        // saying noon over a fortnight of eight o'clocks until the next
+        // rebuild happened to fall due.
+        await readPending()
+        if scheduledCount > 0, wasLaidAtAnotherTime, let changes = storedChanges(), !changes.isEmpty {
+            await apply(changes)
         }
 
         let switchedProfile = profile.map { $0.profileId != defaults.string(forKey: Key.profileId) } ?? false
@@ -223,10 +294,12 @@ final class CategoryAlerts: ObservableObject {
         let ids = pending.map(\.identifier).filter { $0.hasPrefix(Self.identifierPrefix) }
         guard !ids.isEmpty else {
             scheduledCount = 0
+            nextAlert = nil
             return
         }
         center.removePendingNotificationRequests(withIdentifiers: ids)
         scheduledCount = 0
+        nextAlert = nil
     }
 
     /// Forgets the account's schedule and the profile it was read for.
@@ -235,6 +308,8 @@ final class CategoryAlerts: ObservableObject {
         defaults.removeObject(forKey: Key.profileId)
         defaults.removeObject(forKey: Key.changes)
         defaults.removeObject(forKey: Key.lastRefresh)
+        defaults.removeObject(forKey: Key.scheduledHour)
+        defaults.removeObject(forKey: Key.scheduledMinute)
     }
 
     // MARK: - Internals
@@ -245,16 +320,35 @@ final class CategoryAlerts: ObservableObject {
         return Date().timeIntervalSince1970 - last >= Self.minimumRefreshInterval
     }
 
+    /// Whether the pending queue was laid at some other hour than the one now
+    /// set. A queue built before this key existed reads as 0, which is not a
+    /// time anything was ever scheduled for, so it counts as stale.
+    private var wasLaidAtAnotherTime: Bool {
+        defaults.integer(forKey: Key.scheduledHour) != hour
+            || defaults.integer(forKey: Key.scheduledMinute) != minute
+    }
+
     private func rebuild(profile: ProfileSummary?) async {
         guard let profileId = await resolveProfileId(profile) else { return }
 
         let zone = TimeZone.current
         let days: [ForecastDay]
         do {
+            // Starting yesterday, not today, and one day longer to pay for it.
+            //
+            // `CategoryChange.list` cannot judge the first day of a window —
+            // it has nothing to compare it against — so a window that started
+            // today could never alert for today. That was not merely a missing
+            // alert: this rebuild runs on every foreground, and it clears the
+            // queue before re-laying it. Opening the app on the morning of a
+            // change, before the alert fired, deleted that day's alert and did
+            // not put it back. With an 8am default, opening the app at
+            // breakfast destroyed the very notification being waited for.
             days = try await api.fetchForecast(
                 profileId: profileId,
                 timezone: zone.identifier,
-                days: Self.horizonDays
+                days: Self.horizonDays + 1,
+                startDate: Self.isoDay(before: Date(), in: zone)
             ).days
         } catch {
             NSLog("[Alerts] forecast failed for \(profileId): \(error.localizedDescription)")
@@ -320,8 +414,52 @@ final class CategoryAlerts: ObservableObject {
             }
         }
 
-        scheduledCount = scheduled
+        defaults.set(hour, forKey: Key.scheduledHour)
+        defaults.set(minute, forKey: Key.scheduledMinute)
+        await readPending()
         NSLog("[Alerts] scheduled \(scheduled) of \(changes.count) category changes")
+    }
+
+    /// `YYYY-MM-DD` for the day before the given one, in the zone the forecast
+    /// is cast for. Hand-formatted for the same reason `CategoryChange` splits
+    /// dates by hand: this is a calendar date, not an instant.
+    private static func isoDay(before date: Date, in zone: TimeZone) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = zone
+        formatter.dateFormat = "yyyy-MM-dd"
+
+        return formatter.string(from: calendar.date(byAdding: .day, value: -1, to: date) ?? date)
+    }
+
+    /// Fires one alert a few seconds out, built by the same code that builds
+    /// the scheduled ones, from the next change on file.
+    ///
+    /// A calendar trigger cannot land sooner than the day it names, so this is
+    /// the only way to establish that delivery works on a given device without
+    /// waiting for the weather to turn. It carries the shared prefix so a
+    /// toggle switched off in the meantime takes it with everything else.
+    @discardableResult
+    func sendTestAlert(after seconds: TimeInterval = 5) async -> Bool {
+        await syncAuthorization()
+        guard isAuthorized, let change = storedChanges()?.first else { return false }
+
+        let request = UNNotificationRequest(
+            identifier: Self.identifierPrefix + "test",
+            content: Self.content(for: change),
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+        )
+
+        do {
+            try await center.add(request)
+            return true
+        } catch {
+            NSLog("[Alerts] test alert failed: \(error.localizedDescription)")
+            return false
+        }
     }
 
     /// The banner itself: the category as the headline, the reading on its own
@@ -444,19 +582,10 @@ extension CategoryAlerts {
     /// builds the scheduled ones. A calendar trigger cannot land sooner than
     /// tomorrow, so this is the only way to see the banner itself.
     func previewDelivery(after seconds: TimeInterval = 15) async {
-        guard isAuthorized, let change = storedChanges()?.first else { return }
-
-        let request = UNNotificationRequest(
-            identifier: "category-change.preview-delivery",
-            content: Self.content(for: change),
-            trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
-        )
-
-        do {
-            try await center.add(request)
-            NSLog("[Alerts] preview: \"\(change.title) — \(change.body)\" in \(Int(seconds))s")
-        } catch {
-            NSLog("[Alerts] preview delivery failed: \(error.localizedDescription)")
+        if await sendTestAlert(after: seconds) {
+            NSLog("[Alerts] preview: a banner in \(Int(seconds))s")
+        } else {
+            NSLog("[Alerts] preview: nothing to deliver")
         }
     }
 

@@ -22,10 +22,13 @@ struct CategoryChange: Codable, Equatable {
 
     /// Every day in the window whose category differs from its predecessor.
     ///
-    /// Day zero is left out on purpose. It has no predecessor inside the
-    /// window, and an alert for today would arrive after the change is already
-    /// on the screen — the run that scheduled the window today fell in has
-    /// queued it already.
+    /// Day zero is never a candidate: it has no predecessor inside the window,
+    /// so there is nothing to say it changed. That makes the first day an
+    /// anchor rather than a result, which is why `CategoryAlerts` asks for a
+    /// window starting the day *before* the first one it wants to alert on —
+    /// otherwise today could never be alerted for, and a rebuild on the
+    /// morning of a change would drop that day's alert instead of re-laying
+    /// it.
     static func list(in days: [ForecastDay]) -> [CategoryChange] {
         zip(days, days.dropFirst()).compactMap { previous, day in
             guard day.feelsLike != previous.feelsLike else { return nil }

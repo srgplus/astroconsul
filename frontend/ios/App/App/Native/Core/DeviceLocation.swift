@@ -19,6 +19,15 @@ final class DeviceLocation: NSObject, ObservableObject {
     /// says no. Callers fall back to what the profile carries.
     @Published private(set) var placeName: String?
 
+    /// Whether the location question has been answered — either way, and
+    /// including the case where it was answered on some earlier run.
+    ///
+    /// The home screen waits on this before putting a question of its own.
+    /// Two permission cards stacked over a screen the person has just met is
+    /// one too many, and the one underneath is the one that gets dismissed
+    /// without being read.
+    @Published private(set) var isSettled = false
+
     private let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
     private var hasAsked = false
@@ -36,6 +45,7 @@ final class DeviceLocation: NSObject, ObservableObject {
     func start() {
         guard !hasAsked else { return }
         hasAsked = true
+        isSettled = manager.authorizationStatus != .notDetermined
 
         switch manager.authorizationStatus {
         case .notDetermined:
@@ -80,6 +90,7 @@ extension DeviceLocation: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in
+            isSettled = status != .notDetermined
             guard status == .authorizedWhenInUse || status == .authorizedAlways else { return }
             manager.requestLocation()
         }

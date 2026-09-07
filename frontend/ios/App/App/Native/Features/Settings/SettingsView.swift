@@ -11,6 +11,11 @@ struct SettingsView: View {
     @AppStorage(CategoryAlerts.Key.hour) private var alertHour = CategoryAlerts.defaultHour
     @AppStorage(CategoryAlerts.Key.minute) private var alertMinute = CategoryAlerts.defaultMinute
 
+    /// The outcome of the test row, shown as an alert. Without it the tap does
+    /// nothing visible for five seconds, which is the same complaint the row
+    /// exists to answer.
+    @State private var testMessage: String?
+
     /// The sky behind the glass, passed down from the screen that presented
     /// this one.
     var skyZone: TiiZone?
@@ -29,6 +34,18 @@ struct SettingsView: View {
                 aboutSection
             }
             .task { await alerts.syncState() }
+            .alert(
+                "Test notification",
+                isPresented: Binding(
+                    get: { testMessage != nil },
+                    set: { if !$0 { testMessage = nil } }
+                ),
+                presenting: testMessage
+            ) { _ in
+                Button("OK", role: .cancel) {}
+            } message: { message in
+                Text(message)
+            }
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -83,6 +100,22 @@ struct SettingsView: View {
                         Text(alerts.scheduledCount == 1 ? "1 change" : "\(alerts.scheduledCount) changes")
                             .foregroundStyle(Theme.textDim)
                     }
+
+                    // The count on its own is what made the feature look
+                    // broken: a fortnight holding eight changes can still
+                    // mean nothing for the next six days, and a count of
+                    // eight reads as eight banners owed. The date is the part
+                    // that can be checked against.
+                    if let next = alerts.nextAlert {
+                        LabeledContent("Next") {
+                            Text(next, format: Self.nextFormat)
+                                .foregroundStyle(Theme.textDim)
+                        }
+                    }
+
+                    if alerts.hasStoredChanges {
+                        Button("Send a test notification") { sendTest() }
+                    }
                 }
             }
         } header: {
@@ -98,6 +131,24 @@ struct SettingsView: View {
         }
         .onChange(of: alertHour) { _, _ in Task { await alerts.reschedule() } }
         .onChange(of: alertMinute) { _, _ in Task { await alerts.reschedule() } }
+    }
+
+    /// "Tue 9 Sep at 12:00" — weekday and day, because "in 6 days" is the one
+    /// thing the row must not be vague about.
+    private static let nextFormat = Date.FormatStyle()
+        .weekday(.abbreviated)
+        .day()
+        .month(.abbreviated)
+        .hour()
+        .minute()
+
+    private func sendTest() {
+        Task {
+            let sent = await alerts.sendTestAlert()
+            testMessage = sent
+                ? "It arrives in a few seconds. Leave this screen to see the banner."
+                : "Nothing could be sent. Check that notifications are allowed for big3.me in iOS Settings."
+        }
     }
 
     private var notificationsFooter: String {
