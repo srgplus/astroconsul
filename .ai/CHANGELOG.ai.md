@@ -4,6 +4,64 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### The profile's ••• copies the whole reading as Markdown
+`Features/Weather/ProfileReport.swift` writes one profile's reading out as
+Markdown for pasting into a chat model. It costs no request: by the time the
+menu can be opened the page already holds the forecast, the natal positions,
+the house cusps, the natal aspect grid and every aspect inside orb, so the
+type only spells them out. `CosmicWeatherViewModel.report(for:place:)` is the
+model handing that over; the page's own `report` labels it with the place the
+hero shows, unless the hero has only a handle, which is not a place.
+
+**The prompt travels in the copied text**, as its first paragraph
+(`report.prompt`), rather than living in a settings screen. Whoever pastes it
+is already in a text box in the chat, which is the one place they will read it
+and the easiest place to rewrite it, so there is no editor for it on this side.
+
+It is written in the descriptive register on purpose — "below is a finished
+calculation … these are positions, angles and intervals, not interpretations
+… these data can support, for example" — and not as instructions to an
+oracle. The data are ephemeris output; what is asked for is a judgement
+resting on the numbers. The four numbered lines are offered as examples of
+what can be read out of them, not as a form to fill in, which is also what
+keeps them easy to replace with the reader's own question.
+
+The two numbers get a glossary above them. Intensity and tension are ours, not
+anyone's convention, and a model handed "51 of 100" with no scale reads it as a
+temperature: `report.glossaryIntensity` and `report.glossaryTension` carry the
+weights, the planet factors and the bands out of
+`app/domain/astrology/tii.py`. **If those weights or bands move, the two
+strings move with them** — they are the only place the algorithm is described
+in prose.
+
+Three things reading the output taught, each of them wrong until it was read:
+the glossary strings are fetched with the plain `L(key)`, which does not run
+through `String(format:)`, so a doubled `%%` in them stays doubled on screen;
+a window's dates have to be printed in the reading's own zone, or a transit
+perfecting near midnight there lands a day off the rest of the report; and the
+year belongs on a window only when it is not the reading's year, or every
+short transit carries "2026" for nothing while an outer-planet window ends on
+an unplaceable "31 Jan".
+
+`ProfileReport` imports UIKit only for `copyToClipboard()`, behind
+`#if canImport(UIKit)`, so the formatter builds for the host — which is how
+its output was read, with a throwaway file that decodes a sample chart out of
+JSON in the shape the API sends:
+
+```
+swiftc -o /tmp/run Core/Models.swift Core/Localization.swift Core/Strings.swift \
+  Design/ChartWheelGeometry.swift Design/AstroGlyphs.swift \
+  Features/Weather/ProfileReport.swift sample.swift
+```
+
+`Core/Localization.swift` needs two no-op stands-in to link that way
+(`WebControllerHolder`, `CategoryAlerts`), which `L10n`'s setter reaches for.
+
+The ••• no longer hides itself when neither Edit nor Unfollow is wired up:
+Copy report is on every page, disabled only while both halves are still empty.
+A capsule above the bottom bar says the copy happened, for two seconds — the
+menu closes over the tap and the clipboard says nothing.
+
 ### The sky carries a scrim, and the footage is softened by two points
 The hero's numbers are ultraLight at 58pt. `WeatherSky`'s gradients are picked
 so white type sits on them, but the *footage* on top of them is not: a sunlit
