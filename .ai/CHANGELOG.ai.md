@@ -4,6 +4,14 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the app is portrait only
+`Info.plist` listed all four orientations, so every screen rotated into
+landscape, a layout none of them is built for (the chart wheel, the hero and
+the transit cards all size against portrait width). `UISupportedInterfaceOrientations`
+now holds `UIInterfaceOrientationPortrait` alone, and the `~ipad` variant with
+it, so the window cannot rotate. Nothing in the Swift sources overrides
+`supportedInterfaceOrientations`, so the plist is the whole lock.
+
 ### iOS: "Manage account" opens the account screen, not the home screen
 Settings → "Manage account" presented the shared WebView and left it wherever
 it happened to be, which on a first open is big3.me's home screen. Account
