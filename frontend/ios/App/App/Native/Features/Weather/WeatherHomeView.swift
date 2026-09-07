@@ -59,7 +59,13 @@ struct WeatherHomeView: View {
         Group {
             switch model.state {
             case .idle, .loading:
-                placeholder { ProgressView().controlSize(.large).tint(Theme.spinner) }
+                // The launch mark, not a spinner: the profile list is the
+                // first request of a cold launch, and one that takes longer
+                // to answer than `RootView`'s patience used to leave a bare
+                // spinner on an empty screen behind the fading splash. Same
+                // mark, same place, so the handover has nothing to see and a
+                // slow start reads as the app still opening.
+                SplashView(label: L("common.loading"))
 
             case .signedOut:
                 placeholder {
