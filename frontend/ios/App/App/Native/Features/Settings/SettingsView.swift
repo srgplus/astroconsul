@@ -6,7 +6,7 @@ struct SettingsView: View {
     @ObservedObject private var auth = AuthStore.shared
     @ObservedObject private var alerts = CategoryAlerts.shared
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("nativeAppearance") private var appearance = Appearance.system.rawValue
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system.rawValue
     @AppStorage(CategoryAlerts.Key.enabled) private var alertsEnabled = CategoryAlerts.defaultEnabled
     @AppStorage(CategoryAlerts.Key.hour) private var alertHour = CategoryAlerts.defaultHour
     @AppStorage(CategoryAlerts.Key.minute) private var alertMinute = CategoryAlerts.defaultMinute
@@ -19,27 +19,6 @@ struct SettingsView: View {
     /// what Apple reviewed under 5.1.1(v), so it is not reimplemented until
     /// the rest of the account screen is native.
     var onOpenWeb: () -> Void
-
-    enum Appearance: String, CaseIterable, Identifiable {
-        case system, light, dark
-        var id: String { rawValue }
-
-        var label: String {
-            switch self {
-            case .system: return "System"
-            case .light: return "Light"
-            case .dark: return "Dark"
-            }
-        }
-
-        var colorScheme: ColorScheme? {
-            switch self {
-            case .system: return nil
-            case .light: return .light
-            case .dark: return .dark
-            }
-        }
-    }
 
     var body: some View {
         NavigationStack {
