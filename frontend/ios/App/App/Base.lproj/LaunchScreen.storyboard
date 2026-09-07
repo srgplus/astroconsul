@@ -6,6 +6,9 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--The wordmark on the app's own background, matched pixel for pixel by
+            SplashView so the handover into SwiftUI is invisible. Both the mark
+            and the ground are named assets, so light and dark come for free.-->
         <scene sceneID="EHf-IW-A2E">
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
@@ -13,15 +16,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="Splash" translatesAutoresizingMaskIntoConstraints="NO" id="splashImg">
-                                <rect key="frame" x="96.666666666666671" y="226" width="200" height="400"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="B3Logo" translatesAutoresizingMaskIntoConstraints="NO" id="splashImg">
+                                <rect key="frame" x="106.5" y="398.5" width="180" height="55"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="w1"/>
-                                    <constraint firstAttribute="height" constant="200" id="h1"/>
+                                    <constraint firstAttribute="width" constant="180" id="w1"/>
+                                    <constraint firstAttribute="height" constant="55" id="h1"/>
                                 </constraints>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.10980392156862745" green="0.10980392156862745" blue="0.11764705882352941" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
                             <constraint firstItem="splashImg" firstAttribute="centerX" secondItem="mainView" secondAttribute="centerX" id="cx"/>
                             <constraint firstItem="splashImg" firstAttribute="centerY" secondItem="mainView" secondAttribute="centerY" id="cy"/>
@@ -34,6 +37,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Splash" width="2732" height="2732"/>
+        <image name="B3Logo" width="315" height="96"/>
+        <namedColor name="LaunchBackground">
+            <color red="0.96862745098039216" green="0.96862745098039216" blue="0.96078431372549022" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>
