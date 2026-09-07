@@ -351,7 +351,7 @@ struct ProfileEditSheet: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "gift")
-                Text("Transfer Profile")
+                Text(L("transfer.title"))
 
                 Spacer(minLength: 0)
 

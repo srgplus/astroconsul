@@ -11,6 +11,7 @@ struct ProfileTransferSheet: View {
     @StateObject private var model: ProfileTransferViewModel
 
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var strings = L10n.shared
     @FocusState private var emailFocused: Bool
 
     init(profile: ProfileSummary) {
@@ -28,11 +29,11 @@ struct ProfileTransferSheet: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Transfer Profile")
+                .navigationTitle(L("transfer.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button(model.invite == nil ? "Cancel" : "Done") { dismiss() }
+                        Button(L(model.invite == nil ? "common.cancel" : "common.done")) { dismiss() }
                             .font(.system(.body, design: .rounded).weight(.medium))
                             .foregroundStyle(Theme.text)
                             .disabled(model.isSending)
@@ -69,7 +70,7 @@ struct ProfileTransferSheet: View {
             profileCard
 
             VStack(alignment: .leading, spacing: 10) {
-                label("Send to")
+                label(L("transfer.sendTo"))
 
                 // Spelled out as a prompt rather than a title so the hint
                 // reads dim like every other placeholder in the app; a plain
@@ -77,7 +78,7 @@ struct ProfileTransferSheet: View {
                 TextField(
                     "",
                     text: $model.email,
-                    prompt: Text("recipient@example.com").foregroundColor(Theme.textDim)
+                    prompt: Text(L("transfer.emailPlaceholder")).foregroundColor(Theme.textDim)
                 )
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
@@ -93,7 +94,7 @@ struct ProfileTransferSheet: View {
                     .background(cardBackground)
             }
 
-            Text("They get an email with a link. The profile stays yours until they sign in and accept it.")
+            Text(L("transfer.footer"))
                 .font(.system(.footnote, design: .rounded))
                 .foregroundStyle(Theme.textDim)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,7 +113,7 @@ struct ProfileTransferSheet: View {
                     if model.isSending {
                         MinimalSpinner(color: .white)
                     }
-                    Text(model.isSending ? "Sending" : "Send Invitation")
+                    Text(L(model.isSending ? "transfer.sending" : "transfer.send"))
                 }
                 .font(.system(.body, design: .rounded).weight(.semibold))
                 .foregroundStyle(.white)
@@ -132,7 +133,7 @@ struct ProfileTransferSheet: View {
     /// other end, so it says the name out loud.
     private var profileCard: some View {
         VStack(alignment: .leading, spacing: 4) {
-            label("Profile")
+            label(L("transfer.profile"))
 
             Text(model.profile.profileName)
                 .font(.system(.title3, design: .rounded).weight(.semibold))
@@ -157,14 +158,14 @@ struct ProfileTransferSheet: View {
                 .foregroundStyle(Theme.ok)
                 .padding(.top, 12)
 
-            Text(invite.emailSent ? "Invitation sent" : "Invitation created")
+            Text(L(invite.emailSent ? "transfer.sent" : "transfer.created"))
                 .font(.system(.title3, design: .rounded).weight(.semibold))
                 .foregroundStyle(Theme.text)
 
             Text(
                 invite.emailSent
-                    ? "\(model.trimmedEmail) can now accept “\(model.profile.profileName)”. It stays yours until they do."
-                    : "We could not send the email, so pass this link on yourself. It accepts “\(model.profile.profileName)” for whoever opens it."
+                    ? L("transfer.sentBody", model.trimmedEmail, model.profile.profileName)
+                    : L("transfer.createdBody", model.profile.profileName)
             )
             .font(.system(.subheadline, design: .rounded))
             .foregroundStyle(Theme.textDim)
@@ -177,7 +178,7 @@ struct ProfileTransferSheet: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: model.didCopyLink ? "checkmark" : "doc.on.doc")
-                    Text(model.didCopyLink ? "Link Copied" : "Copy Link")
+                    Text(L(model.didCopyLink ? "transfer.linkCopied" : "transfer.copyLink"))
                 }
                 .font(.system(.body, design: .rounded).weight(.medium))
                 .foregroundStyle(Theme.text)
@@ -191,7 +192,7 @@ struct ProfileTransferSheet: View {
             ShareLink(item: invite.inviteUrl) {
                 HStack(spacing: 8) {
                     Image(systemName: "square.and.arrow.up")
-                    Text("Share Link")
+                    Text(L("transfer.shareLink"))
                 }
                 .font(.system(.body, design: .rounded).weight(.medium))
                 .foregroundStyle(Theme.text)

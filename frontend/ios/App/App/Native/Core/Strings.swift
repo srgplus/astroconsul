@@ -220,6 +220,22 @@ private let enUI: [String: String] = [
     "edit.deleteButton": "Delete Profile",
     "edit.resolveFailed": "Could not find “%@”. Pick a place from the list instead.",
 
+    // Transfer a profile to someone else
+    "transfer.title": "Transfer Profile",
+    "transfer.sendTo": "Send to",
+    "transfer.emailPlaceholder": "recipient@example.com",
+    "transfer.profile": "Profile",
+    "transfer.footer": "They get an email with a link. The profile stays yours until they sign in and accept it.",
+    "transfer.send": "Send Invitation",
+    "transfer.sending": "Sending",
+    "transfer.sent": "Invitation sent",
+    "transfer.created": "Invitation created",
+    "transfer.sentBody": "%1$@ can now accept “%2$@”. It stays yours until they do.",
+    "transfer.createdBody": "We could not send the email, so pass this link on yourself. It accepts “%@” for whoever opens it.",
+    "transfer.copyLink": "Copy Link",
+    "transfer.linkCopied": "Link Copied",
+    "transfer.shareLink": "Share Link",
+
     // Category-change notifications
     "alert.rising": "Rising",
     "alert.easing": "Easing",
@@ -230,6 +246,8 @@ private let enUI: [String: String] = [
     "error.notSignedIn": "Sign in to load your profiles.",
     "error.unexpected": "The server sent an unexpected response.",
     "error.cancelled": "The request was cancelled.",
+    "error.googleNoSession": "Google sign-in returned without a session.",
+    "error.appleNoToken": "Apple did not return an identity token.",
     "error.http": "Request failed (HTTP %d).",
     "error.tooMany": "Too many attempts. Wait a minute and try again.",
     "error.badDetails": "That did not work. Check the details and try again.",
@@ -561,6 +579,22 @@ private let ruUI: [String: String] = [
     "edit.deleteButton": "Удалить профиль",
     "edit.resolveFailed": "Не удалось найти «%@». Выберите место из списка.",
 
+    // Transfer a profile to someone else
+    "transfer.title": "Передать профиль",
+    "transfer.sendTo": "Кому",
+    "transfer.emailPlaceholder": "recipient@example.com",
+    "transfer.profile": "Профиль",
+    "transfer.footer": "Ему придёт письмо со ссылкой. Профиль остаётся вашим, пока он не войдёт и не примет его.",
+    "transfer.send": "Отправить приглашение",
+    "transfer.sending": "Отправка",
+    "transfer.sent": "Приглашение отправлено",
+    "transfer.created": "Приглашение создано",
+    "transfer.sentBody": "%1$@ теперь может принять «%2$@». Профиль остаётся вашим, пока это не произойдёт.",
+    "transfer.createdBody": "Письмо отправить не удалось, передайте ссылку сами. Она примет «%@» для того, кто её откроет.",
+    "transfer.copyLink": "Скопировать ссылку",
+    "transfer.linkCopied": "Ссылка скопирована",
+    "transfer.shareLink": "Поделиться ссылкой",
+
     // Category-change notifications
     "alert.rising": "Растёт",
     "alert.easing": "Спадает",
@@ -571,6 +605,8 @@ private let ruUI: [String: String] = [
     "error.notSignedIn": "Войдите, чтобы загрузить профили.",
     "error.unexpected": "Сервер вернул неожиданный ответ.",
     "error.cancelled": "Запрос отменён.",
+    "error.googleNoSession": "Вход через Google завершился без сессии.",
+    "error.appleNoToken": "Apple не вернула токен для входа.",
     "error.http": "Запрос не удался (HTTP %d).",
     "error.tooMany": "Слишком много попыток. Подождите минуту и попробуйте снова.",
     "error.badDetails": "Не получилось. Проверьте данные и попробуйте снова.",

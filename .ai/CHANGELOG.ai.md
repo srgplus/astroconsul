@@ -88,6 +88,12 @@ transit rows are wired that way. Which row is "Today" is now
 `ForecastDay.todayKey(in:)`, shared by the card and by the sheet it opens
 rather than spelled out twice.
 
+Every string the native screens show is in the table — Settings, sign-in, the
+weather page and its cards, the profile list, search and preview, the editor,
+the transfer sheet, the wheel and the notification copy. A key the engine
+grows that the table has not got falls back to the server's own word rather
+than showing a reader a dotted key.
+
 ### iOS: a chosen day now reaches the cards, and says it is loading
 Two faults in the same feature — reading the sky for a moment other than now
 (`TransitSettingsSheet` → `CosmicWeatherViewModel.choose`).

@@ -19,7 +19,7 @@ final class AppleSignInController: NSObject {
             case .cancelled:
                 return nil  // User backed out: not worth showing an error.
             case .noIdentityToken:
-                return "Apple did not return an identity token."
+                return L("error.appleNoToken")
             case let .failed(message):
                 return message
             }
