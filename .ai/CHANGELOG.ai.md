@@ -4,6 +4,36 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### The sky carries a scrim, and the footage is softened by two points
+The hero's numbers are ultraLight at 58pt. `WeatherSky`'s gradients are picked
+so white type sits on them, but the *footage* on top of them is not: a sunlit
+cloud drifting through the hero puts a 1pt stroke on near-white, and the light
+appearance starts the whole sky that bright.
+
+`SkyScrim` (in `Design/WeatherSky.swift`) replaces the bottom-only gradient
+both weather surfaces carried. Three stops now — 0.08 / 0.16 / 0.40 black in
+dark, 0.22 / 0.30 / 0.50 in light — lightest at the top where there is only the
+place name, deeper through the hero, deepest under the cards.
+
+**It darkens in both appearances**, which is the one thing to know before
+touching the numbers. The text on these screens is white in either theme (see
+the note at the top of `WeatherSky`), so a pale veil under the light theme
+would push the contrast the wrong way and swallow the numbers it is there to
+rescue. The light theme gets *more* of the same veil, not a different one.
+
+`SkyVideo` blurs the full-screen variant by **2pt**. Brightness was only half
+the problem; the other half is detail, and a cloud edge crossing a hairline
+cuts it. Two points takes the grain off and leaves the weather. Nine points was
+tried and reads as a fogged photograph — the sky stops being the reading. Cards
+are not blurred at all: 108pt tall, their own scrim already, no thin type to
+rescue, and one blur per row is a cost a list of thirty profiles should not pay.
+
+If the runtime blur ever shows up in a power trace, the free version of it is
+an ffmpeg pass in `scripts/build_sky_videos.sh` — the detail is being thrown
+away either way.
+
+## 2026-09-07
+
 ### A forecast row's bar is on the index, not on the window
 `ForecastBar` in `Features/Weather/ForecastCard.swift` mapped the day's TII
 onto the window's own low…high (`(value - low) / (high - low)`), so the

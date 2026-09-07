@@ -70,13 +70,9 @@ struct ForecastDayDetailSheet: View {
             ZStack {
                 WeatherSky.gradient(for: day.zone)
 
-                // The cards sit low and white on this; the same scrim the
-                // page uses keeps them off the brightest part of the sky.
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.10), .black.opacity(0.38)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                // The same scrim the page carries, so a sheet opened from a
+                // row is lit like the row it came from.
+                SkyScrim()
             }
         }
         .task {
