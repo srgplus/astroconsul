@@ -36,21 +36,24 @@ struct CategoryAlertsOffer: View {
                 .padding(.top, Theme.Spacing.section)
                 .frame(maxWidth: .infinity)
             }
-            // The card is short and the buttons belong at the bottom of the
-            // sheet rather than under the last line of text, so the scroll
-            // view takes the slack and they stay put.
+            // The buttons belong at the bottom of the sheet rather than under
+            // the last line of text, so the scroll view takes the slack and
+            // they stay put. It only actually scrolls at the larger type
+            // sizes, where the words outgrow the detent.
             .scrollBounceBehavior(.basedOnSize)
 
             buttons
         }
-        .presentationDetents([.medium])
+        // Measured to the words rather than `.medium`, which left a hand's
+        // width of nothing between the last line and the buttons.
+        .presentationDetents([.height(360)])
         // Frosted, like the other sheets that sit over the weather page: the
         // sky carries on behind it, which is the thing being offered.
         .presentationBackground(.regularMaterial)
         .presentationDragIndicator(.hidden)
-        // A question with two answers on it is not dismissed by swiping past
-        // it — a swipe would leave `offered` unwritten and ask again tomorrow.
-        .interactiveDismissDisabled()
+        // Swiping the card away is an answer, and it is recorded as one — so
+        // the card is not a dead end if the system sheet fails to come back.
+        .onDisappear { alerts.markOffered() }
     }
 
     private var icon: some View {
@@ -105,10 +108,12 @@ struct CategoryAlertsOffer: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(.blue)
-            .disabled(working)
+            // Not `.disabled(working)`: that greys the fill, and a white
+            // spinner on grey is a spinner nobody can see. `accept()` guards
+            // the second tap itself.
 
             Button("Not now") {
-                alerts.declineOffer()
+                alerts.markOffered()
                 onFinish()
             }
             .font(.system(.body, design: .rounded))
@@ -121,6 +126,7 @@ struct CategoryAlertsOffer: View {
     }
 
     private func accept() {
+        guard !working else { return }
         working = true
         Task {
             // Closes on the answer, granted or refused. A refusal is the

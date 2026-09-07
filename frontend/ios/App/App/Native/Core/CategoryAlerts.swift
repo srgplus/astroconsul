@@ -142,15 +142,18 @@ final class CategoryAlerts: ObservableObject {
     /// does not leave Settings showing a toggle with nothing behind it.
     @discardableResult
     func acceptOffer(profile: ProfileSummary? = nil) async -> Bool {
-        defaults.set(true, forKey: Key.offered)
+        markOffered()
         guard await requestAuthorization() else { return false }
         defaults.set(true, forKey: Key.enabled)
         await refresh(profile: profile, force: true)
         return true
     }
 
-    /// "Not now", remembered — so the card is a question and not a nag.
-    func declineOffer() {
+    /// Records that the question has been put, however it was answered — "Not
+    /// now", the system sheet, or the card being swiped away, which is an
+    /// answer too. Idempotent, so the card can call it on the way out without
+    /// caring which of those happened.
+    func markOffered() {
         defaults.set(true, forKey: Key.offered)
     }
 
