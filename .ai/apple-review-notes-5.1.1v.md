@@ -13,7 +13,7 @@ Written 2026-09-06, for the build that carries the `/account` deep link.
 
 | Step | Where | What to tap |
 |---|---|---|
-| 1 | Cosmic weather (home) | the profiles button in the bottom bar |
+| 1 | Weather (home) | the profiles button in the bottom bar |
 | 2 | Profiles list | **Settings** in the top bar |
 | 3 | Settings, Account section | **Manage account** |
 | 4 | Account screen (opens on big3.me/account) | **Delete Account** |
@@ -68,7 +68,7 @@ Resolution Center text box.
 Record on a real device or the simulator, portrait, no cuts. One take, roughly
 30 seconds.
 
-1. Start on the cosmic weather screen with a signed in demo account.
+1. Start on the weather screen with a signed in demo account.
 2. Bottom bar, profiles button.
 3. Settings.
 4. Pause a beat on the Account section so "Manage account" is legible.

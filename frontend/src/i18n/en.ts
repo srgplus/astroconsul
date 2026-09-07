@@ -133,8 +133,8 @@ export const en: Record<string, string> = {
   "transits.outerPlanets": "Outer Planets",
   "transits.specialPoints": "Special Points",
 
-  // Cosmic Climate
-  "climate.title": "Cosmic Climate",
+  // Climate
+  "climate.title": "Climate",
   "climate.unlock": "Unlock",
 
   // Widgets
@@ -180,7 +180,7 @@ export const en: Record<string, string> = {
   "widget.followForTransit": "Follow to unlock transits",
   "widget.followToUnlock": "Follow to see daily forecast",
   "widget.followToSeeTransits": "Follow to see active transits",
-  "widget.followToSeeClimate": "Follow to see cosmic climate",
+  "widget.followToSeeClimate": "Follow to see climate",
 
   // Profile forms
   "form.newProfile": "New Profile",
@@ -250,7 +250,7 @@ export const en: Record<string, string> = {
 
   // Time-based modifiers
   "guide.timeModifiers": "Time of Day Context",
-  "guide.timeModifiersDesc": "The Feels Like description changes based on the time of day. The same cosmic energy manifests differently in the morning vs. at night — morning is about intentions and preparation, afternoon is peak action, evening is reflection and connection, and night is rest and subconscious processing.",
+  "guide.timeModifiersDesc": "The Feels Like description changes based on the time of day. The same energy manifests differently in the morning vs. at night — morning is about intentions and preparation, afternoon is peak action, evening is reflection and connection, and night is rest and subconscious processing.",
   "guide.timeMorning": "Morning (6:00–12:00)",
   "guide.timeMorningDesc": "Energy is rising. Focus on intentions, planning, and setting the tone for the day.",
   "guide.timeAfternoon": "Afternoon (12:00–18:00)",
@@ -341,7 +341,7 @@ export const en: Record<string, string> = {
   "guide.title": "How It Works",
   "guide.whatIsTii": "What is TII?",
   "guide.tiiFull": "Transit Influence Index",
-  "guide.tiiDesc": "TII measures how much planetary activity is affecting your birth chart right now. Think of it as a thermometer for cosmic weather, higher number means more is happening.",
+  "guide.tiiDesc": "TII measures how much planetary activity is affecting your birth chart right now. Think of it as a thermometer for the day, higher number means more is happening.",
   "guide.tiiCalcDesc": "It's calculated from real astronomical data: the positions of planets, the angles between them, and how precisely they align with your birth chart.",
   "guide.howCalc": "How it's calculated",
   "guide.formula": "TII = Σ (aspect_weight × orb_score × planet_factor × exactness_bonus)",
@@ -389,7 +389,7 @@ export const en: Record<string, string> = {
   "guide.zoneExtremeDesc": "Rare. Multiple exact aspects including outer planets. Happens a few times per year.",
   "guide.feelsCalmLabel": "Calm",
   "guide.feelsCalmTension": "tension <30%",
-  "guide.feelsCalmQuiet": "Quiet day with gentle energy. Good for rest, reflection, routine tasks. Nothing demanding your attention cosmically.",
+  "guide.feelsCalmQuiet": "Quiet day with gentle energy. Good for rest, reflection, routine tasks. Nothing demanding your attention.",
   "guide.feelsSubtleLabel": "Subtle pressure",
   "guide.feelsSubtleTension": "tension 30–60%",
   "guide.feelsSubtleQuiet": "Outwardly quiet but something feels slightly off. Minor friction beneath the surface. Pay attention to small signals.",
@@ -608,8 +608,8 @@ export const en: Record<string, string> = {
   "pro.compare": "$7.99/mo vs $5.00/mo with annual plan",
   "pro.feature.allAspects": "All active daily transit aspects",
   "pro.feature.details": "Detailed transit descriptions",
-  "pro.feature.climate": "Full cosmic climate analysis",
+  "pro.feature.climate": "Full climate analysis",
   "pro.feature.natal": "Full birth chart interpretations",
-  "pro.paymentSuccess": "Pro activated! Enjoy your cosmic weather.",
+  "pro.paymentSuccess": "Pro activated! Enjoy your forecast.",
   "pro.paymentCancel": "Payment cancelled. You can try again anytime.",
 }
