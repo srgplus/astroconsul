@@ -29,6 +29,10 @@ final class CosmicWeatherViewModel: ObservableObject {
     @Published private(set) var readingTime = Date()
     @Published private(set) var readingZone = TimeZone.current
 
+    /// What the reader asked for instead of "now, where the profile lives".
+    /// Nil is the ordinary case and the one the screen opens in.
+    @Published private(set) var chosen: TransitMoment?
+
     private let api: APIClient
 
     init(api: APIClient = .shared) {
@@ -92,11 +96,24 @@ final class CosmicWeatherViewModel: ObservableObject {
         _ = await (forecast, transits)
     }
 
+    /// Read the sky for another moment, or pass nil to go back to this one.
+    /// Both halves reload: the report is cast for the new instant and the
+    /// forecast window starts on its date, so the sky over the cards and the
+    /// cards themselves are the same day.
+    func choose(_ moment: TransitMoment?, profile: ProfileSummary) async {
+        chosen = moment
+        await load(profile: profile, showSpinner: false)
+    }
+
     func loadForecast(profileId: String, showSpinner: Bool = true) async {
         if showSpinner, days.isEmpty { state = .loading }
 
         do {
-            let response = try await api.fetchForecast(profileId: profileId)
+            let response = try await api.fetchForecast(
+                profileId: profileId,
+                timezone: chosen?.zone.identifier ?? TimeZone.current.identifier,
+                startDate: chosen.flatMap { $0.isToday ? nil : Self.format($0.instant, as: "yyyy-MM-dd", in: $0.zone) }
+            )
             days = response.days
             state = .loaded
         } catch let error as APIError {
@@ -111,7 +128,7 @@ final class CosmicWeatherViewModel: ObservableObject {
     func loadTransits(profile: ProfileSummary) async {
         if activeAspects.isEmpty { transitsState = .loading }
 
-        let moment = Self.moment(for: profile)
+        let moment = Self.moment(for: profile, chosen: chosen)
         let transit = profile.latestTransit
         readingTime = moment.instant
         readingZone = moment.zone
@@ -122,9 +139,9 @@ final class CosmicWeatherViewModel: ObservableObject {
                 date: moment.date,
                 time: moment.time,
                 timezone: moment.timezone,
-                locationName: transit?.locationName,
-                latitude: transit?.latitude,
-                longitude: transit?.longitude
+                locationName: chosen?.locationName ?? transit?.locationName,
+                latitude: chosen?.latitude ?? transit?.latitude,
+                longitude: chosen?.longitude ?? transit?.longitude
             )
             apply(report)
         } catch {
@@ -138,7 +155,7 @@ final class CosmicWeatherViewModel: ObservableObject {
                 return
             }
 
-            let fallback = Self.moment(for: profile, ignoringSavedSettings: true)
+            let fallback = Self.moment(for: profile, chosen: chosen, ignoringSavedSettings: true)
             readingTime = fallback.instant
             readingZone = fallback.zone
             do {
@@ -180,8 +197,23 @@ final class CosmicWeatherViewModel: ObservableObject {
     /// the profile's own timezone.
     private static func moment(
         for profile: ProfileSummary,
+        chosen: TransitMoment? = nil,
         ignoringSavedSettings: Bool = false
     ) -> (date: String, time: String, timezone: String, instant: Date, zone: TimeZone, usedSavedSettings: Bool) {
+        // A moment the reader picked is not a guess, so it never falls back:
+        // retrying it on the device's zone would answer a question nobody
+        // asked. It is spelled out here and used as-is.
+        if let chosen {
+            return (
+                date: format(chosen.instant, as: "yyyy-MM-dd", in: chosen.zone),
+                time: format(chosen.instant, as: "HH:mm", in: chosen.zone),
+                timezone: chosen.zone.identifier,
+                instant: chosen.instant,
+                zone: chosen.zone,
+                usedSavedSettings: false
+            )
+        }
+
         let saved = ignoringSavedSettings ? nil : profile.latestTransit?.timezone
         let zone = saved.flatMap(TimeZone.init(identifier:)) ?? .current
         let now = Date()

@@ -16,33 +16,59 @@ struct TransitDetailSheet: View {
     var positions: TransitPositions = .init()
     var now: Date = Date()
 
-    var body: some View {
-        ZStack {
-            Theme.bg.ignoresSafeArea()
+    @Environment(\.dismiss) private var dismiss
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-                    window
-                    where_
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 32)
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                window
+                where_
             }
-            .scrollIndicators(.hidden)
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+            .padding(.bottom, 32)
         }
+        .scrollIndicators(.hidden)
+        .safeAreaInset(edge: .top, spacing: 0) { closeBar }
         .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        // A grabber and a close button say the same thing twice; Weather's own
+        // detail sheets carry the button and no grabber.
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(Theme.sheetBg)
         .environment(\.transitPalette, .onSurface)
+    }
+
+    /// Weather's close button: a glyph on a filled circle, top right, floating
+    /// over the content rather than sitting in a titled navigation bar. The
+    /// aspect's three glyphs ride the same line — alone above the title they
+    /// cost a whole row of the sheet and said nothing the title does not.
+    private var closeBar: some View {
+        HStack {
+            TransitGlyphs(aspect: aspect, size: 26, width: nil)
+
+            Spacer(minLength: 12)
+
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Theme.textDim)
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(Theme.sheetCard))
+            }
+            .accessibilityLabel("Close")
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TransitGlyphs(aspect: aspect, size: 30, width: nil)
-
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(aspect.title)
                     .font(.system(size: 26, weight: .semibold, design: .rounded))
@@ -193,6 +219,11 @@ struct TransitDetailSheet: View {
 
 /// `WeatherCard` in the sheet's palette. The weather one is tuned to float on
 /// a saturated sky and reads as a smudge on a plain background.
+///
+/// No border. The card is a step in tone from the sheet's own ground, which is
+/// how the system separates a grouped panel from what it sits on; a hairline
+/// on top of that is a second, weaker answer to a question already answered,
+/// and it is what makes a panel look drawn rather than raised.
 struct SheetCard<Content: View>: View {
 
     @ViewBuilder var content: Content
@@ -205,13 +236,8 @@ struct SheetCard<Content: View>: View {
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .fill(Theme.surface)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .strokeBorder(Theme.line, lineWidth: 1)
-                .allowsHitTesting(false)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Theme.sheetCard)
         )
     }
 }

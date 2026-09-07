@@ -127,18 +127,30 @@ actor APIClient {
 
     /// One call feeds the whole weather screen: today plus the next days, each
     /// with TII, feels-like, top transits, moon phase and retrogrades.
+    /// `startDate` is `YYYY-MM-DD`; without one the window starts today, which
+    /// is only right while the screen is reading the present moment.
     func fetchForecast(
         profileId: String,
         timezone: String = TimeZone.current.identifier,
-        days: Int = 10
+        days: Int = 10,
+        startDate: String? = nil
     ) async throws -> ForecastResponse {
         let id = profileId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? profileId
-        return try await get(
-            "/api/v1/profiles/\(id)/transits/forecast",
-            query: [
-                URLQueryItem(name: "timezone", value: timezone),
-                URLQueryItem(name: "days", value: String(days)),
-            ]
+        var query = [
+            URLQueryItem(name: "timezone", value: timezone),
+            URLQueryItem(name: "days", value: String(days)),
+        ]
+        if let startDate {
+            query.append(URLQueryItem(name: "start_date", value: startDate))
+        }
+        return try await get("/api/v1/profiles/\(id)/transits/forecast", query: query)
+    }
+
+    /// Place autocomplete, the same endpoint the web's location field uses.
+    func searchLocations(query: String) async throws -> [PlaceCandidate] {
+        try await get(
+            "/api/v1/locations/search",
+            query: [URLQueryItem(name: "q", value: query)]
         )
     }
 
