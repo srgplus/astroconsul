@@ -4,6 +4,36 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the app opens on its own mark
+Launch showed a near-invisible white outline of the app icon on a hardcoded
+dark ground, then handed over to a bare spinner on an empty background. Two
+screens of nothing before the first pixel of content.
+
+- **`B3Logo.imageset`** — the wordmark as outlines, one variant per
+  appearance. It is the same three-part lockup `B3Wordmark.swift` sets live
+  and `B3Logo.tsx` sets on the web, but a launch screen runs before any code,
+  so there it has to be an image. `scripts/build_ios_wordmark.py` converts the
+  bundled Space Grotesk faces to SVG paths — Xcode's asset catalogue renders
+  paths and ignores `<text>` — so the mark is regenerated rather than
+  hand-edited.
+- **`LaunchBackground.colorset`** replaces the storyboard's hardcoded
+  `#1C1C1E`, so the launch screen is light on a light device instead of a
+  black card the app immediately contradicts. Same two values as `Theme.bg`.
+- **`SplashView`** repeats the storyboard exactly — same asset, same 180pt
+  width, centred on the full screen rather than the safe area, since the notch
+  and the home indicator are different heights. The handover out of the
+  storyboard has nothing to see.
+- **`AppLaunch.markContentReady()`** is how the splash knows when to go.
+  `WeatherHomeView` reports its first settled state and `SignInView` reports
+  on appear, so the splash covers the profile fetch that used to be a spinner.
+  `RootView` holds it for a 450ms floor — a faster launch reads as a flicker —
+  and drops it 2s past that regardless, so a stalled request reaches the home
+  screen's own error state instead of sitting behind the logo.
+- **`SignInView`** wears the mark instead of `Text("big3.me")` in the system
+  rounded face.
+- `Splash.imageset` is deleted: Capacitor generated it, the storyboard was its
+  only reader, and it is 720KB of an icon nobody could see.
+
 ### iOS: a profile can be made on the phone, and the groups moved into the list
 Creating a profile was the one thing the native screens still handed to the web
 app: the empty state's "Create profile" opened `WebScreen`, and a signed-in
