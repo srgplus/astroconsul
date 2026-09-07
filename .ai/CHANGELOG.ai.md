@@ -33,7 +33,20 @@ If the runtime blur ever shows up in a power trace, the free version of it is
 an ffmpeg pass in `scripts/build_sky_videos.sh` — the detail is being thrown
 away either way.
 
-## 2026-09-07
+### iOS: Settings has no "Manage account" row
+The row opened the still-web `/account` screen. Settings owns email, sign-out
+and deletion natively, so the extra hop out to the WebView is gone, and with it
+the plumbing that existed only to carry it: `SettingsView.onManageAccount`,
+`ProfileListScreen.onOpenWeb`, and the `settings.manageAccount` strings.
+`WebDestination.account` stays — the web app still serves that route — but
+nothing native links to it now.
+
+### iOS: birth date and time sit against the card's right edge
+`ProfileEditSheet.row(_:control:)` aligned every control leading, which is
+right for a text field and wrong for a picker that hugs its own content: the
+date and time chips floated in the middle of the row with the whole right half
+of the card empty. The helper now takes an `alignment` (leading by default) and
+those two rows pass `.trailing`.
 
 ### A forecast row's bar is on the index, not on the window
 `ForecastBar` in `Features/Weather/ForecastCard.swift` mapped the day's TII

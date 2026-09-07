@@ -119,8 +119,7 @@ struct WeatherPreviewHarness: View {
                     selection = profile.profileId
                     showsList = false
                 },
-                skyState: previewState,
-                onOpenWeb: { _ in showsList = false }
+                skyState: previewState
             )
         }
         .sheet(isPresented: $showsSearch) {

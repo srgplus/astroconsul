@@ -10,9 +10,9 @@ enum WebDestination: String, Identifiable {
     /// The web app's own home screen.
     case home = "/"
 
-    /// Account settings: email, subscription and account deletion. Settings →
-    /// "Manage account" opens this rather than the home screen — deletion is
-    /// what Apple reviews under 5.1.1(v), and it should be one tap away.
+    /// Account settings on the web: email and subscription. Nothing native
+    /// links here any more — Settings owns email, sign-out and deletion
+    /// itself — but the web app still serves the screen.
     case account = "/account"
 
     var id: String { rawValue }

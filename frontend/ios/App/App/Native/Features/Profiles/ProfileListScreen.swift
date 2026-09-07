@@ -11,9 +11,6 @@ struct ProfileListScreen: View {
     /// carries that colour.
     var skyState: SkyState?
 
-    /// Opens one of the still-web screens, named by the caller.
-    var onOpenWeb: (WebDestination) -> Void
-
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var strings = L10n.shared
     @State private var query = ""
@@ -34,10 +31,7 @@ struct ProfileListScreen: View {
             // below, so it opens in the appearance the app is actually set to
             // rather than inheriting this screen's night sky.
             .sheet(isPresented: $showsSettings) {
-                SettingsView(skyState: skyState, onManageAccount: {
-                    showsSettings = false
-                    onOpenWeb(.account)
-                })
+                SettingsView(skyState: skyState)
             }
             // Out here for the same reason as Settings: the form is made of
             // system controls drawn for the appearance the app is set to, not

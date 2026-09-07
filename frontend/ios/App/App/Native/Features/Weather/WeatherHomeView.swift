@@ -181,10 +181,7 @@ struct WeatherHomeView: View {
         }
         .sheet(isPresented: $showsSearch) { searchScreen }
         .sheet(isPresented: $showsSettings) {
-            SettingsView(skyState: visibleState, onManageAccount: {
-                showsSettings = false
-                webDestination = .account
-            })
+            SettingsView(skyState: visibleState)
         }
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyState: visibleState) { createdProfile = $0 }
@@ -253,11 +250,7 @@ struct WeatherHomeView: View {
                 selection = profile.profileId
                 showsList = false
             },
-            skyState: visibleState,
-            onOpenWeb: { destination in
-                showsList = false
-                webDestination = destination
-            }
+            skyState: visibleState
         )
     }
 
