@@ -98,18 +98,30 @@ A red check leaves the PR open and says nothing, so check after pushing:
 `gh pr checks` or `gh run list`. If main moved ahead and the PR conflicts,
 rebase onto `origin/main` and force-push the branch.
 
-### One simulator per worktree
+### One simulator per worktree, and only when asked
 
-`scripts/ios-simulator.sh` creates and boots a device named `big3 <worktree>`.
-Use it rather than whatever simulator happens to be running: the simulator
-tools default to the booted device, so two sessions otherwise install over each
-other's build and screenshot each other's screen.
+A simulator is booted when someone asks to *see* the app, not because a session
+touches iOS. Building needs no booted device — `xcodebuild` takes a shut-down
+destination — and a dozen parallel branches each holding a phone on screen is
+what makes the machine crawl.
+
+When one is wanted, `scripts/ios-simulator.sh` creates and boots a device named
+`big3 <worktree>`. Use it rather than whatever simulator happens to be running:
+the simulator tools default to the booted device, so two sessions otherwise
+install over each other's build and screenshot each other's screen.
 
 ```
-./scripts/ios-simulator.sh          # boot this worktree's device (creates it once)
-./scripts/ios-simulator.sh --udid   # id for `xcodebuild -destination` and simctl
-./scripts/ios-simulator.sh --delete # when the branch is done
+./scripts/ios-simulator.sh            # boot this worktree's device (creates it once)
+./scripts/ios-simulator.sh --run      # ... and build, install, launch the app
+./scripts/ios-simulator.sh --udid     # id for `xcodebuild -destination`, without booting
+./scripts/ios-simulator.sh --shutdown # free the memory, keep the device
+./scripts/ios-simulator.sh --delete   # when the branch is done
+./scripts/ios-simulator.sh --list     # every `big3 *` device, and who still owns it
+./scripts/ios-simulator.sh --prune    # delete the ones whose worktree is gone
 ```
+
+Devices outlive their worktrees — nothing removes one when a branch is merged —
+so `--prune` is the periodic sweep.
 
 `SIM_DEVICE_TYPE` and `SIM_RUNTIME` override hardware and iOS version. The
 default runtime is the newest installed, which can be ahead of what ships.

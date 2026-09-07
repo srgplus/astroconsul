@@ -7,10 +7,17 @@
 # other's build and screenshot each other's screen. The device is named after
 # the worktree directory, which is unique per branch.
 #
-#   scripts/ios-simulator.sh          boot (creating it the first time), print the name
-#   scripts/ios-simulator.sh --udid   print just the UDID, for simctl commands
-#   scripts/ios-simulator.sh --run    ... then build, install and launch the app on it
-#   scripts/ios-simulator.sh --delete remove this worktree's simulator
+# Nothing boots on its own: a device only appears when this script is called,
+# and it is called only when someone asks to see the app running.
+#
+#   scripts/ios-simulator.sh            boot (creating it the first time), print the name
+#   scripts/ios-simulator.sh --run      ... then build, install and launch the app on it
+#   scripts/ios-simulator.sh --udid     print the UDID *without* booting — xcodebuild and
+#                                       simctl take a shut-down destination
+#   scripts/ios-simulator.sh --shutdown shut this worktree's device down, keep it
+#   scripts/ios-simulator.sh --delete   remove this worktree's device
+#   scripts/ios-simulator.sh --list     every "big3 *" device, and who still owns it
+#   scripts/ios-simulator.sh --prune    delete the ones whose worktree is gone
 #
 # --run passes anything after it to the app as launch arguments, so
 #   scripts/ios-simulator.sh --run -uiPreviewWeather
@@ -44,6 +51,26 @@ for runtime, devices in data["devices"].items():
 ' "$1"
 }
 
+# Every "big3 *" device, as "udid<TAB>state<TAB>name".
+big3_devices() {
+  xcrun simctl list devices -j | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+for devices in data["devices"].values():
+    for device in devices:
+        if device["name"].startswith("big3 ") and device.get("isAvailable", True):
+            print(device["udid"], device["state"], device["name"], sep="\t")
+'
+}
+
+# The worktree directory names a device belongs to. A device whose name is not
+# in here was left behind by a worktree that has since been removed.
+live_worktrees() {
+  git worktree list --porcelain \
+    | sed -n 's/^worktree //p' \
+    | while read -r path; do basename "$path"; done
+}
+
 case "${1:-}" in
   --delete)
     udid="$(udid_for_name "$NAME")"
@@ -54,6 +81,49 @@ case "${1:-}" in
     xcrun simctl shutdown "$udid" 2>/dev/null || true
     xcrun simctl delete "$udid"
     echo "Deleted \"$NAME\"."
+    exit 0
+    ;;
+  --shutdown)
+    udid="$(udid_for_name "$NAME")"
+    if [ -z "$udid" ]; then
+      echo "No simulator named \"$NAME\"." >&2
+      exit 0
+    fi
+    xcrun simctl shutdown "$udid" 2>/dev/null || true
+    echo "Shut down \"$NAME\"."
+    exit 0
+    ;;
+  --list)
+    live="$(live_worktrees)"
+    while IFS="$(printf '\t')" read -r udid state name; do
+      [ -n "${udid:-}" ] || continue
+      if printf '%s\n' "$live" | grep -qxF "${name#big3 }"; then
+        owner="worktree"
+      else
+        owner="orphan — --prune removes it"
+      fi
+      printf '%-8s  %-48s  %s\n' "$state" "$name" "$owner"
+    done <<EOF
+$(big3_devices)
+EOF
+    exit 0
+    ;;
+  --prune)
+    live="$(live_worktrees)"
+    pruned=0
+    while IFS="$(printf '\t')" read -r udid state name; do
+      [ -n "${udid:-}" ] || continue
+      printf '%s\n' "$live" | grep -qxF "${name#big3 }" && continue
+      xcrun simctl shutdown "$udid" 2>/dev/null || true
+      xcrun simctl delete "$udid"
+      echo "Deleted \"$name\" (no worktree owns it)."
+      pruned=$((pruned + 1))
+    done <<EOF
+$(big3_devices)
+EOF
+    if [ "$pruned" -eq 0 ]; then
+      echo "Nothing to prune: every \"big3 *\" device still has a worktree."
+    fi
     exit 0
     ;;
 esac
@@ -94,6 +164,14 @@ print(runtime["identifier"], match["identifier"])
 EOF
   udid="$(xcrun simctl create "$NAME" "$device_type_id" "$runtime_id")"
   echo "Created \"$NAME\" ($DEVICE_TYPE, ${RUNTIME:-newest installed runtime})." >&2
+fi
+
+# Resolving the id must not cost a booted simulator: `xcodebuild` and most of
+# simctl take a shut-down destination, and a session that only builds has no
+# reason to have a phone on screen.
+if [ "${1:-}" = "--udid" ]; then
+  echo "$udid"
+  exit 0
 fi
 
 state="$(xcrun simctl list devices -j | python3 -c '
@@ -152,8 +230,6 @@ if [ "${1:-}" = "--run" ]; then
   # would silently show the signed-out app instead of the harness.
   xcrun simctl terminate "$udid" "$bundle_id" >/dev/null 2>&1 || true
   xcrun simctl launch "$udid" "$bundle_id" "$@"
-elif [ "${1:-}" = "--udid" ]; then
-  echo "$udid"
 else
   echo "$NAME"
   echo "$udid" >&2
