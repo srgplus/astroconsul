@@ -23,6 +23,7 @@ struct ForecastDayDetailSheet: View {
 
     @StateObject private var model: CosmicWeatherViewModel
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var strings = L10n.shared
 
     /// Autoclosure so the model is built on the main actor when SwiftUI
     /// installs the view, not at the call site.
@@ -108,7 +109,7 @@ struct ForecastDayDetailSheet: View {
                     .contentShape(Circle())
             }
             .weatherGlass(in: .circle, interactive: true)
-            .accessibilityLabel("Close")
+            .accessibilityLabel(L("common.close"))
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -155,12 +156,12 @@ struct ForecastDayDetailSheet: View {
                     .symbolRenderingMode(.multicolor)
                     .font(.system(size: 18))
 
-                Text(day.feelsLike)
+                Text(Astro.feels(day.feelsLike) ?? day.feelsLike)
                     .font(.system(size: 21, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.9))
             }
 
-            if let headline = FeelsLike.headline(for: day.feelsLike, at: moment.instant, in: moment.zone) {
+            if let headline = Astro.headline(for: day.feelsLike, at: moment.instant, in: moment.zone) {
                 Text(headline)
                     .font(.system(size: 15, design: .rounded))
                     .foregroundStyle(.white.opacity(0.75))
@@ -184,10 +185,7 @@ struct ForecastDayDetailSheet: View {
 
     /// "Mon, Sep 7 at 1:05 AM", in the zone the reading is cast for.
     private var stamp: String {
-        let formatter = DateFormatter()
-        formatter.timeZone = moment.zone
-        formatter.setLocalizedDateFormatFromTemplate("EEE d MMM jmm")
-        return formatter.string(from: moment.instant)
+        LocalizedDate.string(moment.instant, template: "EEE d MMM jmm", in: moment.zone)
     }
 
     // MARK: - Transits
@@ -200,7 +198,7 @@ struct ForecastDayDetailSheet: View {
 
         case let .failed(message):
             WeatherCard {
-                WeatherCardHeader(icon: "exclamationmark.triangle", title: "No transits")
+                WeatherCardHeader(icon: "exclamationmark.triangle", title: L("forecast.noTransits"))
                     .padding(.bottom, 8)
 
                 Text(message)
@@ -208,7 +206,7 @@ struct ForecastDayDetailSheet: View {
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button("Try again") {
+                Button(L("common.tryAgain")) {
                     Task { await model.loadDay(moment, profile: profile) }
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -219,7 +217,7 @@ struct ForecastDayDetailSheet: View {
         case .loaded:
             if model.activeAspects.isEmpty && model.cosmicClimate.isEmpty {
                 WeatherCard {
-                    Text("No transits inside orb on this day.")
+                    Text(L("forecast.noTransitsBody"))
                         .font(.system(size: 15, design: .rounded))
                         .foregroundStyle(.white)
                 }

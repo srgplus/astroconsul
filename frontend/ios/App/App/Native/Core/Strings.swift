@@ -113,6 +113,8 @@ private let enUI: [String: String] = [
     "weather.noForecastDays": "No forecast days came back for this profile.",
     "weather.forecastTitle": "%d-day forecast",
     "forecast.todayLong": "Today, %@",
+    "forecast.noTransits": "No transits",
+    "forecast.noTransitsBody": "No transits inside orb on this day.",
 
     // Active transits
     "transits.title": "Active transits",
@@ -472,6 +474,8 @@ private let ruUI: [String: String] = [
     "weather.noForecastDays": "Для этого профиля не пришло ни одного дня прогноза.",
     "weather.forecastTitle": "Прогноз на %d дней",
     "forecast.todayLong": "Сегодня, %@",
+    "forecast.noTransits": "Транзитов нет",
+    "forecast.noTransitsBody": "В этот день нет транзитов в пределах орба.",
 
     // Active transits
     "transits.title": "Активные транзиты",
