@@ -4,6 +4,35 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-06
 
+### iOS: the Appearance setting actually changes the appearance
+System / Light / Dark wrote the choice and nothing read it, so the app sat on
+whatever the device was set to — dark, for everyone reporting it.
+
+`RootView` asked for it with `.preferredColorScheme`. That modifier is a
+*preference*: it travels up to the enclosing SwiftUI presentation, and the root
+here is a `UIHostingController` in a `UIWindow` built by hand in `AppDelegate`
+(there is no scene manifest and no `WindowGroup`). Nothing above it consumes
+the preference, so it was dropped without a warning.
+
+The choice now sets `window.overrideUserInterfaceStyle`, which is the one
+switch that moves everything it has to move: SwiftUI's `colorScheme`, the
+trait-resolved colours in `Theme`, the sheets, the keyboard, and the
+`prefers-color-scheme` the still-web screens are styled with — that last one
+`preferredColorScheme` could never have reached.
+
+`Design/Appearance.swift` now owns the setting: the cases, the `@AppStorage`
+key, and `apply(_:)`, which walks the scene's windows. `AppDelegate` sets the
+launch value on the window it makes, before showing it, so a pinned light or
+dark app does not open on the device's style and flip; `RootView.onChange`
+carries every later change. The enum moved out of `SettingsView`, which was an
+odd place for `RootView` to be reaching into.
+
+What deliberately does not follow the setting: the weather pager's sky, the
+glass over it, and the two screens that stand on a frosted night sky
+(`ProfileListScreen`, `ProfileSearchScreen`) keep their `\.colorScheme, .dark`
+override. Their white text and glyphs are drawn for a night sky, and the sky is
+a night sky whatever the device says.
+
 ### iOS: the alerts ask for themselves, and land at noon
 Category alerts were opt-in through a switch in Settings, and the permission
 sheet only appeared when that switch went on. Nobody found it, so a feature

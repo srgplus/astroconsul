@@ -20,6 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // one tab inside it. Main.storyboard is no longer the entry point.
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIHostingController(rootView: RootView())
+        // The Appearance setting lives here, on the window, and not on a
+        // SwiftUI `preferredColorScheme` that a hand-made window has nobody to
+        // read — see `Appearance`. Set before the window is shown so a pinned
+        // light or dark app never opens on the device's style first.
+        window.overrideUserInterfaceStyle = Appearance.stored.interfaceStyle
         window.makeKeyAndVisible()
         self.window = window
         return true

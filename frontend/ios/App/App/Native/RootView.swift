@@ -8,7 +8,7 @@ import SwiftUI
 struct RootView: View {
 
     @ObservedObject private var auth = AuthStore.shared
-    @AppStorage("nativeAppearance") private var appearance = SettingsView.Appearance.system.rawValue
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system.rawValue
 
     var body: some View {
         Group {
@@ -23,7 +23,13 @@ struct RootView: View {
             #endif
         }
         .animation(.easeInOut(duration: 0.25), value: auth.isSignedIn)
-        .preferredColorScheme(SettingsView.Appearance(rawValue: appearance)?.colorScheme)
+        // Applied to the window rather than with `preferredColorScheme`: this
+        // hierarchy has no SwiftUI presentation above it to read that
+        // preference, so it went nowhere — see `Appearance`. `AppDelegate`
+        // sets the launch value, and this carries every later change.
+        .onChange(of: appearance) { _, choice in
+            Appearance.apply(Appearance(rawValue: choice) ?? .system)
+        }
     }
 
     @ViewBuilder
