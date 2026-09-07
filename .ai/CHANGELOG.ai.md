@@ -462,6 +462,48 @@ not be used outside `CosmicWeatherView.swift`.
 ownership — `PATCH` calls `_verify_ownership`, `DELETE` does not. Any signed-in
 user can delete any profile by id.
 
+### iOS: a long profile list stops stuttering under the finger
+Every profile card plays its zone's clip behind it, and every card was building
+its own `AVQueuePlayer`, `AVPlayerLooper` and decoder session to do it. Two
+things then went wrong at once on an account with thirty profiles.
+
+`SkyPlayerLayer.dismantleUIView` was spelled `coordinate:` instead of
+`coordinator:`, so it did not satisfy `UIViewRepresentable` and SwiftUI never
+called it. Nothing was ever stopped on purpose; a player only went away when
+ARC got round to the view.
+
+And a `List` keeps a row's views alive long after the row has left the screen.
+Measured on the `-uiPreviewWeather` harness with its thirty-three profiles:
+eight cards visible, twenty rows alive, and the player count climbing with every
+flick and never coming down. That is the stutter — a dozen decoders competing
+for the frame the finger is dragging.
+
+The fix is in three parts:
+
+- **`SkyPlayerPool`** (`Design/SkyPlayerPool.swift`) lends players out instead
+  of everyone building one. A card that leaves hands its `SkyClipView` back —
+  the whole view, so the next card re-parents something that already has a
+  decoded frame rather than re-attaching a player to a fresh layer. Four idle
+  players are kept, one per clip, and reaped four seconds after the last
+  hand-back.
+- **`ProfileWeatherCard` gates its footage on `onAppear`/`onDisappear`**, not on
+  the row's lifetime. Those land on the visibility boundary — measured at seven
+  or eight while twenty rows were alive — so the player goes back to the pool
+  the moment the card scrolls out.
+- **The pages behind the list stop decoding.** `ProfileListScreen` suspends
+  every `.screen` clip while it is up, and `WeatherGlassBackdrop` now frosts the
+  card crop rather than the full-screen one: what comes out the far side of an
+  `ultraThinMaterial` is a blur either way, at an eighth of the pixels.
+
+After: eight players playing, four parked, flat across repeated flings, where
+before it was one per row ever drawn.
+
+The variant a clip belongs to now rides on the player, because that is what
+`setPlaying(_:variant:)` suspends. `WeatherHomeView` clears the suspension on
+the list closing as well as the list's own disappear: a sky left frozen because
+one disappear did not land is worse than a redundant call.
+
+
 ## 2026-09-07
 
 ### iOS: the device is told when the feels-like category changes

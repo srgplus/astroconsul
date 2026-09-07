@@ -60,7 +60,7 @@ struct SkyVideo: View {
     var body: some View {
         ZStack {
             if let asset {
-                SkyPlayerLayer(url: asset, phase: phaseFraction, isReady: $isReady)
+                SkyPlayerLayer(url: asset, phase: phaseFraction, variant: variant, isReady: $isReady)
                     .opacity(isReady ? 1 : 0)
                     .animation(.easeIn(duration: 0.35), value: isReady)
             }
@@ -88,119 +88,77 @@ private struct BleedToEdges: ViewModifier {
 
 /// `AVPlayerLayer` in a `UIViewRepresentable` because `VideoPlayer` insists on
 /// its own controls and pauses when the app backgrounds.
+///
+/// The view SwiftUI owns here is an empty host. The player itself comes from
+/// `SkyPlayerPool` and goes back to it when the row leaves, because a `List`
+/// destroys a row the moment it scrolls off and building a player per row is
+/// what a scroll of profile cards cannot afford.
 private struct SkyPlayerLayer: UIViewRepresentable {
 
     let url: URL
     let phase: Double
+    let variant: SkyVideo.Variant
     @Binding var isReady: Bool
 
-    func makeUIView(context: Context) -> PlayerView {
-        let view = PlayerView()
-        view.onReady = { isReady = true }
-        view.load(url: url, phase: phase)
-        return view
+    func makeUIView(context: Context) -> SkyClipHost {
+        let host = SkyClipHost()
+        host.onReady = { isReady = true }
+        host.show(url: url, phase: phase, variant: variant)
+        return host
     }
 
-    func updateUIView(_ view: PlayerView, context: Context) {
-        view.load(url: url, phase: phase)
+    func updateUIView(_ host: SkyClipHost, context: Context) {
+        host.onReady = { isReady = true }
+        host.show(url: url, phase: phase, variant: variant)
     }
 
-    static func dismantleUIView(_ view: PlayerView, coordinate: ()) {
-        view.stop()
+    /// The label matters: spelled anything but `coordinator` this does not
+    /// satisfy the protocol and is never called, which left every row's player
+    /// to be collected whenever ARC got round to it instead of when the row
+    /// went away.
+    static func dismantleUIView(_ host: SkyClipHost, coordinator: ()) {
+        host.release()
+    }
+}
+
+/// The empty view SwiftUI owns, holding whichever pooled clip it has borrowed.
+final class SkyClipHost: UIView {
+
+    var onReady: (() -> Void)?
+
+    private var clip: SkyClipView?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+        backgroundColor = .clear
     }
 
-    final class PlayerView: UIView {
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-        override class var layerClass: AnyClass { AVPlayerLayer.self }
+    func show(url: URL, phase: Double, variant: SkyVideo.Variant) {
+        if let clip, clip.url == url { return }
+        release()
 
-        var onReady: (() -> Void)?
+        let borrowed = SkyPlayerPool.shared.borrow(url: url, phase: phase, variant: variant)
+        borrowed.frame = bounds
+        borrowed.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        borrowed.onReady = { [weak self] in self?.onReady?() }
+        addSubview(borrowed)
+        clip = borrowed
 
-        private var looper: AVPlayerLooper?
-        private var queue: AVQueuePlayer?
-        private var observation: NSKeyValueObservation?
-        private var currentURL: URL?
-
-        private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
-
-        func load(url: URL, phase: Double) {
-            guard currentURL != url else { return }
-            currentURL = url
-            stop()
-
-            let item = AVPlayerItem(url: url)
-            seekToPhase(item: item, phase: phase)
-            let player = AVQueuePlayer()
-            // Muted so the clip never ducks the user's music.
-            player.isMuted = true
-            player.actionAtItemEnd = .advance
-
-            looper = AVPlayerLooper(player: player, templateItem: item)
-            queue = player
-
-            playerLayer.player = player
-            playerLayer.videoGravity = .resizeAspectFill
-
-            // The looper plays *copies* of the template item, so the template's
-            // own status never leaves `.unknown`. The layer knows when it has a
-            // frame to show, which is the thing being faded in anyway.
-            observation = playerLayer.observe(\.isReadyForDisplay, options: [.initial, .new]) {
-                [weak self] layer, _ in
-                guard layer.isReadyForDisplay else { return }
-                DispatchQueue.main.async { self?.onReady?() }
-            }
-
-            player.play()
-            observeLifecycle()
+        // A borrowed player already has a frame up, so nothing will call the
+        // layer's observer again. Async because this runs inside SwiftUI's own
+        // update, and `isReady` is its state.
+        if borrowed.isReadyForDisplay {
+            DispatchQueue.main.async { [weak self] in self?.onReady?() }
         }
+    }
 
-        /// Start this clip part-way through its loop. Seeking the template item
-        /// before the looper wraps it means the offset survives into every copy
-        /// the looper makes, so the card keeps its own phase forever.
-        private func seekToPhase(item: AVPlayerItem, phase: Double) {
-            guard phase > 0 else { return }
-
-            Task { @MainActor in
-                guard let duration = try? await item.asset.load(.duration),
-                      duration.isNumeric, duration.seconds > 0
-                else { return }
-
-                let target = CMTime(
-                    seconds: duration.seconds * phase.truncatingRemainder(dividingBy: 1),
-                    preferredTimescale: duration.timescale
-                )
-                await item.seek(to: target, toleranceBefore: .zero, toleranceAfter: .positiveInfinity)
-            }
-        }
-
-        func stop() {
-            observation?.invalidate()
-            observation = nil
-            queue?.pause()
-            looper?.disableLooping()
-            looper = nil
-            queue = nil
-            playerLayer.player = nil
-            NotificationCenter.default.removeObserver(self)
-        }
-
-        /// AVFoundation pauses on background; resume so the sky is moving the
-        /// moment the app comes back rather than a frozen frame.
-        private func observeLifecycle() {
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(resume),
-                name: UIApplication.didBecomeActiveNotification,
-                object: nil
-            )
-        }
-
-        @objc private func resume() {
-            queue?.play()
-        }
-
-        deinit {
-            observation?.invalidate()
-            NotificationCenter.default.removeObserver(self)
-        }
+    func release() {
+        guard let clip else { return }
+        self.clip = nil
+        SkyPlayerPool.shared.giveBack(clip)
     }
 }
