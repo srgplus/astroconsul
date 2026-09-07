@@ -8,6 +8,7 @@ import type {
   TransitReportResponse,
 } from "../types"
 import { useLanguage } from "../contexts/LanguageContext"
+import { hidesPaidTier } from "../lib/platform"
 import { useMobileTap } from "../lib/useMobileTap"
 
 type ProfileDetailProps = {
@@ -150,7 +151,7 @@ export function NatalPositionsTable({
           <Fragment key={group.labelKey}>
             <div className="natal-pos__group">{t(group.labelKey)}</div>
             {rows.map((p) => {
-              const clickable = hasInterp(p.id)
+              const clickable = hasInterp(p.id) && !hidesPaidTier()
               const idx = clickable ? globalClickableIdx++ : -1
               const isLocked = clickable && !isPro && idx >= FREE_LIMIT
               const isOpen = expanded.has(p.id)
@@ -381,8 +382,8 @@ export function NatalAspectsTable({
               const strengthColor = STRENGTH_COLORS[strength] ?? "#8E8E93"
               const aspKey = `${a.p1}_${a.aspect}_${a.p2}`
               const interp = interpMap.get(aspKey)
-              const clickable = !!interp?.meaning
-              const isLocked = !isPro && idx >= FREE_LIMIT
+              const clickable = !!interp?.meaning && !hidesPaidTier()
+              const isLocked = !isPro && !hidesPaidTier() && idx >= FREE_LIMIT
               const isOpen = expanded.has(aspKey)
               return (
                 <div

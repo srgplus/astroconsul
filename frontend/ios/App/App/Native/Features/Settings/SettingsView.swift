@@ -23,11 +23,15 @@ struct SettingsView: View {
     /// this one.
     var skyZone: TiiZone?
 
-    /// Opens the account screen. It is still web — that flow is what Apple
-    /// reviewed under 5.1.1(v), so it is not reimplemented until the rest of
-    /// the account screen is native — but the WebView opens straight on
-    /// `/account`, with deletion on it, rather than on the home screen.
+    /// Opens the account screen, which is still web: it owns the parts of the
+    /// account that are not native yet, and the WebView opens straight on
+    /// `/account` rather than on the home screen. Deletion is no longer among
+    /// them, so this is no longer the route guideline 5.1.1(v) is answered by.
     var onManageAccount: () -> Void
+
+    @State private var confirmsDelete = false
+    @State private var isDeleting = false
+    @State private var deleteError: String?
 
     var body: some View {
         NavigationStack {
@@ -78,11 +82,57 @@ struct SettingsView: View {
             }
 
             Button(L("settings.manageAccount")) { onManageAccount() }
+
+            // Last, and destructive, the way an irreversible action is drawn
+            // everywhere else in the app.
+            Button(L("settings.deleteAccount"), role: .destructive) { confirmsDelete = true }
+                .disabled(isDeleting)
         } header: {
             Text(L("settings.account"))
         } footer: {
             Text(L("settings.accountFooter"))
         }
+        // An alert rather than a confirmation dialog: inside a Form row the
+        // dialog is drawn as a popover, and a popover leaves the cancel button
+        // out, so the only button offered would be the destructive one.
+        .alert(
+            L("settings.deleteAccountTitle"),
+            isPresented: $confirmsDelete
+        ) {
+            Button(L("settings.deleteAccountKeep"), role: .cancel) {}
+            Button(L("settings.deleteAccount"), role: .destructive) {
+                Task { await performDelete() }
+            }
+        } message: {
+            Text(L("settings.deleteAccountBody"))
+        }
+        .alert(
+            L("settings.deleteAccountFailed"),
+            isPresented: Binding(
+                get: { deleteError != nil },
+                set: { if !$0 { deleteError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(deleteError ?? "")
+        }
+    }
+
+    /// Deletes the account, then signs out and closes the sheet. Signing out
+    /// locally would be enough to empty the screen, but the order matters: the
+    /// request needs the access token that `signOut` throws away.
+    private func performDelete() async {
+        isDeleting = true
+        do {
+            try await APIClient.shared.deleteAccount()
+            auth.signOut()
+            dismiss()
+        } catch {
+            NSLog("[Settings] account deletion failed: \(error)")
+            deleteError = error.localizedDescription
+        }
+        isDeleting = false
     }
 
     /// The one thing worth interrupting someone for: the day their weather
