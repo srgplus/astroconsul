@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -36,11 +36,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C0DE504C1FED79650016851F /* Native */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Native;
-			sourceTree = "<group>";
-		};
+		C0DE504C1FED79650016851F /* Native */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Native; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,9 +92,6 @@
 /* Begin PBXNativeTarget section */
 		504EC3031FED79650016851F /* big3.me */ = {
 			isa = PBXNativeTarget;
-			fileSystemSynchronizedGroups = (
-				C0DE504C1FED79650016851F /* Native */,
-			);
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "big3.me" */;
 			buildPhases = (
 				504EC3001FED79650016851F /* Sources */,
@@ -108,6 +101,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C0DE504C1FED79650016851F /* Native */,
 			);
 			name = big3.me;
 			packageProductDependencies = (

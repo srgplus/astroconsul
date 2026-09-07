@@ -249,8 +249,11 @@ struct CosmicWeatherView: View {
 
         case .loaded:
             if let today = model.today, let high = model.high, let low = model.low {
-                TodaySummaryCard(day: today)
                 ForecastCard(days: model.days, low: low, high: high)
+
+                if let moon = today.moonPhase {
+                    MoonCard(phase: moon)
+                }
             } else {
                 WeatherCard {
                     Text("No forecast days came back for this profile.")

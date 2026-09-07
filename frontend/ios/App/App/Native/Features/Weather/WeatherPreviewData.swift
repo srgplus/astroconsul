@@ -89,22 +89,48 @@ enum WeatherPreviewData {
                 velocityDelta: index == 0 ? nil : 4.2,
                 velocityDirection: index == 0 ? nil : "rising",
                 topTransits: transits,
-                moonPhase: MoonPhase(
-                    phaseName: "Waxing Gibbous",
-                    illuminationPct: 78,
-                    moonSign: "Aquarius",
-                    moonDegree: 14,
-                    phaseEmoji: "🌔"
-                )
+                // A real cycle rather than the same phase ten times: the Moon
+                // moves about 12° of elongation and 13° of zodiac a day.
+                moonPhase: moonPhase(angle: 124.1 + Double(index) * 12.2, degree: 14 + index * 13)
             )
         }
     }()
 
+    /// A moon phase spelled out from one elongation, the way the engine does
+    /// it, so the sample illumination and name never disagree with the disc.
+    static func moonPhase(angle: Double, degree: Int) -> MoonPhase {
+        let elongation = angle.truncatingRemainder(dividingBy: 360)
+        let names: [(Double, String, String)] = [
+            (3, "New Moon", "🌑"), (87, "Waxing Crescent", "🌒"),
+            (93, "First Quarter", "🌓"), (177, "Waxing Gibbous", "🌔"),
+            (183, "Full Moon", "🌕"), (267, "Waning Gibbous", "🌖"),
+            (273, "Third Quarter", "🌗"), (357, "Waning Crescent", "🌘"),
+            (360, "New Moon", "🌑"),
+        ]
+        let phase = names.first { elongation < $0.0 } ?? names[0]
+        let signs = [
+            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+            "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+        ]
+
+        return MoonPhase(
+            phaseName: phase.1,
+            illuminationPct: ((1 - cos(elongation * .pi / 180)) / 2 * 100).rounded(),
+            moonSign: signs[(degree / 30) % 12],
+            moonDegree: degree % 30,
+            phaseEmoji: phase.2,
+            phaseAngle: elongation
+        )
+    }
+
     /// Shifts the sample readings so day one matches the profile's own TII —
-    /// swiping the harness then walks through every sky colour.
+    /// swiping the harness then walks through every sky colour. The Moon is
+    /// stepped along with it, an eighth of a cycle per profile, so the swipe
+    /// also walks the moon card through every phase it has to draw.
     static func days(for profile: ProfileSummary) -> [ForecastDay] {
         guard let tii = profile.latestTransit?.tii, let first = days.first else { return days }
         let delta = tii - first.tii
+        let position = profiles.firstIndex { $0.profileId == profile.profileId } ?? 0
 
         return days.enumerated().map { index, day in
             ForecastDay(
@@ -117,7 +143,10 @@ enum WeatherPreviewData {
                 velocityDelta: day.velocityDelta,
                 velocityDirection: day.velocityDirection,
                 topTransits: day.topTransits,
-                moonPhase: day.moonPhase
+                moonPhase: moonPhase(
+                    angle: 124.1 + Double(index) * 12.2 + Double(position) * 45,
+                    degree: 14 + index * 13 + position * 27
+                )
             )
         }
     }
