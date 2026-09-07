@@ -1,10 +1,12 @@
 import Foundation
 
-/// Backs the edit sheet: loads a profile's birth data, geocodes a new
+/// Backs the profile form: loads a profile's birth data, geocodes a new
 /// birthplace as it is typed, and writes the whole thing back.
 ///
-/// The chart is recast from the birth data on every save, so the fields here
-/// are the same ones the web form posts — nothing partial.
+/// The chart is cast from the birth data on every save, so the fields here
+/// are the same ones the web form posts — nothing partial. The same model
+/// backs a new profile, which starts with nothing to load and posts instead
+/// of patching.
 @MainActor
 final class ProfileEditViewModel: ObservableObject {
 
@@ -14,7 +16,8 @@ final class ProfileEditViewModel: ObservableObject {
         case failed(String)
     }
 
-    let profile: ProfileSummary
+    /// The profile being edited, or `nil` while creating one.
+    let profile: ProfileSummary?
 
     @Published private(set) var state: State = .loading
 
@@ -58,6 +61,16 @@ final class ProfileEditViewModel: ObservableObject {
         self.username = profile.username
     }
 
+    /// A new profile. There is nothing to fetch, so the form opens ready
+    /// rather than under a spinner.
+    init(api: APIClient = .shared) {
+        self.profile = nil
+        self.api = api
+        self.birthDate = Self.blankBirthDate
+        self.birthTime = Self.noon(on: Self.blankBirthDate)
+        self.state = .ready
+    }
+
     #if DEBUG
     /// Seeds a filled-in sheet for previews and the `-uiPreviewWeather`
     /// harness, which have no session to load one over.
@@ -82,12 +95,22 @@ final class ProfileEditViewModel: ObservableObject {
     }
     #endif
 
+    var isCreating: Bool { profile == nil }
+
     var canSave: Bool {
         state == .ready
             && !isSaving
             && !isDeleting
             && !profileName.trimmingCharacters(in: .whitespaces).isEmpty
             && !cleanUsername.isEmpty
+            && (!isCreating || hasBirthplace)
+    }
+
+    /// A new profile has no coordinates to fall back on: saving one without a
+    /// birthplace casts its chart off the coast of Africa. Typed is enough —
+    /// the save geocodes whatever the field says.
+    private var hasBirthplace: Bool {
+        !locationName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     /// The birthplace was changed but no suggestion was picked, so the
@@ -107,6 +130,8 @@ final class ProfileEditViewModel: ObservableObject {
     // MARK: - Load
 
     func load() async {
+        guard let profile else { return }
+
         state = .loading
         do {
             let detail = try await api.fetchProfileDetail(id: profile.profileId)
@@ -193,9 +218,10 @@ final class ProfileEditViewModel: ObservableObject {
 
     // MARK: - Write
 
-    /// `true` when the profile was saved, so the sheet knows to close.
-    func save() async -> Bool {
-        guard canSave else { return false }
+    /// The profile as the API stored it, so the sheet knows to close and the
+    /// list knows which page to turn to. `nil` when nothing was written.
+    func save() async -> ProfileSummary? {
+        guard canSave else { return nil }
 
         isSaving = true
         errorMessage = nil
@@ -216,39 +242,44 @@ final class ProfileEditViewModel: ObservableObject {
             } catch {
                 NSLog("[ProfileEdit] resolve failed: \(error.localizedDescription)")
                 errorMessage = "Could not find “\(locationName)”. Pick a place from the list instead."
-                return false
+                return nil
             }
         }
 
         let zone = timezone.trimmingCharacters(in: .whitespaces)
         let place = locationName.trimmingCharacters(in: .whitespaces)
 
+        let fields = APIClient.ProfileUpdate(
+            profile_name: profileName.trimmingCharacters(in: .whitespaces),
+            username: cleanUsername,
+            birth_date: Self.dateFormatter.string(from: birthDate),
+            birth_time: birthTimeString,
+            timezone: zone.isEmpty ? nil : zone,
+            location_name: place.isEmpty ? nil : place,
+            latitude: latitude,
+            longitude: longitude,
+            // Without a timezone there is no local time to convert, so the
+            // API is left to read the birth time as UT.
+            time_basis: zone.isEmpty ? nil : "local"
+        )
+
         do {
-            try await api.updateProfile(
-                id: profile.profileId,
-                update: APIClient.ProfileUpdate(
-                    profile_name: profileName.trimmingCharacters(in: .whitespaces),
-                    username: cleanUsername,
-                    birth_date: Self.dateFormatter.string(from: birthDate),
-                    birth_time: birthTimeString,
-                    timezone: zone.isEmpty ? nil : zone,
-                    location_name: place.isEmpty ? nil : place,
-                    latitude: latitude,
-                    longitude: longitude,
-                    // Without a timezone there is no local time to convert, so
-                    // the API is left to read the birth time as UT.
-                    time_basis: zone.isEmpty ? nil : "local"
-                )
-            )
-            return true
+            if let profile {
+                let detail = try await api.updateProfile(id: profile.profileId, update: fields)
+                return detail.profile
+            }
+            let detail = try await api.createProfile(fields)
+            return detail.profile
         } catch {
             NSLog("[ProfileEdit] save failed: \(error.localizedDescription)")
             errorMessage = error.isCancellation ? nil : error.localizedDescription
-            return false
+            return nil
         }
     }
 
     func delete() async -> Bool {
+        guard let profile else { return false }
+
         isDeleting = true
         errorMessage = nil
         defer { isDeleting = false }
@@ -270,6 +301,19 @@ final class ProfileEditViewModel: ObservableObject {
     private var birthTimeString: String {
         let parts = Calendar.current.dateComponents([.hour, .minute], from: birthTime)
         return String(format: "%02d:%02d:%02d", parts.hour ?? 0, parts.minute ?? 0, birthSeconds)
+    }
+
+    /// Where a new profile's date wheel opens. Not today — a birthday is not
+    /// today, and starting at the near end of a hundred-year range means
+    /// spinning back through every one of them.
+    private static let blankBirthDate: Date = {
+        DateComponents(calendar: .current, year: 1990, month: 1, day: 1).date ?? Date()
+    }()
+
+    /// Noon, the hour a chart is cast at when the birth time is unknown, so a
+    /// new profile starts on the convention rather than on midnight.
+    private static func noon(on day: Date) -> Date {
+        Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: day) ?? day
     }
 
     private static let dateFormatter: DateFormatter = {
