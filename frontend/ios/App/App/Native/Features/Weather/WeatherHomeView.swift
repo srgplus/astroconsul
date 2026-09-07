@@ -127,6 +127,12 @@ struct WeatherHomeView: View {
             }
         }
         .onChange(of: model.profiles) { _, _ in syncSelection() }
+        // Whatever the first load settles on — pages, an empty state or an
+        // error — is worth more than the splash standing in front of it.
+        .onChange(of: model.state) { _, state in
+            guard state != .idle, state != .loading else { return }
+            AppLaunch.shared.markContentReady()
+        }
         // A sheet, not a cover: with the toolbar down to one Settings
         // button, a swipe down is how the list is left.
         .sheet(isPresented: $showsList) { listScreen }

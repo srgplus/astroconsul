@@ -67,15 +67,21 @@ struct SignInView: View {
         .background(Theme.bg.ignoresSafeArea())
         .animation(.easeInOut(duration: 0.2), value: step)
         .disabled(busy)
+        // Nothing to wait for here: the form is the content.
+        .onAppear { AppLaunch.shared.markContentReady() }
     }
 
     // MARK: - Header
 
     private var header: some View {
-        VStack(spacing: 6) {
-            Text("big3.me")
-                .font(.system(size: 34, weight: .semibold, design: .rounded))
-                .foregroundStyle(Theme.text)
+        VStack(spacing: 10) {
+            // The mark the splash just faded out of, not a system-font
+            // approximation of it — same asset, same two appearances.
+            Image("B3Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 160)
+                .accessibilityLabel("big3.me")
 
             Text(subtitle)
                 .font(.system(.subheadline, design: .rounded))
