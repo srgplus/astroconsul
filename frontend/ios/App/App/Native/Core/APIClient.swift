@@ -157,6 +157,18 @@ actor APIClient {
         )
     }
 
+    /// Deletes the signed-in account and everything it owns. The backend
+    /// answers 204 and removes profiles, birth data, follow relationships,
+    /// subscription rows and the auth record, so there is nothing to sign back
+    /// in to afterwards.
+    func deleteAccount() async throws {
+        let _: EmptyResponse = try await send(
+            "/api/v1/auth/account",
+            method: "DELETE",
+            body: Optional<EmptyResponse>.none
+        )
+    }
+
     // MARK: - Transfer
 
     /// What the API answers when an invite is created. `emailSent` is `false`

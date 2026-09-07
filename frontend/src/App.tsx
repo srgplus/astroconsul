@@ -19,6 +19,7 @@ import { InviteAcceptPage } from "./components/InviteAcceptPage"
 import { InviteModal } from "./components/InviteModal"
 import SynastryWidget from "./components/SynastryWidget"
 import { useSubscription } from "./hooks/useSubscription"
+import { hidesPaidTier } from "./lib/platform"
 import { Paywall } from "./components/Paywall"
 import ProfilePickerModal from "./components/ProfilePickerModal"
 import SynastryReport from "./components/SynastryReport"
@@ -1533,8 +1534,10 @@ export function App() {
               ) : activeProfileId ? (
                 <SkeletonWheel />
               ) : null}
-              {/* Synastry widget */}
-              {activeDetail && profiles.some((p) => p.profile_id === activeProfileId) ? (
+              {/* Synastry widget. Absent in the iOS app: it is a Pro feature
+                  and the app sells nothing, so a button that only ever opened
+                  a paywall has no business being there. */}
+              {activeDetail && !hidesPaidTier() && profiles.some((p) => p.profile_id === activeProfileId) ? (
                 <SynastryWidget
                   activeDetail={activeDetail}
                   partnerName={synastryPartnerName}
@@ -1891,7 +1894,7 @@ export function App() {
       />
 
       {/* Paywall modal */}
-      {paywallOpen && !subLoading && !isPro ? (
+      {paywallOpen && !subLoading && !isPro && !hidesPaidTier() ? (
         <div className="paywall-modal-backdrop" onClick={() => setPaywallOpen(false)}>
           <div onClick={(e) => e.stopPropagation()}>
             <Paywall t={t} lang={lang} onClose={() => setPaywallOpen(false)} userId={userId ?? undefined} onPurchaseComplete={refreshSub} />

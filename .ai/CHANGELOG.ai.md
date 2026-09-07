@@ -486,6 +486,56 @@ glass over it, and the two screens that stand on a frosted night sky
 override. Their white text and glyphs are drawn for a night sky, and the sky is
 a night sky whatever the device says.
 
+### iOS sells nothing, so it shows nothing that is for sale
+Apple rejected the April submission under guideline 3.1.1: the app reached
+content bought on the web without offering the same thing as an in-app
+purchase. The native app never had a paywall, but the WebView inside it loads
+big3.me in full, and the web app has around ten Pro gates behind it. The fix
+lives in the web app's native branch, addressed through one predicate.
+
+- **`frontend/src/lib/platform.ts`** is new and holds `hidesPaidTier()`, the
+  single answer to "is this the iOS app". `SettingsModal`'s local
+  `isNativeApp()` now delegates to it rather than repeating the Capacitor
+  check.
+- **`useSubscription`** answers `is_pro: false` inside the app before it asks
+  the API, so no account unlocks Pro there, not even one that pays on the web.
+  Asked at the source rather than at each gate, so a gate added later cannot
+  forget. The `payment=success` poll returns early for the same reason.
+- **The paywall never renders** in the app, and the compatibility block is
+  absent there: it is a Pro feature, and a report button whose only answer was
+  a paywall has no business in a build that sells nothing.
+- **Locks are gone, not disabled.** A greyed row with a padlock reads as a
+  paywall to a reviewer even when nothing is for sale, so `ActiveTransitsWidget`
+  drops the rows past the free limit instead of drawing them locked, the
+  "Unlock" buttons in the climate card and the transits tab are not rendered,
+  and the natal tables in `ProfileDetail` are simply not tappable.
+- **Written text stays out.** `require_pro` exists in `app/api/dependencies.py`
+  but is wired to no route, so the API hands meanings and keywords to free
+  accounts too and the trimming was only ever client side. The expanded transit
+  card therefore drops `meaning`, `action` and the keyword tags in the app,
+  which is also what the review notes claim: computed values, no reports.
+- **The Settings subscription card** is not drawn in the app. Nothing is for
+  sale, and a card headed "Subscription" invites a reviewer to hunt for the
+  purchase path that 3.1.1 was raised about.
+
+### iOS: deleting an account is native
+`SettingsView` had "Manage account", which opened the WebView at big3.me's home
+page and left deletion three taps deep in a web app. Guideline 5.1.1(v) wants
+it reachable from the app.
+
+`APIClient.deleteAccount()` calls the `DELETE /api/v1/auth/account` the web
+client already uses, and Settings > Account ends in a destructive "Delete
+account" row. It is an `alert`, not a `confirmationDialog`: inside a `Form` row
+the dialog draws as a popover, and a popover leaves the cancel button out, so
+the only button offered would have been the destructive one. On success the
+request runs first and `signOut` second, because `signOut` throws away the
+access token the request needs.
+
+The footer no longer mentions subscription management.
+
+## 2026-09-06
+
+
 ### iOS: the alerts ask for themselves, and land at noon
 Category alerts were opt-in through a switch in Settings, and the permission
 sheet only appeared when that switch went on. Nobody found it, so a feature

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { getAuthHeaders } from "../api"
+import { hidesPaidTier } from "../lib/platform"
 
 interface SubscriptionStatus {
   plan: "free" | "pro_monthly" | "pro_annual" | "lifetime"
@@ -14,6 +15,16 @@ export function useSubscription() {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
+    // The iOS app offers no purchase, so it must not unlock Pro for anyone,
+    // not even an account that pays on the web. Answered here rather than at
+    // each gate so a new gate cannot forget to ask.
+    if (hidesPaidTier()) {
+      setIsPro(false)
+      setPlan("free")
+      setExpiresAt(null)
+      setLoading(false)
+      return
+    }
     try {
       const headers = await getAuthHeaders()
       if (!headers.Authorization) {
@@ -42,6 +53,7 @@ export function useSubscription() {
 
   // Check URL params for payment success — poll until Pro or give up
   useEffect(() => {
+    if (hidesPaidTier()) return
     const params = new URLSearchParams(window.location.search)
     if (params.get("payment") !== "success") return
     // Clean URL immediately

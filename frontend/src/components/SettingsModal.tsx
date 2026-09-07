@@ -4,8 +4,9 @@ import { useLanguage, type Lang } from "../contexts/LanguageContext"
 import { deleteAccount, getAuthHeaders } from "../api"
 import { supabase } from "../lib/supabase"
 
-const isNativeApp = (): boolean =>
-  typeof window !== "undefined" && !!(window as any).Capacitor?.isNativePlatform?.()
+import { hidesPaidTier } from "../lib/platform"
+
+const isNativeApp = (): boolean => hidesPaidTier()
 
 type Theme = "light" | "dark" | "system"
 
@@ -196,6 +197,7 @@ export function SettingsModal({
                     </select>
                   </div>
                 </div>
+                {!hidesPaidTier() ? (
                 <div className="stg-card">
                   <div className="stg-card-title">{t("settings.subscription")}</div>
                   <div className="stg-row">
@@ -249,6 +251,7 @@ export function SettingsModal({
                     </button>
                   ) : null}
                 </div>
+                ) : null}
                 <div
                   ref={deleteCardRef}
                   className={`stg-card stg-card--danger${flashDelete ? " stg-card--flash" : ""}`}
