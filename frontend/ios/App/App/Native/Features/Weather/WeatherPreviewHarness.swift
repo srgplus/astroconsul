@@ -22,7 +22,7 @@ struct WeatherPreviewHarness: View {
         simulatesLoading ? .seconds(3) : nil
     }
 
-    /// Add `-uiPreviewAlerts` to schedule the category-change notifications
+    /// Add `-uiPreviewAlerts` to schedule the daily weather notifications
     /// from the sample forecast: the permission sheet, the pending queue
     /// printed to the log, and one banner a few seconds later so the alert can
     /// be seen arriving without waiting for tomorrow.

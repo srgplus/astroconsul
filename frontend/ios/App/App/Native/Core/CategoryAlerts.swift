@@ -2,17 +2,18 @@ import BackgroundTasks
 import Foundation
 import UserNotifications
 
-/// Notifies the device when the cosmic weather moves to a different feels-like
-/// category — one of the twelve the engine can return, `Calm` … `Explosive`.
+/// Tells the device the day's cosmic weather — one of the twelve feels-like
+/// categories the engine can return, `Calm` … `Explosive` — once a day, at the
+/// hour the person chose.
 ///
 /// These are *local* notifications, not APNs pushes, and that is a deliberate
 /// reading of the problem rather than a shortcut. The forecast is deterministic
-/// ephemeris: the engine casts one reading per local noon, so every category
-/// change for the next fortnight is already knowable, and the device can be
-/// handed the whole schedule at once. iOS then fires them whether or not the
-/// app is running. A push would need an APNs key, a device-token table and a
-/// server cron to arrive at the same banner, and would go silent the moment any
-/// of the three broke.
+/// ephemeris: the engine casts one reading per local noon, so every day of the
+/// next fortnight is already knowable, and the device can be handed the whole
+/// schedule at once. iOS then fires them whether or not the app is running. A
+/// push would need an APNs key, a device-token table and a server cron to
+/// arrive at the same banner, and would go silent the moment any of the three
+/// broke.
 ///
 /// The schedule is rebuilt whenever the home screen comes forward and from a
 /// `BGAppRefreshTask`, so it does not run dry for someone who leaves the app
@@ -28,7 +29,9 @@ final class CategoryAlerts: ObservableObject {
         static let hour = "categoryAlertsHour"
         static let minute = "categoryAlertsMinute"
         static let profileId = "categoryAlertsProfileId"
-        static let changes = "categoryAlertsChanges"
+        /// The forecast turned into a day-by-day list. The string is the key
+        /// already on disk, from when only the changing days were kept.
+        static let days = "categoryAlertsChanges"
         static let lastRefresh = "categoryAlertsLastRefresh"
         /// Whether the first-run card has had its answer. Written either way,
         /// so "Not now" is not asked again on the next launch.
@@ -41,7 +44,7 @@ final class CategoryAlerts: ObservableObject {
 
     /// On by default. The alerts are the feature, not an opt-in extra, and the
     /// switch in Settings is there to turn them *off* — an account that never
-    /// opens Settings still hears about the day its weather changes.
+    /// opens Settings still hears what its weather is doing.
     static let defaultEnabled = true
 
     /// Local noon. The engine casts one reading per local noon, so that is the
@@ -65,8 +68,8 @@ final class CategoryAlerts: ObservableObject {
     static let horizonDays = 14
 
     /// iOS keeps at most 64 pending local notifications per app and silently
-    /// drops the rest. A fortnight cannot produce this many, so the cap is
-    /// belt-and-braces against a horizon someone widens later.
+    /// drops the rest. A fortnight of daily alerts is fifteen at most, so the
+    /// cap is belt-and-braces against a horizon someone widens later.
     private static let maximumScheduled = 32
 
     /// The forecast costs the server a full pass per day, and the home screen
@@ -115,9 +118,9 @@ final class CategoryAlerts: ObservableObject {
 
     var isEnabled: Bool { defaults.bool(forKey: Key.enabled) }
 
-    /// Whether a forecast has been read and turned into a list of changes.
+    /// Whether a forecast has been read and turned into a list of days.
     /// Settings' test row needs one to build a banner from.
-    var hasStoredChanges: Bool { !(storedChanges() ?? []).isEmpty }
+    var hasStoredDays: Bool { !(storedDays() ?? []).isEmpty }
 
     /// Whether the first-run card should put the question.
     ///
@@ -248,8 +251,8 @@ final class CategoryAlerts: ObservableObject {
         // saying noon over a fortnight of eight o'clocks until the next
         // rebuild happened to fall due.
         await readPending()
-        if scheduledCount > 0, wasLaidAtAnotherTime, let changes = storedChanges(), !changes.isEmpty {
-            await apply(changes)
+        if scheduledCount > 0, wasLaidAtAnotherTime, let days = storedDays(), !days.isEmpty {
+            await apply(days)
         }
 
         let switchedProfile = profile.map { $0.profileId != defaults.string(forKey: Key.profileId) } ?? false
@@ -279,11 +282,11 @@ final class CategoryAlerts: ObservableObject {
         await syncAuthorization()
         guard isAuthorized else { return }
 
-        guard let changes = storedChanges(), !changes.isEmpty else {
+        guard let days = storedDays(), !days.isEmpty else {
             await refresh(force: true)
             return
         }
-        await apply(changes)
+        await apply(days)
     }
 
     /// Drops every pending alert. Called when the toggle goes off and when the
@@ -306,7 +309,7 @@ final class CategoryAlerts: ObservableObject {
     func reset() async {
         await clear()
         defaults.removeObject(forKey: Key.profileId)
-        defaults.removeObject(forKey: Key.changes)
+        defaults.removeObject(forKey: Key.days)
         defaults.removeObject(forKey: Key.lastRefresh)
         defaults.removeObject(forKey: Key.scheduledHour)
         defaults.removeObject(forKey: Key.scheduledMinute)
@@ -336,13 +339,13 @@ final class CategoryAlerts: ObservableObject {
         do {
             // Starting yesterday, not today, and one day longer to pay for it.
             //
-            // `CategoryChange.list` cannot judge the first day of a window —
-            // it has nothing to compare it against — so a window that started
-            // today could never alert for today. That was not merely a missing
-            // alert: this rebuild runs on every foreground, and it clears the
-            // queue before re-laying it. Opening the app on the morning of a
-            // change, before the alert fired, deleted that day's alert and did
-            // not put it back. With an 8am default, opening the app at
+            // `DailyAlert.list` cannot word the first day of a window — it has
+            // nothing to say where the day came from — so a window that
+            // started today could never alert for today. That was not merely a
+            // missing alert: this rebuild runs on every foreground, and it
+            // clears the queue before re-laying it. Opening the app in the
+            // morning, before the alert fired, deleted that day's alert and
+            // did not put it back. With an 8am default, opening the app at
             // breakfast destroyed the very notification being waited for.
             days = try await api.fetchForecast(
                 profileId: profileId,
@@ -355,10 +358,10 @@ final class CategoryAlerts: ObservableObject {
             return
         }
 
-        let changes = CategoryChange.list(in: days)
-        store(changes)
+        let alerts = DailyAlert.list(in: days)
+        store(alerts)
         defaults.set(Date().timeIntervalSince1970, forKey: Key.lastRefresh)
-        await apply(changes)
+        await apply(alerts)
     }
 
     private func resolveProfileId(_ profile: ProfileSummary?) async -> String? {
@@ -385,7 +388,7 @@ final class CategoryAlerts: ObservableObject {
     /// Replaces the queue wholesale. Rebuilding rather than diffing keeps the
     /// pending list a straight function of the latest forecast, so a revised
     /// day can never leave yesterday's alert behind.
-    private func apply(_ changes: [CategoryChange]) async {
+    private func apply(_ days: [DailyAlert]) async {
         await clear()
 
         let now = Date()
@@ -394,15 +397,15 @@ final class CategoryAlerts: ObservableObject {
         calendar.timeZone = zone
 
         var scheduled = 0
-        for change in changes where scheduled < Self.maximumScheduled {
-            guard let components = change.fireComponents(hour: hour, minute: minute, in: zone),
+        for day in days where scheduled < Self.maximumScheduled {
+            guard let components = day.fireComponents(hour: hour, minute: minute, in: zone),
                   let fireDate = calendar.date(from: components),
                   fireDate > now
             else { continue }
 
             let request = UNNotificationRequest(
-                identifier: Self.identifierPrefix + change.date,
-                content: Self.content(for: change),
+                identifier: Self.identifierPrefix + day.date,
+                content: Self.content(for: day),
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             )
 
@@ -410,18 +413,18 @@ final class CategoryAlerts: ObservableObject {
                 try await center.add(request)
                 scheduled += 1
             } catch {
-                NSLog("[Alerts] could not schedule \(change.date): \(error.localizedDescription)")
+                NSLog("[Alerts] could not schedule \(day.date): \(error.localizedDescription)")
             }
         }
 
         defaults.set(hour, forKey: Key.scheduledHour)
         defaults.set(minute, forKey: Key.scheduledMinute)
         await readPending()
-        NSLog("[Alerts] scheduled \(scheduled) of \(changes.count) category changes")
+        NSLog("[Alerts] scheduled \(scheduled) of \(days.count) days")
     }
 
     /// `YYYY-MM-DD` for the day before the given one, in the zone the forecast
-    /// is cast for. Hand-formatted for the same reason `CategoryChange` splits
+    /// is cast for. Hand-formatted for the same reason `DailyAlert` splits
     /// dates by hand: this is a calendar date, not an instant.
     private static func isoDay(before date: Date, in zone: TimeZone) -> String {
         var calendar = Calendar(identifier: .gregorian)
@@ -436,20 +439,20 @@ final class CategoryAlerts: ObservableObject {
     }
 
     /// Fires one alert a few seconds out, built by the same code that builds
-    /// the scheduled ones, from the next change on file.
+    /// the scheduled ones, from the next day on file.
     ///
     /// A calendar trigger cannot land sooner than the day it names, so this is
     /// the only way to establish that delivery works on a given device without
-    /// waiting for the weather to turn. It carries the shared prefix so a
-    /// toggle switched off in the meantime takes it with everything else.
+    /// waiting for tomorrow. It carries the shared prefix so a toggle switched
+    /// off in the meantime takes it with everything else.
     @discardableResult
     func sendTestAlert(after seconds: TimeInterval = 5) async -> Bool {
         await syncAuthorization()
-        guard isAuthorized, let change = storedChanges()?.first else { return false }
+        guard isAuthorized, let day = storedDays()?.first else { return false }
 
         let request = UNNotificationRequest(
             identifier: Self.identifierPrefix + "test",
-            content: Self.content(for: change),
+            content: Self.content(for: day),
             trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
         )
 
@@ -466,18 +469,18 @@ final class CategoryAlerts: ObservableObject {
     /// line, and the gradient card as the attachment — which iOS shows as the
     /// notification's thumbnail beside the words and full width once the
     /// banner is expanded.
-    static func content(for change: CategoryChange) -> UNMutableNotificationContent {
+    static func content(for day: DailyAlert) -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
-        content.title = change.title
-        content.subtitle = change.subtitle
-        content.body = change.body
+        content.title = day.title
+        content.subtitle = day.subtitle
+        content.body = day.body
         content.sound = .default
-        // One thread, so a run of changing days does not stack up as a dozen
-        // separate conversations in Notification Centre.
+        // One thread, so a fortnight of daily banners does not stack up as
+        // fourteen separate conversations in Notification Centre.
         content.threadIdentifier = "cosmic-weather"
-        content.userInfo = ["date": change.date, "feelsLike": change.to, "tii": change.tii]
+        content.userInfo = ["date": day.date, "feelsLike": day.to, "tii": day.tii]
 
-        if let artwork = CategoryArtwork.file(for: change) {
+        if let artwork = CategoryArtwork.file(for: day) {
             do {
                 content.attachments = [
                     try UNNotificationAttachment(
@@ -489,7 +492,7 @@ final class CategoryAlerts: ObservableObject {
             } catch {
                 // The words alone still say what changed, so a card that fails
                 // to attach costs the picture and nothing else.
-                NSLog("[Alerts] artwork rejected for \(change.date): \(error.localizedDescription)")
+                NSLog("[Alerts] artwork rejected for \(day.date): \(error.localizedDescription)")
                 try? FileManager.default.removeItem(at: artwork)
             }
         }
@@ -497,14 +500,14 @@ final class CategoryAlerts: ObservableObject {
         return content
     }
 
-    private func store(_ changes: [CategoryChange]) {
-        guard let data = try? JSONEncoder().encode(changes) else { return }
-        defaults.set(data, forKey: Key.changes)
+    private func store(_ days: [DailyAlert]) {
+        guard let data = try? JSONEncoder().encode(days) else { return }
+        defaults.set(data, forKey: Key.days)
     }
 
-    private func storedChanges() -> [CategoryChange]? {
-        guard let data = defaults.data(forKey: Key.changes) else { return nil }
-        return try? JSONDecoder().decode([CategoryChange].self, from: data)
+    private func storedDays() -> [DailyAlert]? {
+        guard let data = defaults.data(forKey: Key.days) else { return nil }
+        return try? JSONDecoder().decode([DailyAlert].self, from: data)
     }
 }
 
@@ -572,9 +575,9 @@ extension CategoryAlerts {
             return
         }
 
-        let changes = CategoryChange.list(in: days)
-        store(changes)
-        await apply(changes)
+        let alerts = DailyAlert.list(in: days)
+        store(alerts)
+        await apply(alerts)
         await logPending()
     }
 
