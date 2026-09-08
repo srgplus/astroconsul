@@ -1,4 +1,6 @@
 App/build
+# The local Capacitor SPM package builds into its own tree.
+App/CapApp-SPM/build
 App/Pods
 App/output
 App/App/public

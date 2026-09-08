@@ -4,6 +4,29 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### Russian fits the chart header, and deletion moved to the bottom of Settings
+`ChartModePicker` was breaking its own labels across two lines on the Russian
+build: "Рождение"/"Транзит" are half again as wide as "Birth"/"Transit", and
+the control was the thing being squeezed on a header line it shares with the
+card title. The labels now take `lineLimit(1).fixedSize()` and the capsule as a
+whole is `fixedSize()`, so the picker keeps its ideal width; the horizontal
+padding drops 12 → 10. What yields instead is the title next to it, which takes
+`lineLimit(1).minimumScaleFactor(0.75)` on both surfaces. Measured against the
+real fonts, Russian fits unscaled at 393pt and scales to 0.85 at 375pt, so
+nothing wraps or truncates in either language.
+
+`ChartCaption.hint` defaulted to the literal `"Tap a planet or a line"`, so the
+card printed English under a Russian chart while the full-screen wheel, which
+passes `L("chart.tapHintZoom")`, was right. It is `String?` now and nil falls
+through to `L("chart.tapHint")`, which both languages already have.
+`ChartFullScreenView` also observes `L10n.shared`, so its own bar follows a
+language switched underneath it.
+
+**Delete account is its own section at the foot of Settings**, past About,
+carrying the footer that explains it — it was the row directly under Sign out.
+Nothing about the confirmation changes; the alerts moved with the button.
+
+
 ### The profile's ••• copies the whole reading as Markdown
 `Features/Weather/ProfileReport.swift` writes one profile's reading out as
 Markdown for pasting into a chat model. It costs no request: by the time the
