@@ -39,6 +39,8 @@ struct ChartFullScreenView: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @ObservedObject private var strings = L10n.shared
+
     @State private var detail: ActiveAspect?
 
     /// The zoom the last pinch settled on, and the pinch in progress. The
@@ -114,6 +116,8 @@ struct ChartFullScreenView: View {
             Text(L("chart.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
 
             Spacer(minLength: 8)
 

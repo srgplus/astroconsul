@@ -35,6 +35,7 @@ struct SettingsView: View {
                 appearanceSection
                 languageSection
                 aboutSection
+                deleteAccountSection
             }
             .task { await alerts.syncState() }
             .alert(
@@ -74,13 +75,18 @@ struct SettingsView: View {
             Button(L("settings.signOut"), role: .destructive) {
                 auth.signOut()
             }
-
-            // Last, and destructive, the way an irreversible action is drawn
-            // everywhere else in the app.
-            Button(L("settings.deleteAccount"), role: .destructive) { confirmsDelete = true }
-                .disabled(isDeleting)
         } header: {
             Text(L("settings.account"))
+        }
+    }
+
+    /// The one irreversible thing on the screen, and the last row of the last
+    /// section — far enough from Sign out that a thumb reaching for one cannot
+    /// land on the other, and reached only by scrolling past everything else.
+    private var deleteAccountSection: some View {
+        Section {
+            Button(L("settings.deleteAccount"), role: .destructive) { confirmsDelete = true }
+                .disabled(isDeleting)
         } footer: {
             Text(L("settings.accountFooter"))
         }

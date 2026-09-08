@@ -135,6 +135,8 @@ struct ChartWheelCard: View {
             Text(L("chart.title").uppercased())
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(0.5)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .foregroundStyle(.white.opacity(0.7))
 
             Spacer(minLength: 8)
@@ -186,8 +188,9 @@ struct ChartCaption: View {
 
     let chart: ChartWheelData
     let selection: ChartWheelSelection?
-    /// What the line says with nothing selected.
-    var hint = "Tap a planet or a line"
+    /// What the line says with nothing selected. Nil takes the plain hint;
+    /// the full-screen wheel passes its own, which also names the pinch.
+    var hint: String?
     /// Only a transit aspect has a sheet: it is the only thing the caption
     /// names that the report gives a window and a meaning for.
     var onAspect: (ActiveAspect) -> Void = { _ in }
@@ -266,8 +269,12 @@ struct ChartModePicker: View {
 
                 Text(option.title)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    // "Рождение" is half again as long as "Birth" and was
+                    // breaking across two lines inside its own capsule.
+                    .lineLimit(1)
+                    .fixedSize()
                     .foregroundStyle(isSelected ? Color.black.opacity(0.8) : .white.opacity(0.75))
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background {
                         if isSelected {
@@ -285,6 +292,7 @@ struct ChartModePicker: View {
         }
         .padding(2)
         .background(Capsule().fill(.white.opacity(0.16)))
+        .fixedSize()
     }
 }
 
