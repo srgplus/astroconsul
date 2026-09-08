@@ -4,6 +4,36 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### How often the weather notification comes is a setting, default "on changes"
+The day before, the schedule was made unconditionally daily. That traded one
+wrong reading for another: a banner saying "holding, same as yesterday" for the
+ninth morning is what teaches people to switch notifications off, and switching
+them off takes the rare "tomorrow is Explosive" with it. So the cadence is a
+choice — `CategoryAlerts.Cadence` (`.changes` | `.daily`), a menu picker in the
+notifications section, `defaultCadence == .changes`.
+
+`DailyAlert.list(in:)` still returns **every** day; `apply(_:)` is what filters
+(`cadence == .daily ? days : days.filter(\.changed)`). That is deliberate: the
+stored list is the same either way, so flipping the picker re-lays the queue
+from what is already on file, with no forecast round trip. `wasLaidAtAnotherTime`
+became `wasLaidForOtherSettings` and now also compares `Key.scheduledCadence`,
+so a queue laid for the other setting is rebuilt on the next foreground even if
+nobody touched the picker.
+
+**The stored list moved to a new key**, `categoryAlertsDays`. Builds up to
+1.2 (12) wrote only the turning days under `categoryAlertsChanges`; read as a
+day-by-day list on upgrade that would lay a fortnight of four. A key nothing
+reads means "nothing stored", which sends `reschedule()` to fetch a real
+forecast, and `init` sweeps the legacy key once.
+
+Settings counts in the unit the cadence schedules by — `common.change.*` on the
+turns, `common.dayCount.*` on the daily setting — and the footer has one string
+per cadence (`settings.footerChanges`, `settings.footerDaily`). The toggle is
+`settings.weatherAlerts` ("Cosmic weather" / "Космическая погода"). The test row
+sends the first day the cadence would actually fire for, so "on changes" tests a
+turning day's wording rather than a held day's.
+
+
 ### The weather notification is daily, not only on the days the category turns
 `Core/CategoryChange.swift` is now `Core/DailyAlert.swift`, and
 `DailyAlert.list(in:)` returns **every** day of the window rather than only
@@ -26,10 +56,10 @@ category says `alert.steady` ("Holding, same as yesterday") rather than
 the gradient card attachment, the 14-day horizon, the 32 cap against the
 system's 64 — is unchanged.
 
-Settings counts days, not changes: `common.change.*` is gone and
-`common.dayCount.*` replaces it, the toggle is `settings.dailyAlert`
-("Daily forecast" / "Прогноз на день"), and the footer and the first-run offer
-say once a day at the chosen time.
+Settings counted days rather than changes, and the toggle read "Daily
+forecast". Superseded the same day by the cadence setting above, which is what
+the code now does — this entry is kept because the day-by-day list and the
+anchor day it rests on came from here.
 
 ### Russian fits the chart header, and deletion moved to the bottom of Settings
 `ChartModePicker` was breaking its own labels across two lines on the Russian

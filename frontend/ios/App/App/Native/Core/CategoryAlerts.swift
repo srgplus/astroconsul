@@ -3,8 +3,16 @@ import Foundation
 import UserNotifications
 
 /// Tells the device the day's cosmic weather — one of the twelve feels-like
-/// categories the engine can return, `Calm` … `Explosive` — once a day, at the
-/// hour the person chose.
+/// categories the engine can return, `Calm` … `Explosive` — at the hour the
+/// person chose, either every day or only on the days the category turns.
+///
+/// The cadence is theirs to set and defaults to the turns. A banner that says
+/// "holding, same as yesterday" for the ninth morning running is the kind of
+/// notification people switch off wholesale, and switching it off takes the
+/// rare "tomorrow is Explosive" with it. But a fortnight can hold four turns
+/// and none of them this week, which reads as a broken feature to someone who
+/// has just set a time — so the choice is put in Settings rather than decided
+/// here, and both readings of it are honest.
 ///
 /// These are *local* notifications, not APNs pushes, and that is a deliberate
 /// reading of the problem rather than a shortcut. The forecast is deterministic
@@ -29,9 +37,17 @@ final class CategoryAlerts: ObservableObject {
         static let hour = "categoryAlertsHour"
         static let minute = "categoryAlertsMinute"
         static let profileId = "categoryAlertsProfileId"
-        /// The forecast turned into a day-by-day list. The string is the key
-        /// already on disk, from when only the changing days were kept.
-        static let days = "categoryAlertsChanges"
+        static let cadence = "categoryAlertsCadence"
+        /// The forecast, every day of it, whether or not the category turned.
+        ///
+        /// A key of its own rather than the `categoryAlertsChanges` the old
+        /// build wrote: that one held only the turning days, and a device
+        /// upgrading with it on disk would lay a "every day" schedule of four
+        /// days. An unreadable key reads as nothing stored, which sends
+        /// `reschedule()` to fetch a real forecast — see `legacyDaysKey`.
+        static let days = "categoryAlertsDays"
+        /// Written by builds up to 1.2 (12). Swept once, never read.
+        static let legacyDays = "categoryAlertsChanges"
         static let lastRefresh = "categoryAlertsLastRefresh"
         /// Whether the first-run card has had its answer. Written either way,
         /// so "Not now" is not asked again on the next launch.
@@ -40,7 +56,24 @@ final class CategoryAlerts: ObservableObject {
         /// not always the time now set — see `refresh(profile:force:)`.
         static let scheduledHour = "categoryAlertsScheduledHour"
         static let scheduledMinute = "categoryAlertsScheduledMinute"
+        /// The cadence the queue on file was laid for, for the same reason.
+        static let scheduledCadence = "categoryAlertsScheduledCadence"
     }
+
+    /// How often a banner is owed. Stored as its raw value so `@AppStorage`
+    /// in Settings can bind straight to it.
+    enum Cadence: String, CaseIterable, Identifiable {
+        /// Only the days whose category differs from the day before.
+        case changes
+        /// Every day of the window.
+        case daily
+
+        var id: String { rawValue }
+        var label: String { L("settings.cadence.\(rawValue)") }
+    }
+
+    /// The turns, unless someone says otherwise. See the note on the class.
+    static let defaultCadence = Cadence.changes
 
     /// On by default. The alerts are the feature, not an opt-in extra, and the
     /// switch in Settings is there to turn them *off* — an account that never
@@ -111,7 +144,11 @@ final class CategoryAlerts: ObservableObject {
             Key.enabled: Self.defaultEnabled,
             Key.hour: Self.defaultHour,
             Key.minute: Self.defaultMinute,
+            Key.cadence: Self.defaultCadence.rawValue,
         ])
+        // The old list, in the old shape, under the old key. Nothing reads it;
+        // this is only so it does not sit in defaults for the life of the app.
+        defaults.removeObject(forKey: Key.legacyDays)
     }
 
     // MARK: - Settings
@@ -171,6 +208,12 @@ final class CategoryAlerts: ObservableObject {
 
     private var hour: Int { defaults.integer(forKey: Key.hour) }
     private var minute: Int { defaults.integer(forKey: Key.minute) }
+
+    /// What the queue is currently laid for. An unreadable value — a build
+    /// that wrote something else, a hand-edited plist — is the default.
+    var cadence: Cadence {
+        defaults.string(forKey: Key.cadence).flatMap(Cadence.init(rawValue:)) ?? Self.defaultCadence
+    }
 
     private var isAuthorized: Bool {
         authorization == .authorized || authorization == .provisional
@@ -245,13 +288,13 @@ final class CategoryAlerts: ObservableObject {
             return
         }
 
-        // A queue laid at a different time of day than the one now set.
+        // A queue laid for different settings than the ones now in force.
         // `reschedule()` only runs when the picker is touched, so without this
         // a change to the *default* hour — 8 became 12 — would leave Settings
         // saying noon over a fortnight of eight o'clocks until the next
         // rebuild happened to fall due.
         await readPending()
-        if scheduledCount > 0, wasLaidAtAnotherTime, let days = storedDays(), !days.isEmpty {
+        if scheduledCount > 0, wasLaidForOtherSettings, let days = storedDays(), !days.isEmpty {
             await apply(days)
         }
 
@@ -271,8 +314,12 @@ final class CategoryAlerts: ObservableObject {
         inFlight = nil
     }
 
-    /// Re-lays the schedule already on file at a new time of day, without
-    /// asking the server for a forecast it just sent.
+    /// Re-lays the schedule already on file at a new time of day, or for a
+    /// new cadence, without asking the server for a forecast it just sent.
+    ///
+    /// Nothing on file — including the day this build first runs, where the
+    /// old build's list is under a key nothing reads — falls through to a real
+    /// refresh, so switching to "every day" cannot lay a fortnight of four.
     func reschedule() async {
         guard isEnabled else {
             await clear()
@@ -313,6 +360,7 @@ final class CategoryAlerts: ObservableObject {
         defaults.removeObject(forKey: Key.lastRefresh)
         defaults.removeObject(forKey: Key.scheduledHour)
         defaults.removeObject(forKey: Key.scheduledMinute)
+        defaults.removeObject(forKey: Key.scheduledCadence)
     }
 
     // MARK: - Internals
@@ -323,12 +371,14 @@ final class CategoryAlerts: ObservableObject {
         return Date().timeIntervalSince1970 - last >= Self.minimumRefreshInterval
     }
 
-    /// Whether the pending queue was laid at some other hour than the one now
-    /// set. A queue built before this key existed reads as 0, which is not a
-    /// time anything was ever scheduled for, so it counts as stale.
-    private var wasLaidAtAnotherTime: Bool {
+    /// Whether the pending queue was laid at some other hour, or for some
+    /// other cadence, than the one now set. A queue built before these keys
+    /// existed reads as 0 and `nil`, neither of which anything was ever
+    /// scheduled for, so it counts as stale.
+    private var wasLaidForOtherSettings: Bool {
         defaults.integer(forKey: Key.scheduledHour) != hour
             || defaults.integer(forKey: Key.scheduledMinute) != minute
+            || defaults.string(forKey: Key.scheduledCadence) != cadence.rawValue
     }
 
     private func rebuild(profile: ProfileSummary?) async {
@@ -396,8 +446,14 @@ final class CategoryAlerts: ObservableObject {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = zone
 
+        // The stored list is every day either way; the cadence decides which
+        // of them are owed a banner. Filtering here rather than at the point
+        // the forecast is read is what lets the switch in Settings re-lay the
+        // queue from what is already on file, with no round trip.
+        let owed = cadence == .daily ? days : days.filter(\.changed)
+
         var scheduled = 0
-        for day in days where scheduled < Self.maximumScheduled {
+        for day in owed where scheduled < Self.maximumScheduled {
             guard let components = day.fireComponents(hour: hour, minute: minute, in: zone),
                   let fireDate = calendar.date(from: components),
                   fireDate > now
@@ -419,8 +475,9 @@ final class CategoryAlerts: ObservableObject {
 
         defaults.set(hour, forKey: Key.scheduledHour)
         defaults.set(minute, forKey: Key.scheduledMinute)
+        defaults.set(cadence.rawValue, forKey: Key.scheduledCadence)
         await readPending()
-        NSLog("[Alerts] scheduled \(scheduled) of \(days.count) days")
+        NSLog("[Alerts] scheduled \(scheduled) of \(owed.count) owed, \(cadence.rawValue)")
     }
 
     /// `YYYY-MM-DD` for the day before the given one, in the zone the forecast
@@ -448,7 +505,14 @@ final class CategoryAlerts: ObservableObject {
     @discardableResult
     func sendTestAlert(after seconds: TimeInterval = 5) async -> Bool {
         await syncAuthorization()
-        guard isAuthorized, let day = storedDays()?.first else { return false }
+        // The first day the cadence would actually fire for, so the banner
+        // under test is the banner that gets sent. On "on changes" the first
+        // stored day is usually a day that held, whose wording is the one
+        // thing this row is not testing.
+        let days = storedDays() ?? []
+        guard isAuthorized,
+              let day = days.first(where: { cadence == .daily || $0.changed }) ?? days.first
+        else { return false }
 
         let request = UNNotificationRequest(
             identifier: Self.identifierPrefix + "test",
