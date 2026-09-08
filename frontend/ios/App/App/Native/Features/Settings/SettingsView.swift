@@ -133,11 +133,11 @@ struct SettingsView: View {
         isDeleting = false
     }
 
-    /// The one thing worth interrupting someone for: the day their weather
-    /// stops being one of the twelve categories and becomes another.
+    /// One banner a day, at the hour set here: which of the twelve categories
+    /// the day reads as, and what it came from.
     private var notificationsSection: some View {
         Section {
-            Toggle(L("settings.categoryChanges"), isOn: $alertsEnabled)
+            Toggle(L("settings.dailyAlert"), isOn: $alertsEnabled)
 
             if alertsEnabled {
                 if alerts.authorization == .denied {
@@ -150,15 +150,14 @@ struct SettingsView: View {
                     )
 
                     LabeledContent(L("settings.scheduled")) {
-                        Text(L(count: alerts.scheduledCount, "common.change"))
+                        Text(L(count: alerts.scheduledCount, "common.dayCount"))
                             .foregroundStyle(Theme.textDim)
                     }
 
-                    // The count on its own is what made the feature look
-                    // broken: a fortnight holding eight changes can still
-                    // mean nothing for the next six days, and a count of
-                    // eight reads as eight banners owed. The date is the part
-                    // that can be checked against.
+                    // The count says how far the queue reaches; the date says
+                    // when the next banner actually lands. Both, because a
+                    // fortnight on file is not a promise about tomorrow —
+                    // today's alert is gone once its hour has passed.
                     if let next = alerts.nextAlert {
                         LabeledContent(L("settings.nextAlert")) {
                             Text(next, format: Self.nextFormat)
@@ -166,7 +165,7 @@ struct SettingsView: View {
                         }
                     }
 
-                    if alerts.hasStoredChanges {
+                    if alerts.hasStoredDays {
                         Button(L("settings.sendTest")) { sendTest() }
                     }
                 }
@@ -186,8 +185,8 @@ struct SettingsView: View {
         .onChange(of: alertMinute) { _, _ in Task { await alerts.reschedule() } }
     }
 
-    /// "Tue 9 Sep at 12:00" — weekday and day, because "in 6 days" is the one
-    /// thing the row must not be vague about.
+    /// "Tue 9 Sep at 12:00" — weekday and day, so the row can be checked
+    /// against the clock rather than taken on trust.
     private static let nextFormat = Date.FormatStyle()
         .weekday(.abbreviated)
         .day()

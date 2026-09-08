@@ -1,38 +1,47 @@
 import Foundation
 
-/// A day on which the forecast's feels-like category differs from the day
-/// before it — the thing an alert is fired for.
+/// One day of the forecast, ready to be fired as a notification.
 ///
 /// The engine casts one reading per local noon and sorts it into one of twelve
-/// categories (`Calm` … `Explosive`, the TII × tension matrix), so a change
-/// always lands on a day boundary and the whole window is known in advance.
-/// That is what lets the alerts be local: this type turns a forecast into a
-/// list of dates, and `CategoryAlerts` hands them to iOS.
+/// categories (`Calm` … `Explosive`, the TII × tension matrix), so a day is the
+/// unit the whole feature is built on and the entire window is known in
+/// advance. That is what lets the alerts be local: this type turns a forecast
+/// into a list of days, and `CategoryAlerts` hands them to iOS.
+///
+/// One alert per day, not one per change. Alerting only on the days the
+/// category moved is a smaller promise than it sounds: a calm fortnight has
+/// nothing to say, and Settings then shows a next alert six days out for
+/// someone who asked to hear from the app every day at noon. The day it *did*
+/// change is still marked — `changed` is what the wording turns on — but the
+/// schedule no longer skips the days it did not.
 ///
 /// Deliberately free of UserNotifications and UIKit so the rule that decides
-/// *whether* and *when* to notify can be exercised on its own.
-struct CategoryChange: Codable, Equatable {
+/// *what* to say and *when* can be exercised on its own.
+struct DailyAlert: Codable, Equatable {
 
     /// `YYYY-MM-DD` in the timezone the forecast was asked for.
     let date: String
+    /// The day before's category, which is what makes the wording possible.
     let from: String
     let to: String
     let fromTii: Double
     let tii: Double
 
-    /// Every day in the window whose category differs from its predecessor.
+    /// Whether the category moved overnight. Only the copy reads this now;
+    /// the schedule covers both kinds of day.
+    var changed: Bool { from != to }
+
+    /// Every day in the window except the first.
     ///
-    /// Day zero is never a candidate: it has no predecessor inside the window,
-    /// so there is nothing to say it changed. That makes the first day an
-    /// anchor rather than a result, which is why `CategoryAlerts` asks for a
-    /// window starting the day *before* the first one it wants to alert on —
-    /// otherwise today could never be alerted for, and a rebuild on the
-    /// morning of a change would drop that day's alert instead of re-laying
-    /// it.
-    static func list(in days: [ForecastDay]) -> [CategoryChange] {
-        zip(days, days.dropFirst()).compactMap { previous, day in
-            guard day.feelsLike != previous.feelsLike else { return nil }
-            return CategoryChange(
+    /// Day zero is the anchor, not a result: it has no predecessor inside the
+    /// window, so there is nothing to say the day came from. That is why
+    /// `CategoryAlerts` asks for a window starting the day *before* the first
+    /// one it wants to alert on — otherwise today could never be alerted for,
+    /// and a rebuild on the morning of an alert would drop that day instead of
+    /// re-laying it.
+    static func list(in days: [ForecastDay]) -> [DailyAlert] {
+        zip(days, days.dropFirst()).map { previous, day in
+            DailyAlert(
                 date: day.date,
                 from: previous.feelsLike,
                 to: day.feelsLike,
@@ -42,8 +51,8 @@ struct CategoryChange: Codable, Equatable {
         }
     }
 
-    /// When the alert for this change should fire: the change's own day, at the
-    /// chosen hour, in the zone the forecast was cast for.
+    /// When this day's alert should fire: the day itself, at the chosen hour,
+    /// in the zone the forecast was cast for.
     ///
     /// Returned as components rather than a `Date` because that is what
     /// `UNCalendarNotificationTrigger` takes, and because carrying the zone
@@ -91,13 +100,20 @@ struct CategoryChange: Codable, Equatable {
     /// subtitle always shows.
     var subtitle: String { L("weather.intensityValue", Int(tii.rounded())) }
 
-    /// The title names the new category and the subtitle carries the reading,
-    /// so the body is only what neither of them says: where the day came from.
+    /// The title names the day's category and the subtitle carries the
+    /// reading, so the body is only what neither of them says: where the day
+    /// came from.
+    ///
+    /// A day that held its category says so plainly. Naming the same category
+    /// twice — "shifting from Calm" on a second calm day — is the wording that
+    /// makes a daily alert read as broken.
     ///
     /// No "today" on the end. The alert is dated by the system the moment it
     /// lands, and an evening reader is being told about a day already half
     /// spent.
     var body: String {
+        guard changed else { return L("alert.steady") }
+
         let verb: String
         if tii > fromTii {
             verb = L("alert.rising")

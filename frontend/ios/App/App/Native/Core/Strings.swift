@@ -42,9 +42,9 @@ private let enUI: [String: String] = [
     "common.year.one": "%d year",
     "common.year.few": "%d years",
     "common.year.many": "%d years",
-    "common.change.one": "%d change",
-    "common.change.few": "%d changes",
-    "common.change.many": "%d changes",
+    "common.dayCount.one": "%d day",
+    "common.dayCount.few": "%d days",
+    "common.dayCount.many": "%d days",
 
     // Settings
     "settings.title": "Settings",
@@ -59,12 +59,12 @@ private let enUI: [String: String] = [
     "settings.deleteAccountKeep": "Keep my account",
     "settings.deleteAccountFailed": "Could not delete the account",
     "settings.notifications": "Notifications",
-    "settings.categoryChanges": "Category changes",
+    "settings.dailyAlert": "Daily forecast",
     "settings.openIosSettings": "Turn on in iOS Settings",
     "settings.timeOfDay": "Time of day",
     "settings.scheduled": "Scheduled",
     "settings.notificationsDenied": "Notifications are switched off for big3.me in iOS Settings, so nothing can be scheduled.",
-    "settings.notificationsFooter": "Each day reads as one of twelve categories, from Calm to Explosive. Get a notification on the days ahead when it moves to a different one, for the profile marked as yours.",
+    "settings.notificationsFooter": "Each day reads as one of twelve categories, from Calm to Explosive. One notification a day at this time, for the profile marked as yours, saying which one the day is.",
     "settings.nextAlert": "Next",
     "settings.sendTest": "Send a test notification",
     "settings.testAlert": "Test notification",
@@ -100,9 +100,9 @@ private let enUI: [String: String] = [
     "auth.checkInbox": "Check your inbox for the code.",
 
     // First-run offer of the category alerts
-    "offer.title": "Know when the weather turns",
-    "offer.body": "Each day reads as one of twelve categories, from Calm to Explosive. We'll tell you on the days ahead when it moves to a different one.",
-    "offer.footnote": "Around midday, and only on the days it actually changes.",
+    "offer.title": "Know what the day reads as",
+    "offer.body": "Each day reads as one of twelve categories, from Calm to Explosive. We'll tell you every morning which one it is, and what it came from.",
+    "offer.footnote": "Once a day, around midday. The time is yours to change in Settings.",
     "offer.accept": "Turn them on",
     "offer.decline": "Not now",
 
@@ -306,6 +306,7 @@ private let enUI: [String: String] = [
     "alert.rising": "Rising",
     "alert.easing": "Easing",
     "alert.shifting": "Shifting",
+    "alert.steady": "Holding, same as yesterday",
     "alert.body": "%1$@ from %2$@",
 
     // Errors
@@ -467,9 +468,9 @@ private let ruUI: [String: String] = [
     "common.year.one": "%d год",
     "common.year.few": "%d года",
     "common.year.many": "%d лет",
-    "common.change.one": "%d смена",
-    "common.change.few": "%d смены",
-    "common.change.many": "%d смен",
+    "common.dayCount.one": "%d день",
+    "common.dayCount.few": "%d дня",
+    "common.dayCount.many": "%d дней",
 
     // Settings
     "settings.title": "Настройки",
@@ -484,12 +485,12 @@ private let ruUI: [String: String] = [
     "settings.deleteAccountKeep": "Оставить аккаунт",
     "settings.deleteAccountFailed": "Не удалось удалить аккаунт",
     "settings.notifications": "Уведомления",
-    "settings.categoryChanges": "Смена категории",
+    "settings.dailyAlert": "Прогноз на день",
     "settings.openIosSettings": "Включить в настройках iOS",
     "settings.timeOfDay": "Время дня",
     "settings.scheduled": "Запланировано",
     "settings.notificationsDenied": "Уведомления для big3.me отключены в настройках iOS, поэтому запланировать их нельзя.",
-    "settings.notificationsFooter": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Приходит уведомление о днях, когда она сменится на другую, для профиля, отмеченного как ваш.",
+    "settings.notificationsFooter": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Одно уведомление в день в это время, для профиля, отмеченного как ваш: какая категория у дня.",
     "settings.nextAlert": "Следующее",
     "settings.sendTest": "Отправить тестовое уведомление",
     "settings.testAlert": "Тестовое уведомление",
@@ -525,9 +526,9 @@ private let ruUI: [String: String] = [
     "auth.checkInbox": "Проверьте почту, там код.",
 
     // First-run offer of the category alerts
-    "offer.title": "Узнавайте, когда погода меняется",
-    "offer.body": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Мы скажем заранее о днях, когда она сменится на другую.",
-    "offer.footnote": "Около полудня и только в те дни, когда она правда меняется.",
+    "offer.title": "Узнавайте, какой у дня характер",
+    "offer.body": "Каждый день читается как одна из двенадцати категорий, от «Спокойно» до «Взрывоопасно». Каждый день скажем, какая она сегодня и что было вчера.",
+    "offer.footnote": "Раз в день, около полудня. Время меняется в настройках.",
     "offer.accept": "Включить",
     "offer.decline": "Не сейчас",
 
@@ -725,6 +726,7 @@ private let ruUI: [String: String] = [
     "alert.rising": "Растёт",
     "alert.easing": "Спадает",
     "alert.shifting": "Меняется",
+    "alert.steady": "Держится, как вчера",
     "alert.body": "%1$@, было «%2$@»",
 
     // Errors

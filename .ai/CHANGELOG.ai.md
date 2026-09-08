@@ -4,6 +4,33 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-07
 
+### The weather notification is daily, not only on the days the category turns
+`Core/CategoryChange.swift` is now `Core/DailyAlert.swift`, and
+`DailyAlert.list(in:)` returns **every** day of the window rather than only
+the days whose feels-like category differs from the day before. The old rule
+made a promise smaller than the settings screen read: someone who picked a
+time saw "4 changes / Next: Wed 16 Sep" — a week of silence from a feature
+they had set to noon.
+
+The window still starts the day *before* the first day alerted on. Day zero is
+the anchor that gives the copy its "came from", so a window starting today
+could still never alert for today, and a rebuild — which runs on every
+foreground and clears the queue before re-laying it — would drop today's alert
+instead of putting it back.
+
+`DailyAlert.changed` is what the wording turns on now: a day that held its
+category says `alert.steady` ("Holding, same as yesterday") rather than
+"shifting from Calm" onto a second calm day. Everything else — the local
+`UNCalendarNotificationTrigger`s, the `category-change.` identifier prefix
+(kept so an upgrade's `clear()` still sweeps the queue the old build laid),
+the gradient card attachment, the 14-day horizon, the 32 cap against the
+system's 64 — is unchanged.
+
+Settings counts days, not changes: `common.change.*` is gone and
+`common.dayCount.*` replaces it, the toggle is `settings.dailyAlert`
+("Daily forecast" / "Прогноз на день"), and the footer and the first-run offer
+say once a day at the chosen time.
+
 ### Russian fits the chart header, and deletion moved to the bottom of Settings
 `ChartModePicker` was breaking its own labels across two lines on the Russian
 build: "Рождение"/"Транзит" are half again as wide as "Birth"/"Transit", and

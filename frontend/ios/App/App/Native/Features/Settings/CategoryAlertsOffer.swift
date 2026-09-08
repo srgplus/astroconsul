@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The first-run offer to turn category-change alerts on.
+/// The first-run offer to turn the daily weather alert on.
 ///
 /// The feature shipped behind a switch in Settings, which is the one screen a
 /// new account has no reason to open — so the app's only outward-facing thing
