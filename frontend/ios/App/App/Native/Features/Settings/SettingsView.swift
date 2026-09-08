@@ -13,6 +13,7 @@ struct SettingsView: View {
     @AppStorage(CategoryAlerts.Key.enabled) private var alertsEnabled = CategoryAlerts.defaultEnabled
     @AppStorage(CategoryAlerts.Key.hour) private var alertHour = CategoryAlerts.defaultHour
     @AppStorage(CategoryAlerts.Key.minute) private var alertMinute = CategoryAlerts.defaultMinute
+    @AppStorage(CategoryAlerts.Key.cadence) private var cadence = CategoryAlerts.defaultCadence
 
     /// The outcome of the test row, shown as an alert. Without it the tap does
     /// nothing visible for five seconds, which is the same complaint the row
@@ -133,24 +134,34 @@ struct SettingsView: View {
         isDeleting = false
     }
 
-    /// One banner a day, at the hour set here: which of the twelve categories
-    /// the day reads as, and what it came from.
+    /// Which of the twelve categories the day reads as, at the hour set here —
+    /// every day, or only on the days it turns into a different one.
     private var notificationsSection: some View {
         Section {
-            Toggle(L("settings.dailyAlert"), isOn: $alertsEnabled)
+            Toggle(L("settings.weatherAlerts"), isOn: $alertsEnabled)
 
             if alertsEnabled {
                 if alerts.authorization == .denied {
                     Button(L("settings.openIosSettings")) { openSystemSettings() }
                 } else {
+                    Picker(L("settings.cadence"), selection: $cadence) {
+                        ForEach(CategoryAlerts.Cadence.allCases) { option in
+                            Text(option.label).tag(option)
+                        }
+                    }
+                    .pickerStyle(.menu)
+
                     DatePicker(
                         L("settings.timeOfDay"),
                         selection: alertTime,
                         displayedComponents: .hourAndMinute
                     )
 
+                    // Counted in the unit the cadence actually schedules by:
+                    // "4 changes" over a fortnight is the honest number on one
+                    // setting and a wrong one on the other.
                     LabeledContent(L("settings.scheduled")) {
-                        Text(L(count: alerts.scheduledCount, "common.dayCount"))
+                        Text(L(count: alerts.scheduledCount, scheduledNoun))
                             .foregroundStyle(Theme.textDim)
                     }
 
@@ -183,6 +194,7 @@ struct SettingsView: View {
         }
         .onChange(of: alertHour) { _, _ in Task { await alerts.reschedule() } }
         .onChange(of: alertMinute) { _, _ in Task { await alerts.reschedule() } }
+        .onChange(of: cadence) { _, _ in Task { await alerts.reschedule() } }
     }
 
     /// "Tue 9 Sep at 12:00" — weekday and day, so the row can be checked
@@ -201,11 +213,16 @@ struct SettingsView: View {
         }
     }
 
+    /// "days" on the daily setting, "changes" on the other.
+    private var scheduledNoun: String {
+        cadence == .daily ? "common.dayCount" : "common.change"
+    }
+
     private var notificationsFooter: String {
         if alertsEnabled, alerts.authorization == .denied {
             return L("settings.notificationsDenied")
         }
-        return L("settings.notificationsFooter")
+        return L(cadence == .daily ? "settings.footerDaily" : "settings.footerChanges")
     }
 
     /// `@AppStorage` holds the hour and minute; `DatePicker` wants a `Date`.
