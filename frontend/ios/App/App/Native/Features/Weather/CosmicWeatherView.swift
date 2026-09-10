@@ -30,6 +30,17 @@ struct CosmicWeatherView: View {
     var onEdit: ((ProfileSummary) -> Void)?
     var onUnfollow: ((ProfileSummary) -> Void)?
 
+    /// Everyone the compatibility card can pair this profile with: the
+    /// account's own profiles and the ones it follows, minus this one. Handed
+    /// in because the home screen has already loaded the list the pager is
+    /// built from, so the card costs no request of its own.
+    var partners: [ProfileSummary] = []
+
+    /// Where an account with nobody to compare against is sent, which is the
+    /// search screen. Handed up for the same reason Edit is: the sheet has to
+    /// outlive this page.
+    var onFindPeople: (() -> Void)?
+
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
     @ObservedObject private var strings = L10n.shared
@@ -48,7 +59,9 @@ struct CosmicWeatherView: View {
         bottomInset: CGFloat = 0,
         isPrimary: Bool = false,
         onEdit: ((ProfileSummary) -> Void)? = nil,
-        onUnfollow: ((ProfileSummary) -> Void)? = nil
+        onUnfollow: ((ProfileSummary) -> Void)? = nil,
+        partners: [ProfileSummary] = [],
+        onFindPeople: (() -> Void)? = nil
     ) {
         self.profile = profile
         self.topInset = topInset
@@ -56,6 +69,8 @@ struct CosmicWeatherView: View {
         self.isPrimary = isPrimary
         self.onEdit = onEdit
         self.onUnfollow = onUnfollow
+        self.partners = partners
+        self.onFindPeople = onFindPeople
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
 
@@ -69,6 +84,8 @@ struct CosmicWeatherView: View {
         isPrimary: Bool = false,
         onEdit: ((ProfileSummary) -> Void)? = nil,
         onUnfollow: ((ProfileSummary) -> Void)? = nil,
+        partners: [ProfileSummary] = [],
+        onFindPeople: (() -> Void)? = nil,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
     ) {
         self.profile = profile
@@ -77,6 +94,8 @@ struct CosmicWeatherView: View {
         self.isPrimary = isPrimary
         self.onEdit = onEdit
         self.onUnfollow = onUnfollow
+        self.partners = partners
+        self.onFindPeople = onFindPeople
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -445,6 +464,15 @@ struct CosmicWeatherView: View {
         // above it: a row here names two bodies, and the table is where a
         // reader just looked them up.
         NatalAspectsCard(aspects: model.positions.natalAspects)
+
+        // The first card that needs a second chart, so it comes after every
+        // one that reads this person's own sky.
+        CompatibilityCard(
+            profile: profile,
+            candidates: partners,
+            skyState: state,
+            onFindPeople: onFindPeople
+        )
     }
 
     @ViewBuilder

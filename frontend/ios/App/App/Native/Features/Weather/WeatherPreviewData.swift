@@ -409,6 +409,163 @@ enum WeatherPreviewData {
         make(name: "Aisha Karim", handle: "aishakarim", bornIn: "Lahore, Pakistan", livesIn: "Dubai, UAE", tii: 47, feels: "Dynamic", isOwn: false),
     ]
 
+    // MARK: - Compatibility
+
+    /// The partner the compatibility card opens on in the harness. A followed
+    /// profile rather than one of the account's own, which is the ordinary
+    /// case: most pairs are you against somebody else's chart.
+    static let partner: ProfileSummary =
+        profiles.first { $0.username == "kimkardashian" } ?? profile
+
+    /// A synastry report between `profile` and `partner`, shaped the way
+    /// `POST /profiles/{id}/synastry` answers.
+    ///
+    /// The aspects are real ones between the two charts below, so the bands,
+    /// the sort and the position lines under an opened row all read the way
+    /// they would on an account.
+    static let synastry = SynastryReport(
+        personA: SynastryPerson(
+            name: profile.profileName,
+            handle: profile.username,
+            profileId: profile.profileId
+        ),
+        personB: SynastryPerson(
+            name: partner.profileName,
+            handle: partner.username,
+            profileId: partner.profileId
+        ),
+        scores: SynastryScores(
+            overall: 74,
+            overallLabel: "Magnetic",
+            emotional: 81,
+            mental: 63,
+            physical: 78,
+            karmic: 52,
+            communication: nil,
+            drive: nil,
+            trust: nil,
+            vision: nil
+        ),
+        scoresBusiness: SynastryScores(
+            overall: 58,
+            overallLabel: "Workable",
+            emotional: nil,
+            mental: nil,
+            physical: nil,
+            karmic: nil,
+            communication: 71,
+            drive: 66,
+            trust: 44,
+            vision: 55
+        ),
+        aspects: [
+            synastryAspect(
+                "Venus", "trine", "Mars",
+                orb: 0.42,
+                strength: "exact",
+                meaning: "Attraction with nothing to push against. What one of you finds beautiful the other simply does, so wanting and acting keep step instead of taking turns.",
+                keywords: ["attraction", "ease", "desire", "warmth"]
+            ),
+            synastryAspect(
+                "Moon", "conjunction", "Moon",
+                orb: 1.18,
+                strength: "strong",
+                meaning: "The same emotional weather. Comfort needs no explaining between you, which is restful and, in a bad month, doubles whatever the mood already was.",
+                keywords: ["familiarity", "comfort", "instinct"]
+            ),
+            synastryAspect(
+                "Sun", "square", "Saturn",
+                orb: 2.06,
+                strength: "strong",
+                meaning: "One of you wants to be seen, the other wants it earned. Handled badly this is criticism; handled well it is the only aspect here that builds something that lasts.",
+                keywords: ["structure", "duty", "friction", "growth"]
+            ),
+            synastryAspect(
+                "Mercury", "opposition", "Mercury",
+                orb: 3.41,
+                strength: "moderate",
+                meaning: "You think from opposite ends of the same question. Conversation is work and worth it — neither of you will finish a thought the other could have predicted.",
+                keywords: ["debate", "perspective", "translation"]
+            ),
+            synastryAspect(
+                "Mars", "conjunction", "ASC",
+                orb: 1.77,
+                strength: "strong",
+                meaning: "You arrive in their life as movement. Whatever they were about to do carefully, you speed up.",
+                keywords: ["drive", "presence", "impatience"]
+            ),
+            synastryAspect(
+                "Pluto", "trine", "Venus",
+                orb: 4.62,
+                strength: "moderate",
+                meaning: "A pull that does not explain itself. Affection here has depth and, at its worst, a grip.",
+                keywords: ["intensity", "depth", "magnetism"]
+            ),
+            synastryAspect(
+                "Jupiter", "sextile", "North Node",
+                orb: 2.9,
+                strength: "moderate",
+                meaning: "The relationship widens where they were heading anyway. Opportunity arrives through each other rather than in spite of it.",
+                keywords: ["luck", "direction", "expansion"]
+            ),
+            synastryAspect(
+                "Saturn", "opposition", "Moon",
+                orb: 5.83,
+                strength: "wide",
+                meaning: nil,
+                keywords: nil
+            ),
+        ],
+        aspectCount: 8,
+        exactCount: 4,
+        overallReading: "This is a magnetic synastry with strong emotional, mental, and physical connections. "
+            + "The attraction is real and multi-layered — this relationship has depth. "
+            + "Particularly strong in: emotional depth, physical chemistry. "
+            + "Key aspects driving this connection: Venus trine Mars; Moon conjunction Moon; Sun square Saturn.",
+        overallReadingBusiness: "This partnership works, with caveats. Communication is the strong suit and trust is the "
+            + "thing to build deliberately rather than assume. Put the agreement in writing early.",
+        positionsA: [
+            position("Sun", 27, 4, "Aries", house: 12),
+            position("Moon", 28, 17, "Gemini", house: 2),
+            position("Mercury", 11, 2, "Taurus", house: 1, retrograde: true),
+            position("Venus", 23, 16, "Taurus", house: 1),
+            position("Mars", 3, 12, "Pisces", house: 11),
+            position("Jupiter", 4, 33, "Cancer", house: 2),
+            position("Saturn", 0, 27, "Capricorn", house: 9),
+            position("Pluto", 20, 40, "Scorpio", house: 7),
+        ],
+        positionsB: [
+            position("Sun", 28, 42, "Libra", house: 4),
+            position("Moon", 27, 11, "Gemini", house: 12),
+            position("Mercury", 14, 26, "Scorpio", house: 5),
+            position("Venus", 3, 40, "Scorpio", house: 5),
+            position("Mars", 1, 51, "Gemini", house: 12),
+            position("Saturn", 25, 9, "Virgo", house: 3),
+            position("North Node", 7, 44, "Aquarius", house: 8),
+            position("ASC", 2, 8, "Cancer"),
+        ]
+    )
+
+    private static func synastryAspect(
+        _ first: String,
+        _ aspect: String,
+        _ second: String,
+        orb: Double,
+        strength: String,
+        meaning: String?,
+        keywords: [String]?
+    ) -> SynastryAspect {
+        SynastryAspect(
+            personAObject: first,
+            personBObject: second,
+            aspect: aspect,
+            orb: orb,
+            strength: strength,
+            meaning: meaning,
+            keywords: keywords
+        )
+    }
+
     /// A UTC instant this many days from now, spelled the way the timing
     /// engine spells one.
     private static func isoInstant(days: Double) -> String {

@@ -295,6 +295,31 @@ actor APIClient {
         )
     }
 
+    // MARK: - Compatibility
+
+    /// The inter-chart report for a pair of profiles: `person_a` is the
+    /// profile in the path, `person_b` the partner.
+    ///
+    /// Either side may be a followed profile — the route serves anything the
+    /// account can read, and the partner only has to exist — so the pair can
+    /// be your own chart against a friend's, or two friends against each
+    /// other.
+    func fetchSynastryReport(profileId: String, partnerId: String) async throws -> SynastryReport {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let partner_profile_id: String
+            let lang: String
+        }
+
+        return try await send(
+            "/api/v1/profiles/\(Self.escape(profileId))/synastry",
+            method: "POST",
+            // The route defaults to Russian, so it is always told which
+            // language the app is being read in rather than left to guess.
+            body: Body(partner_profile_id: partnerId, lang: LanguageStore.code)
+        )
+    }
+
     // MARK: - Request plumbing
 
     private func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {

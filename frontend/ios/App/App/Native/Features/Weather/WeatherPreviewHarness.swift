@@ -81,6 +81,10 @@ struct WeatherPreviewHarness: View {
                     // Edit throughout, over a seeded sheet — there is no
                     // session here to load a real profile with.
                     onEdit: { editing = $0 },
+                    partners: WeatherPreviewData.profiles.filter {
+                        $0.profileId != profile.profileId
+                    },
+                    onFindPeople: { showsSearch = true },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
