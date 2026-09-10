@@ -770,11 +770,6 @@ struct SynastryAspect: Codable, Hashable, Identifiable {
     let aspect: String
     let orb: Double
     let strength: String
-    /// The written interpretation, from `app/data/synastry_aspects.json`.
-    /// Missing for a pair the lookup has no entry for, and a row without one
-    /// does not open.
-    let meaning: String?
-    let keywords: [String]?
 
     var id: String { "\(personAObject)-\(aspect)-\(personBObject)" }
 
@@ -788,7 +783,13 @@ struct SynastryAspect: Codable, Hashable, Identifiable {
     var isImpactful: Bool { strength == "exact" || strength == "strong" }
 }
 
-/// `POST /profiles/{id}/synastry` — the whole report for one pair.
+/// `POST /profiles/{id}/synastry` — the report for one pair.
+///
+/// The route also sends a written interpretation of the whole pair
+/// (`overall_reading`), one per aspect (`meaning`, `keywords`) and both sides'
+/// positions. None of it is decoded: the report is the measurable half of a
+/// synastry — the score, its four categories, and how tight each inter-aspect
+/// is — and a paragraph under every row buried the table it belonged to.
 struct SynastryReport: Codable, Hashable {
     let personA: SynastryPerson
     let personB: SynastryPerson
@@ -800,13 +801,6 @@ struct SynastryReport: Codable, Hashable {
     let aspects: [SynastryAspect]
     let aspectCount: Int
     let exactCount: Int
-    let overallReading: String?
-    let overallReadingBusiness: String?
-    /// Where each side's bodies sit, so an opened row can name both. Slim
-    /// payloads — sign, degree, house — which `ChartPosition` decodes with its
-    /// longitude left nil.
-    let positionsA: [ChartPosition]?
-    let positionsB: [ChartPosition]?
 
     var hasBusiness: Bool { scoresBusiness != nil }
 
@@ -814,19 +808,6 @@ struct SynastryReport: Codable, Hashable {
     /// an older backend still draws a gauge instead of nothing.
     func activeScores(_ mode: SynastryMode) -> SynastryScores {
         mode == .business ? (scoresBusiness ?? scores) : scores
-    }
-
-    func activeReading(_ mode: SynastryMode) -> String? {
-        mode == .business ? overallReadingBusiness : overallReading
-    }
-
-    /// Position lookups for one side, keyed the way a row asks for them.
-    func positions(_ side: SynastrySide) -> [String: ChartPosition] {
-        let positions = side == .a ? positionsA : positionsB
-        return Dictionary(
-            (positions ?? []).map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
     }
 }
 

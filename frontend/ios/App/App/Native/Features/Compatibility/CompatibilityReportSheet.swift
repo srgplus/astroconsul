@@ -23,7 +23,6 @@ struct CompatibilityReportSheet: View {
     /// On by default, the way the web table opens: exact and strong only. The
     /// full grid runs long enough to be a chart to study rather than a reading.
     @State private var mostImpact = true
-    @State private var expanded: Set<String> = []
 
     private var scores: SynastryScores { report.activeScores(mode) }
 
@@ -35,10 +34,6 @@ struct CompatibilityReportSheet: View {
                 if report.hasBusiness { modeToggle }
 
                 scoreCard
-
-                if let reading = report.activeReading(mode), !reading.isEmpty {
-                    readingCard(reading)
-                }
 
                 aspects
             }
@@ -165,19 +160,6 @@ struct CompatibilityReportSheet: View {
         }
     }
 
-    private func readingCard(_ reading: String) -> some View {
-        SheetCard {
-            SheetCardHeader(icon: "text.alignleft", title: L("synastry.overallReading"))
-                .padding(.bottom, 10)
-
-            Text(reading)
-                .font(.system(size: 15, design: .rounded))
-                .foregroundStyle(Theme.text)
-                .lineSpacing(3)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
     // MARK: - Aspects
 
     private var visible: [SynastryAspect] {
@@ -231,10 +213,17 @@ struct CompatibilityReportSheet: View {
 
                 Spacer(minLength: 8)
 
+                Text(L("transits.mostImpact"))
+                    .font(.system(size: 13, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+
                 Toggle(L("transits.mostImpact"), isOn: $mostImpact)
                     .toggleStyle(.switch)
                     .tint(Theme.ok)
                     .labelsHidden()
+                    .scaleEffect(0.8, anchor: .trailing)
+                    .frame(width: 42)
                     .accessibilityLabel(L("transits.mostImpact"))
             }
             .foregroundStyle(Theme.textDim)
@@ -264,66 +253,37 @@ struct CompatibilityReportSheet: View {
         }
     }
 
-    @ViewBuilder
+    /// One row, and only what can be measured: whose planet against whose, how
+    /// far off exact, and which band that orb falls in. The engine also writes
+    /// an interpretation of every pair and this deliberately does not print
+    /// it — the report is the geometry, and a page of prose under each row
+    /// buried the table it belongs to.
     private func row(_ aspect: SynastryAspect) -> some View {
-        let isOpen = expanded.contains(aspect.id)
-        let opens = aspect.meaning?.isEmpty == false
+        HStack(spacing: 6) {
+            SynastryGlyphs(aspect: aspect)
 
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 6) {
-                SynastryGlyphs(aspect: aspect)
+            Text(title(aspect))
+                .font(.system(size: 14, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(title(aspect))
-                    .font(.system(size: 14, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            Text(String(format: "%.2f°", aspect.orb))
+                .font(.system(size: 13, design: .rounded))
+                .foregroundStyle(Theme.textDim)
+                .monospacedDigit()
+                .fixedSize()
 
-                Text(String(format: "%.2f°", aspect.orb))
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundStyle(Theme.textDim)
-                    .monospacedDigit()
-                    .fixedSize()
-
-                Text(Astro.strength(aspect.strength))
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .tracking(0.4)
-                    .foregroundStyle(TransitPalette.onSurface.strength(aspect.strength))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .frame(width: 62, alignment: .trailing)
-            }
-            .padding(.vertical, 11)
-
-            if isOpen, let meaning = aspect.meaning {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(meaning)
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundStyle(Theme.textStrong)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    if let keywords = aspect.keywords, !keywords.isEmpty {
-                        KeywordTags(keywords: keywords)
-                    }
-
-                    positions(aspect)
-                }
-                .padding(.bottom, 12)
-            }
+            Text(Astro.strength(aspect.strength))
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .tracking(0.4)
+                .foregroundStyle(TransitPalette.onSurface.strength(aspect.strength))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(width: 62, alignment: .trailing)
         }
+        .padding(.vertical, 11)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            guard opens else { return }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                if expanded.contains(aspect.id) {
-                    expanded.remove(aspect.id)
-                } else {
-                    expanded.insert(aspect.id)
-                }
-            }
-        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
             L(
@@ -333,7 +293,6 @@ struct CompatibilityReportSheet: View {
                 String(format: "%.2f", aspect.orb)
             )
         )
-        .accessibilityHint(opens ? L("synastry.rowHint") : "")
     }
 
     /// The reading with each body in its own side's colour, which is the only
@@ -349,68 +308,6 @@ struct CompatibilityReportSheet: View {
         second.foregroundColor = Theme.personB
 
         return first + middle + second
-    }
-
-    /// Where both bodies sit, each in its own chart. The transit sheet prints
-    /// the same two lines for a transit and its natal target.
-    @ViewBuilder
-    private func positions(_ aspect: SynastryAspect) -> some View {
-        let sides: [(side: SynastrySide, object: String)] = [
-            (.a, aspect.personAObject),
-            (.b, aspect.personBObject),
-        ]
-
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach(sides, id: \.object) { entry in
-                if let position = report.positions(entry.side)[entry.object] {
-                    positionLine(entry.side, object: entry.object, position: position)
-                }
-            }
-        }
-    }
-
-    private func positionLine(
-        _ side: SynastrySide,
-        object: String,
-        position: ChartPosition
-    ) -> some View {
-        HStack(spacing: 6) {
-            Text(AstroGlyph.object(object))
-                .font(.system(size: 13))
-                .foregroundStyle(side == .a ? Theme.personA : Theme.personB)
-
-            Text(Astro.object(object))
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(side == .a ? Theme.personA : Theme.personB)
-
-            if let degree = position.formattedDegree {
-                Text(degree)
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundStyle(Theme.text)
-                    .monospacedDigit()
-            }
-
-            if let sign = position.sign {
-                Text("\(AstroGlyph.sign(sign)) \(Astro.sign(sign) ?? sign)")
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundStyle(Theme.textStrong)
-            }
-
-            if let house = position.houseNumber {
-                Text(L("detail.house", house))
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(Theme.textDim)
-            }
-
-            if position.retrograde == true {
-                Text("\u{211E}")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.textDim)
-                    .accessibilityLabel(L("detail.retrograde"))
-            }
-        }
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
     }
 }
 
