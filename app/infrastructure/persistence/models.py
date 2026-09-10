@@ -21,6 +21,11 @@ class UserModel(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(64), nullable=False, default="active")
     primary_profile_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    # How this reader arranged their own saved list: which profile ids sit in
+    # the Favourites group, and the order every card was dragged into. Per
+    # user rather than per profile — a followed profile is somebody else's.
+    favorite_profile_ids: Mapped[list[str] | None] = mapped_column(JSONType, nullable=True)
+    profile_order: Mapped[list[str] | None] = mapped_column(JSONType, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profiles: Mapped[list[ProfileModel]] = relationship(back_populates="user")

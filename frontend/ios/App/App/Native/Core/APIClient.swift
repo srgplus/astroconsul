@@ -79,6 +79,21 @@ actor APIClient {
         )
     }
 
+    /// Stores the reader's Favourites group and card order. Whole lists, not a
+    /// delta: the app holds the only complete picture of the order, and the
+    /// route filters out anything the account does not have a card for.
+    func setProfileArrangement(favoriteProfileIds: [String], profileOrder: [String]) async throws {
+        struct Body: Encodable {
+            let favorite_profile_ids: [String]
+            let profile_order: [String]
+        }
+        let _: EmptyResponse = try await send(
+            "/api/v1/profiles/arrangement",
+            method: "PUT",
+            body: Body(favorite_profile_ids: favoriteProfileIds, profile_order: profileOrder)
+        )
+    }
+
     func unfollowProfile(id: String) async throws {
         let _: EmptyResponse = try await send(followPath(id), method: "DELETE", body: Optional<EmptyResponse>.none)
     }

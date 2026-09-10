@@ -14,7 +14,9 @@ from app.main import create_app
 
 OWNER_ID = "user_owner"
 INTRUDER_ID = "user_intruder"
+STRANGER_ID = "user_stranger"
 PROFILE_ID = "profile_owned_by_owner"
+STRANGER_PROFILE_ID = "profile_owned_by_stranger"
 
 
 class FakeProfileRepository:
@@ -24,13 +26,23 @@ class FakeProfileRepository:
         self.profiles: dict[str, dict[str, Any]] = {
             PROFILE_ID: {
                 "profile_id": PROFILE_ID,
+                "profile_name": "Owner",
+                "username": "owner",
                 "user_id": OWNER_ID,
+                "chart_id": "chart_test",
+            },
+            STRANGER_PROFILE_ID: {
+                "profile_id": STRANGER_PROFILE_ID,
+                "profile_name": "Stranger",
+                "username": "stranger",
+                "user_id": STRANGER_ID,
                 "chart_id": "chart_test",
             },
         }
         self.deleted: list[str] = []
         self.primary: dict[str, str] = {}
         self.following: set[tuple[str, str]] = set()
+        self.arrangement: dict[str, dict[str, list[str]]] = {}
 
     def load_profile(self, profile_id: str) -> dict[str, Any]:
         if profile_id not in self.profiles:
@@ -52,6 +64,26 @@ class FakeProfileRepository:
     def resolve_profile_chart_id(self, profile_id: str) -> str:
         # No charts here — these tests only reach past the access check.
         raise FileNotFoundError(f"Chart not found for profile: {profile_id}")
+
+    def list_summaries(self, *, user_id: str | None = None) -> list[dict[str, Any]]:
+        return [dict(p) for p in self.profiles.values() if p["user_id"] == user_id]
+
+    def list_followed(self, user_id: str) -> list[dict[str, Any]]:
+        return [dict(self.profiles[pid]) for owner, pid in sorted(self.following) if owner == user_id]
+
+    def get_primary_profile_id(self, user_id: str) -> str | None:
+        return self.primary.get(user_id)
+
+    def get_profile_arrangement(self, user_id: str) -> dict[str, list[str]]:
+        return self.arrangement.get(user_id, {"favorite_profile_ids": [], "profile_order": []})
+
+    def set_profile_arrangement(
+        self, user_id: str, *, favorite_profile_ids: list[str], profile_order: list[str]
+    ) -> None:
+        self.arrangement[user_id] = {
+            "favorite_profile_ids": favorite_profile_ids,
+            "profile_order": profile_order,
+        }
 
 
 class ProfileRouteTestCase(unittest.TestCase):
@@ -181,6 +213,72 @@ class ReadableProfileRoutesTests(ProfileRouteTestCase):
         # 404 comes from the fake repo holding no chart, i.e. from *past* the
         # access check — the point is that a follower is not turned away with 403.
         self.assertEqual(response.status_code, 404)
+
+
+class ProfileArrangementTests(ProfileRouteTestCase):
+    """PUT /profiles/arrangement stores the reader's Favourites group and card
+    order. Unlike /primary it accepts followed profiles — starring somebody
+    else's profile is your business — but only ids you have a card for, so one
+    account cannot write another's profile ids into its own row."""
+
+    def _put(self, favorites: list[str], order: list[str]):
+        return self.client.put(
+            "/api/v1/profiles/arrangement",
+            json={"favorite_profile_ids": favorites, "profile_order": order},
+        )
+
+    def test_own_and_followed_profiles_are_stored(self) -> None:
+        self._authenticate_as(OWNER_ID)
+        self.repo.following.add((OWNER_ID, STRANGER_PROFILE_ID))
+
+        response = self._put([STRANGER_PROFILE_ID], [PROFILE_ID, STRANGER_PROFILE_ID])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.repo.arrangement[OWNER_ID],
+            {
+                "favorite_profile_ids": [STRANGER_PROFILE_ID],
+                "profile_order": [PROFILE_ID, STRANGER_PROFILE_ID],
+            },
+        )
+
+    def test_ids_the_caller_has_no_card_for_are_dropped(self) -> None:
+        self._authenticate_as(OWNER_ID)
+
+        # Not followed, so not on this caller's list, plus an id for nothing.
+        response = self._put(
+            [STRANGER_PROFILE_ID, PROFILE_ID],
+            ["profile_does_not_exist", PROFILE_ID],
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.repo.arrangement[OWNER_ID],
+            {"favorite_profile_ids": [PROFILE_ID], "profile_order": [PROFILE_ID]},
+        )
+
+    def test_repeated_ids_are_collapsed(self) -> None:
+        self._authenticate_as(OWNER_ID)
+
+        self._put([PROFILE_ID, PROFILE_ID], [PROFILE_ID, PROFILE_ID])
+
+        self.assertEqual(
+            self.repo.arrangement[OWNER_ID],
+            {"favorite_profile_ids": [PROFILE_ID], "profile_order": [PROFILE_ID]},
+        )
+
+    def test_listing_leaves_out_ids_that_are_no_longer_on_the_list(self) -> None:
+        self._authenticate_as(OWNER_ID)
+        # A star that outlived the profile it named: followed once, since dropped.
+        self.repo.arrangement[OWNER_ID] = {
+            "favorite_profile_ids": [STRANGER_PROFILE_ID, PROFILE_ID],
+            "profile_order": [STRANGER_PROFILE_ID],
+        }
+
+        payload = self.client.get("/api/v1/profiles").json()
+
+        self.assertEqual(payload["favorite_profile_ids"], [PROFILE_ID])
+        self.assertEqual(payload["profile_order"], [])
 
 
 if __name__ == "__main__":

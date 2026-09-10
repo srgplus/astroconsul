@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # ---------------------------------------------------------------------------
 # Health
@@ -78,6 +78,12 @@ class PublicProfileSearchResponse(BaseModel):
 class ProfileListResponse(BaseModel):
     profiles: list[ProfileSummary]
     primary_profile_id: str | None = None
+    # The reader's own arrangement of the list above: the profile ids they put
+    # in the Favourites group, and the order they dragged every card into.
+    # Both are filtered to profiles still on the list, so a client never has to
+    # defend against an id that has since been deleted or unfollowed.
+    favorite_profile_ids: list[str] = Field(default_factory=list)
+    profile_order: list[str] = Field(default_factory=list)
 
 
 class SavedChartResponse(BaseModel):

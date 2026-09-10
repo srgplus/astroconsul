@@ -4,6 +4,61 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-09
 
+### The saved list is arranged by hand: Favourites, and cards you can drag
+The profile list had one order and it was not the reader's: own profiles by
+name with the primary lifted to the top, followed ones in whatever order the
+API answered in. Now the reader decides. A press on a card and a drag moves it
+inside its own group; a press that stays put opens a menu, and the menu's first
+item stars the card into a new group, **Favourites**, above Mine.
+
+The primary profile heads Favourites and is not draggable — it is page one of
+the pager, so there is nowhere else on the list for it to be, and it is the one
+card the drag has no handle on. Everything else starred sits under it in the
+order it was dragged into; a card starred today lands directly beneath the
+primary, where the reader can be sure to find it. Unstarring drops it back into
+Mine or Following. A drag never crosses a group: being followed is not
+something a drag decides.
+
+Two lists carry the arrangement, and they are the reader's, not the profile's —
+a followed profile belongs to somebody else, so this cannot live on the profile
+row. `users.favorite_profile_ids` is the Favourites group in its own order and
+`users.profile_order` is the order of the Mine and Following cards, both JSON,
+both nullable, added by `20260909_000001` next to `primary_profile_id`.
+Favourites keeps its own order rather than sharing `profile_order` so that
+starring one card does not have to rewrite the order of every other.
+
+`PUT /api/v1/profiles/arrangement` takes both lists whole rather than a delta:
+the app holds the only complete picture of the order, and a delta would need
+the two sides to agree about a list that changes under them both. Every id is
+filtered down to the ones the caller actually has a card for, on the way in and
+on the way out — that is what stops one account writing another's profile ids,
+or an unbounded list of nonsense, into its own row, and what keeps a star that
+outlived the profile it named out of the listing. Unlike `/primary` it is not
+gated on ownership: starring a profile you follow is your business.
+
+`ProfileGroup` is the shape both screens now read. The model builds
+Favourites, Mine and Following once and the list draws them as sections while
+the pager flattens them into its pages, so the cards and the pages can no
+longer disagree about the order — each used to work it out for itself.
+`ProfileListViewModel.ownProfiles` still means every profile the account owns,
+primary included: it is what tells an Edit Profile from an Unfollow, whichever
+group a card is sitting in, and the API has reported an owner's own primary as
+`is_own: false`.
+
+A search suspends the drag. Under a term, the row above the one you drop onto
+is not the row that will be there when the term clears, so there is no honest
+answer to what a move means; `onMove` is simply absent while the field has
+anything in it. A card starred and then dragged writes once, 400ms after the
+finger stops — a drag lands as a run of moves and only where the card came to
+rest is worth sending. A refused write stays on screen rather than snapping
+back, and a load that lands while it is unsaved keeps what the reader did
+rather than replacing it with the copy the server answered from.
+
+The star is an outline (`star`), the primary's is filled (`star.fill`): a
+favourite is a lighter version of the same idea, which is what it is. The menu
+also carries the two things the swipes already do — Primary and Unfollow — so
+a long press is now a way to find them.
+
 ### Every detail sheet ends in a glossary of what it just showed
 Weather closes its Averages sheet with "About the Normal Range" and "About
 Average Temperatures": plain definitions of the things on the chart above,
