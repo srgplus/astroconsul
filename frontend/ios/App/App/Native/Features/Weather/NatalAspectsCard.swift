@@ -121,9 +121,14 @@ struct NatalAspectsCard: View {
         .padding(.bottom, 2)
     }
 
+    /// Every fixed column on the row is as narrow as its own content allows,
+    /// because what is left over is the reading — and the reading is what
+    /// shrinks. "Saturn conjunction North Node" is the longest thing this card
+    /// ever prints; the tighter the columns, the closer that row's text stays
+    /// to the size of the rows above it.
     private func row(_ aspect: NatalAspect) -> some View {
-        HStack(spacing: 8) {
-            TransitGlyphs(aspect: aspect, width: 54)
+        HStack(spacing: 6) {
+            TransitGlyphs(aspect: aspect, width: 50)
 
             Text(aspect.title)
                 .font(.system(size: 14, design: .rounded))
@@ -151,7 +156,7 @@ struct NatalAspectsCard: View {
                 .foregroundStyle(palette.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-                .frame(width: 66, alignment: .trailing)
+                .frame(width: 60, alignment: .trailing)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
