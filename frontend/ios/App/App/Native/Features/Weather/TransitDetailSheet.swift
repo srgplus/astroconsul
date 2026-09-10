@@ -26,6 +26,7 @@ struct TransitDetailSheet: View {
                 header
                 window
                 where_
+                about
             }
             .padding(.horizontal, 16)
             .padding(.top, 4)
@@ -141,6 +142,117 @@ struct TransitDetailSheet: View {
         guard let hours = timing.durationHours, hours > 0 else { return nil }
         if hours < 48 { return L("detail.hours", Int(hours.rounded())) }
         return L("detail.days", Int((hours / 24).rounded()))
+    }
+
+    // MARK: - About
+
+    /// The glossary for what the sheet just showed: the two bodies and the
+    /// angle between them, the numbers beside the title, the window, and the
+    /// notation the position rows are written in.
+    ///
+    /// Every row names something visible above it and nothing else. The signs
+    /// and houses listed are the ones this transit actually falls in, so a
+    /// reader learns their own chart rather than a table of twelve.
+    private var about: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            AboutSection(
+                title: L("about.transitTitle"),
+                terms: whatItIs,
+                note: L("guide.aspectsNote")
+            )
+
+            AboutSection(title: L("about.numbersTitle"), terms: numbers)
+
+            if aspect.timing?.start != nil, aspect.timing?.end != nil {
+                AboutSection(title: L("about.windowTitle"), terms: windowTerms)
+            }
+
+            if !positionTerms.isEmpty {
+                AboutSection(title: L("about.positionsTitle"), terms: positionTerms)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    /// The title, read left to right: the travelling body, the angle it makes,
+    /// the point of the birth chart it lands on.
+    private var whatItIs: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.transitTerm"), L("about.transitDesc"))
+        terms.add(
+            L("about.transitingRole", Astro.object(aspect.transitObject)),
+            Glossary.object(aspect.transitObject)
+        )
+        terms.add(Glossary.aspectTerm(aspect.aspect), Glossary.aspect(aspect.aspect))
+        terms.add(
+            L("about.natalRole", Astro.object(aspect.natalObject)),
+            Glossary.object(aspect.natalObject)
+        )
+        return terms
+    }
+
+    /// The line under the title: the orb, the band it falls in, which way it
+    /// is going, and the retrograde mark when the header carries one.
+    private var numbers: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.orbTerm"), L("about.orbDesc"))
+        terms.add(L("about.strengthTerm"), L("about.strengthTransitDesc"))
+
+        if let status = aspect.timing?.status, !status.isEmpty {
+            terms.add(L("about.statusTerm"), L("guide.applyingSep"))
+        }
+
+        if isRetrograde {
+            terms.add(L("guide.retrograde"), L("guide.retrogradeDesc"))
+        }
+
+        return terms
+    }
+
+    private var windowTerms: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.windowTerm"), L("about.windowDesc"))
+        terms.add(L("about.exactTerm"), L("about.exactDesc"))
+        terms.add(L("about.barTerm"), L("about.barDesc"))
+        return terms
+    }
+
+    /// The notation first, then the signs and houses this transit actually
+    /// stands in, each named once however many of the two rows above it they
+    /// came from.
+    private var positionTerms: [AboutTerm] {
+        let shown = [
+            positions.transiting[aspect.transitObject],
+            positions.natal[aspect.natalObject],
+        ].compactMap { $0 }
+
+        guard !shown.isEmpty else { return [] }
+
+        var terms: [AboutTerm] = []
+        terms.add(L("about.degreeTerm"), L("about.degreeDesc"))
+
+        for sign in distinct(shown.compactMap(\.sign)) {
+            terms.add(Astro.sign(sign) ?? sign, Glossary.sign(sign))
+        }
+
+        let houses = distinct(shown.compactMap(\.houseNumber))
+
+        if !houses.isEmpty {
+            terms.add(L("about.houseTerm"), L("about.houseDesc"))
+
+            for house in houses {
+                terms.add(L("about.houseNumber", house), Glossary.house(house))
+            }
+        }
+
+        return terms
+    }
+
+    /// Deduplicated, in the order the rows above print them: both ends of an
+    /// aspect can sit in one sign, and the block should say so once.
+    private func distinct<T: Hashable>(_ values: [T]) -> [T] {
+        var seen: Set<T> = []
+        return values.filter { seen.insert($0).inserted }
     }
 
     // MARK: - Positions

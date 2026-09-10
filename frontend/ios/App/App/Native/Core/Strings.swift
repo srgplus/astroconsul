@@ -12,8 +12,8 @@ import Foundation
 /// translated for both halves of the app. The rest are native-only screens.
 enum Strings {
 
-    static let en: [String: String] = merge(enUI, enAstro, enMood)
-    static let ru: [String: String] = merge(ruUI, ruAstro, ruMood)
+    static let en: [String: String] = merge(enUI, enAstro, enMood, enGuide)
+    static let ru: [String: String] = merge(ruUI, ruAstro, ruMood, ruGuide)
 
     private static func merge(_ tables: [String: String]...) -> [String: String] {
         tables.reduce(into: [:]) { all, table in
@@ -495,6 +495,177 @@ private let enMood: [String: String] = [
     "mood.Explosive.night": "Deep recovery needed",
 ]
 
+// MARK: - Glossary
+
+/// What every element of a reading means, in one line each.
+///
+/// The definitions are the web app's own — `guide.*` in
+/// `frontend/src/i18n/{en,ru}.ts`, where they have been read inside the "How
+/// It Works" sheet since it shipped — ported key for key, so a square is
+/// defined the same way in both halves of the app and a phrase translated
+/// once stays translated.
+///
+/// Definitions, never a reading. `about.*` is the native side's own: the
+/// glue that names the parts of a sheet the web has no screen for, written to
+/// the same rule — what the thing is, so the reader draws the conclusion.
+private let enGuide: [String: String] = [
+    // Section headings
+    "about.transitTitle": "About this transit",
+    "about.numbersTitle": "About the numbers",
+    "about.windowTitle": "About the window",
+    "about.positionsTitle": "About the positions",
+    "about.pointTitle": "About this point",
+    "about.chartAspectsTitle": "About chart aspects",
+    "about.transitsHereTitle": "About transits to this point",
+    "about.moonTitle": "About the Moon",
+    "about.listsTitle": "About the two lists",
+
+    // Transit and natal point
+    "about.transitTerm": "Transit",
+    "about.transitDesc": "A planet where it stands in the sky right now, at an angle to a point fixed in the birth chart. The chart never moves; the transit arrives, peaks and passes.",
+    "about.transitingRole": "%@, the transiting planet",
+    "about.natalRole": "%@, the natal point",
+    "about.natalTerm": "Natal point",
+    "about.natalDesc": "Where the point stood at the moment of birth. It does not move, and the transits come to it.",
+
+    // Orb, strength, direction
+    "about.orbTerm": "Orb",
+    "about.orbDesc": "How far the angle is from exact, in degrees. 0° is a perfect hit, and the wider the orb the fainter the aspect.",
+    "about.strengthTerm": "Strength",
+    "about.strengthTransitDesc": "The orb read as a band: EXACT under 0.25°, STRONG under 1°, MODERATE under 2°, WIDE past that.",
+    "about.strengthNatalDesc": "The orb read as a band: EXACT under 1°, STRONG under 3°, MODERATE under 5°, WIDE past that. A birth chart is banded wider than a transit because it never moves.",
+    "about.statusTerm": "Applying and separating",
+    "about.retrogradeNatalDesc": "Seen from Earth, the planet was moving backwards against the stars at the moment this chart was cast. It is part of the chart and never changes.",
+
+    // Window
+    "about.windowTerm": "Window",
+    "about.windowDesc": "The stretch both points stay inside orb: from the day the aspect comes into range to the day it leaves it.",
+    "about.exactTerm": "Exact",
+    "about.exactDesc": "The moment the angle is perfect. A planet that turns retrograde inside the window crosses the same angle two or three times, so one window can hold several exact dates.",
+    "about.barTerm": "The bar",
+    "about.barDesc": "The arc is the whole window; the marker on it is where the day being read stands inside that window.",
+
+    // Position
+    "about.degreeTerm": "Degree and sign",
+    "about.degreeDesc": "Where the point sits on the zodiac: the sign it is in, and how far into it, from 0°00′ to 29°59′.",
+    "about.houseTerm": "House",
+    "about.houseNumber": "House %d",
+    "about.houseDesc": "One of the twelve slices of the chart, cut by the moment and the place of birth. A house is an area of life, and a point standing in it works through that area.",
+
+    // Chart aspects
+    "about.natalAspectTerm": "Chart aspect",
+    "about.natalAspectDesc": "An angle between two points inside the birth chart itself. It was set at birth and never changes, unlike a transit, which passes.",
+
+    // The day's numbers
+    "about.intensityTerm": "Intensity",
+    "about.zonesTerm": "Zones",
+    "about.zonesDesc": "Quiet, 0 to 25: few aspects, or weak ones. Active, 25 to 55: several aspects engaging the chart. Hot, 55 to 80: many significant ones, some exact. Extreme, 80 and up: rare, several exact aspects including the outer planets.",
+    "about.tensionTerm": "Tension",
+    "about.tensionBandsTerm": "Bands",
+    "about.tensionBandsDesc": "Low, 0 to 30%: mostly supportive aspects. Mixed, 30 to 60%: challenge and support in balance. High, 60 to 100%: challenging aspects dominate.",
+    "about.feelsTerm": "Feels like",
+
+    // Moon
+    "about.moonPhaseTerm": "Phase",
+    "about.moonPhaseDesc": "Where the Moon stands in its 29.5-day round from new to full and back.",
+    "about.illuminationDesc": "How much of the Moon's disc is lit: 0% at the new Moon, 100% at the full.",
+    "about.moonSignDesc": "The sign the Moon is travelling through right now. It moves on every two to three days, which makes it the fastest-changing line in the reading.",
+
+    // Compatibility
+    "about.synastryTitle": "About this report",
+    "about.scoreTitle": "About the score",
+    "about.aspectTableTitle": "About the aspect table",
+    "about.synastryTerm": "Inter-aspect",
+    "about.synastryDesc": "An angle between a point in one birth chart and a point in the other. Neither chart moves: the two are laid over each other and the angles between them measured.",
+    "about.sidesTerm": "The two colours",
+    "about.sidesDesc": "Every glyph and every name is tinted by whose chart it came from, which is the only thing on a row saying whose Moon meets whose Saturn.",
+    "about.modeTerm": "Love and business",
+    "about.modeDesc": "The same aspects, weighted twice. The love reading scores the bodies of feeling and attraction; the business one scores those of talk, drive, trust and vision.",
+    "about.scoreTerm": "Score",
+    "about.scoreDesc": "0 to 100: the share of the pair's weight coming from harmonious angles rather than hard ones, with the hard ones counted three times over so an easy chart does not flatter itself. Only aspects between the significant bodies count toward it.",
+    "about.scoreBandsTerm": "Labels",
+    "about.scoreBandsDesc": "86 and up Soulmate, 71 to 85 Magnetic, 51 to 70 Harmonious, 31 to 50 Complex, under 31 Challenging.",
+    "about.categoriesTerm": "Categories",
+    "about.loveCategoriesDesc": "The same score run over one slice of the pair each time. Emotional counts the aspects touching the Moon, Venus or Neptune; Mental those touching Mercury, Jupiter or Uranus; Physical the Sun, Mars or the Ascendant; Karmic Saturn, Pluto, the nodes, Lilith or Chiron.",
+    "about.businessCategoriesDesc": "The same score run over one slice of the pair each time. Communication counts the aspects touching Mercury, Jupiter or the Moon; Drive those touching the Sun, Mars or the Midheaven; Trust Saturn, Pluto or the nodes; Vision Jupiter, Uranus or Neptune.",
+    "about.mostImpactTerm": "Most impact",
+    "about.mostImpactDesc": "Narrows the table to the exact and strong rows, which is everything inside 3° of the perfect angle.",
+    "about.bandsTerm": "The three bands",
+    "about.bandsDesc": "Rows are grouped by the more personal of the two bodies: personal planets are the Sun through Mars and the two angles, outer planets Jupiter through Pluto, special points everything else.",
+    "about.strengthPairDesc": "The orb read as a band: EXACT under 1°, STRONG under 3°, MODERATE under 5°, WIDE past that. Two birth charts stand still against each other, so the bands are wider than a transit's.",
+
+    // The two transit lists
+    "about.activeTransitsDesc": "Every planet in the sky that is inside orb of a point in this chart on this day, tightest first.",
+    "about.climateDesc": "The slow half of the same list: transits whose window runs for months rather than days, mostly from the outer planets.",
+
+    // Planets and points
+    "guide.sunDesc": "Your core identity, ego, vitality. What drives you.",
+    "guide.moonDesc": "Emotions, instincts, inner world. How you feel.",
+    "guide.mercuryDesc": "Communication, thinking, learning. How you process information.",
+    "guide.venusDesc": "Love, beauty, values, money. What you attract.",
+    "guide.marsDesc": "Action, drive, ambition, anger. How you pursue goals.",
+    "guide.jupiterDesc": "Growth, luck, expansion, wisdom. Where life opens up.",
+    "guide.saturnDesc": "Structure, discipline, limits, lessons. Where you must earn it.",
+    "guide.uranusDesc": "Change, rebellion, innovation, surprises. Where you break free.",
+    "guide.neptuneDesc": "Dreams, intuition, illusion, spirituality. Where boundaries dissolve.",
+    "guide.plutoDesc": "Transformation, power, death/rebirth. Where you evolve deeply.",
+    "guide.chironDesc": "Your deepest wound and healing gift.",
+    "guide.lilithDesc": "Your shadow side. Suppressed power.",
+    "guide.selenaDesc": "(White Moon) Your guardian angel point.",
+    "guide.northNodeDesc": "Your karmic direction. Where you're growing toward.",
+    "guide.southNodeDesc": "Your karmic past. What you're releasing.",
+    "guide.pofDesc": "Where luck and talent naturally flow.",
+    "guide.vertexDesc": "Fated encounters. Points of destiny.",
+    "guide.ascendantDesc": "Your rising sign. The mask you wear. How others first perceive you.",
+    "guide.descendantDesc": "Opposite your Ascendant. What you seek in partners and relationships.",
+    "guide.midheavenDesc": "Top of the chart. Your career, public reputation, and life direction.",
+    "guide.imumCoeliDesc": "Bottom of the chart. Your roots, home, private inner world.",
+
+    // Signs
+    "guide.ariesDesc": "Initiator. Bold, direct, competitive.",
+    "guide.taurusDesc": "Builder. Patient, sensual, stubborn.",
+    "guide.geminiDesc": "Communicator. Curious, adaptable, restless.",
+    "guide.cancerDesc": "Nurturer. Emotional, protective, intuitive.",
+    "guide.leoDesc": "Creator. Confident, dramatic, generous.",
+    "guide.virgoDesc": "Analyst. Practical, precise, helpful.",
+    "guide.libraDesc": "Diplomat. Harmonious, fair, indecisive.",
+    "guide.scorpioDesc": "Transformer. Intense, deep, secretive.",
+    "guide.sagittariusDesc": "Explorer. Optimistic, free, philosophical.",
+    "guide.capricornDesc": "Achiever. Ambitious, disciplined, strategic.",
+    "guide.aquariusDesc": "Innovator. Independent, humanitarian, eccentric.",
+    "guide.piscesDesc": "Dreamer. Compassionate, imaginative, boundless.",
+
+    // Aspects
+    "guide.conjunctionDesc": "Fusion. Two planets merge energy. Powerful amplification. Neither easy nor hard, it depends on the planets involved.",
+    "guide.sextileDesc": "Opportunity. Gentle support between planets. Talent that activates with small effort. Easy but requires initiative.",
+    "guide.squareDesc": "Tension. Friction that forces action. Challenging but productive. The engine of growth. Creates results through pressure.",
+    "guide.trineDesc": "Flow. Natural harmony between planets. Effortless talent. Can be so easy you take it for granted.",
+    "guide.oppositionDesc": "Polarity. Two planets face each other. Awareness through contrast. Relationships, projection, finding balance.",
+    "guide.aspectsNote": "Squares and oppositions are not \"bad.\" They create the tension that drives achievement. Trines and sextiles are not \"good.\" Without challenge, talent stays dormant.",
+
+    // Houses
+    "guide.house1": "Self, appearance, identity. How the world sees you. Your mask.",
+    "guide.house2": "Money, possessions, values. What you own and what you value.",
+    "guide.house3": "Communication, siblings, short trips. Daily interactions and learning.",
+    "guide.house4": "Home, family, roots, privacy. Your foundation and inner sanctuary.",
+    "guide.house5": "Creativity, romance, children, fun. What you create and enjoy.",
+    "guide.house6": "Health, daily routines, work, service. How you maintain yourself.",
+    "guide.house7": "Relationships, partnerships, marriage. The people who mirror you.",
+    "guide.house8": "Transformation, shared resources, intimacy, death/rebirth. Deep merging.",
+    "guide.house9": "Travel, philosophy, higher education, beliefs. Expanding your world.",
+    "guide.house10": "Career, reputation, public image, ambition. Your legacy.",
+    "guide.house11": "Friends, community, hopes, humanitarian goals. Your tribe.",
+    "guide.house12": "Subconscious, spirituality, hidden enemies, isolation. What's invisible.",
+
+    // Numbers and symbols
+    "guide.applyingSep": "APPLYING means the aspect is getting tighter, building toward its peak. SEPARATING means it already peaked and is fading. Applying aspects are generally felt more strongly.",
+    "guide.retrograde": "Retrograde",
+    "guide.retrogradeDesc": "The planet appears to move backward. Energy turns inward, delays and revisions.",
+    "about.intensityDesc": "How much planetary activity is landing on the birth chart, on a scale of 0 to 100. A thermometer for the day: the higher the number, the more is going on. It does not say whether that is good.",
+    "about.tensionDesc": "The share of that activity coming from challenging aspects, squares and oppositions, rather than supportive ones, trines and sextiles. High tension does not mean bad: it means more friction, which can drive action and breakthroughs.",
+    "about.feelsLikeDesc": "Just as weather has a \"feels like\" temperature, the two numbers are read together into one label. The same intensity feels very different depending on whether the energy flows or presses.",
+]
+
 // MARK: - Russian
 
 private let ruUI: [String: String] = [
@@ -953,4 +1124,162 @@ private let ruMood: [String: String] = [
     "mood.Explosive.afternoon": "Всё сразу",
     "mood.Explosive.evening": "Выдохни и осмысли",
     "mood.Explosive.night": "Нужно глубокое восстановление",
+]
+
+private let ruGuide: [String: String] = [
+    // Section headings
+    "about.transitTitle": "Об этом транзите",
+    "about.numbersTitle": "О числах",
+    "about.windowTitle": "Об окне",
+    "about.positionsTitle": "О позициях",
+    "about.pointTitle": "Об этой точке",
+    "about.chartAspectsTitle": "Об аспектах карты",
+    "about.transitsHereTitle": "О транзитах к этой точке",
+    "about.moonTitle": "О Луне",
+    "about.listsTitle": "О двух списках",
+
+    // Transit and natal point
+    "about.transitTerm": "Транзит",
+    "about.transitDesc": "Планета там, где она стоит в небе прямо сейчас, под углом к точке, закреплённой в карте рождения. Карта не меняется: транзит приходит, доходит до пика и уходит.",
+    "about.transitingRole": "%@, транзитная планета",
+    "about.natalRole": "%@, натальная точка",
+    "about.natalTerm": "Натальная точка",
+    "about.natalDesc": "Где точка стояла в момент рождения. Она не движется, транзиты приходят к ней сами.",
+
+    // Orb, strength, direction
+    "about.orbTerm": "Орб",
+    "about.orbDesc": "Насколько угол отличается от точного, в градусах. 0° это идеальное попадание, и чем шире орб, тем слабее аспект.",
+    "about.strengthTerm": "Сила",
+    "about.strengthTransitDesc": "Орб, разложенный по полосам: ТОЧНЫЙ до 0.25°, СИЛЬНЫЙ до 1°, УМЕРЕННЫЙ до 2°, СЛАБЫЙ дальше.",
+    "about.strengthNatalDesc": "Орб, разложенный по полосам: ТОЧНЫЙ до 1°, СИЛЬНЫЙ до 3°, УМЕРЕННЫЙ до 5°, СЛАБЫЙ дальше. У карты рождения полосы шире, чем у транзита, потому что она не меняется.",
+    "about.statusTerm": "Сходится и расходится",
+    "about.retrogradeNatalDesc": "В момент, на который построена карта, планета с Земли выглядела движущейся назад относительно звёзд. Это часть карты, и это не меняется.",
+
+    // Window
+    "about.windowTerm": "Окно",
+    "about.windowDesc": "Отрезок, пока обе точки в пределах орба: от дня, когда аспект входит в диапазон, до дня, когда выходит.",
+    "about.exactTerm": "Точный момент",
+    "about.exactDesc": "Момент, когда угол идеален. Планета, уходящая в ретроград внутри окна, проходит тот же угол два или три раза, поэтому в одном окне бывает несколько точных дат.",
+    "about.barTerm": "Полоса",
+    "about.barDesc": "Дуга это всё окно, а метка на ней показывает, где внутри окна стоит читаемый день.",
+
+    // Position
+    "about.degreeTerm": "Градус и знак",
+    "about.degreeDesc": "Где точка стоит в зодиаке: в каком знаке и как далеко внутри него, от 0°00′ до 29°59′.",
+    "about.houseTerm": "Дом",
+    "about.houseNumber": "%d-й дом",
+    "about.houseDesc": "Один из двенадцати секторов карты, нарезанных моментом и местом рождения. Дом это область жизни, и точка в нём действует через эту область.",
+
+    // Chart aspects
+    "about.natalAspectTerm": "Аспект карты",
+    "about.natalAspectDesc": "Угол между двумя точками внутри самой карты рождения. Он задан при рождении и не меняется, в отличие от транзита, который проходит.",
+
+    // The day's numbers
+    "about.intensityTerm": "Интенсивность",
+    "about.zonesTerm": "Зоны",
+    "about.zonesDesc": "Тихо, от 0 до 25: аспектов мало или они слабые. Активно, от 25 до 55: карту задействуют несколько аспектов. Горячо, от 55 до 80: значимых много, часть точные. Предельно, от 80: редкость, несколько точных аспектов, включая высшие планеты.",
+    "about.tensionTerm": "Напряжение",
+    "about.tensionBandsTerm": "Полосы",
+    "about.tensionBandsDesc": "Низкое, от 0 до 30%: в основном гармоничные аспекты. Смешанное, от 30 до 60%: вызов и поддержка в равновесии. Высокое, от 60 до 100%: преобладают напряжённые аспекты.",
+    "about.feelsTerm": "Ощущается как",
+
+    // Moon
+    "about.moonPhaseTerm": "Фаза",
+    "about.moonPhaseDesc": "Где Луна в своём круге длиной 29.5 суток: от новолуния к полнолунию и обратно.",
+    "about.illuminationDesc": "Какая доля диска Луны освещена: 0% в новолуние, 100% в полнолуние.",
+    "about.moonSignDesc": "Знак, по которому Луна идёт прямо сейчас. Она меняет его каждые два-три дня, поэтому это самая быстрая строка в прогнозе.",
+
+    // Compatibility
+    "about.synastryTitle": "Об этом отчёте",
+    "about.scoreTitle": "Об оценке",
+    "about.aspectTableTitle": "О таблице аспектов",
+    "about.synastryTerm": "Меж-аспект",
+    "about.synastryDesc": "Угол между точкой одной карты рождения и точкой другой. Ни одна карта не движется: их накладывают друг на друга и измеряют углы между ними.",
+    "about.sidesTerm": "Два цвета",
+    "about.sidesDesc": "Каждый глиф и каждое имя окрашены по тому, из чьей они карты. Это единственное, что в строке говорит, чья Луна встречает чей Сатурн.",
+    "about.modeTerm": "Любовь и бизнес",
+    "about.modeDesc": "Одни и те же аспекты, взвешенные дважды. В любовном чтении считаются тела чувства и притяжения, в деловом тела разговора, воли, доверия и видения.",
+    "about.scoreTerm": "Оценка",
+    "about.scoreDesc": "От 0 до 100: какая доля веса пары приходится на гармоничные углы, а не на жёсткие, причём жёсткие считаются втрое, чтобы лёгкая карта себе не льстила. В счёт идут только аспекты между значимыми телами.",
+    "about.scoreBandsTerm": "Ярлыки",
+    "about.scoreBandsDesc": "От 86 «Родственные души», 71 до 85 «Магнетизм», 51 до 70 «Гармония», 31 до 50 «Сложная связь», ниже 31 «Вызов».",
+    "about.categoriesTerm": "Категории",
+    "about.loveCategoriesDesc": "Та же оценка, посчитанная каждый раз по одному срезу пары. В эмоциональную идут аспекты, задевающие Луну, Венеру или Нептун; в ментальную Меркурий, Юпитер или Уран; в физическую Солнце, Марс или Асцендент; в кармическую Сатурн, Плутон, узлы, Лилит или Хирон.",
+    "about.businessCategoriesDesc": "Та же оценка, посчитанная каждый раз по одному срезу пары. В коммуникацию идут аспекты, задевающие Меркурий, Юпитер или Луну; в драйв Солнце, Марс или Середину Неба; в доверие Сатурн, Плутон или узлы; в видение Юпитер, Уран или Нептун.",
+    "about.mostImpactTerm": "Самые сильные",
+    "about.mostImpactDesc": "Оставляет в таблице только точные и сильные строки, то есть всё в пределах 3° от идеального угла.",
+    "about.bandsTerm": "Три группы",
+    "about.bandsDesc": "Строки сгруппированы по более личному из двух тел: персональные планеты это от Солнца до Марса и две оси, высшие планеты от Юпитера до Плутона, особые точки всё остальное.",
+    "about.strengthPairDesc": "Орб, разложенный по полосам: ТОЧНЫЙ до 1°, СИЛЬНЫЙ до 3°, УМЕРЕННЫЙ до 5°, СЛАБЫЙ дальше. Две карты рождения стоят друг против друга неподвижно, поэтому полосы шире, чем у транзита.",
+
+    // The two transit lists
+    "about.activeTransitsDesc": "Все планеты неба, которые в этот день находятся в орбе к точке этой карты, самые точные сверху.",
+    "about.climateDesc": "Медленная половина того же списка: транзиты, окно которых длится месяцами, а не днями, в основном от высших планет.",
+
+    // Planets and points
+    "guide.sunDesc": "Твоя основная идентичность, эго, витальность. Что тебя движет.",
+    "guide.moonDesc": "Эмоции, инстинкты, внутренний мир. Как ты чувствуешь.",
+    "guide.mercuryDesc": "Общение, мышление, обучение. Как ты обрабатываешь информацию.",
+    "guide.venusDesc": "Любовь, красота, ценности, деньги. Что ты притягиваешь.",
+    "guide.marsDesc": "Действие, драйв, амбиции, гнев. Как ты достигаешь целей.",
+    "guide.jupiterDesc": "Рост, удача, расширение, мудрость. Где жизнь раскрывается.",
+    "guide.saturnDesc": "Структура, дисциплина, ограничения, уроки. Где нужно заслужить.",
+    "guide.uranusDesc": "Перемены, бунт, инновации, сюрпризы. Где ты вырываешься.",
+    "guide.neptuneDesc": "Мечты, интуиция, иллюзии, духовность. Где границы растворяются.",
+    "guide.plutoDesc": "Трансформация, власть, смерть/перерождение. Где ты глубоко эволюционируешь.",
+    "guide.chironDesc": "Твоя глубочайшая рана и дар исцеления.",
+    "guide.lilithDesc": "Твоя теневая сторона. Подавленная сила.",
+    "guide.selenaDesc": "(Белая Луна) Твоя точка ангела-хранителя.",
+    "guide.northNodeDesc": "Твоё кармическое направление. Куда ты растёшь.",
+    "guide.southNodeDesc": "Твоё кармическое прошлое. Что ты отпускаешь.",
+    "guide.pofDesc": "Где удача и талант текут естественно.",
+    "guide.vertexDesc": "Судьбоносные встречи. Точки предназначения.",
+    "guide.ascendantDesc": "Твой восходящий знак. Маска, которую ты носишь. Как тебя воспринимают при первой встрече.",
+    "guide.descendantDesc": "Напротив Асцендента. Что ты ищешь в партнёрах и отношениях.",
+    "guide.midheavenDesc": "Вершина карты. Твоя карьера, публичная репутация и направление жизни.",
+    "guide.imumCoeliDesc": "Основание карты. Твои корни, дом, личный внутренний мир.",
+
+    // Signs
+    "guide.ariesDesc": "Инициатор. Смелый, прямой, соревновательный.",
+    "guide.taurusDesc": "Строитель. Терпеливый, чувственный, упрямый.",
+    "guide.geminiDesc": "Коммуникатор. Любопытный, адаптивный, неугомонный.",
+    "guide.cancerDesc": "Защитник. Эмоциональный, заботливый, интуитивный.",
+    "guide.leoDesc": "Творец. Уверенный, яркий, щедрый.",
+    "guide.virgoDesc": "Аналитик. Практичный, точный, полезный.",
+    "guide.libraDesc": "Дипломат. Гармоничный, справедливый, нерешительный.",
+    "guide.scorpioDesc": "Трансформатор. Интенсивный, глубокий, скрытный.",
+    "guide.sagittariusDesc": "Исследователь. Оптимистичный, свободный, философский.",
+    "guide.capricornDesc": "Достиженец. Амбициозный, дисциплинированный, стратегический.",
+    "guide.aquariusDesc": "Новатор. Независимый, гуманитарный, эксцентричный.",
+    "guide.piscesDesc": "Мечтатель. Сочувствующий, творческий, безграничный.",
+
+    // Aspects
+    "guide.conjunctionDesc": "Слияние. Две планеты объединяют энергию. Мощное усиление. Не лёгкий и не тяжёлый, всё зависит от планет.",
+    "guide.sextileDesc": "Возможность. Мягкая поддержка между планетами. Талант, активирующийся с небольшим усилием. Легко, но требует инициативы.",
+    "guide.squareDesc": "Напряжение. Трение, которое заставляет действовать. Сложный, но продуктивный. Двигатель роста. Результаты через давление.",
+    "guide.trineDesc": "Поток. Естественная гармония между планетами. Талант без усилий. Может быть настолько лёгким, что принимаешь как должное.",
+    "guide.oppositionDesc": "Полярность. Две планеты смотрят друг на друга. Осознание через контраст. Отношения, проекция, поиск баланса.",
+    "guide.aspectsNote": "Квадраты и оппозиции не «плохие». Они создают напряжение, которое движет достижениями. Трины и секстили не «хорошие». Без вызова талант остаётся спящим.",
+
+    // Houses
+    "guide.house1": "Я, внешность, идентичность. Как мир тебя видит. Твоя маска.",
+    "guide.house2": "Деньги, имущество, ценности. Чем ты владеешь и что ценишь.",
+    "guide.house3": "Общение, братья и сёстры, короткие поездки. Повседневные взаимодействия и обучение.",
+    "guide.house4": "Дом, семья, корни, уединение. Твой фундамент и внутреннее убежище.",
+    "guide.house5": "Творчество, романтика, дети, развлечения. Что ты создаёшь и чем наслаждаешься.",
+    "guide.house6": "Здоровье, повседневная рутина, работа, служение. Как ты поддерживаешь себя.",
+    "guide.house7": "Отношения, партнёрства, брак. Люди, которые тебя отражают.",
+    "guide.house8": "Трансформация, общие ресурсы, близость, смерть/перерождение. Глубокое слияние.",
+    "guide.house9": "Путешествия, философия, высшее образование, верования. Расширение мира.",
+    "guide.house10": "Карьера, репутация, публичный имидж, амбиции. Твоё наследие.",
+    "guide.house11": "Друзья, сообщество, надежды, гуманитарные цели. Твоё племя.",
+    "guide.house12": "Подсознание, духовность, скрытые враги, изоляция. Что невидимо.",
+
+    // Numbers and symbols
+    "guide.applyingSep": "СХОДИТСЯ означает, что аспект сжимается и набирает пик. РАСХОДИТСЯ означает, что пик уже пройден и аспект угасает. Сходящиеся аспекты обычно ощущаются сильнее.",
+    "guide.retrograde": "Ретроградность",
+    "guide.retrogradeDesc": "Планета кажется движущейся назад. Энергия обращается внутрь, задержки и пересмотры.",
+    "about.intensityDesc": "Сколько планетарной активности приходится на карту рождения, по шкале от 0 до 100. Термометр дня: чем выше число, тем больше происходит. Хорошо это или плохо, число не говорит.",
+    "about.tensionDesc": "Какая доля этой активности приходится на жёсткие аспекты, квадраты и оппозиции, а не на гармоничные, трины и секстили. Высокое напряжение не значит плохо: это больше трения, которое может двигать к действию и прорывам.",
+    "about.feelsLikeDesc": "Как у погоды есть «ощущается как», два числа читаются вместе и складываются в один ярлык. Одна и та же интенсивность ощущается по-разному в зависимости от того, течёт энергия или давит.",
 ]
