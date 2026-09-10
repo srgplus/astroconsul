@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings, get_settings
@@ -65,6 +65,34 @@ def session_scope(settings: Settings | None = None) -> Iterator[Session]:
         session.close()
 
 
+def describe_database_url(database_url: str) -> str:
+    """The connection's shape with its password masked.
+
+    `GET /api/v1/health/ready` is unauthenticated and prints this, and it used
+    to print the whole normalized URL — which put the production Postgres user,
+    host and *password* on a public endpoint for anyone who asked. SQLAlchemy
+    renders the password as `***` and leaves the rest legible, which is all a
+    readiness probe ever needed.
+    """
+    try:
+        return make_url(normalize_database_url(database_url)).render_as_string(hide_password=True)
+    except Exception:
+        # An unparseable URL is not worth echoing back: whatever is wrong with
+        # it, the raw string is the one thing that must not be returned.
+        return "unparseable database url"
+
+
+def _scrub_password(text_: str, database_url: str) -> str:
+    """Whatever the driver said, minus the password if it said that too."""
+    try:
+        password = make_url(normalize_database_url(database_url)).password
+    except Exception:
+        password = None
+    if not password:
+        return text_
+    return text_.replace(password, "***")
+
+
 def database_healthcheck(settings: Settings | None = None) -> dict[str, object]:
     resolved_settings = settings or get_settings()
     if not database_is_enabled(resolved_settings):
@@ -76,6 +104,8 @@ def database_healthcheck(settings: Settings | None = None) -> dict[str, object]:
         with get_engine(database_url).connect() as connection:
             connection.execute(text("SELECT 1"))
     except Exception as exc:  # pragma: no cover - exercised in integration environments
-        return {"status": "error", "detail": str(exc)}
+        # Driver errors quote the URL they failed to connect with, password
+        # and all, so the message goes out scrubbed rather than raw.
+        return {"status": "error", "detail": _scrub_password(str(exc), database_url)}
 
-    return {"status": "ok", "detail": normalize_database_url(database_url)}
+    return {"status": "ok", "detail": describe_database_url(database_url)}
