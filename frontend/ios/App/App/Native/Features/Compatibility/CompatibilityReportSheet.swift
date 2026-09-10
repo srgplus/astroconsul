@@ -73,6 +73,9 @@ struct CompatibilityReportSheet: View {
         .padding(.horizontal, 16)
         .padding(.top, 12)
         .padding(.bottom, 4)
+        // The scroll runs behind this inset, so the strip carries the sheet's
+        // own ground: without it the glossary slides up under the glyphs.
+        .background(Theme.sheetBg)
     }
 
     /// The pair, then what this is, then how much of it there is — the same

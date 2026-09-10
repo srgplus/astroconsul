@@ -112,6 +112,11 @@ struct ForecastDayDetailSheet: View {
         .padding(.horizontal, 16)
         .padding(.top, 12)
         .padding(.bottom, 6)
+        // The scroll runs behind this inset. On the plain sheets the strip
+        // takes their grey ground; here the ground is the day's own sky, so
+        // it takes the glass the cards are made of instead and the reading
+        // blurs out under the label rather than colliding with it.
+        .weatherGlass(in: Rectangle(), tint: 0.18)
     }
 
     // MARK: - Hero

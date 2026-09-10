@@ -49,6 +49,16 @@ ported at all: a transit is banded by the backend at 0.25° / 1° / 2°, and a
 natal aspect by `NatalAspect.strength` at 1° / 3° / 5°, and the web guide
 prints one pair of numbers for both.
 
+### A detail sheet's close bar stops being see-through
+The close bar is a top safe-area inset, so a sheet's scroll has always run
+behind it. Nothing ever reached it while the sheets were short; now every one
+of them ends in paragraphs, and the first line of a glossary sliding under
+the glyphs was the first thing the eye caught. The three plain sheets give
+the strip the sheet's own grouped ground, and `ForecastDayDetailSheet`, whose
+ground is the day's sky, gives it the same glass the cards are made of, so
+the reading blurs out under the label rather than colliding with it.
+
+
 ### iOS: compatibility, as the last card of the weather page
 The web has had synastry since `SynastryWidget.tsx`: pick a second profile and
 `POST /profiles/{id}/synastry` scores the two charts against each other, love
