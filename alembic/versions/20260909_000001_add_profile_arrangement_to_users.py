@@ -25,11 +25,26 @@ depends_on = None
 json_type = sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql")
 
 
+def _existing_columns() -> set[str]:
+    inspector = sa.inspect(op.get_bind())
+    return {column["name"] for column in inspector.get_columns("users")}
+
+
 def upgrade() -> None:
-    op.add_column("users", sa.Column("favorite_profile_ids", json_type, nullable=True))
-    op.add_column("users", sa.Column("profile_order", json_type, nullable=True))
+    # Skips what is already there. These two columns were added by hand on
+    # 2026-09-09 to end a live 500 — the chain in front of this revision was
+    # blocked, so the code shipped without its schema — and a replay must not
+    # fail on "column already exists" and block the chain all over again.
+    existing = _existing_columns()
+    if "favorite_profile_ids" not in existing:
+        op.add_column("users", sa.Column("favorite_profile_ids", json_type, nullable=True))
+    if "profile_order" not in existing:
+        op.add_column("users", sa.Column("profile_order", json_type, nullable=True))
 
 
 def downgrade() -> None:
-    op.drop_column("users", "profile_order")
-    op.drop_column("users", "favorite_profile_ids")
+    existing = _existing_columns()
+    if "profile_order" in existing:
+        op.drop_column("users", "profile_order")
+    if "favorite_profile_ids" in existing:
+        op.drop_column("users", "favorite_profile_ids")
