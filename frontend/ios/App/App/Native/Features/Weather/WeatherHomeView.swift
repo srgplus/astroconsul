@@ -209,7 +209,12 @@ struct WeatherHomeView: View {
                     bottomInset: geometry.safeAreaInsets.bottom,
                     isPrimary: profile.profileId == model.primaryProfileId,
                     onEdit: isOwn ? { editing = $0 } : nil,
-                    onUnfollow: isOwn ? nil : { profile in Task { await model.unfollow(profile) } }
+                    onUnfollow: isOwn ? nil : { profile in Task { await model.unfollow(profile) } },
+                    // Everyone the compatibility card could pair this page
+                    // with. The list is already loaded, so the card asks the
+                    // API for nothing but the report itself.
+                    partners: profiles.filter { $0.profileId != profile.profileId },
+                    onFindPeople: { showsSearch = true }
                 )
                 .id("\(profile.profileId)#\(editVersions[profile.profileId] ?? 0)")
             }

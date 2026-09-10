@@ -4,6 +4,47 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-09
 
+### iOS: compatibility, as the last card of the weather page
+The web has had synastry since `SynastryWidget.tsx`: pick a second profile and
+`POST /profiles/{id}/synastry` scores the two charts against each other, love
+and business, and writes out every inter-aspect. Natively there was nothing.
+`Features/Compatibility/` is that feature, and it closes the weather page under
+`NatalAspectsCard` — every card above it reads one person's own sky, and this
+is the first that needs a second chart.
+
+`CompatibilityCard` is two avatars with the score between them. Empty, it is an
+invitation: this person, times somebody, and a tap opens `PartnerPickerSheet`
+over the page's own sky. Picking fetches the report straight away rather than
+waiting for the sheet to be opened, so the number, the label the server wrote
+("Magnetic", "Магнетизм") and the four category meters are on the card by the
+time the names have been read. The ring sweeps to the score once, on the way
+in. `CompatibilityReportSheet` is the full reading: the gauge again, the
+love/business toggle, the written interpretation, and the inter-aspects banded
+`personal / outer / special` with a row that opens onto its meaning, its
+keywords and where both bodies sit.
+
+The pair sticks. `CompatibilityViewModel` writes the partner's id to
+`UserDefaults` under the page's own profile id, which is the per-profile memory
+the web keeps in `localStorage`, and resolves it against the profiles the
+account actually has — a partner unfollowed since comes back empty rather than
+as a row pointing at nothing. Candidates are handed in from
+`WeatherHomeView`'s already-loaded list, so the only request the card makes is
+the report itself.
+
+Both sides of a pair are drawn in the web's own indigo-and-pink throughout, so
+a glyph, a name or a position line always says whose it is: `TransitPalette`
+carries `personA`/`personB` for the two grounds (the card's glass, the sheet's
+plain surface) the way it already carried the strength bands. `Theme` gained
+the gauge's gradient, the four category colours and the seven-colour keyword
+cycle the web draws with `nth-child(7n+…)`, each with a light variant, because
+the web's values were picked for a dark page and go pale on a white sheet.
+
+One difference from the web worth knowing: there, compatibility is behind the
+Pro paywall. The iOS app sells nothing and may show no lock or upsell
+(`frontend/src/lib/platform.ts`), and the route itself gates on nothing but
+access to the two profiles, so on iOS the card is simply free to everyone.
+
+
 ### Squares and oppositions are red, and the strength label is coloured
 Two ways into the same list. The aspect glyph in the middle of `TransitGlyphs`
 is red for a square or an opposition — `AstroGlyph.isChallenging(_:)`, which

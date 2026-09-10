@@ -681,3 +681,158 @@ struct ResolvedLocation: Codable, Hashable {
     let longitude: Double
     let timezone: String
 }
+
+// MARK: - Compatibility (synastry)
+
+/// Which of the two readings a compatibility report is being looked at in.
+///
+/// The engine scores the same inter-aspects twice — once for a relationship,
+/// once for working together — and sends both in one answer, so the toggle
+/// between them costs no request.
+enum SynastryMode: String, CaseIterable, Identifiable {
+    case love, business
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .love: return L("synastry.love")
+        case .business: return L("synastry.business")
+        }
+    }
+}
+
+/// One person's side of a report. The API sends a natal summary with it as
+/// well; the card and the sheet name the people and read the aspects, so it is
+/// left undecoded.
+struct SynastryPerson: Codable, Hashable {
+    let name: String
+    let handle: String?
+    let profileId: String?
+}
+
+/// The overall score and its four categories, 0–100 each.
+///
+/// One type for both readings: `compute_synastry_scores` sends emotional /
+/// mental / physical / karmic and `compute_synastry_scores_business` sends
+/// communication / drive / trust / vision, so every category is optional and a
+/// payload carries only the four its own mode names.
+///
+/// `overallLabel` is written server-side in the language the request asked for
+/// — "Magnetic", "Магнетизм" — so it is printed rather than looked up.
+struct SynastryScores: Codable, Hashable {
+    let overall: Int
+    let overallLabel: String
+
+    let emotional: Int?
+    let mental: Int?
+    let physical: Int?
+    let karmic: Int?
+
+    let communication: Int?
+    let drive: Int?
+    let trust: Int?
+    let vision: Int?
+
+    /// The four bars under the gauge, in the order the web prints them. The
+    /// key names both the string and the colour; a category this payload does
+    /// not carry reads as zero rather than dropping its bar, so the two modes
+    /// always draw the same four rows.
+    func categories(_ mode: SynastryMode) -> [(key: String, value: Int)] {
+        switch mode {
+        case .love:
+            return [
+                ("emotional", emotional ?? 0),
+                ("mental", mental ?? 0),
+                ("physical", physical ?? 0),
+                ("karmic", karmic ?? 0),
+            ]
+        case .business:
+            return [
+                ("communication", communication ?? 0),
+                ("drive", drive ?? 0),
+                ("trust", trust ?? 0),
+                ("vision", vision ?? 0),
+            ]
+        }
+    }
+}
+
+/// One inter-chart aspect: a body in person A's chart against a body in person
+/// B's.
+///
+/// The pair is ordered and the order carries meaning — A's Moon on B's Saturn
+/// is not B's Moon on A's Saturn — and the engine keeps only the tightest
+/// aspect per pair, so the two ids and the aspect name identify a row.
+struct SynastryAspect: Codable, Hashable, Identifiable {
+    let personAObject: String
+    let personBObject: String
+    let aspect: String
+    let orb: Double
+    let strength: String
+    /// The written interpretation, from `app/data/synastry_aspects.json`.
+    /// Missing for a pair the lookup has no entry for, and a row without one
+    /// does not open.
+    let meaning: String?
+    let keywords: [String]?
+
+    var id: String { "\(personAObject)-\(aspect)-\(personBObject)" }
+
+    /// "Venus trine Mars", in the language the app is read in — the same
+    /// three-part reading the transit and natal rows build.
+    var title: String {
+        Astro.aspectTitle(transit: personAObject, aspect: aspect, natal: personBObject)
+    }
+
+    /// Exact and strong — what the "most impact" switch narrows the list to.
+    var isImpactful: Bool { strength == "exact" || strength == "strong" }
+}
+
+/// `POST /profiles/{id}/synastry` — the whole report for one pair.
+struct SynastryReport: Codable, Hashable {
+    let personA: SynastryPerson
+    let personB: SynastryPerson
+    let scores: SynastryScores
+    /// Nil only against a backend that predates business scoring, in which
+    /// case the toggle is hidden rather than offering a mode with nothing in
+    /// it.
+    let scoresBusiness: SynastryScores?
+    let aspects: [SynastryAspect]
+    let aspectCount: Int
+    let exactCount: Int
+    let overallReading: String?
+    let overallReadingBusiness: String?
+    /// Where each side's bodies sit, so an opened row can name both. Slim
+    /// payloads — sign, degree, house — which `ChartPosition` decodes with its
+    /// longitude left nil.
+    let positionsA: [ChartPosition]?
+    let positionsB: [ChartPosition]?
+
+    var hasBusiness: Bool { scoresBusiness != nil }
+
+    /// The scores of one mode, falling back to the love ones so a report from
+    /// an older backend still draws a gauge instead of nothing.
+    func activeScores(_ mode: SynastryMode) -> SynastryScores {
+        mode == .business ? (scoresBusiness ?? scores) : scores
+    }
+
+    func activeReading(_ mode: SynastryMode) -> String? {
+        mode == .business ? overallReadingBusiness : overallReading
+    }
+
+    /// Position lookups for one side, keyed the way a row asks for them.
+    func positions(_ side: SynastrySide) -> [String: ChartPosition] {
+        let positions = side == .a ? positionsA : positionsB
+        return Dictionary(
+            (positions ?? []).map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }
+}
+
+/// Which half of a pair something belongs to. The two are drawn in different
+/// ink throughout — indigo for A, pink for B — so a glyph, a name or a
+/// position line always says whose it is.
+enum SynastrySide {
+    case a, b
+}

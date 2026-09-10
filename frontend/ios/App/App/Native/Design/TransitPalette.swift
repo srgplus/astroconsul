@@ -20,6 +20,18 @@ struct TransitPalette {
     var strong: Color
     var moderate: Color
     var wide: Color
+    /// The two people in a compatibility report, read through `person(_:)`.
+    /// Held here for the same reason the bands are: the avatars, glyphs and
+    /// position lines of one pair are drawn on the card's glass and again on
+    /// the report's plain surface, and the web's indigo-and-pink was picked
+    /// for a dark page.
+    var personA: Color
+    var personB: Color
+
+    /// Whose side of a compatibility pair a mark belongs to.
+    func person(_ side: SynastrySide) -> Color {
+        side == .a ? personA : personB
+    }
 
     /// The colour of one strength band. Anything the engine has not sent
     /// before reads as the widest, which is what an unknown band is worth.
@@ -46,7 +58,9 @@ struct TransitPalette {
         exact: Color(hex: 0xFF2D55),
         strong: Color(hex: 0xFF9500),
         moderate: Color(hex: 0x5AC8FA),
-        wide: .white.opacity(0.55)
+        wide: .white.opacity(0.55),
+        personA: Color(hex: 0xA5B4FC),
+        personB: Color(hex: 0xF9A8D4)
     )
 
     /// On a plain surface, where the ink has to flip with the appearance.
@@ -59,7 +73,9 @@ struct TransitPalette {
         exact: Theme.strengthExact,
         strong: Theme.strengthStrong,
         moderate: Theme.strengthModerate,
-        wide: Theme.textDim
+        wide: Theme.textDim,
+        personA: Theme.personA,
+        personB: Theme.personB
     )
 }
 
