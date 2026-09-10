@@ -15,6 +15,15 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Skipped when the table is already there. This revision is what blocked
+    # the chain on production until 2026-09-09: the version pointer sat one
+    # revision behind a schema that already had `subscriptions`, so every
+    # deploy re-ran this, failed on a table that existed, and applied nothing
+    # after it — including a later revision whose columns the shipped code
+    # needed. See start.sh.
+    if sa.inspect(op.get_bind()).has_table("subscriptions"):
+        return
+
     op.create_table(
         "subscriptions",
         sa.Column("id", sa.String(128), primary_key=True),
@@ -34,5 +43,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    if not sa.inspect(op.get_bind()).has_table("subscriptions"):
+        return
     op.drop_index("idx_subscriptions_user_active")
     op.drop_table("subscriptions")

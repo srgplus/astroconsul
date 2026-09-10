@@ -4,6 +4,40 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-09
 
+### A blocked migration chain served 500s, and a failed deploy now stops
+Shipping the Favourites change turned "the migration chain has been stuck for
+months" into a live outage: `GET /api/v1/profiles` answered **HTTP 500** and
+the app read "Не удалось загрузить профили".
+
+What was wrong. Production's `alembic_version` sat at `20260406_000001` while
+the schema was really at `20260406_000002` — `subscriptions`, its index and
+all, existed but the pointer had never moved. So every deploy ran
+`alembic upgrade head`, hit `create table subscriptions` on a table that was
+already there, failed, and applied **nothing after it**. Nobody noticed,
+because `start.sh` ended that line in `|| echo "WARNING: ..."`.
+
+Why it only broke now. A blocked chain is invisible until a release needs it.
+`20260909_000001` adds `users.favorite_profile_ids` and `users.profile_order`,
+and `UserModel` declares them — so from the moment that code booted, *every*
+read of a user row selected two columns the database did not have. Not just
+the new arrangement call: `get_primary_profile_id` went down with it, which is
+why the whole listing failed rather than one field going missing.
+
+The fix, in three parts. The two columns were added to production by hand
+(`jsonb`, nullable — exactly what the migration writes) and the pointer moved
+to `20260909_000001`, which recorded what the schema already was and unblocked
+every future deploy. `start.sh` no longer swallows the failure: with `set -e`,
+a migration that cannot apply aborts the start, Railway marks the deploy
+failed, and the previous deployment keeps serving — a release that cannot
+migrate must not serve. And both revisions are now idempotent —
+`20260406_000002` returns early when `subscriptions` exists,
+`20260909_000001` adds and drops each column only if the inspector agrees —
+so a replay cannot re-block the chain on "already exists".
+
+The lesson for anything that ships a schema change with the code that needs
+it: additive and nullable is not enough on its own. If the migration can fail
+quietly, the code arrives alone.
+
 ### The saved list is arranged by hand: Favourites, and cards you can drag
 The profile list had one order and it was not the reader's: own profiles by
 name with the primary lifted to the top, followed ones in whatever order the
