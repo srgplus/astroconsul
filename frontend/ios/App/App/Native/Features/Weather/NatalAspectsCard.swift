@@ -153,7 +153,7 @@ struct NatalAspectsCard: View {
             Text(Astro.strength(aspect.strength))
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .tracking(0.4)
-                .foregroundStyle(palette.primary)
+                .foregroundStyle(palette.strength(aspect.strength))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .frame(width: 60, alignment: .trailing)

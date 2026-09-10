@@ -21,7 +21,9 @@ the four bands and a `strength(_:)` lookup, so the card gets values picked for
 dark glass and the detail sheet gets ones that flip with the appearance
 (`Theme.challenge`, `Theme.strength*`). The web's own values wash out on a
 white sheet, which is why the light variants are pulled down rather than
-copied.
+copied. `NatalAspectsCard` draws its own strength label rather than the shared
+one — its text has to shrink, `StrengthLabel`'s does not — so the ramp is
+applied there by hand.
 
 
 ### iOS: the birth chart's own aspects, with the "most impact" switch
