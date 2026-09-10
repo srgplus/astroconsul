@@ -144,27 +144,60 @@ struct ActiveTransitsCard: View {
     }
 }
 
-/// ☉ △ ♆ — transiting body, aspect, natal body. A fixed width keeps the bars
-/// lined up down the card however wide the glyphs render.
+/// ☉ △ ♆ — one body, the aspect between them, the other body. A fixed width
+/// keeps the bars lined up down the card however wide the glyphs render.
+///
+/// Written as three ids rather than as an aspect so the natal grid, whose
+/// rows are `NatalAspect` and not `ActiveAspect`, draws through the same view.
 struct TransitGlyphs: View {
 
-    let aspect: ActiveAspect
+    let first: String
+    let aspectName: String
+    let second: String
     var size: CGFloat = 15
     // Wide enough for the angles, which are written "AC"/"MC" rather than
     // drawn, next to a square or an opposition.
     var width: CGFloat? = 58
 
+    init(first: String, aspect: String, second: String, size: CGFloat = 15, width: CGFloat? = 58) {
+        self.first = first
+        self.aspectName = aspect
+        self.second = second
+        self.size = size
+        self.width = width
+    }
+
+    init(aspect: ActiveAspect, size: CGFloat = 15, width: CGFloat? = 58) {
+        self.init(
+            first: aspect.transitObject,
+            aspect: aspect.aspect,
+            second: aspect.natalObject,
+            size: size,
+            width: width
+        )
+    }
+
+    init(aspect: NatalAspect, size: CGFloat = 15, width: CGFloat? = 58) {
+        self.init(
+            first: aspect.p1,
+            aspect: aspect.aspect,
+            second: aspect.p2,
+            size: size,
+            width: width
+        )
+    }
+
     @Environment(\.transitPalette) private var palette
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(AstroGlyph.object(aspect.transitObject))
+            Text(AstroGlyph.object(first))
                 .foregroundStyle(palette.primary)
 
-            Text(AstroGlyph.aspect(aspect.aspect))
+            Text(AstroGlyph.aspect(aspectName))
                 .foregroundStyle(palette.secondary)
 
-            Text(AstroGlyph.object(aspect.natalObject))
+            Text(AstroGlyph.object(second))
                 .foregroundStyle(palette.primary)
         }
         .font(.system(size: size))

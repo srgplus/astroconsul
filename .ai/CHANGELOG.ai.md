@@ -2,6 +2,39 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-09
+
+### iOS: the birth chart's own aspects, with the "most impact" switch
+The web has shown a `Chart Aspects` table inside the birth chart modal since
+`ProfileDetail.tsx` was written; natively the wheel drew those lines and
+nothing named them, so a reader could see that two of their planets were tied
+together and had no way to read by how much. `Features/Weather/NatalAspectsCard.swift`
+is that table: `CHART ASPECTS`, a `SmallSwitch` on `transits.mostImpact`, rows
+banded `personal / outer / special`, and closing the weather page under
+`NatalChartCard`.
+
+It costs no request. `TransitPositions.natalAspects` has carried the grid since
+the wheel started drawing the natal lines — the report already sends
+`natal_aspects` — so the card only reads what is on the model.
+
+The backend sends natal aspects with an orb and no strength (a birth chart never
+changes, so nothing bands them), which is why `NatalAspect` grew `strength`,
+`isImpactful` and `title`. The bands are the web's `aspectStrength` verbatim:
+exact under 1°, strong under 3°, moderate under 5°, wide past it. Both screens
+have to call the same 2.9° aspect strong.
+
+Two helpers exist only because a birth chart aspects its angles and a transit
+never is one: `TransitGroup(natalObject:)` counts ASC and MC as personal, the
+way `categorizeNatalAspect` does, and `TransitOrder.natalRank` is the transit
+order with the angles slotted in after Mars, the way `PLANET_ORDER` has them.
+`TransitGlyphs` now takes three ids, so `ActiveAspect` and `NatalAspect` draw
+their ☉ △ ♆ through the same view.
+
+No interpretations: the transit report carries none for natal aspects (they
+come with `natal_interpretations` on the profile detail, which the native app
+does not fetch), so a row is not tappable — unlike the transit rows, which open
+`TransitDetailSheet`.
+
 ## 2026-09-07
 
 ### How often the weather notification comes is a setting, default "on changes"
