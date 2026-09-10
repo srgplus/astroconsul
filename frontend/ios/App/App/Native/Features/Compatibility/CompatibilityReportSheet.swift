@@ -36,6 +36,8 @@ struct CompatibilityReportSheet: View {
                 scoreCard
 
                 aspects
+
+                about
             }
             .padding(.horizontal, 16)
             .padding(.top, 4)
@@ -158,6 +160,67 @@ struct CompatibilityReportSheet: View {
             }
             .frame(maxWidth: .infinity)
         }
+    }
+
+    // MARK: - About
+
+    /// The glossary for the report: what an inter-aspect is, where the score
+    /// comes from, and how the table under it is banded and filtered.
+    ///
+    /// Definitions rather than a verdict, which matters more here than
+    /// anywhere else in the app: a number about two people is the easiest
+    /// thing to mistake for a judgement on them. It says what is counted, and
+    /// the reader decides what that is worth.
+    private var about: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            AboutSection(title: L("about.synastryTitle"), terms: whatItIs)
+
+            AboutSection(title: L("about.scoreTitle"), terms: scoreTerms)
+
+            AboutSection(
+                title: L("about.aspectTableTitle"),
+                terms: tableTerms,
+                note: L("guide.aspectsNote")
+            )
+        }
+        .padding(.top, 8)
+    }
+
+    private var whatItIs: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.synastryTerm"), L("about.synastryDesc"))
+        terms.add(L("about.sidesTerm"), L("about.sidesDesc"))
+
+        // The switch is only drawn when both readings came back, and there is
+        // nothing to explain about a choice nobody is offered.
+        if report.hasBusiness {
+            terms.add(L("about.modeTerm"), L("about.modeDesc"))
+        }
+
+        return terms
+    }
+
+    /// The categories row follows the switch: the bars under the gauge are
+    /// the four of whichever reading is on screen, and so is the line saying
+    /// what feeds them.
+    private var scoreTerms: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.scoreTerm"), L("about.scoreDesc"))
+        terms.add(L("about.scoreBandsTerm"), L("about.scoreBandsDesc"))
+        terms.add(
+            L("about.categoriesTerm"),
+            mode == .business ? L("about.businessCategoriesDesc") : L("about.loveCategoriesDesc")
+        )
+        return terms
+    }
+
+    private var tableTerms: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.orbTerm"), L("about.orbDesc"))
+        terms.add(L("about.strengthTerm"), L("about.strengthPairDesc"))
+        terms.add(L("about.mostImpactTerm"), L("about.mostImpactDesc"))
+        terms.add(L("about.bandsTerm"), L("about.bandsDesc"))
+        return terms
     }
 
     // MARK: - Aspects

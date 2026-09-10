@@ -53,6 +53,8 @@ struct ForecastDayDetailSheet: View {
                 }
 
                 transits
+
+                about
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
@@ -174,6 +176,89 @@ struct ForecastDayDetailSheet: View {
     /// "Mon, Sep 7 at 1:05 AM", in the zone the reading is cast for.
     private var stamp: String {
         LocalizedDate.string(moment.instant, template: "EEE d MMM jmm", in: moment.zone)
+    }
+
+    // MARK: - About
+
+    /// The glossary for the day: the two numbers in the hero, the label they
+    /// resolve to, the Moon panel, and the difference between the two transit
+    /// lists under it.
+    ///
+    /// Drawn in the sky palette rather than the sheet one — this sheet keeps
+    /// the day's own weather behind it, so the block has to sit on glass with
+    /// the cards above it rather than on a grouped grey.
+    ///
+    /// Definitions, not a verdict: what intensity counts and where the bands
+    /// fall, so a reader can look at 62 with high tension and decide for
+    /// themselves what kind of day that is.
+    private var about: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            AboutSection(title: L("about.numbersTitle"), style: .sky, terms: numbers)
+
+            if let phase = day.moonPhase {
+                AboutSection(title: L("about.moonTitle"), style: .sky, terms: moonTerms(phase))
+            }
+
+            if !listTerms.isEmpty {
+                AboutSection(title: L("about.listsTitle"), style: .sky, terms: listTerms)
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private var numbers: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.intensityTerm"), L("about.intensityDesc"))
+        terms.add(L("about.zonesTerm"), L("about.zonesDesc"))
+
+        // The pair is only a pair when the reading carries the split; on a
+        // day that came back without one the hero shows the intensity alone.
+        if day.tensionRatio != nil {
+            terms.add(L("about.tensionTerm"), L("about.tensionDesc"))
+            terms.add(L("about.tensionBandsTerm"), L("about.tensionBandsDesc"))
+        }
+
+        if !day.feelsLike.isEmpty {
+            terms.add(L("about.feelsTerm"), L("about.feelsLikeDesc"))
+        }
+
+        return terms
+    }
+
+    /// One row per reading the Moon card actually prints, plus the archetype
+    /// of the sign it is crossing.
+    private func moonTerms(_ phase: MoonPhase) -> [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.moonPhaseTerm"), L("about.moonPhaseDesc"))
+
+        if phase.illuminationPct != nil {
+            terms.add(L("moon.illumination"), L("about.illuminationDesc"))
+        }
+
+        if let sign = phase.moonSign, !sign.isEmpty {
+            terms.add(L("moon.sign"), L("about.moonSignDesc"))
+            terms.add(Astro.sign(sign) ?? sign, Glossary.sign(sign))
+        }
+
+        return terms
+    }
+
+    /// Both lists hold transits and neither is a subset of the other, which
+    /// is the one thing a reader cannot tell from the two cards alone.
+    private var listTerms: [AboutTerm] {
+        guard case .loaded = model.transitsState else { return [] }
+
+        var terms: [AboutTerm] = []
+
+        if !model.activeAspects.isEmpty {
+            terms.add(L("transits.title"), L("about.activeTransitsDesc"))
+        }
+
+        if !model.cosmicClimate.isEmpty {
+            terms.add(L("climate.title"), L("about.climateDesc"))
+        }
+
+        return terms
     }
 
     // MARK: - Transits

@@ -60,6 +60,7 @@ struct NatalPositionDetailSheet: View {
                 header
                 chartAspects
                 transitsHere
+                about
             }
             .padding(.horizontal, 16)
             .padding(.top, 4)
@@ -161,6 +162,89 @@ struct NatalPositionDetailSheet: View {
                 }
             }
         }
+    }
+
+    // MARK: - About
+
+    /// The glossary for this one point: what it stands for, the sign and the
+    /// house it happens to be in, and the two kinds of aspect the cards above
+    /// list — the ones frozen into the chart and the ones passing through it.
+    ///
+    /// Definitions only. The sheet says the Moon is at 14° Taurus in the 4th;
+    /// this says what the Moon, Taurus and the 4th each are, and leaves the
+    /// three-way conclusion to the person whose chart it is.
+    private var about: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            AboutSection(title: L("about.pointTitle"), terms: point)
+
+            if !aspects.isEmpty {
+                AboutSection(
+                    title: L("about.chartAspectsTitle"),
+                    terms: chartAspectTerms,
+                    note: L("guide.aspectsNote")
+                )
+            }
+
+            if !hits.isEmpty {
+                AboutSection(title: L("about.transitsHereTitle"), terms: transitTerms)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private var point: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.natalTerm"), L("about.natalDesc"))
+        terms.add(Astro.object(object), Glossary.object(object))
+        terms.add(L("about.degreeTerm"), L("about.degreeDesc"))
+
+        if let sign = position.sign {
+            terms.add(Astro.sign(sign) ?? sign, Glossary.sign(sign))
+        }
+
+        // The angles are the cusps of houses 1 and 10 by definition, so the
+        // header prints no house for them and neither does this.
+        if object != "ASC", object != "MC", let house = position.houseNumber {
+            terms.add(L("about.houseTerm"), L("about.houseDesc"))
+            terms.add(L("about.houseNumber", house), Glossary.house(house))
+        }
+
+        if position.retrograde == true {
+            terms.add(L("guide.retrograde"), L("about.retrogradeNatalDesc"))
+        }
+
+        return terms
+    }
+
+    /// The aspect kinds actually in the card above, each named once: a point
+    /// with three trines needs the trine defined, not all five.
+    private var chartAspectTerms: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.natalAspectTerm"), L("about.natalAspectDesc"))
+        terms.add(L("about.orbTerm"), L("about.orbDesc"))
+        terms.add(L("about.strengthTerm"), L("about.strengthNatalDesc"))
+
+        var seen: Set<String> = []
+        for aspect in aspects where seen.insert(aspect.aspect.lowercased()).inserted {
+            terms.add(Glossary.aspectTerm(aspect.aspect), Glossary.aspect(aspect.aspect))
+        }
+
+        return terms
+    }
+
+    /// A transit is banded tighter than a chart aspect, so the strength line
+    /// is said again here rather than left to the block above — and the orb
+    /// with it, on a point whose chart aspects card never drew.
+    private var transitTerms: [AboutTerm] {
+        var terms: [AboutTerm] = []
+        terms.add(L("about.transitTerm"), L("about.transitDesc"))
+
+        if aspects.isEmpty {
+            terms.add(L("about.orbTerm"), L("about.orbDesc"))
+        }
+
+        terms.add(L("about.strengthTerm"), L("about.strengthTransitDesc"))
+        return terms
     }
 
     // MARK: - Aspects inside the chart

@@ -4,6 +4,51 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-09
 
+### Every detail sheet ends in a glossary of what it just showed
+Weather closes its Averages sheet with "About the Normal Range" and "About
+Average Temperatures": plain definitions of the things on the chart above,
+so a reader learns to read the chart instead of being told what it means.
+All four detail sheets now end the same way. `AboutSection` is the block
+itself, a heading and a panel of term-and-definition rows, drawn on the
+grouped sheet ground (`.sheet`) or on the day's own sky (`.sky`) depending
+on which sheet it closes.
+
+Definitions, never a reading, and that is the rule the copy is held to. The
+transit sheet defines the travelling planet, the angle with its degrees, the
+natal point it lands on, then the orb, the strength bands, applying versus
+separating, the window and its exact dates, and the sign and house the two
+bodies actually stand in. `NatalPositionDetailSheet` defines the point, its
+sign, its house and its retrograde mark, then the difference between an
+aspect frozen into the chart and one passing through it.
+`ForecastDayDetailSheet` defines intensity and its zones, tension and its
+bands, feels-like, the Moon panel's three readings, and why Active Transits
+and Climate are two lists rather than one. `CompatibilityReportSheet`
+defines an inter-aspect, what the two colours mean, where the 0 to 100 comes
+from and which bodies feed each category bar, then the table's filter and
+its three bands.
+
+Only what is on screen gets a row. The signs named are the signs those two
+bodies are in, the houses are the houses they fall in, and the aspects named
+in a natal block are the kinds that point actually makes, so a reader learns
+their own chart rather than a table of twelve.
+
+`Core/Glossary.swift` is the lookup behind it: object, sign, house and
+aspect ids in, one line of definition out, nil for anything the tables do not
+carry so the row drops instead of printing its own key. The text is the web
+app's, ported key for key out of the "How It Works" sheet
+(`guide.*` in `frontend/src/i18n/{en,ru}.ts`) into a fourth pair of tables in
+`Strings` — planets, signs, houses, aspects, retrograde and the
+applying/separating note. A square is now defined the same way in both halves
+of the app, and the Russian came across already translated.
+
+Three lines did not come across: the two indices and the feels-like label are
+`about.*` rather than `guide.*`, because the native app calls the index
+Intensity where the web calls it TII, and a row under its own term should not
+open by repeating it. The strength bands are stated per context rather than
+ported at all: a transit is banded by the backend at 0.25° / 1° / 2°, and a
+natal aspect by `NatalAspect.strength` at 1° / 3° / 5°, and the web guide
+prints one pair of numbers for both.
+
 ### iOS: compatibility, as the last card of the weather page
 The web has had synastry since `SynastryWidget.tsx`: pick a second profile and
 `POST /profiles/{id}/synastry` scores the two charts against each other, love
