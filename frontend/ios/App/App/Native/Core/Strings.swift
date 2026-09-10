@@ -227,6 +227,8 @@ private let enUI: [String: String] = [
     "natal.title": "Astro profile",
     "natal.expand": "Shows the rest of the profile",
     "natal.collapse": "Hides the rest of the profile",
+    "natal.rowHint": "Opens this point in detail",
+    "natal.transitsHere": "Transits to this point",
 
     // Natal aspect grid
     "natalAspects.title": "Chart aspects",
@@ -658,6 +660,8 @@ private let ruUI: [String: String] = [
     "natal.title": "Астропрофиль",
     "natal.expand": "Показывает остальной профиль",
     "natal.collapse": "Скрывает остальной профиль",
+    "natal.rowHint": "Открывает подробности точки",
+    "natal.transitsHere": "Транзиты к этой точке",
 
     // Natal aspect grid
     "natalAspects.title": "Аспекты карты",
