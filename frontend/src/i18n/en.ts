@@ -160,7 +160,7 @@ export const en: Record<string, string> = {
   "synastry.report": "Compatibility Report",
   "synastry.interAspects": "inter-aspects found",
   "synastry.exactOrTight": "exact or tight",
-  "synastry.love": "Love",
+  "synastry.family": "Family",
   "synastry.business": "Business",
   "synastry.overallChemistry": "Overall Chemistry:",
   "synastry.overallReading": "Overall Reading",

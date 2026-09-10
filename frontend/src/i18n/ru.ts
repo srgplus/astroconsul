@@ -160,7 +160,7 @@ export const ru: Record<string, string> = {
   "synastry.report": "Отчёт совместимости",
   "synastry.interAspects": "межаспектов найдено",
   "synastry.exactOrTight": "точных или сильных",
-  "synastry.love": "Любовь",
+  "synastry.family": "Семья",
   "synastry.business": "Бизнес",
   "synastry.overallChemistry": "Общая химия:",
   "synastry.overallReading": "Общее описание",
