@@ -432,6 +432,11 @@ struct CosmicWeatherView: View {
         // screen rather than opening it: today first, the birth data last.
         // It draws nothing until the natal positions land.
         NatalChartCard(profile: profile, positions: model.positions.natal)
+
+        // Where those positions stand to each other. Under the table and not
+        // above it: a row here names two bodies, and the table is where a
+        // reader just looked them up.
+        NatalAspectsCard(aspects: model.positions.natalAspects)
     }
 
     @ViewBuilder

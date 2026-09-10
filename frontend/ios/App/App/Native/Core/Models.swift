@@ -544,6 +544,26 @@ struct NatalAspect: Codable, Hashable, Identifiable {
     let orb: Double
 
     var id: String { "\(p1)-\(aspect)-\(p2)" }
+
+    /// "Sun opposition Saturn", in the language the app is read in — the same
+    /// three-part reading `ActiveAspect.title` builds.
+    var title: String {
+        Astro.aspectTitle(transit: p1, aspect: aspect, natal: p2)
+    }
+
+    /// A birth chart never changes, so the backend bands transits by strength
+    /// but sends natal aspects with the orb alone. The bands are the web's
+    /// `aspectStrength` in `ProfileDetail.tsx`; both screens have to call the
+    /// same 2.9° aspect strong.
+    var strength: String {
+        if orb < 1 { return "exact" }
+        if orb < 3 { return "strong" }
+        if orb < 5 { return "moderate" }
+        return "wide"
+    }
+
+    /// Exact and strong — what the "most impact" switch narrows a list to.
+    var isImpactful: Bool { strength == "exact" || strength == "strong" }
 }
 
 struct TransitReport: Codable {

@@ -74,6 +74,14 @@ enum TransitOrder {
         index[object] ?? order.count
     }
 
+    /// The same order with the angles in it, for the natal aspect grid. The
+    /// transiting list has no need for them — nothing transits an angle — but
+    /// a birth chart aspects them like any other point, and the web's
+    /// `PLANET_ORDER` puts them straight after Mars.
+    static func natalRank(_ object: String) -> Int {
+        natalIndex[object] ?? natalOrder.count
+    }
+
     private static let order = [
         "Sun", "Moon", "Mercury", "Venus", "Mars",
         "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
@@ -81,8 +89,19 @@ enum TransitOrder {
         "North Node", "South Node", "Part of Fortune", "Vertex",
     ]
 
+    private static let natalOrder = [
+        "Sun", "Moon", "Mercury", "Venus", "Mars", "ASC", "MC",
+        "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+        "Chiron", "Lilith", "Selena",
+        "North Node", "South Node", "Part of Fortune", "Vertex",
+    ]
+
     private static let index: [String: Int] = {
         Dictionary(uniqueKeysWithValues: order.enumerated().map { ($0.element, $0.offset) })
+    }()
+
+    private static let natalIndex: [String: Int] = {
+        Dictionary(uniqueKeysWithValues: natalOrder.enumerated().map { ($0.element, $0.offset) })
     }()
 }
 
@@ -111,6 +130,21 @@ enum TransitGroup: String, CaseIterable, Identifiable {
         }
     }
 
+    /// The natal grid's bands, which count the angles as personal: the
+    /// Ascendant is as much a part of who someone is as their Sun, and the
+    /// web's `categorizeNatalAspect` bands it the same way. A transiting body
+    /// is never an angle, so the other initialiser leaves them out.
+    init(natalObject: String) {
+        if Self.personalIds.contains(natalObject) || Self.angleIds.contains(natalObject) {
+            self = .personal
+        } else if Self.outerIds.contains(natalObject) {
+            self = .outer
+        } else {
+            self = .special
+        }
+    }
+
     private static let personalIds: Set<String> = ["Sun", "Moon", "Mercury", "Venus", "Mars"]
     private static let outerIds: Set<String> = ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
+    private static let angleIds: Set<String> = ["ASC", "MC"]
 }

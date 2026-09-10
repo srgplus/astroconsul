@@ -228,6 +228,10 @@ private let enUI: [String: String] = [
     "natal.expand": "Shows the rest of the profile",
     "natal.collapse": "Hides the rest of the profile",
 
+    // Natal aspect grid
+    "natalAspects.title": "Chart aspects",
+    "natalAspects.nothingStrong": "No exact or strong aspects in this chart.",
+
     // Chart wheel
     "chart.title": "Birth chart",
     "wheel.natal": "Birth",
@@ -654,6 +658,10 @@ private let ruUI: [String: String] = [
     "natal.title": "Астропрофиль",
     "natal.expand": "Показывает остальной профиль",
     "natal.collapse": "Скрывает остальной профиль",
+
+    // Natal aspect grid
+    "natalAspects.title": "Аспекты карты",
+    "natalAspects.nothingStrong": "В этой карте нет точных и сильных аспектов.",
 
     // Chart wheel
     "chart.title": "Карта рождения",
