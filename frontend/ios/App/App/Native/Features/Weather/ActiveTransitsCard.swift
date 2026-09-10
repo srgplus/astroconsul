@@ -149,6 +149,10 @@ struct ActiveTransitsCard: View {
 ///
 /// Written as three ids rather than as an aspect so the natal grid, whose
 /// rows are `NatalAspect` and not `ActiveAspect`, draws through the same view.
+///
+/// The aspect in the middle is the one coloured piece: a square or an
+/// opposition turns red, so the tense rows can be picked out of the list
+/// without reading a word of it. Everything else stays in the palette's ink.
 struct TransitGlyphs: View {
 
     let first: String
@@ -195,7 +199,9 @@ struct TransitGlyphs: View {
                 .foregroundStyle(palette.primary)
 
             Text(AstroGlyph.aspect(aspectName))
-                .foregroundStyle(palette.secondary)
+                .foregroundStyle(
+                    AstroGlyph.isChallenging(aspectName) ? palette.challenge : palette.secondary
+                )
 
             Text(AstroGlyph.object(second))
                 .foregroundStyle(palette.primary)
@@ -208,10 +214,11 @@ struct TransitGlyphs: View {
     }
 }
 
-/// EXACT / STRONG / MODERATE / WIDE. The web sets these in the aspect's own
-/// colour on a tinted pill; over a saturated sky that reads as clutter, so
-/// here it is plain white text. The column has a fixed width in the card so
-/// the labels line up under each other however long the word is.
+/// EXACT / STRONG / MODERATE / WIDE, in the same red-to-grey ramp the web
+/// widget prints. The web sets them on a tinted pill as well; over a
+/// saturated sky the pill reads as clutter, so only the text is coloured. The
+/// column has a fixed width in the card so the labels line up under each
+/// other however long the word is.
 struct StrengthLabel: View {
 
     let strength: String
@@ -223,7 +230,7 @@ struct StrengthLabel: View {
         Text(Astro.strength(strength))
             .font(.system(size: 11, weight: .semibold, design: .rounded))
             .tracking(0.4)
-            .foregroundStyle(palette.primary)
+            .foregroundStyle(palette.strength(strength))
             .lineLimit(1)
             .fixedSize()
             .frame(width: width, alignment: .trailing)
