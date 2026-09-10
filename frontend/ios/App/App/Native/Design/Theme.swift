@@ -87,27 +87,6 @@ enum Theme {
         }
     }
 
-    /// A keyword tag's fill and ink. The web cycles seven of these by position
-    /// in the row (`.cw-transit-keyword-tag:nth-child(7n+1)` and its
-    /// siblings), which is what keeps a row of five tags from reading as one
-    /// long stripe; the cycle is the same here.
-    static func keywordTint(_ index: Int) -> (fill: Color, ink: Color) {
-        let hues: [(dark: UInt32, light: UInt32)] = [
-            (0x6EE7A8, 0x047857),
-            (0x7DD3E8, 0x0E7490),
-            (0xC4A0F5, 0x6D28D9),
-            (0xF0D060, 0x92400E),
-            (0xF09070, 0xB91C1C),
-            (0x7DB8F8, 0x1D4ED8),
-            (0xF8A850, 0xB45309),
-        ]
-        let hue = hues[((index % hues.count) + hues.count) % hues.count]
-        return (
-            fill: dynamicAlpha(dark: (hue.dark, 0.18), light: (hue.light, 0.12)),
-            ink: dynamic(dark: hue.dark, light: hue.light)
-        )
-    }
-
     // MARK: TII zones
 
     static func zoneColor(_ zone: TiiZone) -> Color {

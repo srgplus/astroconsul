@@ -57,42 +57,48 @@ struct PartnerPickerSheet: View {
 
     private var list: some View {
         List {
-            Section {
-                ForEach(results) { candidate in
-                    row(candidate)
-                }
+            pairLine
 
-                if results.isEmpty {
-                    Text(query.isEmpty ? L("synastry.noCandidates") : L("profiles.noMatch", query))
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.65))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                }
-            } header: {
-                // The page's own half of the pair, so the sheet reads as
-                // "Alena × …" rather than as a bare list of names.
-                HStack(spacing: 8) {
-                    PersonAvatar(name: profile.profileName, side: .a, size: 26)
+            ForEach(results) { candidate in
+                row(candidate)
+            }
 
-                    Text(profile.profileName)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .tracking(0.4)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .lineLimit(1)
-
-                    // The list completes the pair, so the header is one half
-                    // of it and the times sign says a second is being picked.
-                    Text("\u{00D7}")
-                        .font(.system(size: 13, weight: .light, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.5))
-                }
-                .padding(.bottom, 2)
+            if results.isEmpty {
+                Text(query.isEmpty ? L("synastry.noCandidates") : L("profiles.noMatch", query))
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.65))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.interactively)
+    }
+
+    /// The page's own half of the pair, so the sheet reads as "Alena × …"
+    /// rather than as a bare list of names.
+    ///
+    /// A row rather than a section header: a plain list pins its headers, and
+    /// pinned over the rows with no plate of its own this one printed straight
+    /// across the name it was covering. It scrolls away with the first row
+    /// instead, which is all a caption has to do.
+    private var pairLine: some View {
+        HStack(spacing: 8) {
+            PersonAvatar(name: profile.profileName, side: .a, size: 26)
+
+            Text(profile.profileName)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.75))
+                .lineLimit(1)
+
+            Text("\u{00D7}")
+                .font(.system(size: 14, weight: .light, design: .rounded))
+                .foregroundStyle(.white.opacity(0.45))
+        }
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 6, trailing: 16))
     }
 
     private func row(_ candidate: ProfileSummary) -> some View {

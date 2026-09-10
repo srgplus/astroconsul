@@ -117,7 +117,7 @@ final class CompatibilityViewModel: ObservableObject {
         if WeatherPreviewHarness.isEnabled {
             try? await Task.sleep(for: .milliseconds(600))
             guard !Task.isCancelled else { return }
-            report = WeatherPreviewData.synastry
+            report = WeatherPreviewData.synastry(between: profile, and: partner)
             state = .loaded
             return
         }

@@ -19,9 +19,14 @@ waiting for the sheet to be opened, so the number, the label the server wrote
 ("Magnetic", "Магнетизм") and the four category meters are on the card by the
 time the names have been read. The ring sweeps to the score once, on the way
 in. `CompatibilityReportSheet` is the full reading: the gauge again, the
-love/business toggle, the written interpretation, and the inter-aspects banded
-`personal / outer / special` with a row that opens onto its meaning, its
-keywords and where both bodies sit.
+love/business toggle, and the inter-aspects banded `personal / outer / special`
+with the orb and the strength band on every row.
+
+Metrics only, deliberately. The route also writes a paragraph about the pair
+and one about every aspect, and none of it is decoded: the interpretations are
+templates with the score bands and the top three aspects poured into them, and
+a paragraph under each row buried the table it belonged to. If they are ever
+wanted, `SynastryReport` is where they go back.
 
 The pair sticks. `CompatibilityViewModel` writes the partner's id to
 `UserDefaults` under the page's own profile id, which is the per-profile memory
