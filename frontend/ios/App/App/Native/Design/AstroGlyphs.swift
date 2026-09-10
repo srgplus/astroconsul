@@ -13,6 +13,13 @@ enum AstroGlyph {
 
     static func aspect(_ id: String) -> String { aspects[id.lowercased()] ?? id }
 
+    /// Squares and oppositions — the two the app marks in red. A conjunction
+    /// takes its temperature from the pair it lands on, so it stays neutral
+    /// here, and a trine or a sextile never was tense.
+    static func isChallenging(_ id: String) -> Bool {
+        challengingAspects.contains(id.lowercased())
+    }
+
     /// The zodiac code points default to emoji presentation — a purple tile
     /// next to the text — so each one is pinned to its text form with U+FE0E.
     static func sign(_ id: String) -> String {
@@ -64,6 +71,8 @@ enum AstroGlyph {
         "square": "\u{25A1}",
         "sextile": "\u{2731}",
     ]
+
+    private static let challengingAspects: Set<String> = ["square", "opposition"]
 }
 
 /// Order the transiting bodies are listed in — fast personal planets first,

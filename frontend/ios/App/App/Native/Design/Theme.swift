@@ -41,6 +41,19 @@ enum Theme {
     /// Grey, never purple: the project's spinner colour.
     static let spinner = Color(hex: 0x8E8E93)
 
+    // MARK: Aspects
+
+    /// A square or an opposition. Apple's systemRed, which is two values: the
+    /// bright one over dark, a deeper one so it still reads on white.
+    static let challenge = dynamic(dark: 0xFF453A, light: 0xD70015)
+
+    /// EXACT / STRONG / MODERATE, in the ramp the web widget uses. The web
+    /// paints them on a dark page only; the light values here are pulled down
+    /// far enough that an 11pt label holds against a white sheet.
+    static let strengthExact = dynamic(dark: 0xFF2D55, light: 0xD00030)
+    static let strengthStrong = dynamic(dark: 0xFF9500, light: 0xB25E00)
+    static let strengthModerate = dynamic(dark: 0x5AC8FA, light: 0x0A7AA8)
+
     // MARK: TII zones
 
     static func zoneColor(_ zone: TiiZone) -> Color {

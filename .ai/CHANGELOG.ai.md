@@ -4,6 +4,28 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-09
 
+### Squares and oppositions are red, and the strength label is coloured
+Two ways into the same list. The aspect glyph in the middle of `TransitGlyphs`
+is red for a square or an opposition — `AstroGlyph.isChallenging(_:)`, which
+holds the set — so the tense rows can be picked out of a card of twenty
+without reading a word. A conjunction stays neutral: it takes its temperature
+from the pair it lands on.
+
+`StrengthLabel` was plain white on the card because the web's tinted pill reads
+as clutter over the sky. The pill still does; the colour does not, so the text
+now carries the web's ramp (EXACT red, STRONG orange, MODERATE blue, WIDE dim)
+and the pill stays off.
+
+Both colours come through `TransitPalette`, which now carries `challenge` plus
+the four bands and a `strength(_:)` lookup, so the card gets values picked for
+dark glass and the detail sheet gets ones that flip with the appearance
+(`Theme.challenge`, `Theme.strength*`). The web's own values wash out on a
+white sheet, which is why the light variants are pulled down rather than
+copied. `NatalAspectsCard` draws its own strength label rather than the shared
+one — its text has to shrink, `StrengthLabel`'s does not — so the ramp is
+applied there by hand.
+
+
 ### iOS: the birth chart's own aspects, with the "most impact" switch
 The web has shown a `Chart Aspects` table inside the birth chart modal since
 `ProfileDetail.tsx` was written; natively the wheel drew those lines and
