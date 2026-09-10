@@ -690,13 +690,22 @@ struct ResolvedLocation: Codable, Hashable {
 /// once for working together — and sends both in one answer, so the toggle
 /// between them costs no request.
 enum SynastryMode: String, CaseIterable, Identifiable {
-    case love, business
+    /// The engine's first scoring mode — `compute_synastry_scores`, which
+    /// weighs the Moon, Venus and Neptune highest.
+    ///
+    /// The case keeps the engine's word because that is what the payload it
+    /// reads is called. The label does not: it says "Family", because the same
+    /// four categories read as well between a parent and a child as between
+    /// partners, and nothing about a pair of charts tells the app which of the
+    /// two it is looking at.
+    case love
+    case business
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .love: return L("synastry.love")
+        case .love: return L("synastry.family")
         case .business: return L("synastry.business")
         }
     }

@@ -44,6 +44,14 @@ the gauge's gradient, the four category colours and the seven-colour keyword
 cycle the web draws with `nth-child(7n+…)`, each with a light variant, because
 the web's values were picked for a dark page and go pale on a white sheet.
 
+The first mode is labelled **Family**, not Love, on both halves of the app:
+`synastry.love` is now `synastry.family` in `frontend/src/i18n/{en,ru}.ts` and
+in `Strings.swift`. The scoring behind it is untouched — the engine still calls
+it the love mode, and `SynastryMode.love` still names the payload it reads —
+but the same four categories read as well between a parent and a child as
+between partners, and nothing about a pair of charts says which of the two it
+is.
+
 One difference from the web worth knowing: there, compatibility is behind the
 Pro paywall. The iOS app sells nothing and may show no lock or upsell
 (`frontend/src/lib/platform.ts`), and the route itself gates on nothing but

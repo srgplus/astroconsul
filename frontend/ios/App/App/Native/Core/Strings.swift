@@ -251,7 +251,9 @@ private let enUI: [String: String] = [
     "synastry.findPeople": "Find people",
     "synastry.interAspects": "inter-aspects",
     "synastry.exactOrTight": "exact or tight",
-    "synastry.love": "Love",
+    // Not the web's "Love": the same scoring reads as well between a parent
+    // and a child, so the app does not assume the pair is a couple.
+    "synastry.family": "Family",
     "synastry.business": "Business",
     "synastry.overallChemistry": "Overall chemistry:",
     "synastry.aspects": "COMPATIBILITY ASPECTS",
@@ -714,7 +716,7 @@ private let ruUI: [String: String] = [
     "synastry.findPeople": "Найти людей",
     "synastry.interAspects": "межаспектов",
     "synastry.exactOrTight": "точных или сильных",
-    "synastry.love": "Любовь",
+    "synastry.family": "Семья",
     "synastry.business": "Бизнес",
     "synastry.overallChemistry": "Общая химия:",
     "synastry.aspects": "АСПЕКТЫ СОВМЕСТИМОСТИ",

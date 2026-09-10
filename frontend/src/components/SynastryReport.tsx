@@ -211,7 +211,7 @@ export default function SynastryReport({ report }: Props) {
             type="button"
             className={`syn-mode-btn${mode === "love" ? " syn-mode-btn--active" : ""}`}
             onClick={() => setMode("love")}
-          >{t("synastry.love")}</button>
+          >{t("synastry.family")}</button>
           <button
             type="button"
             className={`syn-mode-btn${mode === "business" ? " syn-mode-btn--active" : ""}`}
