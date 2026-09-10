@@ -212,6 +212,15 @@ class FileProfileRepository:
     def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
         del user_id, profile_id
 
+    def get_profile_arrangement(self, user_id: str) -> dict[str, list[str]]:
+        del user_id
+        return {"favorite_profile_ids": [], "profile_order": []}
+
+    def set_profile_arrangement(
+        self, user_id: str, *, favorite_profile_ids: list[str], profile_order: list[str]
+    ) -> None:
+        del user_id, favorite_profile_ids, profile_order
+
     def create_invite(
         self, profile_id: str, invited_email: str, token: str, invited_by: str, expires_at: object
     ) -> dict[str, Any]:

@@ -285,6 +285,9 @@ private let enUI: [String: String] = [
 
     // Profile list
     "profiles.searchPrompt": "Search profiles",
+    "profiles.favorites": "Favorites",
+    "profiles.addFavorite": "Add to Favorites",
+    "profiles.removeFavorite": "Remove from Favorites",
     "profiles.mine": "Mine",
     "profiles.new": "New profile",
     "profiles.following": "Following",
@@ -919,6 +922,9 @@ private let ruUI: [String: String] = [
 
     // Profile list
     "profiles.searchPrompt": "Поиск профилей",
+    "profiles.favorites": "Избранное",
+    "profiles.addFavorite": "В избранное",
+    "profiles.removeFavorite": "Убрать из избранного",
     "profiles.mine": "Мои",
     "profiles.new": "Новый профиль",
     "profiles.following": "Подписки",

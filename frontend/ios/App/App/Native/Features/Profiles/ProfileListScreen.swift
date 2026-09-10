@@ -22,8 +22,36 @@ struct ProfileListScreen: View {
     /// two dismissals do not land in the same frame.
     @State private var createdProfile: ProfileSummary?
 
-    private var own: [ProfileSummary] { filter(model.ownProfiles) }
-    private var followed: [ProfileSummary] { filter(model.followedProfiles) }
+    /// The model's groups narrowed to the search term. A group with nothing
+    /// left in it drops out, so a search does not leave its name behind over
+    /// an empty stretch of sky.
+    private var groups: [ProfileGroup] {
+        model.listGroups.compactMap { group in
+            let matches = filter(group.profiles)
+            let keepsPinned = group.kind == .favorites && pinned != nil
+            guard !matches.isEmpty || keepsPinned else { return nil }
+            return ProfileGroup(kind: group.kind, profiles: matches)
+        }
+    }
+
+    /// The primary profile, which heads Favourites and is not draggable.
+    private var pinned: ProfileSummary? {
+        guard let primary = model.primaryProfile, primary.matches(query) else { return nil }
+        return primary
+    }
+
+    /// Cards can only be dragged into a new order while the whole list is on
+    /// screen. Under a search term the row above the one you drop onto is not
+    /// the row that will be there when the term clears, so there is no honest
+    /// answer to what a move means.
+    private var canReorder: Bool {
+        query.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// Which profiles this account owns. Asked of the model rather than of
+    /// each profile's `is_own` flag, which the API has been known to get wrong
+    /// for the owner's own primary profile.
+    private var owned: Set<String> { model.ownedProfileIds }
 
     var body: some View {
         content
@@ -112,44 +140,11 @@ struct ProfileListScreen: View {
 
     private var list: some View {
         List {
-            if !own.isEmpty {
-                Section {
-                    ForEach(own) { profile in
-                        row(profile)
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                if profile.profileId != model.primaryProfileId {
-                                    Button {
-                                        Task { await model.setPrimary(profile) }
-                                    } label: {
-                                        Label(L("profiles.primary"), systemImage: "star.fill")
-                                    }
-                                    .tint(Theme.zoneColor(.active))
-                                }
-                            }
-                    }
-                } header: {
-                    sectionHeader(L("profiles.mine"))
-                }
+            ForEach(groups) { group in
+                section(group)
             }
 
-            if !followed.isEmpty {
-                Section {
-                    ForEach(followed) { profile in
-                        row(profile)
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    Task { await model.unfollow(profile) }
-                                } label: {
-                                    Label(L("weather.unfollow"), systemImage: "person.badge.minus")
-                                }
-                            }
-                    }
-                } header: {
-                    sectionHeader(L("profiles.following"))
-                }
-            }
-
-            if own.isEmpty && followed.isEmpty {
+            if groups.isEmpty {
                 Text(query.isEmpty ? L("profiles.none") : L("profiles.noMatch", query))
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Theme.textDim)
@@ -160,6 +155,95 @@ struct ProfileListScreen: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .refreshable { await model.load(showSpinner: false) }
+    }
+
+    /// One group of cards under its own name.
+    ///
+    /// The rows carry `onMove`, which is what lets a card be picked up with a
+    /// press and dropped somewhere else in its own group; a press that stays
+    /// put opens the menu instead. Moves are scoped to the group, so a card
+    /// cannot be dragged out of Following and into Mine — being followed is
+    /// not something a drag decides.
+    private func section(_ group: ProfileGroup) -> some View {
+        Section {
+            if group.kind == .favorites, let pinned {
+                // The primary profile, held at the top. It is page one of the
+                // pager, so the list has nowhere else to put it and the drag
+                // has nothing to take hold of.
+                row(pinned)
+            }
+
+            ForEach(group.profiles) { profile in
+                row(profile)
+                    .contextMenu { menu(for: profile) }
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        if owned.contains(profile.profileId), profile.profileId != model.primaryProfileId {
+                            Button {
+                                Task { await model.setPrimary(profile) }
+                            } label: {
+                                Label(L("profiles.primary"), systemImage: "star.fill")
+                            }
+                            .tint(Theme.zoneColor(.active))
+                        }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        if !owned.contains(profile.profileId) {
+                            Button(role: .destructive) {
+                                Task { await model.unfollow(profile) }
+                            } label: {
+                                Label(L("weather.unfollow"), systemImage: "person.badge.minus")
+                            }
+                        }
+                    }
+            }
+            .onMove(perform: canReorder ? { model.move(in: group.kind, from: $0, to: $1) } : nil)
+        } header: {
+            sectionHeader(title(of: group.kind))
+        }
+    }
+
+    /// What a press that stays put offers. The same three things the swipes
+    /// do, plus the star, which has no swipe of its own: a card already has
+    /// one action per edge.
+    @ViewBuilder
+    private func menu(for profile: ProfileSummary) -> some View {
+        let isOwn = owned.contains(profile.profileId)
+
+        if model.canToggleFavorite(profile) {
+            Button {
+                model.toggleFavorite(profile)
+            } label: {
+                if model.isFavorite(profile) {
+                    Label(L("profiles.removeFavorite"), systemImage: "star.slash")
+                } else {
+                    Label(L("profiles.addFavorite"), systemImage: "star")
+                }
+            }
+        }
+
+        if isOwn, profile.profileId != model.primaryProfileId {
+            Button {
+                Task { await model.setPrimary(profile) }
+            } label: {
+                Label(L("profiles.primary"), systemImage: "star.fill")
+            }
+        }
+
+        if !isOwn {
+            Button(role: .destructive) {
+                Task { await model.unfollow(profile) }
+            } label: {
+                Label(L("weather.unfollow"), systemImage: "person.badge.minus")
+            }
+        }
+    }
+
+    private func title(of kind: ProfileGroup.Kind) -> String {
+        switch kind {
+        case .favorites: return L("profiles.favorites")
+        case .mine: return L("profiles.mine")
+        case .following: return L("profiles.following")
+        }
     }
 
     private func row(_ profile: ProfileSummary) -> some View {

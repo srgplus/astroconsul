@@ -38,6 +38,7 @@ from app.infrastructure.repositories.factory import RepositoryBundle
 from app.schemas.requests import (
     ForecastRequest,
     NatalProfileUpsertRequest,
+    ProfileArrangementRequest,
     ProfileTransitReportRequest,
     SynastryReportRequest,
     TransitReportRequest,
@@ -189,6 +190,28 @@ def _load_readable_profile(repos: RepositoryBundle, profile_id: str, user_id: st
     return profile
 
 
+def _visible_profile_ids(result: dict[str, Any]) -> set[str]:
+    """The ids on a listing payload: everything the caller owns or follows."""
+    profiles = result.get("profiles") or []
+    return {str(p["profile_id"]) for p in profiles if p.get("profile_id")}
+
+
+def _keep_known(ids: list[str], known: set[str]) -> list[str]:
+    """The given ids, first mention only, minus anything the caller cannot see.
+
+    Guards both directions: a stored arrangement outlives the profile it names,
+    and a listing should not hand a client an id it has no card for; on the way
+    in, this is what stops one account writing another's profile ids — or an
+    unbounded list of nonsense — into its own row."""
+    seen: set[str] = set()
+    kept: list[str] = []
+    for profile_id in ids:
+        if profile_id in known and profile_id not in seen:
+            seen.add(profile_id)
+            kept.append(profile_id)
+    return kept
+
+
 @router.get("", response_model=ProfileListResponse)
 def list_profiles(
     user: dict[str, Any] = Depends(get_current_user),
@@ -197,7 +220,34 @@ def list_profiles(
 ) -> dict[str, object]:
     result = profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
     result["primary_profile_id"] = repos.profiles.get_primary_profile_id(user["user_id"])
+
+    arrangement = repos.profiles.get_profile_arrangement(user["user_id"])
+    known = _visible_profile_ids(result)
+    result["favorite_profile_ids"] = _keep_known(arrangement.get("favorite_profile_ids", []), known)
+    result["profile_order"] = _keep_known(arrangement.get("profile_order", []), known)
     return result
+
+
+@router.put("/arrangement")
+def set_profile_arrangement(
+    payload: ProfileArrangementRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+    profile_service: ProfileService = Depends(get_profile_service),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    """Stores the reader's Favourites group and card order.
+
+    Not gated on ownership the way `/primary` is: a followed profile can sit in
+    your Favourites and be dragged wherever you like on your own list. What is
+    checked is that every id is one you actually have a card for."""
+    listing = profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
+    known = _visible_profile_ids(listing)
+    repos.profiles.set_profile_arrangement(
+        user["user_id"],
+        favorite_profile_ids=_keep_known(payload.favorite_profile_ids, known),
+        profile_order=_keep_known(payload.profile_order, known),
+    )
+    return {"status": "ok"}
 
 
 @router.put("/primary")

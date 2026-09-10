@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class NatalChartCreateRequest(BaseModel):
@@ -84,3 +84,15 @@ class ForecastRequest(BaseModel):
 class SynastryReportRequest(BaseModel):
     partner_profile_id: str
     lang: str = "ru"
+
+
+class ProfileArrangementRequest(BaseModel):
+    """How the reader arranged their saved list: the ids in the Favourites
+    group, and the order every card was dragged into.
+
+    Whole lists rather than a delta, because the client already holds the only
+    complete picture of the order and a delta would need the two to agree about
+    a list that changes under them both."""
+
+    favorite_profile_ids: list[str] = Field(default_factory=list, max_length=1000)
+    profile_order: list[str] = Field(default_factory=list, max_length=1000)

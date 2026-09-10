@@ -121,6 +121,12 @@ struct NatalSummary: Codable, Hashable {
 struct ProfilesResponse: Codable {
     let profiles: [ProfileSummary]
     let primaryProfileId: String?
+    /// The reader's own arrangement of the list: which profiles they starred
+    /// into the Favourites group, in that group's order, and the order the
+    /// rest of the cards were dragged into. Optional so a build that predates
+    /// the arrangement route still decodes a listing from it.
+    let favoriteProfileIds: [String]?
+    let profileOrder: [String]?
 }
 
 /// `GET /api/v1/profiles/search`. The rows are profile summaries with the

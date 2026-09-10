@@ -682,6 +682,27 @@ class SqlAlchemyProfileRepository:
             user.primary_profile_id = profile_id
             session.commit()
 
+    def get_profile_arrangement(self, user_id: str) -> dict[str, list[str]]:
+        with self.session_factory() as session:
+            user = session.get(UserModel, user_id)
+            if user is None:
+                return {"favorite_profile_ids": [], "profile_order": []}
+            return {
+                "favorite_profile_ids": list(user.favorite_profile_ids or []),
+                "profile_order": list(user.profile_order or []),
+            }
+
+    def set_profile_arrangement(
+        self, user_id: str, *, favorite_profile_ids: list[str], profile_order: list[str]
+    ) -> None:
+        with self.session_factory() as session:
+            user = session.get(UserModel, user_id)
+            if user is None:
+                user = ensure_user(session, user_id)
+            user.favorite_profile_ids = list(favorite_profile_ids)
+            user.profile_order = list(profile_order)
+            session.commit()
+
     def create_invite(
         self,
         profile_id: str,

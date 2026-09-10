@@ -44,11 +44,12 @@ struct WeatherHomeView: View {
     @State private var editVersions: [String: Int] = [:]
 
     /// Primary profile first, the way Weather keeps My Location at page one,
-    /// then the rest of the owner's profiles and the followed ones. The model
-    /// pins the primary for both this pager and the list, so the order here is
-    /// just its two sections in order.
+    /// then Favourites, then the rest of the owner's profiles and the followed
+    /// ones. The model builds the same groups the list screen draws and
+    /// flattens them here, so the pages come in the order the cards do —
+    /// including whatever order they were dragged into.
     private var profiles: [ProfileSummary] {
-        model.ownProfiles + model.followedProfiles
+        model.orderedProfiles
     }
 
     /// Which profiles this account owns, taken from the model's own split
@@ -56,7 +57,7 @@ struct WeatherHomeView: View {
     /// owner's own primary profile as `is_own: false`, and trusting that
     /// would offer its owner "Unfollow" instead of "Edit Profile".
     private var ownedIds: Set<String> {
-        Set(model.ownProfiles.map(\.profileId))
+        model.ownedProfileIds
     }
 
     var body: some View {
