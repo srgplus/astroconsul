@@ -57,6 +57,28 @@ come with `natal_interpretations` on the profile detail, which the native app
 does not fetch), so a row is not tappable — unlike the transit rows, which open
 `TransitDetailSheet`.
 
+### iOS: a natal row opens its own sheet, the way a transit row does
+`NatalChartCard`'s rows were only a table; now each one presents
+`NatalPositionDetailSheet` — the point's degree, sign and house in the header,
+then its aspects inside the birth chart and the transits landing on it right
+now. A transit row inside that sheet opens the existing `TransitDetailSheet`,
+so a window and its interpretation are still read in one place only.
+
+No new request. The card already had the natal positions; the sheet's two lower
+cards come from `TransitPositions.natalAspects` and the active aspect list,
+which `CosmicWeatherView` now passes down alongside them (`natalAspects`,
+`transits`, `retrograde`, `transitPositions`, `now` — all defaulted, so the
+card still draws with positions alone).
+
+A row whose position carries neither sign nor degree — Chiron and Selena come
+back empty on some charts — stays untappable and its tap falls through to the
+card's own expand/collapse, which is unchanged and still fires from the header.
+
+It sits beside `NatalAspectsCard`, not instead of it: that card is the whole
+grid banded by body, this sheet is one point's own — the aspects it makes,
+spelled without repeating its name on every row, and what is transiting it,
+which the grid does not carry at all.
+
 ## 2026-09-07
 
 ### How often the weather notification comes is a setting, default "on changes"

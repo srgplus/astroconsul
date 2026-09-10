@@ -431,7 +431,15 @@ struct CosmicWeatherView: View {
         // The chart every reading above is cast against, so it closes the
         // screen rather than opening it: today first, the birth data last.
         // It draws nothing until the natal positions land.
-        NatalChartCard(profile: profile, positions: model.positions.natal)
+        NatalChartCard(
+            profile: profile,
+            positions: model.positions.natal,
+            natalAspects: model.positions.natalAspects,
+            transits: model.activeAspects,
+            retrograde: model.retrogradeObjects,
+            transitPositions: model.positions,
+            now: model.readingTime
+        )
 
         // Where those positions stand to each other. Under the table and not
         // above it: a row here names two bodies, and the table is where a

@@ -15,10 +15,21 @@ struct NatalChartCard: View {
     let profile: ProfileSummary
     /// Natal positions by object id — `TransitPositions.natal`.
     let positions: [String: ChartPosition]
+    /// The natal aspect grid and the transit report's own positions, for the
+    /// sheet a row opens. Empty until the transit report lands, which only
+    /// costs the sheet its two lower cards.
+    var natalAspects: [NatalAspect] = []
+    var transits: [ActiveAspect] = []
+    var retrograde: Set<String> = []
+    var transitPositions: TransitPositions = .init()
+    var now: Date = Date()
 
     @ObservedObject private var strings = L10n.shared
 
     @State private var isExpanded = false
+    /// The row whose sheet is open. Tapping a row is caught before the card's
+    /// own tap, so opening a point does not also fold the drawer.
+    @State private var selected: Row?
 
     /// The rows each band can draw, as object ids. The names are looked up
     /// rather than listed beside them: "ASC" and "MC" are ids, not something
@@ -58,8 +69,7 @@ struct NatalChartCard: View {
                 ForEach(bigThree) { row in
                     WeatherCardDivider()
 
-                    positionRow(row, emphasised: true)
-                        .padding(.vertical, 10)
+                    tappable(row, emphasised: true)
                 }
 
                 // The big three stand apart on a gap rather than a heading:
@@ -72,8 +82,7 @@ struct NatalChartCard: View {
                 ForEach(personal) { row in
                     WeatherCardDivider()
 
-                    positionRow(row)
-                        .padding(.vertical, 10)
+                    tappable(row)
                 }
 
                 if isExpanded {
@@ -94,6 +103,37 @@ struct NatalChartCard: View {
             }
             .accessibilityAddTraits(.isButton)
             .accessibilityHint(L(isExpanded ? "natal.collapse" : "natal.expand"))
+            .sheet(item: $selected) { row in
+                NatalPositionDetailSheet(
+                    object: row.id,
+                    position: row.position,
+                    natalAspects: natalAspects,
+                    transits: transits,
+                    retrograde: retrograde,
+                    positions: transitPositions,
+                    now: now
+                )
+            }
+        }
+    }
+
+    /// A row that opens its own sheet, the way an Active Transits row does.
+    ///
+    /// A point the report carries no sign or degree for — Chiron and Selena
+    /// come back empty on some charts — has nothing to open, so it stays a
+    /// plain line and the tap falls through to the card's drawer.
+    @ViewBuilder
+    private func tappable(_ row: Row, emphasised: Bool = false) -> some View {
+        if row.position.sign != nil || row.position.formattedDegree != nil {
+            positionRow(row, emphasised: emphasised)
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())
+                .onTapGesture { selected = row }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint(L("natal.rowHint"))
+        } else {
+            positionRow(row, emphasised: emphasised)
+                .padding(.vertical, 10)
         }
     }
 
@@ -140,8 +180,7 @@ struct NatalChartCard: View {
             ForEach(rows) { row in
                 WeatherCardDivider()
 
-                positionRow(row)
-                    .padding(.vertical, 10)
+                tappable(row)
             }
         }
     }
@@ -292,7 +331,11 @@ struct NatalChartCard: View {
         ScrollView {
             NatalChartCard(
                 profile: WeatherPreviewData.profile,
-                positions: WeatherPreviewData.positions.natal
+                positions: WeatherPreviewData.positions.natal,
+                natalAspects: WeatherPreviewData.positions.natalAspects,
+                transits: WeatherPreviewData.aspects,
+                retrograde: WeatherPreviewData.retrograde,
+                transitPositions: WeatherPreviewData.positions
             )
             .padding(16)
         }
