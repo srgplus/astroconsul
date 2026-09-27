@@ -398,7 +398,12 @@ struct ChatScreen: View {
 
             switch row.content {
             case let .outgoing(item):
-                if item.failed {
+                if item.refused {
+                    Label(L("chat.refused"), systemImage: "exclamationmark.circle")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.error)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                } else if item.failed {
                     Button {
                         Task { await model.retry(item) }
                     } label: {

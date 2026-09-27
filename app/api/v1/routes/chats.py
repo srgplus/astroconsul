@@ -10,7 +10,9 @@ their own:
 * whoever writes needs a primary profile too: without one the other side
   could neither see who wrote nor write back;
 * a block closes the chat both ways and says nothing to the blocked side. To
-  them the chat is simply not there, the way the blocker's charts are not.
+  them the chat is simply not there, the way the blocker's charts are not;
+* a message goes through the same word filter as a profile's name. One that
+  fails it is not stored, and only its sender hears why.
 
 The phone of the one written to hears about it through the pushes the social
 layer set up (see `chat_push`).
@@ -28,6 +30,7 @@ from app.api.auth import get_current_user
 from app.api.dependencies import get_repositories
 from app.api.v1.routes.social import _load_profile, _owner, _social, guard_block
 from app.application.services.chat_push import notify_message
+from app.domain.moderation import check_message_text
 from app.infrastructure.repositories.chat_repositories import ChatNotFound
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.infrastructure.repositories.protocols import ChatRepository
@@ -43,6 +46,11 @@ MESSAGE_MAX_LENGTH = 2000
 # own. A status of its own, so the app can offer to pick one rather than
 # print the sentence.
 NO_PRIMARY_STATUS = 409
+
+# What the app is told when a message has a word that may not be sent. The
+# app draws it as "not sent" without offering to try again: the same words
+# would fail the same way.
+OBJECTIONABLE_STATUS = 422
 
 
 class OpenChatRequest(BaseModel):
@@ -180,6 +188,12 @@ def send_message(
             status_code=400,
             detail="This person has no chart of their own any more, so they can't be written to.",
         )
+    try:
+        check_message_text(body)
+    except ValueError as exc:
+        # Who and where, never the words: the log is not a place to keep them.
+        logger.info("Chat message refused by the word filter: user=%s chat=%s", user_id, chat_id)
+        raise HTTPException(status_code=OBJECTIONABLE_STATUS, detail=str(exc)) from exc
     message = chats.send_message(user_id, chat_id, body)
     # After the response: the push is a nudge, and sending waits for nothing.
     background.add_task(notify_message, repos, user_id, peer, chat_id, message)

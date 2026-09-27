@@ -122,8 +122,8 @@ The questionnaire's social media questions became mandatory in September 2026.
 |---|---|---|
 | Social media (`socialMedia`) | Yes | People discover, follow and like each other's charts |
 | Social media age restricted (`socialMediaAgeRestricted`) | No | No age gate in the app; the rating does the work |
-| User-generated content (`userGeneratedContent`) | Yes | Profile names and handles are shown to other members |
-| Messaging and chat | No | There is no messaging |
+| User-generated content (`userGeneratedContent`) | Yes | Profile names, handles and chat messages are shown to other members |
+| Messaging and chat | Yes | Members write to each other in Chats (text only) |
 
 Result: 13+, with the Social Media descriptor. Sign-in already says
 "big3.me is for people 13 and older".
@@ -146,7 +146,8 @@ WHAT TO CHECK
 SAFETY (guideline 1.2)
 - Report: the "..." menu on any chart you do not own, and on search previews. Reports reach our moderation inbox and are reviewed within 24 hours.
 - Block: the same menus. A block removes all follows and likes between the two accounts, hides each from the other's search, and is not announced. Settings > Community > Blocked accounts lists them, with Unblock.
-- Objectionable names and handles are refused when a profile is created or edited.
+- Objectionable words are refused in profile names and handles, and in chat messages: such a message is not sent, and only its sender sees why.
+- In a chat, Report and Block sit in the menu under the other person's face. A block closes the chat for both sides.
 - The Terms, including community rules with zero tolerance for objectionable content and abusive users, are accepted at sign-in: https://big3.me/legal#community
 - Contact: Settings > Community > Contact support (big3meapp@gmail.com), and https://big3.me/support
 

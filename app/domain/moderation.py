@@ -1,11 +1,15 @@
 """What may not be posted, and what a report may say.
 
-The only text one person puts in front of another on big3.me is a profile's
-display name and its handle: there are no posts, comments or messages. So this
-is where objectionable material is stopped on the way in, which is the first of
-App Review's four requirements for a social network (guideline 1.2). The other
-three — report, block and published contact details — live in the social
-routes, the app, and the legal pages.
+One person puts text in front of another on big3.me in two places: a
+profile's display name and handle, and a chat message. There are no posts or
+comments. So this is where objectionable material is stopped on the way in,
+which is the first of App Review's four requirements for a social network
+(guideline 1.2). The other three — report, block and published contact
+details — live in the social routes, the app, and the legal pages.
+
+Names and messages go through the same list. A message is between two people,
+but its reader did not choose its words, and a slur in a chat is exactly what
+the requirement is about.
 
 The list is deliberately short and unambiguous. A filter that rejects "Dick"
 or "Scunthorpe" turns real people away from their own names, which is worse
@@ -106,3 +110,12 @@ def check_profile_text(profile_name: str, username: str) -> None:
     """
     if contains_objectionable(profile_name) or contains_objectionable(username):
         raise ValueError("This name can't be used on big3.me. Please choose another one.")
+
+
+def check_message_text(body: str) -> None:
+    """Raise ValueError when a chat message may not be sent.
+
+    Nothing is stored and nobody is told: the sender sees why it did not go
+    and can say it another way."""
+    if contains_objectionable(body):
+        raise ValueError("This message can't be sent: it has words that aren't allowed on big3.me.")

@@ -4,6 +4,18 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Chat messages go through the word filter
+Guideline 1.2 asks for a way to stop objectionable material from being
+posted. Names and handles had it; chat messages did not, so a reviewer could
+send a slur and watch it arrive. `send_message` now runs
+`moderation.check_message_text`, the same list as names: a hit answers 422
+(`OBJECTIONABLE_STATUS`), stores nothing, sends no push, and logs the user and
+chat but never the words. The app keeps the bubble dimmed with "Not sent: it
+has words that aren't allowed on big3.me" (RU in `chat.refused`) and offers
+Delete, not retry. Who may write to whom is unchanged: anyone with a chart of
+their own, to anyone with one. The owner chose that over mutual follows.
+`.ai/apple-submission-v1.3.md` had "Messaging and chat: No"; it is Yes now.
+
 ### A page's corner buttons stay pinned, with a blur under them
 Bell, chats and ••• used to scroll away with the hero. They are now an
 overlay on `CosmicWeatherView` (`cornerButtons`), pinned over the page. Once
