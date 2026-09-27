@@ -127,6 +127,10 @@ struct LikeResponse: Codable {
 /// about itself. So far one switch, the followers and following counts.
 struct SocialSettings: Codable, Equatable {
     let showCounts: Bool
+    /// Whether a like, or a new follower, is pushed to the reader's phones.
+    /// Optional so an answer from a server that predates the pushes decodes.
+    var pushLikes: Bool? = nil
+    var pushFollows: Bool? = nil
 }
 
 /// One account this reader has blocked.

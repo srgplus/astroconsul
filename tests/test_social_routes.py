@@ -330,15 +330,15 @@ class HiddenCountsTests(SocialTestCase):
     def _boris_hides(self) -> None:
         response = self.as_user(BORIS).put("/api/v1/social/settings", json={"show_counts": False})
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(response.json(), {"show_counts": False})
+        self.assertFalse(response.json()["show_counts"])
 
     def test_counts_are_shown_until_hidden(self) -> None:
         before = self.as_user(BORIS).get("/api/v1/social/settings").json()
         self._boris_hides()
         after = self.as_user(BORIS).get("/api/v1/social/settings").json()
 
-        self.assertEqual(before, {"show_counts": True})
-        self.assertEqual(after, {"show_counts": False})
+        self.assertTrue(before["show_counts"])
+        self.assertFalse(after["show_counts"])
 
     def test_others_get_no_numbers_and_the_owner_keeps_them(self) -> None:
         self._boris_hides()

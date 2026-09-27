@@ -4,6 +4,51 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Likes and new followers are pushed to the owner's phone (APNs)
+Until now a like or a follow waited in Activity until the owner opened the app.
+The weather alerts are local notifications and never touched a server, so there
+was no push infrastructure at all; this is it.
+
+**Backend.** `app/application/services/push_service.py` is a token-based APNs
+client (ES256 provider JWT, minted once per 50 minutes, HTTP/2 through
+`httpx` + `h2`, new dependency). It never raises: every outcome is a
+`PushResult`, a 410 / `BadDeviceToken` / `Unregistered` drops the token, a 403
+is logged as a key problem. `social_push.py` decides what is sent:
+- a like, only the actor's first on that chart that day
+  (`like_profile` now returns that as a bool);
+- a new follow (`follow_profile` returns whether it was new), with an
+  in-memory hour of quiet per actor and chart against unfollow/follow spam;
+- never your own action on your own chart, never with the owner's switch off.
+
+Text is the Activity row's own words in the language the device registered
+with (en/ru), a like adding " · <feels word>"; `aps.badge` is the owner's unread
+count, `thread-id` "activity", custom `kind` and `profile_id`. It runs as a
+FastAPI background task after the response. `POST /devices {token,
+environment, lang}` (a token moves to whoever signs in on the phone),
+`DELETE /devices/{token}` (only your own). `/social/settings` carries
+`push_likes` and `push_follows`; PUT takes any subset. Migration
+`20260927_000004` adds `device_tokens` and the two `users` columns (default
+true). Account deletion removes the account's tokens.
+
+**Railway env to turn it on:** `ASTRO_CONSUL_APNS_KEY_ID` and
+`ASTRO_CONSUL_APNS_PRIVATE_KEY` (the .p8 contents; `\n` escapes are
+accepted). `ASTRO_CONSUL_APNS_TEAM_ID` defaults to `85679N47YT`,
+`ASTRO_CONSUL_APNS_TOPIC` to `me.big3.app`. Without the key nothing is sent and
+each skipped push logs one info line.
+
+**iOS.** `aps-environment` in `big3.me.entitlements` (Xcode's automatic signing
+adds the capability to the App ID; export for App Store switches it to
+production). `PushNotifications` registers with APNs whenever the permission is
+already granted (launch, every return, sign-in, after the weather offer) and
+uploads the token with `environment` (sandbox in DEBUG) and `LanguageStore.code`,
+once per session unless one of those changes. Activity asks for the permission
+the first time it opens if nothing has asked yet. A tapped push with `kind`
+like/follow opens Activity over whatever sheet was up; one arriving in the
+foreground shows a banner and refreshes the bell. The app icon badge follows
+`SocialStore.unreadActivity`. Sign-out unregisters the token first.
+Settings → Community has "Notify me about likes" and "Notify me about new
+followers".
+
 ### Activity opens at once, and a follow back does not wait for the list
 The owner's complaint from TestFlight: Activity sat on "Загрузка" every time it
 opened, and "Follow back" in a followers row spun for a long while.

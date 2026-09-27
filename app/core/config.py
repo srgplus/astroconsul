@@ -49,6 +49,18 @@ class Settings:
     # `send` subdomain); the sandbox sender it replaces could only reach the
     # Resend account's own inbox, so invites and reports to anyone else failed.
     email_from: str = "big3.me <noreply@big3.me>"
+    # Apple Push Notification service, token-based: a .p8 key with APNs
+    # enabled (Apple Developer > Keys), its Key ID, the team, and the app's
+    # bundle id as the topic. Without a key and its id no push is sent, and
+    # likes and follows still land in Activity.
+    apns_key_id: str | None = None
+    apns_private_key: str | None = None
+    apns_team_id: str = "85679N47YT"
+    apns_topic: str = "me.big3.app"
+
+    @property
+    def apns_enabled(self) -> bool:
+        return bool(self.apns_key_id and self.apns_private_key)
 
     @property
     def use_database(self) -> bool:
@@ -97,6 +109,12 @@ def get_settings() -> Settings:
         resend_api_key=os.getenv("ASTRO_CONSUL_RESEND_API_KEY"),
         moderation_email=os.getenv("ASTRO_CONSUL_MODERATION_EMAIL", "big3meapp@gmail.com"),
         email_from=os.getenv("ASTRO_CONSUL_EMAIL_FROM", "big3.me <noreply@big3.me>"),
+        apns_key_id=os.getenv("ASTRO_CONSUL_APNS_KEY_ID"),
+        # Railway keeps a pasted .p8 on one line with its newlines written
+        # out as "\n"; the PEM parser wants them back.
+        apns_private_key=(os.getenv("ASTRO_CONSUL_APNS_PRIVATE_KEY") or "").replace("\\n", "\n") or None,
+        apns_team_id=os.getenv("ASTRO_CONSUL_APNS_TEAM_ID", "85679N47YT"),
+        apns_topic=os.getenv("ASTRO_CONSUL_APNS_TOPIC", "me.big3.app"),
     )
 
 

@@ -28,6 +28,7 @@ from sqlalchemy import and_, delete, func, or_, select, union, union_all
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.infrastructure.persistence.models import (
+    DeviceTokenModel,
     LatestTransitModel,
     NatalChartModel,
     ProfileFollowModel,
@@ -205,23 +206,30 @@ class SqlAlchemySocialRepository:
         *,
         feels_like: str | None = None,
         tii: float | None = None,
-    ) -> None:
+    ) -> bool:
         """Likes the state on screen: this word, today. The same state twice
-        changes nothing; a new word or a new day is a new state and a new like."""
+        changes nothing; a new word or a new day is a new state and a new like.
+
+        True when this is the account's first like on the chart today: the
+        one worth a push. A second state liked the same day is stored and
+        shown in Activity, but the owner's phone has already heard."""
         state = feels_like or ""
         with self.session_factory() as session:
             ensure_user(session, user_id)
             day = self._profile_days(session, [profile_id]).get(profile_id, today_in(None))
-            existing = session.execute(
-                select(ProfileLikeModel).where(
-                    ProfileLikeModel.user_id == user_id,
-                    ProfileLikeModel.profile_id == profile_id,
-                    ProfileLikeModel.day == day,
-                    ProfileLikeModel.feels_like == state,
+            today = (
+                session.execute(
+                    select(ProfileLikeModel.feels_like).where(
+                        ProfileLikeModel.user_id == user_id,
+                        ProfileLikeModel.profile_id == profile_id,
+                        ProfileLikeModel.day == day,
+                    )
                 )
-            ).scalar_one_or_none()
-            if existing is not None:
-                return
+                .scalars()
+                .all()
+            )
+            if state in today:
+                return False
             session.add(
                 ProfileLikeModel(
                     user_id=user_id,
@@ -233,6 +241,7 @@ class SqlAlchemySocialRepository:
                 )
             )
             session.commit()
+            return not today
 
     def unlike_profile(self, user_id: str, profile_id: str, *, feels_like: str | None = None) -> None:
         """Takes back the like on today's state. Without a word, every like
@@ -584,18 +593,101 @@ class SqlAlchemySocialRepository:
     # MARK: - Settings
 
     def social_settings(self, user_id: str) -> dict[str, bool]:
-        """What this account shows other people about itself: so far, whether
-        its charts carry their followers and following counts."""
+        """What this account shows other people about itself — whether its
+        charts carry their followers and following counts — and which of
+        their likes and follows are pushed to its phones."""
         with self.session_factory() as session:
-            user = session.get(UserModel, user_id)
-            return {"show_counts": not (user is not None and user.hide_social_counts)}
+            return self._settings_of(session.get(UserModel, user_id))
 
-    def update_social_settings(self, user_id: str, *, show_counts: bool) -> dict[str, bool]:
+    @staticmethod
+    def _settings_of(user: UserModel | None) -> dict[str, bool]:
+        if user is None:
+            return {"show_counts": True, "push_likes": True, "push_follows": True}
+        return {
+            "show_counts": not user.hide_social_counts,
+            "push_likes": bool(user.push_likes),
+            "push_follows": bool(user.push_follows),
+        }
+
+    def update_social_settings(
+        self,
+        user_id: str,
+        *,
+        show_counts: bool | None = None,
+        push_likes: bool | None = None,
+        push_follows: bool | None = None,
+    ) -> dict[str, bool]:
+        """Changes what is given and leaves the rest as it was."""
         with self.session_factory() as session:
             user = ensure_user(session, user_id)
-            user.hide_social_counts = not show_counts
+            if show_counts is not None:
+                user.hide_social_counts = not show_counts
+            if push_likes is not None:
+                user.push_likes = push_likes
+            if push_follows is not None:
+                user.push_follows = push_follows
             session.commit()
-        return {"show_counts": show_counts}
+            return self._settings_of(user)
+
+    # MARK: - Devices
+
+    def card_for(self, user_id: str) -> dict[str, Any]:
+        """One account's card: how a push names the person who acted."""
+        with self.session_factory() as session:
+            return self._cards_for_users(session, {user_id})[user_id]
+
+    def register_device(self, user_id: str, token: str, *, environment: str, lang: str) -> None:
+        """Records the phone a push for this account goes to. A token that
+        belonged to another account moves over: whoever is signed in on the
+        phone now is whose news it shows."""
+        now = _now_utc()
+        with self.session_factory() as session:
+            ensure_user(session, user_id)
+            device = session.get(DeviceTokenModel, token)
+            if device is None:
+                session.add(
+                    DeviceTokenModel(
+                        token=token,
+                        user_id=user_id,
+                        environment=environment,
+                        lang=lang,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+            else:
+                device.user_id = user_id
+                device.environment = environment
+                device.lang = lang
+                device.updated_at = now
+            session.commit()
+
+    def unregister_device(self, user_id: str, token: str) -> None:
+        """Forgets a phone on sign-out. Only the account's own: a token
+        another account has since taken over stays with it."""
+        with self.session_factory() as session:
+            session.execute(
+                delete(DeviceTokenModel).where(DeviceTokenModel.token == token, DeviceTokenModel.user_id == user_id)
+            )
+            session.commit()
+
+    def devices_for(self, user_id: str) -> list[dict[str, str]]:
+        with self.session_factory() as session:
+            return [
+                {"token": token, "environment": environment, "lang": lang}
+                for token, environment, lang in session.execute(
+                    select(DeviceTokenModel.token, DeviceTokenModel.environment, DeviceTokenModel.lang).where(
+                        DeviceTokenModel.user_id == user_id
+                    )
+                ).all()
+            ]
+
+    def drop_device(self, token: str) -> None:
+        """Forgets a token APNs no longer takes: the app was deleted, or the
+        phone gave the install a new one."""
+        with self.session_factory() as session:
+            session.execute(delete(DeviceTokenModel).where(DeviceTokenModel.token == token))
+            session.commit()
 
     # MARK: - Blocks
 
@@ -763,18 +855,17 @@ class FileSocialRepository:
         *,
         feels_like: str | None = None,
         tii: float | None = None,
-    ) -> None:
+    ) -> bool:
         data = self._load()
         day = today_in(None).isoformat()
         state = feels_like or ""
-        if any(
-            like["user_id"] == user_id
-            and like["profile_id"] == profile_id
-            and like.get("day") == day
-            and (like.get("feels_like") or "") == state
+        today = [
+            like.get("feels_like") or ""
             for like in data["likes"]
-        ):
-            return
+            if like["user_id"] == user_id and like["profile_id"] == profile_id and like.get("day") == day
+        ]
+        if state in today:
+            return False
         data["likes"].append(
             {
                 "id": self._next_id(data),
@@ -787,6 +878,7 @@ class FileSocialRepository:
             }
         )
         self._save(data)
+        return not today
 
     def unlike_profile(self, user_id: str, profile_id: str, *, feels_like: str | None = None) -> None:
         data = self._load()
@@ -918,13 +1010,58 @@ class FileSocialRepository:
         self._save(data)
 
     def social_settings(self, user_id: str) -> dict[str, bool]:
-        return {"show_counts": not self._hides_counts(self._load(), user_id)}
+        mine = self._load().get("settings", {}).get(user_id, {})
+        return {
+            "show_counts": not mine.get("hide_counts", False),
+            "push_likes": mine.get("push_likes", True),
+            "push_follows": mine.get("push_follows", True),
+        }
 
-    def update_social_settings(self, user_id: str, *, show_counts: bool) -> dict[str, bool]:
+    def update_social_settings(
+        self,
+        user_id: str,
+        *,
+        show_counts: bool | None = None,
+        push_likes: bool | None = None,
+        push_follows: bool | None = None,
+    ) -> dict[str, bool]:
         data = self._load()
-        data.setdefault("settings", {}).setdefault(user_id, {})["hide_counts"] = not show_counts
+        mine = data.setdefault("settings", {}).setdefault(user_id, {})
+        if show_counts is not None:
+            mine["hide_counts"] = not show_counts
+        if push_likes is not None:
+            mine["push_likes"] = push_likes
+        if push_follows is not None:
+            mine["push_follows"] = push_follows
         self._save(data)
-        return {"show_counts": show_counts}
+        return self.social_settings(user_id)
+
+    def card_for(self, user_id: str) -> dict[str, Any]:
+        return self._card(user_id)
+
+    def register_device(self, user_id: str, token: str, *, environment: str, lang: str) -> None:
+        data = self._load()
+        data.setdefault("devices", {})[token] = {"user_id": user_id, "environment": environment, "lang": lang}
+        self._save(data)
+
+    def unregister_device(self, user_id: str, token: str) -> None:
+        data = self._load()
+        devices = data.setdefault("devices", {})
+        if devices.get(token, {}).get("user_id") == user_id:
+            del devices[token]
+            self._save(data)
+
+    def devices_for(self, user_id: str) -> list[dict[str, str]]:
+        return [
+            {"token": token, "environment": device["environment"], "lang": device["lang"]}
+            for token, device in self._load().get("devices", {}).items()
+            if device.get("user_id") == user_id
+        ]
+
+    def drop_device(self, token: str) -> None:
+        data = self._load()
+        if data.setdefault("devices", {}).pop(token, None) is not None:
+            self._save(data)
 
     def block_user(self, blocker_id: str, blocked_id: str) -> None:
         data = self._load()

@@ -11,6 +11,9 @@ struct WeatherHomeView: View {
     /// Watched only for `isSettled`: the notification offer waits until the
     /// location question has been answered before putting its own.
     @ObservedObject private var location = DeviceLocation.shared
+    /// Watched for a tapped push about a like or a follow, which opens
+    /// Activity.
+    @ObservedObject private var push = PushNotifications.shared
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var selection = ""
@@ -124,9 +127,13 @@ struct WeatherHomeView: View {
             // Asked here rather than at launch: the permission sheet makes
             // sense over the screen whose label it fills in.
             DeviceLocation.shared.start()
+            // A push tapped before this screen existed: the app was launched
+            // by it, and Activity goes up without waiting for the list.
+            if push.opensActivity { openActivityFromPush() }
             await model.load()
             syncSelection()
             await SocialStore.shared.refreshUnread()
+            await PushNotifications.shared.refresh()
             await refreshAlerts()
             await offerAlerts()
         }
@@ -146,6 +153,7 @@ struct WeatherHomeView: View {
                 }
                 // Someone may have liked or followed while the app was away.
                 await SocialStore.shared.refreshUnread()
+                await PushNotifications.shared.refresh()
                 await refreshAlerts()
             }
         }
@@ -159,8 +167,13 @@ struct WeatherHomeView: View {
                 }
                 await model.load()
                 await SocialStore.shared.refreshUnread()
+                // A new account on this phone: its pushes come here now.
+                await PushNotifications.shared.refresh()
                 await refreshAlerts()
             }
+        }
+        .onChange(of: push.opensActivity) { _, opens in
+            if opens { openActivityFromPush() }
         }
         .onChange(of: model.profiles) { _, profiles in
             // A fresh listing carries the server's like counts; whatever was
@@ -197,7 +210,12 @@ struct WeatherHomeView: View {
         .sheet(isPresented: $showsAlertsOffer) {
             CategoryAlertsOffer(
                 profile: primaryProfile,
-                onFinish: { showsAlertsOffer = false }
+                onFinish: {
+                    showsAlertsOffer = false
+                    // The same permission covers pushes: granted here, the
+                    // phone can be registered for likes and follows now.
+                    Task { await PushNotifications.shared.refresh() }
+                }
             )
         }
         .sheet(isPresented: $showsSearch) { searchScreen }
@@ -388,6 +406,24 @@ struct WeatherHomeView: View {
         await CategoryAlerts.shared.syncAuthorization()
         guard CategoryAlerts.shared.shouldOffer else { return }
         showsAlertsOffer = true
+    }
+
+    /// A tapped push about a like or a follow: Activity, over whatever sheet
+    /// was up. The other sheet goes first, because two presentations in one
+    /// frame and SwiftUI drops the second.
+    private func openActivityFromPush() {
+        push.opensActivity = false
+        guard auth.isSignedIn, !showsActivity else { return }
+        let covered = showsList || showsSearch || showsSettings || showsNewProfile || peopleTarget != nil
+        showsList = false
+        showsSearch = false
+        showsSettings = false
+        showsNewProfile = false
+        peopleTarget = nil
+        Task {
+            if covered { try? await Task.sleep(for: .milliseconds(450)) }
+            showsActivity = true
+        }
     }
 
     /// Turns the pager to a profile the empty state just made, once the list

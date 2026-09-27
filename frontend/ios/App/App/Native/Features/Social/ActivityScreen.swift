@@ -100,6 +100,9 @@ struct ActivityScreen: View {
             // After the load, so the rows keep the "New" they arrived with;
             // the dot on the home screen goes now.
             await SocialStore.shared.markActivitySeen()
+            // The place to be asked about pushes for likes and follows, if
+            // nothing has asked yet.
+            await PushNotifications.shared.offerOnce()
         }
         .refreshable { await model.load() }
         .sheet(item: $preview) { profile in

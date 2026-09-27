@@ -148,13 +148,15 @@ class FileProfileRepository:
         ]
         return results[:limit]
 
-    def follow_profile(self, user_id: str, profile_id: str) -> None:
+    def follow_profile(self, user_id: str, profile_id: str) -> bool:
         data = _load_follows()
         user_follows = data.get(user_id, [])
-        if profile_id not in user_follows:
-            user_follows.append(profile_id)
-            data[user_id] = user_follows
-            _save_follows(data)
+        if profile_id in user_follows:
+            return False
+        user_follows.append(profile_id)
+        data[user_id] = user_follows
+        _save_follows(data)
+        return True
 
     def unfollow_profile(self, user_id: str, profile_id: str) -> None:
         data = _load_follows()

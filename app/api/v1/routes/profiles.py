@@ -4,7 +4,7 @@ import logging
 from datetime import date
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 
 from app.api.auth import get_current_user
@@ -26,6 +26,7 @@ from app.api.v1.routes.social import guard_block
 from app.application.services.chart_service import ChartService
 from app.application.services.location_lookup_service import LocationLookupService
 from app.application.services.profile_service import ProfileService
+from app.application.services.social_push import notify_follow
 from app.application.services.synastry_service import SynastryService
 from app.application.services.transit_service import TransitService
 from app.data.natal_lookup import (
@@ -304,6 +305,7 @@ def search_public_profiles(
 @router.post("/{profile_id}/follow")
 def follow_profile(
     profile_id: str,
+    background: BackgroundTasks,
     user: dict[str, Any] = Depends(get_current_user),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, str]:
@@ -313,7 +315,9 @@ def follow_profile(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     if repos.social is not None:
         guard_block(repos.social, user["user_id"], profile)
-    repos.profiles.follow_profile(user["user_id"], profile_id)
+    if repos.profiles.follow_profile(user["user_id"], profile_id):
+        # Only a new follow is news, and it goes after the response.
+        background.add_task(notify_follow, repos, user["user_id"], profile)
     return {"status": "ok"}
 
 

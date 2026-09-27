@@ -163,12 +163,52 @@ actor APIClient {
         try await get("/api/v1/social/settings")
     }
 
-    func updateSocialSettings(showCounts: Bool) async throws -> SocialSettings {
-        // Snake case spelled out: the encoder here converts nothing.
+    /// Changes the switches that are given and leaves the rest; the answer
+    /// carries all of them as they stand.
+    func updateSocialSettings(
+        showCounts: Bool? = nil,
+        pushLikes: Bool? = nil,
+        pushFollows: Bool? = nil
+    ) async throws -> SocialSettings {
+        // Snake case spelled out: the encoder here converts nothing. A nil
+        // is left out of the body, so the server keeps what it has.
         struct Body: Encodable {
-            let show_counts: Bool
+            let show_counts: Bool?
+            let push_likes: Bool?
+            let push_follows: Bool?
         }
-        return try await send("/api/v1/social/settings", method: "PUT", body: Body(show_counts: showCounts))
+        return try await send(
+            "/api/v1/social/settings",
+            method: "PUT",
+            body: Body(show_counts: showCounts, push_likes: pushLikes, push_follows: pushFollows)
+        )
+    }
+
+    // MARK: - Push
+
+    /// The phone's APNs token, for the server to push likes and follows to.
+    /// `environment` is the APNs host the token belongs to, `lang` the
+    /// language the push should be written in.
+    func registerDevice(token: String, environment: String, lang: String) async throws {
+        struct Body: Encodable {
+            let token: String
+            let environment: String
+            let lang: String
+        }
+        let _: EmptyResponse = try await send(
+            "/api/v1/devices",
+            method: "POST",
+            body: Body(token: token, environment: environment, lang: lang)
+        )
+    }
+
+    /// Sign-out: this phone stops hearing about the account.
+    func unregisterDevice(token: String) async throws {
+        let _: EmptyResponse = try await send(
+            "/api/v1/devices/\(Self.escape(token))",
+            method: "DELETE",
+            body: Optional<EmptyResponse>.none
+        )
     }
 
     /// Who likes one of the caller's own charts. Owner-only: 403 otherwise.
