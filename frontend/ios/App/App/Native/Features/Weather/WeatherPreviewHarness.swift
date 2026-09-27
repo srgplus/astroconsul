@@ -47,6 +47,14 @@ struct WeatherPreviewHarness: View {
         return asked > 0 ? asked : 2
     }
 
+    /// Add `-uiPreviewOthers` to see every page after the first as somebody
+    /// else's own chart, followed: "✓ Following", "Message" and a heart to
+    /// tap. The second page keeps its counts hidden, the ones after show
+    /// them, so the strip can be seen on one line and on two.
+    static var showsOthers: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewOthers")
+    }
+
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
@@ -97,7 +105,12 @@ struct WeatherPreviewHarness: View {
                 bottomInset: geometry.safeAreaInsets.bottom,
                 onOpenSearch: { showsSearch = true },
                 onOpenList: { showsList = true }
-            ) { profile in
+            ) { page in
+                let isMine = !Self.showsOthers || page.profileId == WeatherPreviewData.profile.profileId
+                let profile = isMine ? page : WeatherPreviewData.someoneElse(
+                    page,
+                    showsCounts: page.profileId != WeatherPreviewData.profiles.dropFirst().first?.profileId
+                )
                 CosmicWeatherView(
                     profile: profile,
                     topInset: topInset,
@@ -106,7 +119,10 @@ struct WeatherPreviewHarness: View {
                     // The sample account owns every page, so the ••• offers
                     // Edit throughout, over a seeded sheet — there is no
                     // session here to load a real profile with.
-                    onEdit: { editing = $0 },
+                    onEdit: isMine ? { editing = $0 } : nil,
+                    // Nothing to unfollow from without an account: the
+                    // button is there to be looked at.
+                    onUnfollow: isMine ? nil : { _ in },
                     partners: WeatherPreviewData.profiles.filter {
                         $0.profileId != profile.profileId
                     },
@@ -114,6 +130,7 @@ struct WeatherPreviewHarness: View {
                     onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
                     onOpenActivity: { showsActivity = true },
                     onOpenChats: { showsChats = true },
+                    onMessage: { _ in showsChats = true },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
