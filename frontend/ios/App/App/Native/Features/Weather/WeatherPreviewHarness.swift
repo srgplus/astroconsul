@@ -65,6 +65,7 @@ struct WeatherPreviewHarness: View {
     @State private var showsActivity = false
     @State private var showsChats = false
     @State private var peopleTarget: PeopleSheet.Target?
+    @State private var unfollowing: ProfileSummary?
 
     /// Add `-uiPreviewActivity` to open straight onto the Activity screen,
     /// the way App Store screenshots of it are taken.
@@ -120,9 +121,7 @@ struct WeatherPreviewHarness: View {
                     // Edit throughout, over a seeded sheet — there is no
                     // session here to load a real profile with.
                     onEdit: isMine ? { editing = $0 } : nil,
-                    // Nothing to unfollow from without an account: the
-                    // button is there to be looked at.
-                    onUnfollow: isMine ? nil : { _ in },
+                    onUnfollow: isMine ? nil : { unfollowing = $0 },
                     partners: WeatherPreviewData.profiles.filter {
                         $0.profileId != profile.profileId
                     },
@@ -197,8 +196,25 @@ struct WeatherPreviewHarness: View {
         .sheet(isPresented: $showsActivity) {
             ActivityScreen(list: listModel, skyState: previewState, onFindPeople: { showsSearch = true })
         }
+        // The question the home screen asks before an unfollow. There is no
+        // account to unfollow from here, so the answer changes nothing.
+        .alert(
+            L("unfollow.title", unfollowing?.profileName ?? ""),
+            isPresented: Binding(
+                get: { unfollowing != nil },
+                set: { if !$0 { unfollowing = nil } }
+            ),
+            presenting: unfollowing
+        ) { _ in
+            Button(L("common.cancel"), role: .cancel) {}
+            Button(L("weather.unfollow"), role: .destructive) {}
+        } message: { _ in
+            Text(L("unfollow.body"))
+        }
         .sheet(isPresented: $showsChats) {
-            ChatsScreen(list: listModel)
+            // "View Chart" on a chat with a page here turns the pager to it,
+            // as on an account.
+            ChatsScreen(list: listModel, onOpenSaved: { selection = $0 })
         }
         .sheet(item: $peopleTarget) { target in
             PeopleSheet(target: target, list: listModel, skyState: previewState)
