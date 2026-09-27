@@ -2,6 +2,17 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-27
+
+### iOS: the Astro profile chevron moves from the header to the foot
+`NatalChartCard` opens on a tap, and the only sign of that was a small chevron
+in the header. Beside the age ("60 years ⌄") it read as a picker for the age,
+so the owner could not tell the list had more rows. The chevron now sits at the
+bottom right, beside the birth place and date, where the rows stop, and turns
+up once the drawer is open. The header keeps only the title and the age. The
+footer row now always draws, even when the birth data is private, because the
+drawer is still there to open. Do not move the chevron back up.
+
 ## 2026-09-09
 
 ### A blocked migration chain served 500s, and a failed deploy now stops

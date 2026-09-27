@@ -90,12 +90,10 @@ struct NatalChartCard: View {
                     group(TransitGroup.special.title, rows(Self.special))
                 }
 
-                if birth != nil || profile.locationName != nil {
-                    WeatherCardDivider()
+                WeatherCardDivider()
 
-                    birthLines
-                        .padding(.top, 11)
-                }
+                footer
+                    .padding(.top, 11)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -152,14 +150,25 @@ struct NatalChartCard: View {
                 Text(age)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
             }
-
-            Image(systemName: "chevron.down")
-                .font(.system(size: 11, weight: .semibold))
-                .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                .accessibilityHidden(true)
         }
         .foregroundStyle(.white.opacity(0.7))
         .padding(.bottom, 2)
+    }
+
+    /// The birth data, and the chevron that says the card opens. The chevron
+    /// used to sit in the header, where beside the age it read as a picker for
+    /// the age; here it is where the rows stop, so it reads as the list going
+    /// on. It stays when the birth data is private, since the drawer does.
+    private var footer: some View {
+        HStack(spacing: 8) {
+            birthLines
+
+            Image(systemName: "chevron.down")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.7))
+                .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                .accessibilityHidden(true)
+        }
     }
 
     /// A band inside the drawer, labelled the way Active Transits labels its
