@@ -11,6 +11,7 @@ from app.api.v1.routes.locations import router as locations_router
 from app.api.v1.routes.payments import router as payments_router
 from app.api.v1.routes.profiles import router as profiles_router
 from app.api.v1.routes.public import router as public_router
+from app.api.v1.routes.social import router as social_router
 from app.api.v1.routes.subscriptions import router as subscriptions_router
 
 router = APIRouter()
@@ -19,6 +20,7 @@ router.include_router(health_router)
 router.include_router(charts_router)
 router.include_router(locations_router)
 router.include_router(profiles_router)
+router.include_router(social_router)
 router.include_router(invites_router)
 router.include_router(public_router)
 router.include_router(images_router)

@@ -26,6 +26,10 @@ class UserModel(Base):
     # user rather than per profile — a followed profile is somebody else's.
     favorite_profile_ids: Mapped[list[str] | None] = mapped_column(JSONType, nullable=True)
     profile_order: Mapped[list[str] | None] = mapped_column(JSONType, nullable=True)
+    # When this reader last opened their Activity: every like and follow on
+    # their profiles after it counts as unread. Null means never opened, so
+    # everything is.
+    activity_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profiles: Mapped[list[ProfileModel]] = relationship(back_populates="user")
@@ -102,6 +106,58 @@ class ProfileFollowModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     __table_args__ = (UniqueConstraint("user_id", "profile_id", name="uq_user_profile_follow"),)
+
+
+class ProfileLikeModel(Base):
+    """One account liking one profile. Shaped like a follow on purpose: the
+    liker is an account, the thing liked is a chart, and the profile's owner is
+    who hears about it in their Activity."""
+
+    __tablename__ = "profile_likes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (UniqueConstraint("user_id", "profile_id", name="uq_user_profile_like"),)
+
+
+class UserBlockModel(Base):
+    """One account blocking another. Account to account rather than profile to
+    profile: a person can own several charts, and blocking them has to cover
+    every one of them, in both directions."""
+
+    __tablename__ = "user_blocks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    blocker_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    blocked_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (UniqueConstraint("blocker_id", "blocked_id", name="uq_user_block"),)
+
+
+class ProfileReportModel(Base):
+    """A report filed against a profile, kept for moderation.
+
+    The profile and its owner are held as plain strings with a snapshot of the
+    name and handle, not as foreign keys: a report has to survive the profile
+    being renamed or deleted, or the record of what was reported goes with it.
+    """
+
+    __tablename__ = "profile_reports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    reporter_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    profile_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    reported_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    profile_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    profile_handle: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reason: Mapped[str] = mapped_column(String(32), nullable=False)
+    details: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="open")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class ProfileInviteModel(Base):

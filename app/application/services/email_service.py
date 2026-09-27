@@ -1,8 +1,10 @@
-"""Email service for sending profile invite notifications via Resend."""
+"""Email service: profile invites, and reports filed against a profile, via Resend."""
 
 from __future__ import annotations
 
+import html
 import logging
+from typing import Any
 
 import httpx
 
@@ -76,4 +78,72 @@ def send_invite_email(
         return False
     except Exception as exc:
         logger.error("Failed to send invite email to %s: %s", to_email, exc)
+        return False
+
+
+def send_report_email(report: dict[str, Any], profile: dict[str, Any], reporter_email: str) -> bool:
+    """Tells a person that a profile was reported, so it is acted on within a
+    day rather than whenever someone next reads the table.
+
+    The report is already stored before this runs; a mail that does not go out
+    loses nothing but the nudge, so it is logged rather than raised."""
+    settings = get_settings()
+    api_key = settings.resend_api_key
+    reason = str(report.get("reason", ""))
+
+    if not api_key:
+        logger.info(
+            "RESEND_API_KEY not set — report %s on profile %s (%s) stored without a notification",
+            report.get("report_id"),
+            profile.get("profile_id"),
+            reason,
+        )
+        return False
+
+    rows = {
+        "Report": f"#{report.get('report_id')}",
+        "Reason": reason,
+        "Details": report.get("details") or "",
+        "Profile": f"{profile.get('profile_name', '')} (@{profile.get('username', '')})",
+        "Profile id": profile.get("profile_id", ""),
+        "Owner account": profile.get("user_id", ""),
+        "Reported by": reporter_email,
+        "Filed at": report.get("created_at", ""),
+    }
+    table = "".join(
+        f"<tr><td style='padding:4px 12px 4px 0;color:#777'>{html.escape(label)}</td>"
+        f"<td style='padding:4px 0'>{html.escape(str(value))}</td></tr>"
+        for label, value in rows.items()
+    )
+    html_body = f"""
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; padding: 24px 16px;">
+  <h2 style="margin: 0 0 12px;">A profile was reported on big3.me</h2>
+  <p style="color: #555;">Review it within 24 hours: remove the profile or the account if it breaks the
+  Terms, and reply to the reporter.</p>
+  <table style="font-size: 14px; border-collapse: collapse;">{table}</table>
+</div>
+"""
+
+    try:
+        resp = httpx.post(
+            RESEND_API_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": FROM_EMAIL,
+                "to": [settings.moderation_email],
+                "subject": f"Report #{report.get('report_id')}: {reason} on @{profile.get('username', '')}",
+                "html": html_body,
+            },
+            timeout=10,
+        )
+        if resp.status_code in (200, 201):
+            logger.info("Report email sent for report %s", report.get("report_id"))
+            return True
+        logger.error("Resend API error %s on report email: %s", resp.status_code, resp.text)
+        return False
+    except Exception as exc:
+        logger.error("Failed to send report email for report %s: %s", report.get("report_id"), exc)
         return False

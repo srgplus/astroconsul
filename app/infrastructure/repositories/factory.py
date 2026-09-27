@@ -13,7 +13,9 @@ from app.infrastructure.repositories.protocols import (
     ChartRepository,
     LocationCacheRepository,
     ProfileRepository,
+    SocialRepository,
 )
+from app.infrastructure.repositories.social_repositories import FileSocialRepository, SqlAlchemySocialRepository
 from app.infrastructure.repositories.sqlalchemy_repositories import (
     SqlAlchemyChartRepository,
     SqlAlchemyLocationCacheRepository,
@@ -26,6 +28,9 @@ class RepositoryBundle:
     charts: ChartRepository
     profiles: ProfileRepository
     locations: LocationCacheRepository
+    # Optional so a bundle built by hand — the route tests build their own —
+    # still constructs; the social routes answer 503 without one.
+    social: SocialRepository | None = None
 
 
 def get_repository_bundle(settings: Settings | None = None) -> RepositoryBundle:
@@ -36,10 +41,13 @@ def get_repository_bundle(settings: Settings | None = None) -> RepositoryBundle:
         charts = SqlAlchemyChartRepository(session_factory)
         profiles = SqlAlchemyProfileRepository(session_factory, resolved_settings, charts)
         locations = SqlAlchemyLocationCacheRepository(session_factory)
-        return RepositoryBundle(charts=charts, profiles=profiles, locations=locations)
+        social = SqlAlchemySocialRepository(session_factory)
+        return RepositoryBundle(charts=charts, profiles=profiles, locations=locations, social=social)
 
+    file_profiles = FileProfileRepository()
     return RepositoryBundle(
         charts=FileChartRepository(),
-        profiles=FileProfileRepository(),
+        profiles=file_profiles,
         locations=NullLocationCacheRepository(),
+        social=FileSocialRepository(file_profiles),
     )
