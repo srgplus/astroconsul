@@ -76,6 +76,12 @@ def _aware(value: datetime | None) -> datetime | None:
     return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
 
+def _stamp(value: datetime | None) -> str | None:
+    """A stored timestamp as the API spells one, or None for a missing one."""
+    aware = _aware(value)
+    return _isoformat_z(aware) if aware is not None else None
+
+
 class SqlAlchemySocialRepository:
     def __init__(self, session_factory: sessionmaker[Session]):
         self.session_factory = session_factory
@@ -120,12 +126,13 @@ class SqlAlchemySocialRepository:
         readings: dict[str, dict[str, Any]] = {}
         picked_ids = [value[0] for value in chosen.values()]
         if picked_ids:
-            for profile_id, payload in session.execute(
+            for chart_profile_id, payload in session.execute(
                 select(ProfileModel.id, NatalChartModel.chart_payload_json)
                 .join(NatalChartModel, NatalChartModel.id == ProfileModel.chart_id)
                 .where(ProfileModel.id.in_(picked_ids))
             ).all():
-                summaries[profile_id] = (payload or {}).get("natal_summary")
+                chart: dict[str, Any] = payload if isinstance(payload, dict) else {}
+                summaries[str(chart_profile_id)] = chart.get("natal_summary")
             # The last numbers each chart was read at, so a card opened from
             # Activity shows the person's day rather than an empty sky.
             for profile_id, tii, tension, feels in session.execute(
@@ -353,8 +360,8 @@ class SqlAlchemySocialRepository:
                 .order_by(model.created_at.desc())
             ).all()
             blocked = self._blocked_ids(session, viewer_user_id)
-            rows = [(user_id, created_at) for user_id, created_at in rows if user_id not in blocked]
-            cards = self._cards_for_users(session, {user_id for user_id, _ in rows})
+            visible = [(user_id, created_at) for user_id, created_at in rows if user_id not in blocked]
+            cards = self._cards_for_users(session, {user_id for user_id, _ in visible})
             followed = self._followed_profile_ids(
                 session,
                 viewer_user_id,
@@ -363,10 +370,10 @@ class SqlAlchemySocialRepository:
             return [
                 {
                     "actor": cards[user_id],
-                    "created_at": _isoformat_z(_aware(created_at)),
+                    "created_at": _stamp(created_at),
                     "actor_followed": cards[user_id]["profile_id"] in followed,
                 }
-                for user_id, created_at in rows
+                for user_id, created_at in visible
             ]
 
     def list_likers(self, profile_id: str, viewer_user_id: str) -> list[dict[str, Any]]:
@@ -395,7 +402,7 @@ class SqlAlchemySocialRepository:
             return [
                 {
                     "actor": cards[user_id],
-                    "created_at": _isoformat_z(_aware(created_at)),
+                    "created_at": _stamp(created_at),
                     "actor_followed": cards[user_id]["profile_id"] in followed,
                     "day": day.isoformat() if day else None,
                     "feels_like": feels_like or None,
@@ -472,7 +479,7 @@ class SqlAlchemySocialRepository:
             )
 
             items = []
-            for kind, row_id, actor_id, profile_id, created_at, day, feels_like in events:
+            for kind, row_id, actor_id, profile_id, created_at, liked_day, liked_word in events:
                 name, handle = targets.get(profile_id, (None, None))
                 items.append(
                     {
@@ -483,8 +490,8 @@ class SqlAlchemySocialRepository:
                         "actor": cards[actor_id],
                         "actor_followed": cards[actor_id]["profile_id"] in followed,
                         "target": {"profile_id": profile_id, "profile_name": name, "username": handle},
-                        "day": day.isoformat() if day else None,
-                        "feels_like": feels_like or None,
+                        "day": liked_day.isoformat() if liked_day else None,
+                        "feels_like": liked_word or None,
                     }
                 )
 
@@ -565,7 +572,7 @@ class SqlAlchemySocialRepository:
             ).all()
             cards = self._cards_for_users(session, {blocked for _, blocked, _ in rows})
             return [
-                {"block_id": block_id, "created_at": _isoformat_z(_aware(created_at)), "actor": cards[blocked]}
+                {"block_id": block_id, "created_at": _stamp(created_at), "actor": cards[blocked]}
                 for block_id, blocked, created_at in rows
             ]
 
