@@ -27,8 +27,11 @@ Every text meant for Apple uses ASCII punctuation only.
    accounts the owner controls: follow it and like its chart from two or three
    of them, and have it follow them back. The reviewer must open Activity and
    see real rows, see real follower and following counts under the charts, and
-   find "Follows you" in the Following list.
-3. **Build 17** (1.3) archived and uploaded to TestFlight.
+   find "Follows you" in the Following list. One of them also writes to it,
+   so Chats has a conversation to open.
+3. **A 1.3 build after 18** archived and uploaded to TestFlight. Build 18
+   predates the chat word filter's "not sent" line: on it a refused message
+   reads "Not sent. Tap to try again", and trying again fails the same way.
 4. **App Store Connect**: version string, build, texts, age rating,
    screenshots, review notes, all below.
 5. **Submit for review.**
@@ -44,7 +47,9 @@ Also, before submitting:
   go before pressing Publish: App Store Connect → big3.me → App Privacy →
   Edit. Add data type **Other User Content** (profile display names and
   @handles shown to other members): Linked to the user: Yes; Used for
-  tracking: No; Purpose: App Functionality. Check that **Email Address** and
+  tracking: No; Purpose: App Functionality. Add **Emails or Text Messages**
+  (the text of chat messages, stored so both people can read them) the same
+  way: linked, not tracking, App Functionality. Check that **Email Address** and
   **User ID** are declared the same way (linked, not tracking, App
   Functionality), and that **Other Data Types / sensitive** is not needed:
   birth date, time and place are entered for charts, declare them under
@@ -142,6 +147,7 @@ WHAT TO CHECK
 3. Following: one follow button under every chart that is not yours: "Follow", "Follow back" when that person already follows you, and "Following" once you do, which asks before unfollowing. Beside it, how many follow the chart and how many its owner follows. Under your own chart the two counts open Followers and Following, and Settings > Community can hide them from others.
 4. Find people: the magnifying glass at the bottom left. Search by name or @handle, open a preview, tap Follow.
 5. Compatibility: at the bottom of any page, compare two charts, yours and a friend's or two friends'.
+6. Chats: the button beside the bell. Write to anyone who has marked a chart as their own, from "Message" under their chart or "New Message" in Chats. Delivered and Seen show under your last message, and a push arrives when someone writes.
 
 SAFETY (guideline 1.2)
 - Report: the "..." menu on any chart you do not own, and on search previews. Reports reach our moderation inbox and are reviewed within 24 hours.
