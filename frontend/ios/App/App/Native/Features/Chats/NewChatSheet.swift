@@ -3,7 +3,8 @@ import SwiftUI
 /// Who a new chat can be started with: the people the reader follows who
 /// follow the reader back (the server's rule, `chat_rules.may_write`), each
 /// shown as their own chart. Charts kept for somebody else are not here:
-/// there is nobody behind them to answer. Black, like the chats it opens from.
+/// there is nobody behind them to answer. Black or white with the app's
+/// appearance, like the chats it opens from.
 struct NewChatSheet: View {
 
     /// The person picked. The sheet closes itself after.
@@ -45,7 +46,7 @@ struct NewChatSheet: View {
                 content
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.ignoresSafeArea())
+            .background(ChatPalette.background.ignoresSafeArea())
             .navigationTitle(L("chats.new"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -59,9 +60,8 @@ struct NewChatSheet: View {
                 }
             }
         }
-        .tint(.white)
-        .presentationBackground(Color.black)
-        .environment(\.colorScheme, .dark)
+        .tint(ChatPalette.text)
+        .presentationBackground(ChatPalette.background)
         .task { await load() }
     }
 
@@ -120,12 +120,12 @@ struct NewChatSheet: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(card.displayName)
                     .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ChatPalette.text)
                     .lineLimit(1)
                 if let username = card.username {
                     Text("@\(username)")
                         .font(.system(size: 15))
-                        .foregroundStyle(Color(white: 0.55))
+                        .foregroundStyle(ChatPalette.secondary)
                         .lineLimit(1)
                 }
             }
@@ -141,16 +141,16 @@ struct NewChatSheet: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: "person.2")
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(Color(white: 0.5))
+                .foregroundStyle(ChatPalette.hint)
 
             Text(title)
                 .font(.system(.title3).weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(ChatPalette.text)
                 .multilineTextAlignment(.center)
 
             Text(body)
                 .font(.system(.subheadline))
-                .foregroundStyle(Color(white: 0.6))
+                .foregroundStyle(ChatPalette.body)
                 .multilineTextAlignment(.center)
         }
         .padding(Theme.Spacing.section)
