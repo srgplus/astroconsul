@@ -4,6 +4,16 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### A page's corner buttons stay pinned, with a blur under them
+Bell, chats and ••• used to scroll away with the hero. They are now an
+overlay on `CosmicWeatherView` (`cornerButtons`), pinned over the page. Once
+the content scrolls under them, `HeaderBlur` fades in: a dark ultra-thin
+material, full under the status bar and fading out below the buttons.
+Scrolling is read with `onScrollGeometryChange` (iOS 18+, the
+`ScrolledUnderHeader` modifier). On iOS 17 the buttons stay pinned without the
+blur. A `GeometryReader` preference inside the page's scroll view never
+fired there, so do not go back to that.
+
 ### Chats sized after the reference, neutral faces, Message on a chart
 The owner compared the chats with the messenger they picked and asked for it
 as close as possible:

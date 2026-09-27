@@ -75,6 +75,9 @@ struct CosmicWeatherView: View {
     /// otherwise invisible — the menu closes over it and the clipboard says
     /// nothing — so the page says it happened.
     @State private var didCopy = false
+    /// The content has moved up under the corner buttons: the blur behind
+    /// them shows.
+    @State private var isScrolled = false
 
     init(
         profile: ProfileSummary,
@@ -177,35 +180,11 @@ struct CosmicWeatherView: View {
 
             ScrollView {
                 VStack(spacing: 18) {
+                    // The band above it stays empty in the scrolling
+                    // content: the corner buttons are pinned over it.
                     hero
                         .padding(.top, topInset + 8)
                         .padding(.bottom, 6)
-                        // In the scrolling content and not pinned over it, so
-                        // it leaves with the header it belongs to. An overlay
-                        // rather than a row, so it costs the hero no height:
-                        // it sits in the band beside the status bar that is
-                        // otherwise empty.
-                        .overlay(alignment: .topTrailing) {
-                            // No inset of its own: the scroll view is already
-                            // laid out below the status bar, so the top of the
-                            // content is the top of the header.
-                            profileMenu
-                        }
-                        // Activity opposite the •••, on every page: it is the
-                        // account's, not this chart's — likes and follows on
-                        // every chart the reader owns — so it is not tied to
-                        // whose page happens to be showing. The chats beside
-                        // it, for the same reason.
-                        .overlay(alignment: .topLeading) {
-                            HStack(spacing: Self.cornerSpacing) {
-                                if let onOpenActivity {
-                                    ActivityBell(action: onOpenActivity)
-                                }
-                                if let onOpenChats {
-                                    ChatsButton(action: onOpenChats)
-                                }
-                            }
-                        }
 
                     // Under the reading and above the cards: the chart first,
                     // then what people made of it, then the detail.
@@ -233,9 +212,11 @@ struct CosmicWeatherView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, WeatherBottomBar.height(bottomInset: bottomInset) + 12)
             }
+            .modifier(ScrolledUnderHeader(isScrolled: $isScrolled))
             .refreshable { await model.load(profile: profile, showSpinner: false) }
             .scrollIndicators(.hidden)
         }
+        .overlay(alignment: .top) { cornerButtons }
         .overlay(alignment: .bottom) {
             if didCopy {
                 Label(L("report.copied"), systemImage: "checkmark")
@@ -383,6 +364,32 @@ struct CosmicWeatherView: View {
     /// own charts, and Report and Block on anyone else's. Unfollow is not
     /// here: the "✓ Following" button under the reading does it.
     @ViewBuilder
+    /// Activity and the chats on the left, the ••• on the right, pinned over
+    /// the page so they stay in reach however far it scrolls. Activity and
+    /// the chats are the account's, not this chart's, so they are on every
+    /// page. Once the content moves up under them it softens into a blur
+    /// that fades out below the buttons, rather than running into them.
+    private var cornerButtons: some View {
+        HStack(alignment: .top, spacing: Self.cornerSpacing) {
+            if let onOpenActivity {
+                ActivityBell(action: onOpenActivity)
+            }
+            if let onOpenChats {
+                ChatsButton(action: onOpenChats)
+            }
+            Spacer(minLength: 0)
+            profileMenu
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 22)
+        .background(alignment: .top) {
+            HeaderBlur()
+                .ignoresSafeArea(edges: .top)
+                .opacity(isScrolled ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isScrolled)
+        }
+    }
+
     private var profileMenu: some View {
         Menu {
             Button {
@@ -864,5 +871,51 @@ struct MinimalSpinner: View {
             .animation(.linear(duration: 0.9).repeatForever(autoreverses: false), value: turning)
             .onAppear { turning = true }
             .accessibilityLabel(L("common.loading"))
+    }
+}
+
+/// Whether a page's content has moved up under its corner buttons. Read from
+/// the scroll view where the OS reports it (iOS 18); on iOS 17 the buttons
+/// stay pinned without the blur behind them.
+private struct ScrolledUnderHeader: ViewModifier {
+
+    @Binding var isScrolled: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 4
+            } action: { _, scrolled in
+                isScrolled = scrolled
+            }
+        } else {
+            content
+        }
+    }
+}
+
+/// Behind the corner buttons: the sky and whatever scrolled up into it,
+/// frosted in full under the status bar and fading to nothing below the
+/// buttons, so there is no edge where the content meets them.
+private struct HeaderBlur: View {
+
+    private static let fade = LinearGradient(
+        stops: [
+            .init(color: .black, location: 0),
+            .init(color: .black, location: 0.55),
+            .init(color: .clear, location: 1),
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+
+    var body: some View {
+        Rectangle()
+            .fill(.ultraThinMaterial)
+            .overlay(Color.black.opacity(0.12))
+            .environment(\.colorScheme, .dark)
+            .mask(Self.fade)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
