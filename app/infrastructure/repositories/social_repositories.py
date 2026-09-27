@@ -254,12 +254,16 @@ class SqlAlchemySocialRepository:
 
     def social_counts(self, profile_ids: list[str], viewer_user_id: str) -> dict[str, dict[str, Any]]:
         """The likes on every state each profile has had today, the states
-        the viewer liked, all likes ever, and followers — for a whole listing
-        in a handful of queries rather than a handful per card.
+        the viewer liked, all likes ever, followers, and how many charts the
+        owner follows — for a whole listing in a handful of queries rather
+        than a handful per card.
 
         `state_likes` and `my_state_likes` are what a client reads against
         the word it has on screen. `likes_count` and `is_liked` are the same
-        for the whole day, for a client that shows no state."""
+        for the whole day, for a client that shows no state.
+
+        `followers_count` and `following_count` are None for everyone but the
+        owner when the owner keeps them hidden (Settings > Community)."""
         ids = list(dict.fromkeys(profile_ids))
         counts: dict[str, dict[str, Any]] = {
             profile_id: {
@@ -269,6 +273,7 @@ class SqlAlchemySocialRepository:
                 "state_likes": {},
                 "my_state_likes": [],
                 "followers_count": 0,
+                "following_count": 0,
                 "is_liked": False,
             }
             for profile_id in ids
@@ -312,6 +317,38 @@ class SqlAlchemySocialRepository:
                 if days.get(profile_id) == day:
                     counts[profile_id]["is_liked"] = True
                     counts[profile_id]["my_state_likes"].append(state or "")
+
+            # Whose each chart is, and whether that account keeps its numbers
+            # to itself.
+            owners: dict[str, tuple[str, bool]] = {
+                profile_id: (owner_id, bool(hidden))
+                for profile_id, owner_id, hidden in session.execute(
+                    select(ProfileModel.id, ProfileModel.user_id, UserModel.hide_social_counts)
+                    .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
+                    .where(ProfileModel.id.in_(ids))
+                ).all()
+            }
+            # Following belongs to the account, not the chart: every chart the
+            # owner follows, not counting any of its own.
+            following: dict[str, int] = {}
+            owner_ids = {owner_id for owner_id, _ in owners.values()}
+            if owner_ids:
+                for owner_id, total in session.execute(
+                    select(ProfileFollowModel.user_id, func.count())
+                    .join(ProfileModel, ProfileModel.id == ProfileFollowModel.profile_id)
+                    .where(
+                        ProfileFollowModel.user_id.in_(owner_ids),
+                        ProfileModel.user_id != ProfileFollowModel.user_id,
+                    )
+                    .group_by(ProfileFollowModel.user_id)
+                ).all():
+                    following[owner_id] = int(total)
+
+            for profile_id, (owner_id, hidden) in owners.items():
+                counts[profile_id]["following_count"] = following.get(owner_id, 0)
+                if hidden and owner_id != viewer_user_id:
+                    counts[profile_id]["followers_count"] = None
+                    counts[profile_id]["following_count"] = None
 
         return counts
 
@@ -529,6 +566,22 @@ class SqlAlchemySocialRepository:
             user.activity_seen_at = _now_utc()
             session.commit()
 
+    # MARK: - Settings
+
+    def social_settings(self, user_id: str) -> dict[str, bool]:
+        """What this account shows other people about itself: so far, whether
+        its charts carry their followers and following counts."""
+        with self.session_factory() as session:
+            user = session.get(UserModel, user_id)
+            return {"show_counts": not (user is not None and user.hide_social_counts)}
+
+    def update_social_settings(self, user_id: str, *, show_counts: bool) -> dict[str, bool]:
+        with self.session_factory() as session:
+            user = ensure_user(session, user_id)
+            user.hide_social_counts = not show_counts
+            session.commit()
+        return {"show_counts": show_counts}
+
     # MARK: - Blocks
 
     def block_user(self, blocker_id: str, blocked_id: str) -> None:
@@ -638,9 +691,10 @@ class SqlAlchemySocialRepository:
 class FileSocialRepository:
     """The same layer for file persistence, which is local development only.
 
-    One JSON file holds likes, blocks, reports and read markers. Follows keep
-    their own file and carry no timestamps there, so Activity in this mode
-    shows likes alone — enough to work on the screens without a database.
+    One JSON file holds likes, blocks, reports, read markers and settings.
+    Follows keep their own file and carry no timestamps there, so Activity in
+    this mode shows likes alone — enough to work on the screens without a
+    database.
     """
 
     def __init__(self, profiles: Any, path: Path | None = None):
@@ -656,7 +710,7 @@ class FileSocialRepository:
                 return data
             except (json.JSONDecodeError, OSError):
                 pass
-        return {"likes": [], "blocks": [], "reports": [], "seen": {}, "next_id": 1}
+        return {"likes": [], "blocks": [], "reports": [], "seen": {}, "settings": {}, "next_id": 1}
 
     def _save(self, data: dict[str, Any]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -735,7 +789,8 @@ class FileSocialRepository:
         self._save(data)
 
     def social_counts(self, profile_ids: list[str], viewer_user_id: str) -> dict[str, dict[str, Any]]:
-        likes = self._load()["likes"]
+        data = self._load()
+        likes = data["likes"]
         day = today_in(None).isoformat()
         counts: dict[str, dict[str, Any]] = {}
         for profile_id in dict.fromkeys(profile_ids):
@@ -744,16 +799,25 @@ class FileSocialRepository:
             for like in todays:
                 states[like.get("feels_like") or ""] = states.get(like.get("feels_like") or "", 0) + 1
             mine = [like.get("feels_like") or "" for like in todays if like["user_id"] == viewer_user_id]
+            owner = self._owner(profile_id)
+            hidden = owner != viewer_user_id and self._hides_counts(data, owner)
             counts[profile_id] = {
                 "likes_count": len(todays),
                 "likes_total": sum(1 for like in likes if like["profile_id"] == profile_id),
                 "likes_day": day,
                 "state_likes": states,
                 "my_state_likes": mine,
-                "followers_count": self.profiles.count_followers(profile_id),
+                "followers_count": None if hidden else self.profiles.count_followers(profile_id),
+                "following_count": None if hidden or owner is None else self.profiles.count_following(owner),
                 "is_liked": bool(mine),
             }
         return counts
+
+    @staticmethod
+    def _hides_counts(data: dict[str, Any], user_id: str | None) -> bool:
+        if user_id is None:
+            return False
+        return bool(data.get("settings", {}).get(user_id, {}).get("hide_counts"))
 
     def followers_among(self, viewer_user_id: str, user_ids: set[str]) -> set[str]:
         return {user_id for user_id in user_ids if self.follows_viewer(user_id, viewer_user_id)}
@@ -837,6 +901,15 @@ class FileSocialRepository:
         data = self._load()
         data["seen"][user_id] = _isoformat_z(_now_utc())
         self._save(data)
+
+    def social_settings(self, user_id: str) -> dict[str, bool]:
+        return {"show_counts": not self._hides_counts(self._load(), user_id)}
+
+    def update_social_settings(self, user_id: str, *, show_counts: bool) -> dict[str, bool]:
+        data = self._load()
+        data.setdefault("settings", {}).setdefault(user_id, {})["hide_counts"] = not show_counts
+        self._save(data)
+        return {"show_counts": show_counts}
 
     def block_user(self, blocker_id: str, blocked_id: str) -> None:
         data = self._load()

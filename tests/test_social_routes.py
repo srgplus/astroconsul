@@ -236,6 +236,100 @@ class ActivityTests(SocialTestCase):
 
         self.assertTrue(item["actor_followed"])
 
+
+class CountsTests(SocialTestCase):
+    def test_every_payload_carries_followers_and_following(self) -> None:
+        self.as_user(ANNA).post(f"/api/v1/profiles/{self.boris_profile}/follow")
+
+        anna = self.as_user(CLARA).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+        boris = self.as_user(CLARA).get(f"/api/v1/profiles/{self.boris_profile}").json()["profile"]
+        listing = self.as_user(ANNA).get("/api/v1/profiles").json()["profiles"]
+        found = self.as_user(CLARA).get("/api/v1/profiles/search", params={"q": "anna"}).json()["results"][0]
+
+        self.assertEqual((anna["followers_count"], anna["following_count"]), (0, 1))
+        self.assertEqual((boris["followers_count"], boris["following_count"]), (1, 0))
+        own = next(p for p in listing if p["profile_id"] == self.anna_profile)
+        followed = next(p for p in listing if p["profile_id"] == self.boris_profile)
+        self.assertEqual(own["following_count"], 1)
+        self.assertEqual(followed["followers_count"], 1)
+        self.assertEqual(found["following_count"], 1)
+
+    def test_following_is_the_accounts_on_each_of_its_charts(self) -> None:
+        self.as_user(ANNA).post(f"/api/v1/profiles/{self.boris_profile}/follow")
+        self._create_profile(ANNA, "Anna Work", "anna_work", "1991-04-01")
+
+        results = self.as_user(BORIS).get("/api/v1/profiles/search", params={"q": "anna"}).json()["results"]
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual({r["following_count"] for r in results}, {1})
+
+    def test_own_charts_do_not_count_as_following(self) -> None:
+        second = self._create_profile(ANNA, "Anna Work", "anna_work", "1991-04-01")
+        self.as_user(ANNA).post(f"/api/v1/profiles/{second}/follow")
+
+        detail = self.as_user(BORIS).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+
+        self.assertEqual(detail["following_count"], 0)
+
+
+class HiddenCountsTests(SocialTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.as_user(ANNA).post(f"/api/v1/profiles/{self.boris_profile}/follow")
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/follow")
+
+    def _boris_hides(self) -> None:
+        response = self.as_user(BORIS).put("/api/v1/social/settings", json={"show_counts": False})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json(), {"show_counts": False})
+
+    def test_counts_are_shown_until_hidden(self) -> None:
+        before = self.as_user(BORIS).get("/api/v1/social/settings").json()
+        self._boris_hides()
+        after = self.as_user(BORIS).get("/api/v1/social/settings").json()
+
+        self.assertEqual(before, {"show_counts": True})
+        self.assertEqual(after, {"show_counts": False})
+
+    def test_others_get_no_numbers_and_the_owner_keeps_them(self) -> None:
+        self._boris_hides()
+
+        detail = self.as_user(ANNA).get(f"/api/v1/profiles/{self.boris_profile}").json()["profile"]
+        listing = self.as_user(ANNA).get("/api/v1/profiles").json()["profiles"]
+        followed = next(p for p in listing if p["profile_id"] == self.boris_profile)
+        found = self.as_user(CLARA).get("/api/v1/profiles/search", params={"q": "boris"}).json()["results"][0]
+        own = self.as_user(BORIS).get(f"/api/v1/profiles/{self.boris_profile}").json()["profile"]
+
+        for seen in (detail, followed, found):
+            self.assertIsNone(seen["followers_count"])
+            self.assertIsNone(seen["following_count"])
+        self.assertEqual((own["followers_count"], own["following_count"]), (1, 1))
+
+    def test_hiding_leaves_the_other_side_and_the_likes_alone(self) -> None:
+        self._boris_hides()
+
+        anna = self.as_user(BORIS).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+        liked = self.as_user(ANNA).post(f"/api/v1/profiles/{self.boris_profile}/like").json()
+
+        self.assertEqual((anna["followers_count"], anna["following_count"]), (1, 1))
+        self.assertEqual(liked["likes_count"], 1)
+        self.assertIsNone(liked["followers_count"])
+
+    def test_the_public_page_hides_them_too(self) -> None:
+        self._boris_hides()
+
+        public = self.client.get(f"/api/v1/public/profiles/{self.boris_profile}").json()["profile"]
+
+        self.assertIsNone(public["followers_count"])
+
+    def test_showing_them_again_brings_the_numbers_back(self) -> None:
+        self._boris_hides()
+        self.as_user(BORIS).put("/api/v1/social/settings", json={"show_counts": True})
+
+        detail = self.as_user(ANNA).get(f"/api/v1/profiles/{self.boris_profile}").json()["profile"]
+
+        self.assertEqual((detail["followers_count"], detail["following_count"]), (1, 1))
+
     def test_seen_clears_the_badge_until_something_new(self) -> None:
         self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like")
         self.as_user(ANNA).post("/api/v1/activity/seen")

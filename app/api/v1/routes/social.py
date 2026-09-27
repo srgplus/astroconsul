@@ -10,7 +10,8 @@ because they are what keeps the rest of it pleasant.
 Who may do what:
 
 * anyone signed in may like, block or report a profile that is not their own;
-* only a profile's owner may see who follows or likes it;
+* only a profile's owner may see who follows or likes it — anyone else sees
+  how many, unless the owner hid the numbers in Settings;
 * a block works in both directions and says nothing to the blocked account:
   to them, the other side's profiles simply are not there.
 """
@@ -58,6 +59,12 @@ class ReportRequest(BaseModel):
     # Reporting and blocking are one step in the app: the sheet offers to do
     # both, so the reporter does not have to find the second button after.
     block: bool = False
+
+
+class SocialSettingsRequest(BaseModel):
+    # Whether other people see how many follow this account's charts and how
+    # many it follows. The owner sees both either way.
+    show_counts: bool
 
 
 def _social(repos: RepositoryBundle) -> SocialRepository:
@@ -194,6 +201,28 @@ def mark_activity_seen(
 ) -> dict[str, str]:
     _social(repos).mark_activity_seen(user["user_id"])
     return {"status": "ok"}
+
+
+# MARK: - Settings
+
+
+@router.get("/social/settings")
+def get_social_settings(
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, bool]:
+    return _social(repos).social_settings(user["user_id"])
+
+
+@router.put("/social/settings")
+def update_social_settings(
+    payload: SocialSettingsRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, bool]:
+    """Shows or hides the account's followers and following counts from
+    everyone else, on every chart it owns."""
+    return _social(repos).update_social_settings(user["user_id"], show_counts=payload.show_counts)
 
 
 # MARK: - Blocks
