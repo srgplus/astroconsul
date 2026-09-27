@@ -17,8 +17,8 @@ final class ChatViewModel: ObservableObject {
         /// The reader has no chart marked as their own, so there is no one
         /// for the other side to see or answer.
         case needsOwnChart
-        /// The server will not open this chat, and said why: the two do not
-        /// follow each other, a block, or the day's new chats are used up.
+        /// The server will not open this chat, and said why: the other side
+        /// does not follow you, a block, or the day's new chats are used up.
         case refused(String)
     }
 

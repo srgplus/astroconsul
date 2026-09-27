@@ -25,8 +25,10 @@ def may_write(sender_follows_recipient: bool, recipient_follows_sender: bool) ->
     """Whether one account may write to another, from the follows between
     them. "Follows" means follows at least one chart the other account owns.
 
-    Mutual follow: both of them chose the other, so nobody gets a message
-    from a stranger. To let one side's follow be enough, return
-    `sender_follows_recipient or recipient_follows_sender` instead.
+    The owner's rule (Sept 27): you may write to someone who follows you.
+    They chose you, so a stranger cannot write first; following them back is
+    welcome but not needed. Whoever has been written to may always answer
+    (the chat routes check that on top of this). For mutual follow only,
+    return `sender_follows_recipient and recipient_follows_sender`.
     """
-    return sender_follows_recipient and recipient_follows_sender
+    return recipient_follows_sender

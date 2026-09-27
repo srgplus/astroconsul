@@ -3,7 +3,8 @@ people a chat can be started with, the word filter, the anti-spam limits,
 reports from a chat, and the push a message sends.
 
 The cast is the social tests': Anna and Boris own a chart each, marked as
-their own, and follow each other, which is what lets them write. Clara owns
+their own, and follow each other. What lets one write to the other is being
+followed by them; whoever has been written to may always answer. Clara owns
 none. Anna also keeps a chart of her mother's, which is nobody's own and so
 is no way to anyone.
 """
@@ -34,7 +35,7 @@ from app.infrastructure.repositories.sqlalchemy_repositories import ensure_user
 
 ANNA_PHONE = "a" * 64
 
-NOT_MUTUAL = "You can write to each other while you follow each other."
+NOT_FOLLOWING = "You can write to someone once they follow you."
 
 
 class ChatTestCase(SocialTestCase):
@@ -133,9 +134,9 @@ class WhoCanWriteTests(ChatTestCase):
         self.assertFalse(by_id[self.boris_profile]["can_message"])
 
 
-class MutualFollowTests(ChatTestCase):
-    """The owner's rule: two people write to each other while each follows
-    at least one chart of the other's."""
+class FollowRuleTests(ChatTestCase):
+    """The owner's rule: you may write to someone who follows at least one
+    of your charts, and whoever has been written to may always answer."""
 
     def can_message(self, user_id: str, profile_id: str) -> bool:
         response = self.as_user(user_id).get(f"/api/v1/profiles/{profile_id}")
@@ -143,17 +144,26 @@ class MutualFollowTests(ChatTestCase):
         value: bool = response.json()["profile"]["can_message"]
         return value
 
-    def test_a_follow_one_way_is_not_enough(self) -> None:
+    def test_you_may_write_to_someone_who_follows_you(self) -> None:
+        # Boris stops following Anna; Anna still follows Boris. So Boris may
+        # write to Anna, and Anna may not write first to Boris.
+        self.unfollow(BORIS, self.anna_profile)
+
+        allowed = self.as_user(BORIS).post("/api/v1/chats", json={"profile_id": self.anna_profile})
+        refused = self.as_user(ANNA).post("/api/v1/chats", json={"profile_id": self.boris_profile})
+
+        self.assertEqual(allowed.status_code, 200, allowed.text)
+        self.assertEqual(refused.status_code, 403, refused.text)
+        self.assertEqual(refused.json()["detail"], NOT_FOLLOWING)
+        self.assertTrue(self.can_message(BORIS, self.anna_profile))
+        self.assertFalse(self.can_message(ANNA, self.boris_profile))
+
+    def test_a_follow_back_is_welcome_but_not_needed(self) -> None:
         self.unfollow(ANNA, self.boris_profile)
 
-        response = self.as_user(BORIS).post("/api/v1/chats", json={"profile_id": self.anna_profile})
-        back = self.as_user(ANNA).post("/api/v1/chats", json={"profile_id": self.boris_profile})
+        chat = self.open_chat(ANNA, self.boris_profile)
 
-        self.assertEqual(response.status_code, 403, response.text)
-        self.assertEqual(response.json()["detail"], NOT_MUTUAL)
-        self.assertEqual(back.status_code, 403, back.text)
-        self.assertFalse(self.can_message(BORIS, self.anna_profile))
-        self.assertFalse(self.can_message(ANNA, self.boris_profile))
+        self.assertEqual(chat["peer"]["profile_id"], self.boris_profile)
 
     def test_strangers_cannot_write(self) -> None:
         self.unfollow(ANNA, self.boris_profile)
@@ -166,27 +176,38 @@ class MutualFollowTests(ChatTestCase):
 
     def test_a_follow_on_any_chart_of_the_account_counts(self) -> None:
         # Boris follows Anna's mother's chart, not Anna's own: it is still
-        # Anna he follows, and he writes to her own chart.
+        # Anna he follows, so Anna may write to him.
         self.unfollow(BORIS, self.anna_profile)
         self.follow(BORIS, self.mum_profile)
 
-        chat = self.open_chat(BORIS, self.anna_profile)
+        chat = self.open_chat(ANNA, self.boris_profile)
 
-        self.assertEqual(chat["peer"]["profile_id"], self.anna_profile)
-        self.assertTrue(self.can_message(BORIS, self.anna_profile))
+        self.assertEqual(chat["peer"]["profile_id"], self.boris_profile)
+        self.assertTrue(self.can_message(ANNA, self.boris_profile))
         self.assertFalse(self.can_message(BORIS, self.mum_profile))
 
     def test_the_refusal_speaks_the_apps_language(self) -> None:
-        self.unfollow(ANNA, self.boris_profile)
+        self.unfollow(BORIS, self.anna_profile)
 
-        response = self.as_user(BORIS).post(
+        response = self.as_user(ANNA).post(
             "/api/v1/chats",
-            json={"profile_id": self.anna_profile},
+            json={"profile_id": self.boris_profile},
             headers={"Accept-Language": "ru"},
         )
 
         self.assertEqual(response.status_code, 403, response.text)
-        self.assertEqual(response.json()["detail"], "Писать друг другу можно, пока вы подписаны друг на друга.")
+        self.assertEqual(response.json()["detail"], "Написать можно тому, кто подписан на вас.")
+
+    def test_whoever_was_written_to_may_answer(self) -> None:
+        # Anna follows Boris, Boris does not follow Anna: Boris writes first,
+        # and Anna answers although the rule alone would not let her start.
+        self.unfollow(BORIS, self.anna_profile)
+        chat_id = self.open_chat(BORIS, self.anna_profile)["chat_id"]
+        self.send(BORIS, chat_id, "Hi Anna")
+
+        answering = self.as_user(ANNA).post(f"/api/v1/chats/{chat_id}/messages", json={"body": "Hi Boris"})
+
+        self.assertEqual(answering.status_code, 200, answering.text)
 
     def test_a_chat_stays_readable_when_the_follow_breaks_and_stops_taking_messages(self) -> None:
         chat_id = self.open_chat(BORIS, self.anna_profile)["chat_id"]
@@ -200,9 +221,9 @@ class MutualFollowTests(ChatTestCase):
         self.assertEqual(reading.status_code, 200, reading.text)
         self.assertEqual([m["body"] for m in reading.json()["messages"]], ["Hi Anna"])
         self.assertEqual(sending.status_code, 403, sending.text)
-        self.assertEqual(sending.json()["detail"], NOT_MUTUAL)
-        self.assertEqual(answering.status_code, 403, answering.text)
-        self.assertEqual([c["last_message"]["body"] for c in self.chats(ANNA)["chats"]], ["Hi Anna"])
+        self.assertEqual(sending.json()["detail"], NOT_FOLLOWING)
+        # Anna was written to, so she may still answer.
+        self.assertEqual(answering.status_code, 200, answering.text)
 
     def test_following_again_opens_it_again(self) -> None:
         chat_id = self.open_chat(BORIS, self.anna_profile)["chat_id"]
@@ -324,9 +345,9 @@ class MessageTests(ChatTestCase):
     def test_a_message_with_a_forbidden_word_is_not_sent(self) -> None:
         client = self.as_user(BORIS)
 
-        english = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "You are a b1tch"})
-        russian = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "Ну ты и сука"})
-        spaced = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "f.u.c.k you"})
+        english = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "You are a f4ggot"})
+        russian = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "Ну ты и пидор"})
+        spaced = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "r a p e"})
 
         for response in (english, russian, spaced):
             self.assertEqual(response.status_code, 422, response.text)
@@ -403,11 +424,11 @@ class ContactTests(ChatTestCase):
         self.assertEqual(self.contacts(BORIS), ["anna_p"])
         self.assertEqual(self.contacts(ANNA), ["boris_i"])
 
-    def test_a_follow_one_way_finds_nobody(self) -> None:
+    def test_contacts_are_the_people_who_follow_you(self) -> None:
         self.unfollow(ANNA, self.boris_profile)
 
         self.assertEqual(self.contacts(BORIS), [])
-        self.assertEqual(self.contacts(ANNA), [])
+        self.assertEqual(self.contacts(ANNA), ["boris_i"])
 
     def test_a_person_is_shown_as_their_own_chart(self) -> None:
         # Boris follows only Anna's mother's chart, and still Anna is drawn
@@ -512,7 +533,7 @@ class MessageFilterTests(ChatTestCase):
         )
 
     def test_objectionable_words_are_refused_and_kept_out(self) -> None:
-        for body in ("fuck you", "you are a b1tch", "s.h.i.t!", "f u c k off", "ну ты и сука"):
+        for body in ("you f4ggot", "N1GGER", "r a p e", "ты пидор", "what a retard"):
             with self.subTest(body=body):
                 response = self.post(body)
                 self.assertEqual(response.status_code, 422, response.text)
@@ -530,8 +551,13 @@ class MessageFilterTests(ChatTestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.post(body).status_code, 200)
 
+    def test_everyday_swearing_between_two_people_goes_through(self) -> None:
+        for body in ("fuck, I missed the bus", "ну ты и сука, конечно", "иди нахуй, шучу"):
+            with self.subTest(body=body):
+                self.assertEqual(self.post(body).status_code, 200)
+
     def test_the_refusal_speaks_russian_to_a_russian_app(self) -> None:
-        response = self.post("иди нахуй", lang="ru")
+        response = self.post("ты пидор", lang="ru")
 
         self.assertEqual(response.status_code, 422, response.text)
         self.assertIn("нельзя отправить", response.json()["detail"])

@@ -323,7 +323,7 @@ class SqlAlchemySocialRepository:
         `can_message` is whether the viewer can write to the chart: only a
         chart its owner marked as their own is a way to a person, only
         somebody else's, and only while the chats' rule lets the two of them
-        write (`may_write`: they follow each other)."""
+        write (`may_write`: they follow the viewer)."""
         ids = list(dict.fromkeys(profile_ids))
         counts: dict[str, dict[str, Any]] = {
             profile_id: {

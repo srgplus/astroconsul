@@ -11,11 +11,12 @@ their own:
   could neither see who wrote nor write back;
 * a block closes the chat both ways and says nothing to the blocked side. To
   them the chat is simply not there, the way the blocker's charts are not;
-* past those, the owner's rule decides (`chat_rules.may_write`, today: the two
-  follow each other). A chat that already exists stays readable when the rule
+* past those, the owner's rule decides (`chat_rules.may_write`, today: you
+  may write to someone who follows you), and whoever has been written to may
+  always answer. A chat that already exists stays readable when the rule
   stops holding, but nothing more can be sent into it until it holds again.
 
-What is sent goes through the same word filter as names
+What is sent goes through a word filter for slurs and sexual violence
 (`moderation.message_is_objectionable`) and the anti-spam limits in
 `chat_rules`: messages a minute and a day, new conversations a day.
 
@@ -78,9 +79,9 @@ REFUSALS: dict[str, dict[str, str]] = {
         "en": "You blocked this person. Unblock them in Settings first.",
         "ru": "Вы заблокировали этого человека. Сначала разблокируйте его в Настройках.",
     },
-    "not_mutual": {
-        "en": "You can write to each other while you follow each other.",
-        "ru": "Писать друг другу можно, пока вы подписаны друг на друга.",
+    "not_following": {
+        "en": "You can write to someone once they follow you.",
+        "ru": "Написать можно тому, кто подписан на вас.",
     },
     "objectionable": {
         "en": "This message can't be sent: it has words that aren't allowed on big3.me. Please rephrase it.",
@@ -139,10 +140,12 @@ def _require_own_primary(request: Request, chats: ChatRepository, user_id: str) 
 
 
 def _require_may_write(request: Request, chats: ChatRepository, user_id: str, peer_id: str) -> None:
-    """The owner's rule between the two, whatever it is today (`may_write`)."""
+    """The owner's rule between the two, whatever it is today (`may_write`),
+    and one thing no rule takes away: whoever has been written to may answer."""
     follows, followed_back = chats.follows_between(user_id, peer_id)
-    if not may_write(follows, followed_back):
-        raise _refusal(request, 403, "not_mutual")
+    if may_write(follows, followed_back) or chats.has_written(peer_id, user_id):
+        return
+    raise _refusal(request, 403, "not_following")
 
 
 def _require_new_chat_allowed(request: Request, chats: ChatRepository, user_id: str, peer_id: str) -> None:
@@ -212,7 +215,7 @@ def chat_contacts(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, Any]:
     """Who a new chat can be started with: the people the owner's rule lets
-    the caller write to (they follow each other), who have a chart of their
+    the caller write to (they follow the caller), who have a chart of their
     own."""
     return {"people": _chats(repos).contacts(user["user_id"])}
 

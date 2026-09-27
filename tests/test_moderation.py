@@ -10,21 +10,25 @@ from app.domain.moderation import contains_objectionable, message_is_objectionab
 
 class MessageFilterTests(unittest.TestCase):
     def test_objectionable_messages(self) -> None:
+        # Slurs and sexual violence: what no private message may carry.
         for text in (
-            "fuck off",
-            "FUCKING hell",
-            "what a b1tch",
-            "s.h.i.t!",
-            "f_u_c_k",
-            "f u c k you",
-            "you,cunt",
-            "ну ты и сука",
-            "иди нахуй",
-            "пиздец какой-то",
-            "бляди",
+            "you f4ggot",
+            "N1GGER",
+            "what a retard",
+            "r a p e",
+            "he is a rapist",
+            "ты пидор",
+            "пидарас",
         ):
             with self.subTest(text=text):
                 self.assertTrue(message_is_objectionable(text))
+
+    def test_everyday_swearing_between_two_people_is_theirs(self) -> None:
+        # A private message is not a name shown to everyone: the swearing
+        # that a name may not carry can be sent. Reports cover the rest.
+        for text in ("fuck off", "what a b1tch", "s.h.i.t!", "ну ты и сука", "иди нахуй", "пиздец какой-то"):
+            with self.subTest(text=text):
+                self.assertFalse(message_is_objectionable(text))
 
     def test_ordinary_messages(self) -> None:
         for text in (

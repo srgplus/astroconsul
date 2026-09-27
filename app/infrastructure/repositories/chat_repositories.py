@@ -21,7 +21,7 @@ left out of the list and the badge, and nothing more can be sent into it. It
 is not deleted: lifting the block brings it back as it was.
 
 Who may write to whom beyond that is the owner's rule in
-`app.domain.chat_rules.may_write` (today: the two follow each other). This
+`app.domain.chat_rules.may_write` (today: the other follows you). This
 module supplies what it reads (`follows_between`, `contacts`), the counts the
 routes' anti-spam limits read (`messages_sent_since`, `chats_started_since`),
 and the conversation a report carries (`transcript`).
@@ -192,6 +192,23 @@ class SqlAlchemyChatRepository:
         with self.session_factory() as session:
             chat = self._find(session, first, second)
             return chat is not None and chat.last_message_id is not None
+
+    def has_written(self, author_id: str, peer_id: str) -> bool:
+        """Whether `author_id` has sent at least one message into its chat
+        with `peer_id`: the peer may then always answer."""
+        first, second = ordered_pair(author_id, peer_id)
+        with self.session_factory() as session:
+            chat = self._find(session, first, second)
+            if chat is None:
+                return False
+            return (
+                session.execute(
+                    select(ChatMessageModel.id)
+                    .where(ChatMessageModel.chat_id == chat.id, ChatMessageModel.sender_id == author_id)
+                    .limit(1)
+                ).scalar_one_or_none()
+                is not None
+            )
 
     def messages_sent_since(self, user_id: str, since: datetime) -> int:
         """Messages this account has sent since then, in every chat."""
@@ -433,8 +450,8 @@ class SqlAlchemyChatRepository:
 
     def contacts(self, user_id: str) -> list[dict[str, Any]]:
         """Who a new chat can be started with from the list, as cards: the
-        people the chats' rule lets the account write to (`may_write`: the
-        two follow each other). Only those with a chart of their own, which
+        people the chats' rule lets the account write to (`may_write`: they
+        follow the account). Only those with a chart of their own, which
         is what they are written to through, and less anyone across a block.
 
         The follows count account to account, whichever charts they are on;
@@ -564,6 +581,12 @@ class FileChatRepository:
         return any(
             chat["a"] == first and chat["b"] == second and chat.get("last_message_id") for chat in self._load()["chats"]
         )
+
+    def has_written(self, author_id: str, peer_id: str) -> bool:
+        first, second = ordered_pair(author_id, peer_id)
+        data = self._load()
+        ids = {chat["id"] for chat in data["chats"] if chat["a"] == first and chat["b"] == second}
+        return any(m["chat_id"] in ids and m["sender_id"] == author_id for m in data["messages"])
 
     @staticmethod
     def _sent_at(message: dict[str, Any]) -> datetime:

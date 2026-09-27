@@ -461,11 +461,11 @@ updated_at: DateTime(tz)
 | GET/PUT | `/api/v1/social/settings` | `{show_counts, push_likes, push_follows, push_messages}`: whether others see the account's followers/following counts (`users.hide_social_counts`), and which pushes it gets; PUT takes any subset |
 | POST/DELETE | `/api/v1/devices`, `/api/v1/devices/{token}` | The phone's APNs token (`environment`, `lang`) for pushes / forget it on sign-out |
 | GET | `/api/v1/chats` | Chats with a message in them, newest message first, each with `peer` (card), `last_message`, `unread_count`, `peer_read_id`; plus the total `unread_count` |
-| POST | `/api/v1/chats` | `{profile_id}` → the chat with that chart's owner, made on first asking. Only a primary profile (400 otherwise), the caller needs one too (409), the two must follow each other (403), and at most 20 new conversations a day (429) |
+| POST | `/api/v1/chats` | `{profile_id}` → the chat with that chart's owner, made on first asking. Only a primary profile (400 otherwise), the caller needs one too (409), that person must follow the caller (403), and at most 20 new conversations a day (429) |
 | GET | `/api/v1/chats/{id}/messages` | Newest page (50), `?before=` older, `?after=` what came in since (polling); oldest first, `has_more` |
-| POST | `/api/v1/chats/{id}/messages` | `{body}` up to 2000 chars; pushes to the other side (`kind: message`, `chat_id`). 403 unless the two follow each other, 422 for objectionable words, 429 past 30 a minute / 500 a day / 20 new conversations a day. Refusals speak `Accept-Language` (en/ru) |
+| POST | `/api/v1/chats/{id}/messages` | `{body}` up to 2000 chars; pushes to the other side (`kind: message`, `chat_id`). 403 unless the other follows you or has written to you, 422 for slurs and sexual violence, 429 past 30 a minute / 500 a day / 20 new conversations a day. Refusals speak `Accept-Language` (en/ru) |
 | POST | `/api/v1/chats/{id}/read` | `{message_id?}` reads up to it; answers the unread total |
-| GET | `/api/v1/chats/unread`, `/api/v1/chats/contacts` | Badge number / people a new chat can start with (they follow each other, with a primary) |
+| GET | `/api/v1/chats/unread`, `/api/v1/chats/contacts` | Badge number / people a new chat can start with (they follow you, with a primary) |
 | POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
 | DELETE | `/api/v1/blocks/{block_id}` | Unblock |
 | POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block`, optional `chat_id` (the chat's last 20 messages go in the moderation mail; `conversation_attached` says whether they did) |
@@ -519,10 +519,10 @@ a person is their primary profile. A chat starts only from somebody's primary ch
 (`can_message` on every profile payload says so); a chart kept for someone else (a mother's,
 a celebrity's) has nobody behind it, and an account without a primary can neither be written to
 nor write (409; the chats then ask "Which chart is yours?" inline and claim the answer).
-**Who may write** is one function, `app/domain/chat_rules.may_write`: today mutual follow (each
-follows at least one chart the other owns). It decides open, send, `can_message` and contacts; an
+**Who may write** is one function, `app/domain/chat_rules.may_write`: today you may write to someone
+who follows at least one chart you own, and whoever was written to may always answer. It decides open, send, `can_message` and contacts; an
 existing chat stays readable when it stops holding, sending answers 403. Messages go through
-`moderation.message_is_objectionable` (the names' lists, read a word at a time) and the limits in
+`moderation.message_is_objectionable` (slurs and sexual violence only, read a word at a time) and the limits in
 `chat_rules` (30/min, 500/day, 20 new conversations/day: chats whose first message is yours).
 `POST /reports` takes `chat_id`: the mail carries the chat's last 20 messages (`transcript`). Unread and list
 order are by message id, never by time (timestamps are kept to the second). Blocks hide the chat

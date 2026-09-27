@@ -18,7 +18,7 @@ On the server a like pushed only on the first like of the day, but an
 unlike deletes that row, so like/unlike/like buzzed the owner every time.
 `social_push` now keeps likes under the same in-memory quiet hour as follows
 (`QUIET_SECONDS`, `_recent_pushes` keyed by kind, actor and chart).
-### The messenger is ready for App Review: mutual follow, a word filter, limits, reports with the chat
+### The messenger is ready for App Review: write to your followers, a slur filter, limits, reports with the chat
 Guideline 1.2 asks any app where people write to each other for a filter,
 report, block and published contact. The chats had block, report and (see
 below) a word filter, but let anyone with a chart write to anyone with one,
@@ -26,13 +26,17 @@ took messages as fast as a phone could post, and a report from a chat said
 nothing about the chat.
 
 **Who may write** is one function, `app/domain/chat_rules.may_write(sender
-follows recipient, recipient follows sender)`: the owner's rule is mutual
-follow, where "follows" means at least one chart the other account owns (a
-follow on someone's mother's chart counts as following them). Switching to
-one-way is one line there. It is read by `POST /chats` and `POST
-/chats/{id}/messages` (403, "You can write to each other while you follow
-each other."), by `can_message` in `social_counts` (SQL and file), and by
-`GET /chats/contacts`. The other rules stand (a primary on both sides, no
+follows recipient, recipient follows sender)`: the owner's rule (Sept 27,
+after first trying mutual follow and finding it too strict) is that **you
+may write to someone who follows you**, where "follows" means at least one
+chart the other account owns (a follow on someone's mother's chart counts as
+following them). A follow back is welcome, not needed. On top of it, in
+`_require_may_write`, **whoever has been written to may always answer**
+(`ChatRepository.has_written(peer, you)`), so a conversation never
+dead-ends on the side that was written to. It is read by `POST /chats` and
+`POST /chats/{id}/messages` (403 `not_following`, "You can write to someone
+once they follow you."), by `can_message` in `social_counts` (SQL and file),
+and by `GET /chats/contacts` (the people who follow you). The other rules stand (a primary on both sides, no
 block; a block deletes the follows, so it breaks the rule too). A chat that
 exists stays readable when a follow goes; only sending stops, and following
 again opens it. `follow_ties(session, user, others)` in
@@ -86,11 +90,13 @@ Messages", two demo accounts with a conversation, build 19.
 **Against the entries below.** It replaces `moderation.check_message_text`
 and `Outgoing.refused` from "Chat messages go through the word filter": that
 filter read a whole message the way it reads a name, spaces glued, so "поп
-издал" was refused. That entry also records the owner choosing "anyone with a
-chart of their own" over mutual follows, while this work was asked for mutual
-follow. The choice lives in `may_write` alone: `return True` there brings back
-anyone-with-a-chart for open, send, `can_message` and contacts, and the Terms
-and the review notes then need their "follow each other" lines taken out.
+издал" was refused. And a message is held to a **narrower list than a name**
+(`_MESSAGE_STEMS`, `_MESSAGE_WORDS`: slurs and sexual violence only), because
+the owner found refusing everyday swearing between two people too heavy;
+reports cover the rest. That entry also records "anyone with a chart of
+their own" as the rule; the owner has since settled on "write to your
+followers" (above). `return True` in `may_write` would bring back anyone with
+a chart, and the Terms and review notes would then need rewording.
 
 ### A chart page loads in a fraction of the time: timing search and the forecast
 The owner found profiles slow to open. A page is two requests, the 10-day

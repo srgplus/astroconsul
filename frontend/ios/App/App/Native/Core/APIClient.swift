@@ -242,7 +242,7 @@ actor APIClient {
 
     /// The chat with the person whose own chart this is, made on first
     /// asking. 400 for a chart that is nobody's own, 409 while the reader has
-    /// no chart of their own, 403 unless the two follow each other, 429 once
+    /// no chart of their own, 403 unless the other follows you (or has written to you), 429 once
     /// the day's new chats are used up.
     func openChat(profileId: String) async throws -> ChatSummary {
         struct Body: Encodable { let profile_id: String }
