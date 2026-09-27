@@ -61,6 +61,7 @@ export const ru: Record<string, string> = {
   "settings.natalProfiles": "Карты рождения",
   "settings.primaryProfile": "Основной профиль",
   "settings.primaryProfileDesc": "Основной профиль отображается первым в боковой панели и загружается при запуске.",
+  "settings.primaryNotChosen": "Не выбран",
   "settings.subscription": "Подписка",
   "settings.plan": "Тариф",
   "settings.freeBeta": "Бесплатный",
@@ -599,6 +600,12 @@ export const ru: Record<string, string> = {
   "invite.copyLink": "Скопировать ссылку",
   "invite.sendError": "Не удалось отправить приглашение.",
   "invite.backToApp": "Перейти в приложение",
+  "invite.isYours": "Это ваша собственная карта рождения?",
+  "invite.isYoursHint": "Своя карта открывается первой, и по ней вас видят другие, когда вы подписываетесь или ставите лайк. Это можно поменять позже.",
+  "invite.itsMe": "Да, это я",
+  "invite.notMe": "Нет, это чужая",
+  "invite.savingOwn": "Сохраняем...",
+  "invite.ownError": "Не удалось сохранить. Попробуйте ещё раз или пропустите.",
 
   // Pro / Paywall
   "pro.unlock": "Разблокируйте big3.me Pro",

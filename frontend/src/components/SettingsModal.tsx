@@ -126,7 +126,10 @@ export function SettingsModal({
   const snapshot = transitReport?.snapshot
   const houseSystem = snapshot?.house_system ?? "Placidus"
   const ephemeris = snapshot?.ephemeris_version ?? "Swiss Ephemeris"
-  const primaryProfile = profiles.find((p) => p.profile_id === primaryProfileId)
+  // Only a chart the account owns can be its own: the server refuses a
+  // followed one, so it is not offered.
+  const ownProfiles = profiles.filter((p) => p.is_own !== false)
+  const primaryIsOwn = ownProfiles.some((p) => p.profile_id === primaryProfileId)
 
   const NAV_ITEMS: { id: SettingsPage; label: string }[] = [
     { id: "account", label: t("settings.account") },
@@ -186,10 +189,17 @@ export function SettingsModal({
                   <div className="stg-select-wrap">
                     <select
                       className="stg-select"
-                      value={primaryProfileId ?? ""}
+                      value={primaryIsOwn ? primaryProfileId ?? "" : ""}
                       onChange={(e) => onPrimaryChange(e.target.value)}
                     >
-                      {profiles.map((p) => (
+                      {/* Without one the select would show its first chart
+                          as chosen when nothing is. */}
+                      {!primaryIsOwn ? (
+                        <option value="" disabled>
+                          {t("settings.primaryNotChosen")}
+                        </option>
+                      ) : null}
+                      {ownProfiles.map((p) => (
                         <option key={p.profile_id} value={p.profile_id}>
                           {p.profile_name} — @{p.username}
                         </option>

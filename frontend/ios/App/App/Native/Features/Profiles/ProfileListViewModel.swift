@@ -125,6 +125,13 @@ final class ProfileListViewModel: ObservableObject {
         return ids
     }
 
+    /// The account owns charts and none of them is marked as its own: what
+    /// puts "Which chart is yours?" up. The server hands out only a primary
+    /// the account owns, so a chart given away or deleted lands here too.
+    var needsPrimary: Bool {
+        state == .loaded && primaryProfile == nil && profiles.contains(where: \.ownedByViewer)
+    }
+
     // MARK: - Groups
 
     /// The saved list as the screen draws it: Favourites first, then the
@@ -289,15 +296,23 @@ final class ProfileListViewModel: ObservableObject {
     }
 
     func setPrimary(_ profile: ProfileSummary) async {
+        guard let error = await claimPrimary(profile), !error.isCancellation else { return }
+        state = .failed(error.localizedDescription)
+    }
+
+    /// Marks a profile as the account's own and hands a refusal back to the
+    /// caller instead of turning the pager into an error screen: "Which chart
+    /// is yours?" shows it under its own button, over a page that is fine.
+    func claimPrimary(_ profile: ProfileSummary) async -> Error? {
         let previous = primaryProfileId
         primaryProfileId = profile.profileId
         do {
             try await api.setPrimaryProfile(id: profile.profileId)
+            return nil
         } catch {
             NSLog("[Profiles] setPrimary failed: \(error.localizedDescription)")
             primaryProfileId = previous
-            guard !error.isCancellation else { return }
-            state = .failed(error.localizedDescription)
+            return error
         }
     }
 

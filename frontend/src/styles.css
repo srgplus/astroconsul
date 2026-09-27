@@ -6402,6 +6402,23 @@ button.natal-pos__row--clickable {
   border-color: transparent;
 }
 
+.invite-question {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 4px 0 0;
+}
+
+.invite-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
 /* ─── Invite Modal ─── */
 
 .invite-modal {

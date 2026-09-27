@@ -6,7 +6,7 @@ import re
 from datetime import UTC, date, datetime, time
 from typing import Any
 
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings
@@ -34,6 +34,11 @@ from natal_profiles import (
 
 def _now_utc() -> datetime:
     return datetime.now(UTC).replace(microsecond=0)
+
+
+def _as_utc(value: datetime) -> datetime:
+    """SQLite hands timestamps back without a zone, Postgres with one; both are UTC."""
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
 
 def _isoformat_z(value: datetime) -> str:
@@ -432,9 +437,17 @@ class SqlAlchemyProfileRepository:
             model = session.get(ProfileModel, profile_id)
             if model is None:
                 raise FileNotFoundError(f"Natal profile not found: {profile_id}")
-            # Delete related follows and likes: both hold a foreign key to it
+            # Delete related follows, likes and transfer invites: all three
+            # hold a foreign key to it. A profile that was ever offered to
+            # someone could not be deleted while its invites stayed.
             session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id))
             session.execute(delete(ProfileLikeModel).where(ProfileLikeModel.profile_id == profile_id))
+            session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.profile_id == profile_id))
+            # Whoever had it as their own chart no longer has one. No foreign
+            # key would have caught this: the column is a plain string.
+            session.execute(
+                update(UserModel).where(UserModel.primary_profile_id == profile_id).values(primary_profile_id=None)
+            )
             # Delete related latest_transit
             if model.latest_transit is not None:
                 session.delete(model.latest_transit)
@@ -687,6 +700,25 @@ class SqlAlchemyProfileRepository:
             user.primary_profile_id = profile_id
             session.commit()
 
+    def set_primary_if_first_profile(self, user_id: str, profile_id: str) -> bool:
+        """Makes `profile_id` the account's own chart when it is the only
+        chart the account owns. Answers whether it did.
+
+        Any primary already on the row is then stale — it names a chart the
+        account no longer owns — so it is replaced rather than respected. An
+        account that owns other charts is left alone: which of them is its own
+        is a question for the person, and the app asks it."""
+        with self.session_factory() as session:
+            owned = session.execute(select(ProfileModel.id).where(ProfileModel.user_id == user_id)).scalars().all()
+            if list(owned) != [profile_id]:
+                return False
+            user = session.get(UserModel, user_id) or ensure_user(session, user_id)
+            if user.primary_profile_id == profile_id:
+                return False
+            user.primary_profile_id = profile_id
+            session.commit()
+            return True
+
     def get_profile_arrangement(self, user_id: str) -> dict[str, list[str]]:
         with self.session_factory() as session:
             user = session.get(UserModel, user_id)
@@ -770,18 +802,25 @@ class SqlAlchemyProfileRepository:
                 raise FileNotFoundError("Invite not found")
             if invite.status != "pending":
                 raise ValueError(f"Invite already {invite.status}")
-            if invite.expires_at < now:
+            if _as_utc(invite.expires_at) < now:
                 invite.status = "expired"
                 session.commit()
                 raise ValueError("Invite has expired")
 
             # Ensure new user exists in DB
-            ensure_user(session, new_user_id)
+            recipient = ensure_user(session, new_user_id)
 
             old_owner_id = invite.invited_by
             profile = session.get(ProfileModel, invite.profile_id)
             if profile is None:
                 raise FileNotFoundError("Profile not found")
+
+            # The chart leaves its owner, so it cannot stay their own chart.
+            # Left in place it came back in their listing as a primary they
+            # follow rather than own, and the app offered to edit it.
+            previous_owner = session.get(UserModel, profile.user_id) if profile.user_id != new_user_id else None
+            if previous_owner is not None and previous_owner.primary_profile_id == profile.id:
+                previous_owner.primary_profile_id = None
 
             # Transfer ownership
             profile.user_id = new_user_id
@@ -807,11 +846,22 @@ class SqlAlchemyProfileRepository:
                 session.add(follow)
 
             session.commit()
+
+            # The recipient's own chart, if they have one they still own. None
+            # tells the accepting page to ask whether this chart is theirs:
+            # a chart given away is usually its subject's, but not always.
+            recipient_primary = recipient.primary_profile_id
+            if recipient_primary is not None:
+                own = session.get(ProfileModel, recipient_primary)
+                if own is None or own.user_id != new_user_id:
+                    recipient_primary = None
+
             return {
                 "profile_id": invite.profile_id,
                 "profile_name": profile.display_name,
                 "new_owner_id": new_user_id,
                 "old_owner_id": old_owner_id,
+                "primary_profile_id": recipient_primary,
             }
 
 

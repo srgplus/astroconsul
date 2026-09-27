@@ -4,6 +4,67 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Every account has one chart of its own, and the app asks when it cannot tell
+Nothing ever set `users.primary_profile_id` on its own: not the server, not the
+web, not iOS. On production (read on 2026-09-27) 36 of the 38 accounts that own
+charts had none. 13 of them had made exactly one chart themselves, 10 had been
+given exactly one by transfer, and 13 had several. The primary is more than
+page one: it gets the weather alerts, it is "your chart" in Activity, and it is
+the card other people see the account as. Without one, the chart touched last
+stood in, which could be somebody's mother.
+
+**The rule.** An account's first chart is its own, without a question. Past
+that the app asks rather than guesses, and the server's part is never to hand
+out a primary the account does not own.
+
+**Backend.**
+- `ProfileService.create_profile` calls `set_primary_if_first_profile`: when
+  the new chart is the only one the account owns, it becomes the primary (a
+  stale primary on the row is replaced). An account that owns other charts is
+  left alone.
+- `accept_invite` clears the previous owner's primary when it was the chart
+  being given away. It used to stay, so the sender's listing carried a primary
+  they only follow, and iOS offered Edit on it (probably the origin of the
+  "primary with `is_own: false`" workarounds in `ProfileListViewModel`). The
+  response now carries the recipient's own `primary_profile_id`, null when
+  they have none; that is what the accepting page asks on.
+- `delete_profile` clears any primary naming the chart, and deletes the
+  chart's invites first. `profile_invites.profile_id` is a foreign key without
+  a cascade, so on Postgres any chart that had ever been offered to someone
+  could not be deleted (500); 37 charts on production were in that state.
+- `GET /profiles` returns `primary_profile_id` only when the caller owns it.
+- `accept_invite` compared SQLite's zoneless `expires_at` with an aware "now"
+  and raised; `_as_utc` fixes it. Postgres was never affected, but no test had
+  ever accepted an invite.
+- `tests/test_primary_profile.py`, on SQLite with foreign keys enforced.
+
+No migration and no backfill: the accounts that already have charts are asked.
+
+**iOS.** `PrimaryProfilePrompt` (`Features/Profiles/`) is one sheet for every
+case: "Which chart is yours?" over the account's own charts, the single one
+already selected ("Is this your chart?"), a tap on "This is me" saves it. "My
+chart isn't here, add it" opens the new-profile form, and `openCreatedProfile`
+claims what it makes. "Not now" or a swipe closes it. `PrimaryPromptSchedule`
+asks at most once a day (20 hours, so a morning habit is asked every morning),
+stamped when shown, reset on sign-out. `WeatherHomeView.offerNext()` puts it
+before the alerts offer, since the alerts are scheduled for the primary; both
+wait for the location prompt, and neither goes up over another sheet
+(`coversScreen`). The return to the foreground asks too, for an app left
+running for days. `ProfileListViewModel.needsPrimary` and
+`claimPrimary(_:) -> Error?`, which reports a refusal to the sheet instead of
+turning the pager into an error screen. Harness: `-uiPreviewWeather
+-uiPreviewPrimaryPrompt` (two charts), `-uiPreviewPrimaryPrompt 1` (one).
+
+**Web.** The invite page asks "Is this your own birth chart?" right after
+Accept when the recipient has none. Settings lists only charts the account
+owns for Primary Profile and reads "Not chosen" instead of showing the first as
+picked. The bootstrap no longer syncs a followed primary from localStorage back
+to the server, and a new profile adopts the primary the server gave it.
+
+The owner chose the list with a selection over one-chart-at-a-time questions,
+once a day with "Not now" over every launch, and the web asking only on the
+invite page.
+
 ### Chats: a plain messenger beside the bell (iOS)
 The owner asked for "a super simple messenger, text with bubbles, like
 iMessage": a button next to Activity, a list of chats, a chat you can write in,

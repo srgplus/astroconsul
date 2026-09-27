@@ -37,12 +37,23 @@ struct WeatherPreviewHarness: View {
         ProcessInfo.processInfo.arguments.contains("-uiPreviewAlertsOffer")
     }
 
+    /// Add `-uiPreviewPrimaryPrompt` to raise "Which chart is yours?" over the
+    /// sample account, with its first two charts; `-uiPreviewPrimaryPrompt 1`
+    /// shows the one-chart form, already selected, and any other number that
+    /// many charts. On an account it shows once a day at most.
+    static var primaryPromptCharts: Int? {
+        guard ProcessInfo.processInfo.arguments.contains("-uiPreviewPrimaryPrompt") else { return nil }
+        let asked = UserDefaults.standard.integer(forKey: "uiPreviewPrimaryPrompt")
+        return asked > 0 ? asked : 2
+    }
+
     @StateObject private var listModel: ProfileListViewModel
     @State private var selection = WeatherPreviewData.profile.profileId
     @State private var showsList = false
     @State private var editing: ProfileSummary?
     @State private var showsSearch = false
     @State private var showsAlertsOffer = false
+    @State private var showsPrimaryPrompt = false
     @State private var showsActivity = false
     @State private var showsChats = false
     @State private var peopleTarget: PeopleSheet.Target?
@@ -117,6 +128,7 @@ struct WeatherPreviewHarness: View {
         .task {
             DeviceLocation.shared.start()
             showsAlertsOffer = Self.offersAlerts
+            showsPrimaryPrompt = Self.primaryPromptCharts != nil
             await SocialStore.shared.refreshUnread()
             await ChatStore.shared.refreshUnread()
             showsActivity = Self.opensActivity
@@ -136,6 +148,18 @@ struct WeatherPreviewHarness: View {
             CategoryAlertsOffer(
                 profile: WeatherPreviewData.profile,
                 onFinish: { showsAlertsOffer = false }
+            )
+        }
+        .sheet(isPresented: $showsPrimaryPrompt) {
+            PrimaryProfilePrompt(
+                profiles: Array(WeatherPreviewData.profiles.prefix(Self.primaryPromptCharts ?? 2)),
+                // No account to save to: a moment's spinner, then done.
+                onChoose: { _ in
+                    try? await Task.sleep(for: .milliseconds(600))
+                    return nil
+                },
+                onAddOwn: { showsPrimaryPrompt = false },
+                onFinish: { showsPrimaryPrompt = false }
             )
         }
         .sheet(isPresented: $showsList) {

@@ -199,6 +199,18 @@ def _visible_profile_ids(result: dict[str, Any]) -> set[str]:
     return {str(p["profile_id"]) for p in profiles if p.get("profile_id")}
 
 
+def _own_primary(repos: RepositoryBundle, result: dict[str, Any], user_id: str) -> str | None:
+    """The account's primary profile, only while the account still owns it.
+
+    A stored id can outlive that: a chart given away or deleted before either
+    cleared it. Handed out anyway, it named a chart the caller merely follows
+    as their own, and the app offered to edit it. None instead is what tells
+    the app to ask which chart is theirs."""
+    primary = repos.profiles.get_primary_profile_id(user_id)
+    owned = {str(p["profile_id"]) for p in result.get("profiles") or [] if p.get("is_own")}
+    return primary if primary in owned else None
+
+
 def _keep_known(ids: list[str], known: set[str]) -> list[str]:
     """The given ids, first mention only, minus anything the caller cannot see.
 
@@ -222,7 +234,7 @@ def list_profiles(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     result = profile_service.list_profiles(repos.profiles, user_id=user["user_id"])
-    result["primary_profile_id"] = repos.profiles.get_primary_profile_id(user["user_id"])
+    result["primary_profile_id"] = _own_primary(repos, result, user["user_id"])
 
     arrangement = repos.profiles.get_profile_arrangement(user["user_id"])
     known = _visible_profile_ids(result)

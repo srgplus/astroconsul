@@ -61,6 +61,7 @@ export const en: Record<string, string> = {
   "settings.natalProfiles": "Birth Chart Profiles",
   "settings.primaryProfile": "Primary Profile",
   "settings.primaryProfileDesc": "Your primary profile appears first in the sidebar and loads on startup.",
+  "settings.primaryNotChosen": "Not chosen",
   "settings.subscription": "Subscription",
   "settings.plan": "Plan",
   "settings.freeBeta": "Free",
@@ -599,6 +600,12 @@ export const en: Record<string, string> = {
   "invite.copyLink": "Copy Link",
   "invite.sendError": "Failed to send invitation.",
   "invite.backToApp": "Go to App",
+  "invite.isYours": "Is this your own birth chart?",
+  "invite.isYoursHint": "Your own chart opens first, and it's how other people see you when you follow or like them. You can change it later.",
+  "invite.itsMe": "Yes, it's me",
+  "invite.notMe": "No, it's someone else's",
+  "invite.savingOwn": "Saving...",
+  "invite.ownError": "Could not save. Try again, or skip for now.",
 
   // Pro / Paywall
   "pro.unlock": "Unlock big3.me Pro",

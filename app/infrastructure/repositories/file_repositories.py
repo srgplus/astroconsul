@@ -214,6 +214,11 @@ class FileProfileRepository:
     def set_primary_profile_id(self, user_id: str, profile_id: str) -> None:
         del user_id, profile_id
 
+    def set_primary_if_first_profile(self, user_id: str, profile_id: str) -> bool:
+        # No primary is kept here at all; see get_primary_profile_id.
+        del user_id, profile_id
+        return False
+
     def get_profile_arrangement(self, user_id: str) -> dict[str, list[str]]:
         del user_id
         return {"favorite_profile_ids": [], "profile_order": []}

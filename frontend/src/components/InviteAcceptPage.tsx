@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { useLanguage } from "../contexts/LanguageContext"
-import { fetchInviteInfo, acceptInvite, type InviteInfo } from "../api"
+import { fetchInviteInfo, acceptInvite, setPrimaryProfile, type InviteInfo } from "../api"
 import AuthScreen from "./AuthScreen"
 import B3Logo from "./B3Logo"
 
@@ -13,6 +13,12 @@ export function InviteAcceptPage({ token }: { token: string }) {
   const [accepting, setAccepting] = useState(false)
   const [accepted, setAccepted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // The profile just received, while the page asks whether it is the
+  // recipient's own chart. Asked only when they have none: most gifts are
+  // their subject's, but a parent can be handed a child's.
+  const [askingOwn, setAskingOwn] = useState<string | null>(null)
+  const [savingOwn, setSavingOwn] = useState(false)
+  const [ownError, setOwnError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchInviteInfo(token)
@@ -35,12 +41,40 @@ export function InviteAcceptPage({ token }: { token: string }) {
     setAccepting(true)
     setError(null)
     try {
-      await acceptInvite(token)
-      setAccepted(true)
-    } catch {
+      const result = await acceptInvite(token)
+      // Null, not missing: a server that predates the question says nothing,
+      // and the page then goes straight on as it always did.
+      if (result.primary_profile_id === null) {
+        setAskingOwn(result.profile_id)
+      } else {
+        setAccepted(true)
+      }
+    } catch (err) {
+      console.error("Failed to accept invite:", err)
       setError(t("invite.error"))
     } finally {
       setAccepting(false)
+    }
+  }
+
+  const answerOwn = async (isMine: boolean) => {
+    if (!askingOwn) return
+    // "Someone else's" leaves the account without a chart of its own, and
+    // the app asks again, listing every chart the account owns.
+    if (!isMine) {
+      setAccepted(true)
+      return
+    }
+    setSavingOwn(true)
+    setOwnError(null)
+    try {
+      await setPrimaryProfile(askingOwn)
+      setAccepted(true)
+    } catch (err) {
+      console.error("Failed to save primary profile:", err)
+      setOwnError(t("invite.ownError"))
+    } finally {
+      setSavingOwn(false)
     }
   }
 
@@ -95,6 +129,33 @@ export function InviteAcceptPage({ token }: { token: string }) {
           <B3Logo />
           <p className="invite-status">{t("invite.expired")}</p>
           <button className="invite-btn" onClick={goToApp}>{t("invite.backToApp")}</button>
+        </div>
+      </div>
+    )
+  }
+
+  // Accepted, and the account has no chart of its own yet
+  if (askingOwn) {
+    return (
+      <div className="invite-page">
+        <div className="invite-card">
+          <B3Logo />
+          <h2 className="invite-profile-name">{invite.profile_name}</h2>
+          <p className="invite-question">{t("invite.isYours")}</p>
+          <p className="invite-login-hint">{t("invite.isYoursHint")}</p>
+          {ownError && <p className="invite-error-msg">{ownError}</p>}
+          <div className="invite-actions">
+            <button
+              className="invite-btn invite-btn--primary"
+              onClick={() => answerOwn(true)}
+              disabled={savingOwn}
+            >
+              {savingOwn ? t("invite.savingOwn") : t("invite.itsMe")}
+            </button>
+            <button className="invite-btn" onClick={() => answerOwn(false)} disabled={savingOwn}>
+              {t("invite.notMe")}
+            </button>
+          </div>
         </div>
       </div>
     )

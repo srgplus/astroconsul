@@ -469,6 +469,17 @@ updated_at: DateTime(tz)
 | POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
 | DELETE | `/api/v1/blocks/{block_id}` | Unblock |
 | POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block` |
+| PUT | `/api/v1/profiles/primary` | `{profile_id}`: mark one of the caller's own charts as theirs (403 for any other) |
+| POST | `/api/v1/profiles/{id}/invite`, `/api/v1/invites/{token}/accept` | Transfer a chart by email; accept answers the recipient's `primary_profile_id` (null = ask) |
+
+### Primary profile (2026-09-27)
+The account's own chart: page one, the weather alerts, "your chart" in Activity, and the card
+others see the account as. `users.primary_profile_id` (a plain string, no foreign key). The server
+sets it on an account's first chart (`ProfileService.create_profile`), clears it when that chart
+is given away or deleted, and `GET /profiles` never returns one the caller does not own. Every
+other case is a question: iOS `PrimaryProfilePrompt` ("Which chart is yours?", once a day while an
+account owns charts and has none, before the alerts offer), and the web invite page right after
+Accept. Web Settings has a picker of own charts. The file backend keeps no primary at all.
 
 ### Social layer (2026-09-27)
 Why it exists: App Review (Sept 2026) — "social network is not saturated; astrology is", and the

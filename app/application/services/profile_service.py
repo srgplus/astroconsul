@@ -52,6 +52,11 @@ class ProfileService:
             user_id=user_id,
             profile_input=payload.model_dump(),
         )
+        if user_id is not None:
+            # An account's first chart is its own: someone new to the app
+            # starts with themselves. Past the first, which chart is theirs is
+            # asked rather than guessed.
+            profile_repository.set_primary_if_first_profile(user_id, profile["profile_id"])
         return {
             "profile": profile_summary(profile, chart),
             "chart": self.chart_service.build_saved_chart_response(chart_id, chart_reference, chart),
