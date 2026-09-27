@@ -2,9 +2,10 @@ import Foundation
 
 /// What the chats have to agree on across screens: how many messages are
 /// unread, for the button beside the bell and the app icon; the list as last
-/// fetched, so the screen opens on rows rather than a spinner; which chat is
-/// on screen, so a push about it does not put a banner over the conversation
-/// it is about; and where to go next, when a push or a chart asks for a chat.
+/// fetched, so the screen opens on rows rather than a spinner; who is typing,
+/// as the live line last said; which chat is on screen, so a push about it
+/// does not put a banner over the conversation it is about; and where to go
+/// next, when a push or a chart asks for a chat.
 @MainActor
 final class ChatStore: ObservableObject {
 
@@ -22,8 +23,19 @@ final class ChatStore: ObservableObject {
     @Published var pendingRoute: ChatRoute?
 
     /// Bumped by every push about a message that lands while the app is open,
-    /// so the screens on show fetch at once instead of on their next tick.
+    /// and by the live line coming back, so the screens on show fetch at once
+    /// instead of on their next tick.
     @Published private(set) var arrivals = 0
+
+    /// The chats whose other side is typing now. The live line says when
+    /// someone starts and stops; a start it never hears the end of lapses
+    /// on its own (`typingLasts`), since a phone can go quiet mid-word.
+    @Published private(set) var typingChats: Set<Int> = []
+
+    /// Longer than the few seconds between two "typing" from the same phone.
+    private static let typingLasts: Duration = .seconds(6)
+
+    private var typingLapses: [Int: Task<Void, Never>] = [:]
 
     /// The chat on screen, if any.
     var visibleChatId: Int?
@@ -103,6 +115,43 @@ final class ChatStore: ObservableObject {
     /// A chat that is gone from the reader's side: blocked from its screen.
     func forget(chatId: Int) {
         chats?.removeAll { $0.chatId == chatId }
+        peerTyping(chatId, false)
+    }
+
+    /// The other side read the chat up to a message: the "Seen" under the
+    /// reader's last one, on the kept row.
+    func peerRead(chatId: Int, upTo messageId: Int) {
+        guard var list = chats,
+              let index = list.firstIndex(where: { $0.chatId == chatId }),
+              (list[index].peerReadId ?? 0) < messageId else { return }
+        list[index].peerReadId = messageId
+        chats = list
+    }
+
+    /// The reader read a chat on another phone.
+    func readElsewhere(chatId: Int) {
+        guard var list = chats,
+              let index = list.firstIndex(where: { $0.chatId == chatId }),
+              list[index].unreadCount > 0 else { return }
+        list[index].unreadCount = 0
+        chats = list
+    }
+
+    /// The other side of a chat started or stopped typing.
+    func peerTyping(_ chatId: Int, _ typing: Bool) {
+        typingLapses[chatId]?.cancel()
+        typingLapses[chatId] = nil
+        guard typing else {
+            if typingChats.contains(chatId) { typingChats.remove(chatId) }
+            return
+        }
+        if !typingChats.contains(chatId) { typingChats.insert(chatId) }
+        typingLapses[chatId] = Task { [weak self] in
+            try? await Task.sleep(for: Self.typingLasts)
+            guard !Task.isCancelled else { return }
+            self?.typingLapses[chatId] = nil
+            self?.typingChats.remove(chatId)
+        }
     }
 
     /// The server's count after a chat was read, or the harness's own.
@@ -114,6 +163,16 @@ final class ChatStore: ObservableObject {
 
     /// A push about a message arrived with the app open.
     func pushArrived() async {
+        await catchUp()
+    }
+
+    /// The live line is up again: what came while it was down is fetched by
+    /// whatever is on screen, and the badge asks too.
+    func lineOpened() async {
+        await catchUp()
+    }
+
+    private func catchUp() async {
         arrivals += 1
         await refreshUnread()
     }
@@ -125,6 +184,9 @@ final class ChatStore: ObservableObject {
         chats = nil
         pendingRoute = nil
         visibleChatId = nil
+        typingLapses.values.forEach { $0.cancel() }
+        typingLapses = [:]
+        typingChats = []
     }
 }
 

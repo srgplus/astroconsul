@@ -31,9 +31,10 @@ struct ChatsScreen: View {
     }
 
     @ObservedObject private var store = ChatStore.shared
+    @ObservedObject private var live = ChatLive.shared
+    @ObservedObject private var activity = AppActivity.shared
     @ObservedObject private var strings = L10n.shared
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.scenePhase) private var scenePhase
 
     @State private var path: [ChatRoute] = []
     /// The sheet's width, which the header in the bar is stretched across.
@@ -44,11 +45,10 @@ struct ChatsScreen: View {
     @State private var query = ""
     @FocusState private var searchFocused: Bool
     /// Whether the list itself is on screen, rather than a chat pushed over
-    /// it, and the app is in front: only then is it worth asking the server
-    /// for fresh rows. State rather than the environment's `scenePhase`,
-    /// because the loop below reads it long after it started.
+    /// it: only then, and with the app in front (`AppActivity`), is it worth
+    /// asking the server for fresh rows. State, because the loop below reads
+    /// it long after it started.
     @State private var isShowingList = false
-    @State private var isActive = true
 
     enum LoadState: Equatable {
         case loading
@@ -130,16 +130,13 @@ struct ChatsScreen: View {
         .onChange(of: store.arrivals) { _, _ in
             if isShowingList { Task { await load() } }
         }
-        .onChange(of: scenePhase) { _, phase in
-            isActive = phase == .active
-        }
-        // Every so often while the list is up, for a message that arrives
-        // without a push: APNs may not be set up, or the phone may say no.
+        // Every so often while the list is up. The live line moves the rows
+        // as messages come; this is for when it is down, or missed one.
         .task {
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(8))
+                try? await Task.sleep(for: .seconds(live.isConnected ? 30 : 8))
                 guard !Task.isCancelled else { break }
-                if isShowingList, isActive { await load() }
+                if isShowingList, activity.isActive { await load() }
             }
         }
         .sheet(isPresented: $composing) {
@@ -311,7 +308,7 @@ struct ChatsScreen: View {
                     Button {
                         path.append(.chat(chat))
                     } label: {
-                        ChatRow(chat: chat)
+                        ChatRow(chat: chat, isTyping: store.typingChats.contains(chat.chatId))
                     }
                     .buttonStyle(ChatRowButtonStyle())
 
@@ -391,10 +388,12 @@ struct ChatsScreen: View {
 
 /// One conversation in the list: the face, the name, the date with a chevron,
 /// and the last message under it in grey, full strength while it is unread,
-/// with the count of unread ones on the right.
+/// with the count of unread ones on the right. While the other side types,
+/// "typing…" in blue stands in for the last message.
 struct ChatRow: View {
 
     let chat: ChatSummary
+    var isTyping = false
 
     private var isUnread: Bool { chat.unreadCount > 0 }
 
@@ -430,9 +429,11 @@ struct ChatRow: View {
                 }
 
                 HStack(spacing: 8) {
-                    Text(preview)
+                    Text(isTyping ? L("chat.typing") : preview)
                         .font(.system(size: 15))
-                        .foregroundStyle(isUnread ? ChatPalette.text : ChatPalette.secondary)
+                        .foregroundStyle(
+                            isTyping ? ChatPalette.mine : (isUnread ? ChatPalette.text : ChatPalette.secondary)
+                        )
                         .lineLimit(1)
 
                     Spacer(minLength: 0)

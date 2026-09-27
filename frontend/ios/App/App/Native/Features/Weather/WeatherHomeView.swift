@@ -14,7 +14,9 @@ struct WeatherHomeView: View {
     /// Watched for a tapped push about a like or a follow, which opens
     /// Activity.
     @ObservedObject private var push = PushNotifications.shared
-    @Environment(\.scenePhase) private var scenePhase
+    /// Whether the app is in front: UIKit's word, since `scenePhase` does
+    /// not follow the app in a hand-made window (see `AppActivity`).
+    @ObservedObject private var activity = AppActivity.shared
 
     @State private var selection = ""
     @State private var showsList = false
@@ -137,6 +139,9 @@ struct WeatherHomeView: View {
             // Asked here rather than at launch: the permission sheet makes
             // sense over the screen whose label it fills in.
             DeviceLocation.shared.start()
+            // The chats' live line, open whenever the reader is signed in
+            // and the app is in front, from here on.
+            ChatLive.shared.start()
             // A push tapped before this screen existed: the app was launched
             // by it, and Activity goes up without waiting for the list.
             if push.opensActivity { openActivityFromPush() }
@@ -152,8 +157,8 @@ struct WeatherHomeView: View {
         // The category alerts are scheduled days ahead, so the schedule has to
         // be topped up from a live forecast whenever the app is in hand. The
         // scheduler throttles itself; calling it on every foreground is free.
-        .onChange(of: scenePhase) { _, phase in
-            guard phase == .active else { return }
+        .onChange(of: activity.isActive) { _, active in
+            guard active else { return }
             Task {
                 // The system cancels whatever is in flight when the app is
                 // suspended, and `.task` does not run again on the way back —

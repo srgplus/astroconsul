@@ -298,6 +298,18 @@ class SqlAlchemyChatRepository:
                 "unread_count": self._unread_count(session, user_id),
             }
 
+    def chat_summary(self, user_id: str, chat_id: int) -> dict[str, Any]:
+        """One chat's row as this account sees it: what the live line sends
+        with a new message, so the list moves without being fetched."""
+        with self.session_factory() as session:
+            return self._summaries(session, user_id, [self._member_chat(session, user_id, chat_id)])[0]
+
+    def read_marker(self, user_id: str, chat_id: int) -> int | None:
+        """The last message this account has read in a chat."""
+        with self.session_factory() as session:
+            chat = self._member_chat(session, user_id, chat_id)
+            return chat.a_read_id if chat.user_a_id == user_id else chat.b_read_id
+
     def _summaries(self, session: Session, user_id: str, chats: list[ChatModel]) -> list[dict[str, Any]]:
         """A row of the list for each chat: the person, the last message, how
         many of theirs are unread, and how far they have read yours. A few
@@ -640,6 +652,15 @@ class FileChatRepository:
             "chats": [self._summary(data, chat, user_id) for chat in chats[:limit]],
             "unread_count": self.unread_count(user_id),
         }
+
+    def chat_summary(self, user_id: str, chat_id: int) -> dict[str, Any]:
+        data = self._load()
+        return self._summary(data, self._member_chat(data, user_id, chat_id), user_id)
+
+    def read_marker(self, user_id: str, chat_id: int) -> int | None:
+        chat = self._member_chat(self._load(), user_id, chat_id)
+        value = chat.get("a_read" if chat["a"] == user_id else "b_read")
+        return int(value) if value is not None else None
 
     def list_messages(
         self,

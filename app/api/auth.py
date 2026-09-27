@@ -8,7 +8,8 @@ import urllib.request
 from typing import Any
 
 import jwt
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
+from fastapi.requests import HTTPConnection
 from jwt import PyJWK
 
 from app.core.config import get_settings
@@ -55,8 +56,11 @@ def _get_es256_key() -> Any:
     raise HTTPException(status_code=500, detail="No ES256 key found in JWKS")
 
 
-def get_current_user(request: Request) -> dict[str, Any]:
+def get_current_user(request: HTTPConnection) -> dict[str, Any]:
     """FastAPI dependency: extract and verify the authenticated user.
+
+    Takes the connection rather than the request so the chats' WebSocket
+    (`/api/v1/chats/live`) signs in the same way, with the same header.
 
     When ``auth_enabled`` is *False* (default in dev), returns the local
     default user from settings — zero-friction development.

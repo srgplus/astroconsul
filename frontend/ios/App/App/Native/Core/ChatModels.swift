@@ -21,8 +21,8 @@ struct ChatSummary: Codable, Hashable, Identifiable {
     let lastMessage: ChatMessage?
     var unreadCount: Int
     /// The last of the reader's messages the other side has read, for the
-    /// "Read" under the reader's last one.
-    let peerReadId: Int?
+    /// "Seen" under the reader's last one. Moved on by the live line.
+    var peerReadId: Int?
     let updatedAt: String
 
     var id: Int { chatId }

@@ -4,6 +4,60 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### The chats are live: messages as they are written, "Seen" as it happens, dots while typing
+The owner, with the chat open, never saw Victoria's answers arrive, and the
+list kept "2" unread after they had read them. **The cause** was one line:
+`ChatScreen` set `model.isActive = scenePhase == .active`, and in this app
+`scenePhase` is never `.active`. The window is a hand-made
+`UIHostingController` in `AppDelegate`, with no SwiftUI scene above it, so a
+hosted view's phase does not follow the app. `isActive` stayed false, `poll()`
+and `markRead()` both returned at their guard, and the open chat showed only
+what its first load fetched and marked nothing read (so no "Seen" for the
+other side either). The list kept its own `isActive = true`, which is why it
+moved and the chat did not.
+
+**Fix.** `Core/AppActivity.swift` is "in front" from UIKit's
+`didBecomeActive` / `willResignActive`. The chats, `WeatherHomeView` (its
+foreground refresh of the badges, alerts, primary prompt) and
+`CosmicWeatherView` (its reload after a suspended load) read it instead of
+`scenePhase`; no `scenePhase` is left in the app. Those two foreground hooks
+had never fired either.
+
+**Live line.** `WS /api/v1/chats/live`, signed in with the same header
+(`get_current_user` takes an `HTTPConnection` now). `chat_live.ChatHub` keeps
+who is connected in memory and reaches them from the threadpool
+(`call_soon_threadsafe`). Events down: `ready`; `message` with the message as
+that side reads it, its list row (`chat_summary`) and the unread total, to
+the recipient and the sender's other phones; `read` with `peer_read_id` to
+the other side (`read_marker`); `typing`; `unread` to the reader's other
+phones. Up: only `typing`, passed on once the socket is known to be in the
+chat and not across a block (cached a minute), at most every 2 s, a stop
+only after a start. `send_message` and `mark_read` publish in background
+tasks, before the push. New dependency `websockets` (uvicorn's WebSocket
+support). The Cloudflare worker returns `fetch(request)` as it is, which
+passes an upgrade through. **One process:** `start.sh` runs one uvicorn;
+a second process or replica would need a relay between hubs (Postgres
+LISTEN/NOTIFY), and until then its phones would only poll.
+
+**iOS.** `Core/ChatLive.swift` holds the socket while signed in and active
+(`URLSessionWebSocketTask`, a ping every 25 s, retry doubling to 60 s),
+feeds `ChatStore` (rows, badge, `typingChats` that lapse after 6 s,
+`peerRead`, `readElsewhere`) and publishes `events` to the open chat. On
+`ready` it calls `ChatStore.lineOpened`, which bumps `arrivals` so whatever
+is on screen fetches what it missed. `ChatViewModel.receive` draws a message
+at once and marks it read, and moves "Seen" on a `read`. Polling stays as
+the net, 3 s without the line and 15 s with it (list 8 s / 30 s), and asks
+after `fetchedThrough`, the last id fetched from the server, not the last on
+screen, so a message the line skipped is still fetched. Typing: the draft
+says `typing` every 3 s while it has text, and stops on send, on emptying,
+on leaving and on going to the background. The other side sees three dots
+in a grey bubble with its tail (still with Reduce Motion), and the list
+reads "typing…" in blue in place of the last message. Strings `chat.typing`,
+`chat.typingLabel`. `ChatSummary.peerReadId` is a `var` now.
+
+Tests: `tests/test_chat_live.py` (message both ways, reads, typing and its
+throttle, strangers and blocks, junk frames).
+
 ### The chats have a light theme, and the icon follows the Appearance setting
 The chats were drawn black only: `ChatsScreen` and `NewChatSheet` pinned
 `colorScheme` to dark and every colour was a literal `Color(white:)` or

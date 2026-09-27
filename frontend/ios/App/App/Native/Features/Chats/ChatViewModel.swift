@@ -1,12 +1,14 @@
 import Foundation
 
-/// Feeds one conversation: its messages, what is on its way out, and how far
-/// the other side has read.
+/// Feeds one conversation: its messages, what is on its way out, how far the
+/// other side has read, and the reader's typing, told to the other side.
 ///
-/// There is no socket. While the screen is up it asks for whatever came after
-/// the newest message every few seconds, and a push that lands with the app
-/// open makes it ask at once. A message is drawn the moment it is sent and
-/// sits there as "Sending" until the server has it.
+/// The live line (`ChatLive`) brings a message the moment it is written and
+/// "Seen" the moment it is read. Behind it the screen still asks for whatever
+/// came after what it last fetched: every few seconds while the line is down,
+/// now and then while it is up, and at once when the line comes back or a
+/// push lands. A message is drawn the moment it is sent and sits there as
+/// "Sending" until the server has it.
 @MainActor
 final class ChatViewModel: ObservableObject {
 
@@ -45,7 +47,20 @@ final class ChatViewModel: ObservableObject {
 
     /// Whether the app is in front with this screen on it. Polling stops
     /// while it is not, and a message is only read when it could be seen.
+    /// Set from `AppActivity`, never from `scenePhase` (see there).
     var isActive = true
+
+    /// The newest message fetched from the server with everything before it:
+    /// what the next poll asks after. A message the live line brought does
+    /// not move it, so a message the line missed in between is still fetched.
+    private var fetchedThrough = 0
+
+    /// When the other side was last told the reader is typing, while they
+    /// are.
+    private var typingSaidAt: Date?
+
+    /// How often "typing" is said again while the reader goes on typing.
+    private static let typingEvery: TimeInterval = 3
 
     let route: ChatRoute
     private let api: APIClient
@@ -94,6 +109,7 @@ final class ChatViewModel: ObservableObject {
             let page = try await api.fetchMessages(chatId: id)
             adopt(page.chat)
             messages = page.messages
+            fetchedThrough = max(fetchedThrough, page.messages.last?.id ?? 0)
             hasOlder = page.hasMore
             state = .loaded
             await markRead()
@@ -113,21 +129,41 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
-    /// Asks for whatever came after the newest message on screen.
+    /// Asks for whatever came after the last message fetched.
     func poll() async {
         #if DEBUG
         if WeatherPreviewHarness.isEnabled { return }
         #endif
         guard state == .loaded, isActive, let id = chatId else { return }
         do {
-            let page = try await api.fetchMessages(chatId: id, after: messages.last?.id ?? 0)
+            let page = try await api.fetchMessages(chatId: id, after: fetchedThrough)
             adopt(page.chat)
             absorb(page.messages, matchingOutgoing: true)
+            fetchedThrough = max(fetchedThrough, page.messages.last?.id ?? 0)
             await markRead()
         } catch {
             if !error.isCancellation {
                 NSLog("[Chat] poll failed: \(error.localizedDescription)")
             }
+        }
+    }
+
+    /// What the live line says about this chat: a message written into it,
+    /// drawn at once, or how far the other side has read the reader's.
+    func receive(_ event: ChatLiveEvent) {
+        guard state == .loaded, let id = chatId, event.chatId == id else { return }
+        switch event.type {
+        case "message":
+            if let summary = event.chat { adopt(summary) }
+            if let message = event.message { absorb([message], matchingOutgoing: true) }
+            Task { await markRead() }
+        case "read":
+            if let upTo = event.peerReadId, var read = chat, (read.peerReadId ?? 0) < upTo {
+                read.peerReadId = upTo
+                adopt(read)
+            }
+        default:
+            break
         }
     }
 
@@ -207,12 +243,35 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Typing
+
+    /// The draft changed: while there is something in it the other side sees
+    /// the dots, said again every few seconds of typing; emptied, they go.
+    func draftChanged(_ text: String) {
+        guard canWrite, let id = chatId else { return }
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            stopTyping()
+            return
+        }
+        if let said = typingSaidAt, Date().timeIntervalSince(said) < Self.typingEvery { return }
+        typingSaidAt = Date()
+        ChatLive.shared.sendTyping(chatId: id, typing: true)
+    }
+
+    /// Sent, emptied, or left: the dots on the other side go.
+    func stopTyping() {
+        guard typingSaidAt != nil, let id = chatId else { return }
+        typingSaidAt = nil
+        ChatLive.shared.sendTyping(chatId: id, typing: false)
+    }
+
     // MARK: - Sending
 
     /// Draws the message at once and sends it behind.
     func send(_ text: String) async {
         let body = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !body.isEmpty else { return }
+        stopTyping()
         let item = Outgoing(id: UUID(), body: body, failed: false)
         outgoing.append(item)
         await deliver(item)

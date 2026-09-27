@@ -67,7 +67,7 @@ struct CosmicWeatherView: View {
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
     @ObservedObject private var strings = L10n.shared
-    @Environment(\.scenePhase) private var scenePhase
+    @ObservedObject private var activity = AppActivity.shared
     @State private var showsSettings = false
     /// The forecast row that was tapped, and so the day whose sheet is open.
     @State private var selectedDay: ForecastDay?
@@ -270,8 +270,8 @@ struct CosmicWeatherView: View {
         // A reading in flight when the app is suspended comes back cancelled,
         // and `.task` does not run again on the way in — the page never
         // disappeared. Picked up here so the skeletons resolve on their own.
-        .onChange(of: scenePhase) { _, phase in
-            guard phase == .active, model.needsReload else { return }
+        .onChange(of: activity.isActive) { _, active in
+            guard active, model.needsReload else { return }
             Task { await model.load(profile: profile) }
         }
     }
