@@ -9,8 +9,11 @@ because they are what keeps the rest of it pleasant.
 
 Who may do what:
 
-* anyone signed in may like any profile, their own included — a like on
-  your own sky is counted with the rest and left out of your Activity;
+* anyone signed in may like any profile but their own: the number under
+  a chart's heart is how many likes other people gave it, and an owner who
+  could add to it would only be counting themselves. That holds for every
+  chart the account owns, not only its primary, and ends when a chart is
+  handed to someone else;
 * anyone signed in may block or report a profile that is not their own;
 * only a profile's owner may see who follows or likes it — anyone else sees
   how many, unless the owner hid the numbers in Settings;
@@ -66,8 +69,9 @@ class ReportRequest(BaseModel):
 
 class SocialSettingsRequest(BaseModel):
     # Each is optional: a client sends the one switch that was flipped.
-    # Whether other people see how many follow this account's charts and how
-    # many it follows. The owner sees both either way.
+    # Whether other people see how many follow this account's charts, how
+    # many it follows and how many likes its charts have had. The owner sees
+    # them either way.
     show_counts: bool | None = None
     # Whether a like, or a new follower, on this account's charts is pushed
     # to its phones, and a message somebody writes to it.
@@ -137,11 +141,13 @@ def like_profile(
     feels-like word, today in the profile's own zone. When the word changes,
     or the day does, that is a new state and the heart is empty again.
 
-    Your own chart can be liked too: the heart on your page works the way it
-    does on anyone's, rather than being a second way into Activity. Such a
-    like counts with the others and never shows in your own Activity."""
+    Not on a chart the caller owns, whichever of theirs it is: the app shows
+    the owner the count without a heart to tap, and this stops a build that
+    still offers one."""
     social = _social(repos)
     profile = _load_profile(repos, profile_id)
+    if _owner(profile) == user["user_id"]:
+        raise HTTPException(status_code=403, detail="You cannot like your own chart")
     guard_block(social, user["user_id"], profile)
     # A word the matrix never produces is dropped rather than stored: it is
     # shown to the chart's owner, so it has to be one of ours.

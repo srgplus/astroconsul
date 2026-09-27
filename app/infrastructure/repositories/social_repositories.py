@@ -276,12 +276,19 @@ class SqlAlchemySocialRepository:
         owner follows — for a whole listing in a handful of queries rather
         than a handful per card.
 
-        `state_likes` and `my_state_likes` are what a client reads against
-        the word it has on screen. `likes_count` and `is_liked` are the same
-        for the whole day, for a client that shows no state.
+        `likes_total` is the number under the heart: every like the chart
+        has had, from anyone but its owner, never reset by a new word or a
+        new day. The owner cannot like their own charts; likes they gave one
+        before that rule, or before it became theirs, are left out here
+        rather than deleted.
 
-        `followers_count` and `following_count` are None for everyone but the
-        owner when the owner keeps them hidden (Settings > Community).
+        `my_state_likes` is what a client reads against the word it has on
+        screen, to fill the heart. `state_likes`, `likes_count` and
+        `is_liked` are today's, for builds that counted per state.
+
+        `followers_count`, `following_count` and `likes_total` are None for
+        everyone but the owner when the owner keeps them hidden
+        (Settings > Community).
 
         `can_message` is whether the viewer can write to the chart: only a
         chart its owner marked as their own is a way to a person, and only
@@ -316,7 +323,11 @@ class SqlAlchemySocialRepository:
                     ProfileLikeModel.feels_like,
                     func.count(),
                 )
-                .where(ProfileLikeModel.profile_id.in_(ids))
+                .join(ProfileModel, ProfileModel.id == ProfileLikeModel.profile_id)
+                .where(
+                    ProfileLikeModel.profile_id.in_(ids),
+                    ProfileLikeModel.user_id != ProfileModel.user_id,
+                )
                 .group_by(ProfileLikeModel.profile_id, ProfileLikeModel.day, ProfileLikeModel.feels_like)
             ).all():
                 counts[profile_id]["likes_total"] += int(total)
@@ -377,6 +388,7 @@ class SqlAlchemySocialRepository:
                 if hidden and owner_id != viewer_user_id:
                     counts[profile_id]["followers_count"] = None
                     counts[profile_id]["following_count"] = None
+                    counts[profile_id]["likes_total"] = None
 
         return counts
 
@@ -926,16 +938,23 @@ class FileSocialRepository:
         day = today_in(None).isoformat()
         counts: dict[str, dict[str, Any]] = {}
         for profile_id in dict.fromkeys(profile_ids):
-            todays = [like for like in likes if like["profile_id"] == profile_id and like.get("day") == day]
+            owner = self._owner(profile_id)
+            # The owner's own likes, from before they could not give them,
+            # count nowhere: the same rule as the database's.
+            received = [like for like in likes if like["profile_id"] == profile_id and like["user_id"] != owner]
+            todays = [like for like in received if like.get("day") == day]
             states: dict[str, int] = {}
             for like in todays:
                 states[like.get("feels_like") or ""] = states.get(like.get("feels_like") or "", 0) + 1
-            mine = [like.get("feels_like") or "" for like in todays if like["user_id"] == viewer_user_id]
-            owner = self._owner(profile_id)
+            mine = [
+                like.get("feels_like") or ""
+                for like in likes
+                if like["profile_id"] == profile_id and like.get("day") == day and like["user_id"] == viewer_user_id
+            ]
             hidden = owner != viewer_user_id and self._hides_counts(data, owner)
             counts[profile_id] = {
                 "likes_count": len(todays),
-                "likes_total": sum(1 for like in likes if like["profile_id"] == profile_id),
+                "likes_total": None if hidden else len(received),
                 "likes_day": day,
                 "state_likes": states,
                 "my_state_likes": mine,

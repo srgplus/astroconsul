@@ -5,13 +5,14 @@ import SwiftUI
 /// On someone else's chart: how many follow the chart and how many its owner
 /// follows, then one follow button — "Follow", "Follow back" or
 /// "✓ Following", the way Instagram has one — and the heart for the state of
-/// the sky on screen. Those numbers are numbers only: nobody reads another
-/// person's lists, and an owner can hide the numbers in Settings.
+/// the sky on screen, with every like the chart has ever had beside it.
+/// Those numbers are numbers only: nobody reads another person's lists, and
+/// an owner can hide the numbers in Settings.
 ///
-/// On your own: the same two counts, each opening who they are, and the same
-/// heart — you can like your own sky. Who liked it is in Activity, the bell
-/// in the page's corner, and not behind the heart: a heart that looks the
-/// same everywhere but opened a list only here was a trap.
+/// On your own: the same two counts, each opening who they are, and in the
+/// heart's place how many likes the chart has had, as plain text. You cannot
+/// like your own charts, so there is nothing there to tap, and glass would
+/// promise a tap. Who liked it is in Activity, the bell in the page's corner.
 struct SocialStrip: View {
 
     let profile: ProfileSummary
@@ -72,7 +73,11 @@ struct SocialStrip: View {
                     // out whenever the counts can give up a little of theirs.
                     .layoutPriority(1)
                 }
-                likePill
+                if isOwn {
+                    likesReceived
+                } else {
+                    likePill
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -153,19 +158,24 @@ struct SocialStrip: View {
 
     // MARK: - Likes
 
-    /// The heart, on anyone's chart and on your own: filled and red once
-    /// this state is liked, empty again when the state changes.
+    /// The heart on someone else's chart: filled and red once this state is
+    /// liked, empty again when the state changes, so the same person can like
+    /// the chart again tomorrow or under a new word. The number beside it
+    /// keeps every like and only grows. Without it the owner hid their
+    /// numbers, and the heart stands alone.
     private var likePill: some View {
         HStack(spacing: 6) {
             Image(systemName: like.isLiked ? "heart.fill" : "heart")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(like.isLiked ? Theme.challenge : .white)
                 .contentTransition(.symbolEffect(.replace))
-            Text("\(like.count)")
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .contentTransition(.numericText())
+            if let count = like.count {
+                Text(LikeCount.short(count))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText(value: Double(count)))
+            }
         }
         .padding(.horizontal, 14)
         .frame(height: Self.height)
@@ -182,8 +192,60 @@ struct SocialStrip: View {
         .animation(.easeInOut(duration: 0.2), value: like)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L(like.isLiked ? "social.unlike" : "social.like"))
-        .accessibilityValue(L(count: like.count, "social.likesCount"))
+        .accessibilityValue(like.count.map { L(count: $0, "social.likesCount") } ?? "")
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// Your own chart's likes: a red heart, always filled because it counts
+    /// what came in rather than asking for one, and the number, on the sky
+    /// the way someone else's counts are. A glass capsule here would look
+    /// like the heart people tap on everyone else's page. The heart gives a
+    /// small bounce when the number moves while the page is open.
+    private var likesReceived: some View {
+        let count = like.count ?? 0
+        return HStack(spacing: 5) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Theme.challenge)
+                .symbolEffect(.bounce, value: count)
+            Text(LikeCount.short(count))
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .contentTransition(.numericText(value: Double(count)))
+        }
+        .padding(.horizontal, 6)
+        .frame(height: Self.height)
+        .animation(.easeInOut(duration: 0.2), value: count)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L(count: count, "social.likesCount"))
+    }
+}
+
+/// A like count short enough for the pill: 999, 1.2K, 12K, 1.2M. Rounded
+/// down, the way the big apps do it, so 999,950 reads 999K rather than a
+/// thousand thousand, and a count never shows more than it has.
+enum LikeCount {
+    static func short(_ count: Int) -> String {
+        switch count {
+        case ..<1_000:
+            return "\(max(count, 0))"
+        case ..<1_000_000:
+            return scaled(count, by: 1_000, suffix: "K")
+        default:
+            return scaled(count, by: 1_000_000, suffix: "M")
+        }
+    }
+
+    /// One decimal under ten of the unit, none above: 1.2K, 12K, 123K.
+    private static func scaled(_ count: Int, by unit: Int, suffix: String) -> String {
+        if count < unit * 10 {
+            let tenths = count / (unit / 10)
+            let whole = tenths / 10
+            let fraction = tenths % 10
+            return fraction == 0 ? "\(whole)\(suffix)" : "\(whole).\(fraction)\(suffix)"
+        }
+        return "\(count / unit)\(suffix)"
     }
 }
 

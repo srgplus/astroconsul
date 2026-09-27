@@ -38,7 +38,8 @@ enum WeatherPreviewData {
         followingCount: 8,
         natalSummary: NatalSummary(sun: "Aries 27°04'12\"", moon: "Leo 03°41'55\"", asc: "Cancer 18°22'07\""),
         likesCount: 24,
-        isLiked: false
+        isLiked: false,
+        likesTotal: 1_284
     )
 
     /// Everyone here was born in one city and lives in another. The two used
@@ -392,9 +393,13 @@ enum WeatherPreviewData {
                 sun: signs[abs(handle.hashValue) % signs.count] + " 14°12'30\"",
                 moon: signs[abs(handle.hashValue + 3) % signs.count] + " 02°55'01\"",
                 asc: signs[abs(handle.hashValue + 7) % signs.count] + " 21°08'44\""
-            )
+            ),
+            likesTotal: likeTotals[abs(handle.hashValue) % likeTotals.count]
         )
     }
+
+    /// From none to the short forms the pill abbreviates to.
+    private static let likeTotals = [0, 7, 42, 318, 1_284, 12_600, 2_450_000]
 
     private static let signs = [
         "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
