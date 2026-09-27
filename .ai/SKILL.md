@@ -537,9 +537,11 @@ compose via `NewChatSheet`, `OwnChartChooser`), `ChatScreen` (bubbles, Seen/Deli
 Block), `ChatStore` (unread, kept list, `pendingRoute`, `visibleChatId` so no banner over the
 open chat), "Message" in the ••• of a chart with `can_message`. Harness: `-uiPreviewWeather
 -uiPreviewChats` opens it on sample chats.
-The chats are black, not the sky glass the rest of the app wears: the owner picked the look
-from a messenger they like. Faces are `ChatAvatar` (Sun glyph on the element's colour; there
-are no photos). The name capsule under the face is the menu (View Chart, Report, Block).
+The chats are a plain messenger ground, not the sky glass the rest of the app wears: the owner
+picked the look from a messenger they like. Black in the dark, white in the light, following
+Settings → Appearance; every colour is a role in `ChatPalette` (dark values are the original
+ones), and the header controls use `chatGlass`, not `weatherGlass`, whose dark tint smudges on
+white. Faces are `ChatAvatar` (Sun glyph on a quiet grey circle; there are no photos). The name capsule under the face is the menu (View Chart, Report, Block).
 
 ### Transit Report Request Body
 ```json

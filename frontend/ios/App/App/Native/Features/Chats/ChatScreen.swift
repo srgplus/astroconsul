@@ -2,11 +2,11 @@ import SwiftUI
 import UIKit
 
 /// One conversation, drawn the way the owner asked, after a messenger they
-/// like: black, the person's face at the top with their name in a capsule
-/// under it, the reader's words in blue on the right and the other side's in
-/// grey on the left, a tail on the last bubble of each run, a date over
-/// anything that comes after a pause, and "Seen" under the reader's last
-/// message.
+/// like: black in the dark and white in the light (`ChatPalette`), the
+/// person's face at the top with their name in a capsule under it, the
+/// reader's words in blue on the right and the other side's in grey on the
+/// left, a tail on the last bubble of each run, a date over anything that
+/// comes after a pause, and "Seen" under the reader's last message.
 ///
 /// Text only. The name capsule is the menu: their chart, Report and Block,
 /// which App Review asks of any chat between people.
@@ -46,12 +46,6 @@ struct ChatScreen: View {
     @State private var preview: ProfileSummary?
     @State private var previewError: String?
 
-    /// The reader's bubbles: the blue people read as "mine" in a chat.
-    static let mine = Color(red: 0.21, green: 0.47, blue: 0.96)
-
-    /// The other side's bubbles.
-    static let theirs = Color(red: 0.17, green: 0.17, blue: 0.18)
-
     /// How long a pause earns a date over the next message.
     private static let pause: TimeInterval = 60 * 60
 
@@ -68,7 +62,7 @@ struct ChatScreen: View {
         conversation
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .top) { nameCapsule }
-            .background(Color.black.ignoresSafeArea())
+            .background(ChatPalette.background.ignoresSafeArea())
             .safeAreaInset(edge: .bottom, spacing: 0) { composer }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarItems }
@@ -135,7 +129,7 @@ struct ChatScreen: View {
     @ToolbarContentBuilder
     private var toolbarItems: some ToolbarContent {
         // The face in the middle of the bar, level with the back button, on
-        // the black rather than in the glass pill iOS 26 puts behind items.
+        // the ground rather than in the glass pill iOS 26 puts behind items.
         if #available(iOS 26.0, *) {
             ToolbarItem(placement: .principal) { face }
                 .sharedBackgroundVisibility(.hidden)
@@ -181,19 +175,19 @@ struct ChatScreen: View {
             HStack(spacing: 5) {
                 Text(model.peer?.displayName ?? " ")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ChatPalette.text)
                     .lineLimit(1)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.45))
+                    .foregroundStyle(ChatPalette.text.opacity(0.45))
             }
             .padding(.horizontal, 16)
             .frame(height: 36)
             .background(
                 Capsule()
-                    .fill(Color(white: 0.12))
-                    .overlay(Capsule().stroke(Color(white: 0.24), lineWidth: 0.5))
+                    .fill(ChatPalette.capsule)
+                    .overlay(Capsule().stroke(ChatPalette.capsuleLine, lineWidth: 0.5))
             )
         }
         .disabled(model.peer?.profile == nil)
@@ -202,7 +196,11 @@ struct ChatScreen: View {
         .frame(maxWidth: .infinity)
         // Messages scroll up under it and fade out rather than meeting it head on.
         .background(alignment: .top) {
-            LinearGradient(colors: [.black, .black.opacity(0)], startPoint: .top, endPoint: .bottom)
+            LinearGradient(
+                colors: [ChatPalette.background, ChatPalette.background.opacity(0)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
                 .frame(height: Self.capsuleRoom + 12)
                 .allowsHitTesting(false)
         }
@@ -268,7 +266,7 @@ struct ChatScreen: View {
                                 }
                             }
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color(white: 0.55))
+                            .foregroundStyle(ChatPalette.secondary)
                             .frame(height: 36)
                         }
                         .buttonStyle(.plain)
@@ -277,7 +275,7 @@ struct ChatScreen: View {
                     if model.messages.isEmpty, model.outgoing.isEmpty {
                         Text(L("chat.start", model.peer?.displayName ?? L("social.someone")))
                             .font(.system(size: 13))
-                            .foregroundStyle(Color(white: 0.5))
+                            .foregroundStyle(ChatPalette.hint)
                             .multilineTextAlignment(.center)
                             .padding(.vertical, 24)
                             .padding(.horizontal, 32)
@@ -390,7 +388,7 @@ struct ChatScreen: View {
             if let stamp = row.stamp {
                 Text(stamp)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color(white: 0.55))
+                    .foregroundStyle(ChatPalette.secondary)
                     .padding(.top, 18)
                     .padding(.bottom, 8)
             }
@@ -428,10 +426,10 @@ struct ChatScreen: View {
     }
 
     private func bubble(_ row: Row) -> some View {
-        let fill = row.isMine ? Self.mine.opacity(row.isFailed ? 0.45 : 1) : Self.theirs
+        let fill = row.isMine ? ChatPalette.mine.opacity(row.isFailed ? 0.45 : 1) : ChatPalette.theirs
         return Text(row.body)
             .font(.system(size: 17))
-            .foregroundStyle(.white)
+            .foregroundStyle(row.isMine ? Color.white : ChatPalette.theirsText)
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
             .background {
@@ -485,7 +483,7 @@ struct ChatScreen: View {
     private func statusLine(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 13))
-            .foregroundStyle(Color(white: 0.55))
+            .foregroundStyle(ChatPalette.secondary)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.trailing, 6)
             .padding(.top, 2)
@@ -510,8 +508,8 @@ struct ChatScreen: View {
             TextField(L("chat.placeholder"), text: $draft, axis: .vertical)
                 .lineLimit(1...6)
                 .font(.system(size: 17))
-                .foregroundStyle(.white)
-                .tint(Self.mine)
+                .foregroundStyle(ChatPalette.text)
+                .tint(ChatPalette.mine)
                 .focused($isComposing)
                 .padding(.leading, 16)
                 .padding(.vertical, 11)
@@ -519,9 +517,9 @@ struct ChatScreen: View {
             Button(action: send) {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(canSend ? Color.white : Color(white: 0.45))
+                    .foregroundStyle(canSend ? Color.white : ChatPalette.sendOffGlyph)
                     .frame(width: 32, height: 32)
-                    .background(Circle().fill(canSend ? Self.mine : Color(white: 0.2)))
+                    .background(Circle().fill(canSend ? ChatPalette.mine : ChatPalette.sendOff))
             }
             .buttonStyle(.plain)
             .disabled(!canSend)
@@ -531,16 +529,16 @@ struct ChatScreen: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(white: 0.09))
+                .fill(ChatPalette.composer)
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Color(white: 0.2), lineWidth: 1)
+                        .stroke(ChatPalette.composerLine, lineWidth: 1)
                 )
         )
         .padding(.horizontal, 12)
         .padding(.top, 8)
         .padding(.bottom, 8)
-        .background(Color.black.ignoresSafeArea())
+        .background(ChatPalette.background.ignoresSafeArea())
         .disabled(!model.canWrite)
     }
 
@@ -567,16 +565,16 @@ struct ChatScreen: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: icon)
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(Color(white: 0.5))
+                .foregroundStyle(ChatPalette.hint)
 
             Text(title)
                 .font(.system(.title3).weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(ChatPalette.text)
                 .multilineTextAlignment(.center)
 
             Text(body)
                 .font(.system(.subheadline))
-                .foregroundStyle(Color(white: 0.6))
+                .foregroundStyle(ChatPalette.body)
                 .multilineTextAlignment(.center)
 
             if let retry {
@@ -585,7 +583,7 @@ struct ChatScreen: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 20)
                     .frame(height: 42)
-                    .background(Capsule().fill(Self.mine))
+                    .background(Capsule().fill(ChatPalette.mine))
                     .padding(.top, 6)
             }
         }

@@ -4,6 +4,32 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### The chats have a light theme, and the icon follows the Appearance setting
+The chats were drawn black only: `ChatsScreen` and `NewChatSheet` pinned
+`colorScheme` to dark and every colour was a literal `Color(white:)` or
+`.white`. Now all of them are roles in `ChatPalette`
+(`Features/Chats/ChatPalette.swift`), each a trait-resolved pair: the dark
+values are the old literals, so the dark chats are unchanged; the light ones
+are the same messenger on white (grey `E9E9EB` bubbles with black words, the
+reader's blue unchanged, `F2F2F7` name capsule, a white composer with a grey
+rim). The pin to dark is gone, so the chats, the keyboard, the menus and the
+sheets over them follow Settings → Appearance. The header's "+", search and
+close sit on `chatGlass`: the app's dark glass in the dark, plain Liquid Glass
+(or the system search grey before iOS 26) in the light, since `weatherGlass`
+tints black for a sky and reads as a smudge on white.
+
+**Icon.** `AppIcon` already had a light and a dark variant (`luminosity:
+dark`), which iOS 18+ picks by itself with the Home Screen's own
+Light/Dark/Automatic setting. What it could not follow is the app's own
+Appearance setting. `AppIconLight` and `AppIconDark` are alternates of the
+same two images (`ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`), and
+`Appearance.applyIcon` sets the one that goes with the choice when the reader
+changes it: Light and Dark pin their icon, System goes back to the primary one
+and leaves the pick to iOS. iOS shows its own "You have changed the icon"
+alert on every change and there is no public way around it, so it runs only
+on a change, never at launch; a choice made before this build keeps the
+primary icon until the setting is next changed.
+
 ### The heart answers every tap, and likes do not buzz twice within the hour
 `SocialStore.toggleLike` used to drop any tap made while the last like
 request was out, yet the haptic still fired, so a quick unlike felt like a

@@ -50,9 +50,12 @@ struct RootView: View {
         // Applied to the window rather than with `preferredColorScheme`: this
         // hierarchy has no SwiftUI presentation above it to read that
         // preference, so it went nowhere — see `Appearance`. `AppDelegate`
-        // sets the launch value, and this carries every later change.
+        // sets the launch value, and this carries every later change, the
+        // Home Screen icon with it.
         .onChange(of: appearance) { _, choice in
-            Appearance.apply(Appearance(rawValue: choice) ?? .system)
+            let picked = Appearance(rawValue: choice) ?? .system
+            Appearance.apply(picked)
+            Appearance.applyIcon(picked)
         }
         // The app's own language, not the device's, so the system controls
         // under it — the date and time pickers, the pull-to-refresh label,

@@ -41,6 +41,19 @@ enum Appearance: String, CaseIterable, Identifiable {
         }
     }
 
+    /// The Home Screen icon that goes with the choice. `nil` is the primary
+    /// icon, which carries a light and a dark variant and leaves the pick to
+    /// iOS, as "System" leaves the screens to the device. A pinned choice pins
+    /// the icon too, from the alternates the asset catalogue builds
+    /// (`ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`).
+    var iconName: String? {
+        switch self {
+        case .system: return nil
+        case .light: return "AppIconLight"
+        case .dark: return "AppIconDark"
+        }
+    }
+
     /// The stored choice, falling back to following the device — which is also
     /// where a value written by some other build lands.
     static var stored: Appearance {
@@ -61,6 +74,21 @@ enum Appearance: String, CaseIterable, Identifiable {
 
         for window in windows {
             window.overrideUserInterfaceStyle = appearance.interfaceStyle
+        }
+    }
+
+    /// Puts the icon that goes with the choice on the Home Screen. iOS
+    /// announces every icon change in an alert of its own, and no public API
+    /// skips it, so this runs only when the reader changes the setting, never
+    /// at launch, where the alert would come out of nowhere.
+    @MainActor
+    static func applyIcon(_ appearance: Appearance) {
+        let app = UIApplication.shared
+        guard app.supportsAlternateIcons, app.alternateIconName != appearance.iconName else { return }
+        app.setAlternateIconName(appearance.iconName) { error in
+            if let error {
+                NSLog("[Appearance] icon change failed: \(error.localizedDescription)")
+            }
         }
     }
 }

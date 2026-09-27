@@ -1,10 +1,10 @@
 import SwiftUI
 
 /// The chats: everyone the reader has written to or heard from, the latest
-/// first. Drawn the way the owner asked, after a messenger they like: black,
-/// the title, a "+" and a search in one capsule, and rows of a face, a name,
-/// a date and the last message. Search takes the header's place rather than
-/// opening under it.
+/// first. Drawn the way the owner asked, after a messenger they like: black
+/// in the dark and white in the light (`ChatPalette`), the title, a "+" and a
+/// search in one capsule, and rows of a face, a name, a date and the last
+/// message. Search takes the header's place rather than opening under it.
 ///
 /// A person here is their own chart, and so is the reader: until one of the
 /// reader's charts is marked as theirs, the screen asks which one it is
@@ -92,7 +92,7 @@ struct ChatsScreen: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background {
                     GeometryReader { geometry in
-                        Color.black
+                        ChatPalette.background
                             .ignoresSafeArea()
                             .onAppear { width = geometry.size.width }
                             .onChange(of: geometry.size.width) { _, value in width = value }
@@ -117,10 +117,9 @@ struct ChatsScreen: View {
                     )
                 }
         }
-        .tint(.white)
-        .presentationBackground(Color.black)
+        .tint(ChatPalette.text)
+        .presentationBackground(ChatPalette.background)
         .presentationDragIndicator(.visible)
-        .environment(\.colorScheme, .dark)
         // The pages behind keep decoding their skies for a view nobody has.
         .onAppear {
             SkyPlayerPool.shared.setPlaying(false, variant: .screen)
@@ -155,7 +154,7 @@ struct ChatsScreen: View {
 
     @ToolbarContentBuilder
     private var headerItem: some ToolbarContent {
-        // On the black, without the glass pill iOS 26 puts behind an item.
+        // On the ground, without the glass pill iOS 26 puts behind an item.
         if #available(iOS 26.0, *) {
             ToolbarItem(placement: .principal) { header }
                 .sharedBackgroundVisibility(.hidden)
@@ -201,7 +200,7 @@ struct ChatsScreen: View {
         }
         .padding(.horizontal, 4)
         .frame(height: Metrics.control)
-        .weatherGlass(in: Capsule(), interactive: true)
+        .chatGlass(in: Capsule(), interactive: true)
     }
 
     private func headerButton(
@@ -213,7 +212,7 @@ struct ChatsScreen: View {
         Button(action: perform) {
             Image(systemName: symbol)
                 .font(.system(size: 19, weight: .medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(ChatPalette.text)
                 .frame(width: 44, height: Metrics.control)
                 .contentShape(Rectangle())
         }
@@ -226,7 +225,7 @@ struct ChatsScreen: View {
     private var title: some View {
         Text(L("chats.title"))
             .font(.system(size: 24, weight: .bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(ChatPalette.text)
             .fixedSize()
             .accessibilityAddTraits(.isHeader)
     }
@@ -247,12 +246,12 @@ struct ChatsScreen: View {
             Button(action: toggleSearch) {
                 Image(systemName: "xmark")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ChatPalette.text)
                     .frame(width: Metrics.control, height: Metrics.control)
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .weatherGlass(in: Circle(), interactive: true)
+            .chatGlass(in: Circle(), interactive: true)
             .accessibilityLabel(L("common.cancel"))
         }
         .task {
@@ -363,16 +362,16 @@ struct ChatsScreen: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: icon)
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(Color(white: 0.5))
+                .foregroundStyle(ChatPalette.hint)
 
             Text(title)
                 .font(.system(.title3).weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(ChatPalette.text)
                 .multilineTextAlignment(.center)
 
             Text(body)
                 .font(.system(.subheadline))
-                .foregroundStyle(Color(white: 0.6))
+                .foregroundStyle(ChatPalette.body)
                 .multilineTextAlignment(.center)
 
             if let action {
@@ -381,7 +380,7 @@ struct ChatsScreen: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 20)
                     .frame(height: 42)
-                    .background(Capsule().fill(ChatScreen.mine))
+                    .background(Capsule().fill(ChatPalette.mine))
                     .padding(.top, 6)
             }
         }
@@ -391,8 +390,8 @@ struct ChatsScreen: View {
 }
 
 /// One conversation in the list: the face, the name, the date with a chevron,
-/// and the last message under it in grey, white while it is unread, with the
-/// count of unread ones on the right.
+/// and the last message under it in grey, full strength while it is unread,
+/// with the count of unread ones on the right.
 struct ChatRow: View {
 
     let chat: ChatSummary
@@ -413,7 +412,7 @@ struct ChatRow: View {
                 HStack(spacing: 6) {
                     Text(chat.peer.displayName)
                         .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(ChatPalette.text)
                         .lineLimit(1)
 
                     Spacer(minLength: 6)
@@ -422,18 +421,18 @@ struct ChatRow: View {
                         Text(ChatDate.listStamp(date))
                             .font(.system(size: 15))
                             .monospacedDigit()
-                            .foregroundStyle(Color(white: 0.55))
+                            .foregroundStyle(ChatPalette.secondary)
                     }
 
                     Image(systemName: "chevron.right")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color(white: 0.4))
+                        .foregroundStyle(ChatPalette.faint)
                 }
 
                 HStack(spacing: 8) {
                     Text(preview)
                         .font(.system(size: 15))
-                        .foregroundStyle(isUnread ? .white : Color(white: 0.55))
+                        .foregroundStyle(isUnread ? ChatPalette.text : ChatPalette.secondary)
                         .lineLimit(1)
 
                     Spacer(minLength: 0)
@@ -445,7 +444,7 @@ struct ChatRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 7)
                             .frame(minWidth: 22, minHeight: 22)
-                            .background(Capsule().fill(ChatScreen.mine))
+                            .background(Capsule().fill(ChatPalette.mine))
                     }
                 }
             }
@@ -462,7 +461,7 @@ struct ChatRow: View {
 struct ChatRowButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(Color(white: configuration.isPressed ? 0.11 : 0))
+            .background(configuration.isPressed ? ChatPalette.pressed : Color.clear)
     }
 }
 
@@ -473,7 +472,7 @@ struct ChatRowSeparator: View {
 
     var body: some View {
         Rectangle()
-            .fill(Color(white: 0.2))
+            .fill(ChatPalette.separator)
             .frame(height: 1 / displayScale)
             .padding(.leading, ChatsScreen.Metrics.side + ChatsScreen.Metrics.face + ChatsScreen.Metrics.faceGap)
     }
@@ -490,10 +489,10 @@ struct ChatSearchField: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(Color(white: 0.6))
+                .foregroundStyle(ChatPalette.body)
             TextField(prompt, text: $text)
                 .font(.system(size: 17))
-                .foregroundStyle(.white)
+                .foregroundStyle(ChatPalette.text)
                 .focused(focus)
                 .submitLabel(.search)
                 .autocorrectionDisabled()
@@ -502,7 +501,7 @@ struct ChatSearchField: View {
         .padding(.trailing, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: ChatsScreen.Metrics.control)
-        .weatherGlass(in: Capsule())
+        .chatGlass(in: Capsule())
     }
 }
 
@@ -522,16 +521,16 @@ private struct OwnChartChooser: View {
             VStack(spacing: Theme.Spacing.base) {
                 Image(systemName: "person.crop.circle.badge.questionmark")
                     .font(.system(size: 38, weight: .light))
-                    .foregroundStyle(Color(white: 0.5))
+                    .foregroundStyle(ChatPalette.hint)
 
                 Text(L("primary.title"))
                     .font(.system(.title3).weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ChatPalette.text)
                     .multilineTextAlignment(.center)
 
                 Text(L(list.ownProfiles.isEmpty ? "chats.noOwnChart" : "chats.ownBody"))
                     .font(.system(.subheadline))
-                    .foregroundStyle(Color(white: 0.6))
+                    .foregroundStyle(ChatPalette.body)
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 8) {
@@ -560,11 +559,11 @@ private struct OwnChartChooser: View {
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(profile.profileName)
                                         .font(.system(size: 17, weight: .semibold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(ChatPalette.text)
                                         .lineLimit(1)
                                     Text("@\(profile.username)")
                                         .font(.system(size: 13))
-                                        .foregroundStyle(Color(white: 0.55))
+                                        .foregroundStyle(ChatPalette.secondary)
                                         .lineLimit(1)
                                 }
 
@@ -575,14 +574,14 @@ private struct OwnChartChooser: View {
                                 } else {
                                     Text(L("primary.choose"))
                                         .font(.system(size: 15, weight: .semibold))
-                                        .foregroundStyle(ChatScreen.mine)
+                                        .foregroundStyle(ChatPalette.mine)
                                 }
                             }
                             .padding(.horizontal, 14)
                             .frame(minHeight: 62)
                             .background(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(Color(white: 0.1))
+                                    .fill(ChatPalette.card)
                             )
                             .contentShape(Rectangle())
                         }
