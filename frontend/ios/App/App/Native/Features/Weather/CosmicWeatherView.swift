@@ -47,6 +47,12 @@ struct CosmicWeatherView: View {
     var onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)?
     var onOpenActivity: (() -> Void)?
 
+    /// The chats, beside Activity in the corner and the account's the same
+    /// way; and "Message" in the ••• of somebody else's own chart, which
+    /// opens the chat with them. Handed up like the rest.
+    var onOpenChats: (() -> Void)?
+    var onMessage: ((ProfileSummary) -> Void)?
+
     /// How many charts the account follows, for the count under one of its
     /// own charts. Handed in from the list the pager is built from, so an
     /// unfollow shows at once rather than on the next load.
@@ -81,6 +87,8 @@ struct CosmicWeatherView: View {
         onFindPeople: (() -> Void)? = nil,
         onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
         onOpenActivity: (() -> Void)? = nil,
+        onOpenChats: (() -> Void)? = nil,
+        onMessage: ((ProfileSummary) -> Void)? = nil,
         followingCount: Int? = nil,
         onReport: ((ProfileSummary) -> Void)? = nil,
         onBlock: ((ProfileSummary) -> Void)? = nil
@@ -95,6 +103,8 @@ struct CosmicWeatherView: View {
         self.onFindPeople = onFindPeople
         self.onOpenPeople = onOpenPeople
         self.onOpenActivity = onOpenActivity
+        self.onOpenChats = onOpenChats
+        self.onMessage = onMessage
         self.followingCount = followingCount
         self.onReport = onReport
         self.onBlock = onBlock
@@ -115,6 +125,8 @@ struct CosmicWeatherView: View {
         onFindPeople: (() -> Void)? = nil,
         onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
         onOpenActivity: (() -> Void)? = nil,
+        onOpenChats: (() -> Void)? = nil,
+        onMessage: ((ProfileSummary) -> Void)? = nil,
         followingCount: Int? = nil,
         onReport: ((ProfileSummary) -> Void)? = nil,
         onBlock: ((ProfileSummary) -> Void)? = nil,
@@ -130,6 +142,8 @@ struct CosmicWeatherView: View {
         self.onFindPeople = onFindPeople
         self.onOpenPeople = onOpenPeople
         self.onOpenActivity = onOpenActivity
+        self.onOpenChats = onOpenChats
+        self.onMessage = onMessage
         self.followingCount = followingCount
         self.onReport = onReport
         self.onBlock = onBlock
@@ -180,10 +194,16 @@ struct CosmicWeatherView: View {
                         // Activity opposite the •••, on every page: it is the
                         // account's, not this chart's — likes and follows on
                         // every chart the reader owns — so it is not tied to
-                        // whose page happens to be showing.
+                        // whose page happens to be showing. The chats beside
+                        // it, for the same reason.
                         .overlay(alignment: .topLeading) {
-                            if let onOpenActivity {
-                                ActivityBell(action: onOpenActivity)
+                            HStack(spacing: Self.cornerSpacing) {
+                                if let onOpenActivity {
+                                    ActivityBell(action: onOpenActivity)
+                                }
+                                if let onOpenChats {
+                                    ChatsButton(action: onOpenChats)
+                                }
                             }
                         }
 
@@ -290,15 +310,16 @@ struct CosmicWeatherView: View {
                     .lineLimit(1)
             }
             .foregroundStyle(.white.opacity(0.75))
+            .padding(.horizontal, cornerInset)
 
-            // Inset by the corner button's width on both sides so a long
-            // name shrinks rather than sliding under the •••.
+            // Inset by the corner buttons' width on both sides so a long
+            // name shrinks rather than sliding under them.
             Text(profile.profileName)
                 .font(.system(size: 34, weight: .regular, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .padding(.horizontal, Self.menuButton)
+                .padding(.horizontal, cornerInset)
 
             // A transit reading is a moment, not a day, so the hero says
             // which moment — in the profile's own zone, not the device's.
@@ -381,6 +402,16 @@ struct CosmicWeatherView: View {
                 }
             }
 
+            // Only on a chart that is its owner's own: that chart is the
+            // person. One kept for somebody else has nobody to answer.
+            if let onMessage, profile.canMessage == true {
+                Button {
+                    onMessage(profile)
+                } label: {
+                    Label(L("chats.message"), systemImage: "message")
+                }
+            }
+
             // Somebody else's chart only: the ones you own are yours to edit
             // or delete, not to report.
             if onReport != nil || onBlock != nil {
@@ -428,6 +459,18 @@ struct CosmicWeatherView: View {
     }
 
     private static let menuButton: CGFloat = 36
+
+    /// The room between the bell and the chats button.
+    private static let cornerSpacing: CGFloat = 8
+
+    /// How far the hero's lines keep from the edges: the widest corner, the
+    /// bell and the chats button together when both are there, on both
+    /// sides, so the name stays centred.
+    private var cornerInset: CGFloat {
+        let buttons = [onOpenActivity != nil, onOpenChats != nil].filter { $0 }.count
+        guard buttons > 1 else { return Self.menuButton }
+        return Self.menuButton * CGFloat(buttons) + Self.cornerSpacing * CGFloat(buttons - 1)
+    }
 
     /// Anything the reader should see the app working on: the first load of
     /// either half, and a re-read for a moment they picked.

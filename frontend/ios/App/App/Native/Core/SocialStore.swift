@@ -164,8 +164,8 @@ final class SocialStore: ObservableObject {
         do {
             let count = try await api.fetchUnreadActivityCount()
             unreadActivity = count
-            // The app icon says the same as the bell.
-            Task { await PushNotifications.shared.setBadge(count) }
+            // The app icon says what the bell and the chats button say.
+            Task { await PushNotifications.shared.syncBadge() }
             // Something came in since the rows were fetched, or there are no
             // rows yet: fetched now, in the background, so the bell opens on
             // them rather than on a spinner.
@@ -219,7 +219,8 @@ final class SocialStore: ObservableObject {
     /// server is told so it stays gone on the next launch.
     func markActivitySeen() async {
         unreadActivity = 0
-        Task { await PushNotifications.shared.setBadge(0) }
+        // Unread messages stay on the icon: Activity is only half of it.
+        Task { await PushNotifications.shared.syncBadge() }
         // The kept rows have been read too. Left marked new, the next open
         // would show them under "New" until the refresh moved them down.
         activity = activity?.map { item -> ActivityItem in

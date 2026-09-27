@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -52,6 +53,8 @@ class UserModel(Base):
     # notification permission still decides whether anything arrives.
     push_likes: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
     push_follows: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    # The same for a message someone writes to this account.
+    push_messages: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profiles: Mapped[list[ProfileModel]] = relationship(back_populates="user")
@@ -194,6 +197,53 @@ class ProfileReportModel(Base):
     details: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="open")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ChatModel(Base):
+    """A conversation between two accounts.
+
+    Account to account, like a block. It is started from the chart a person
+    marked as their own (their primary profile), because that chart is the
+    person; a chart kept for somebody else has nobody behind it to answer.
+    The pair is stored smaller id first, so the two of them have one chat
+    whoever wrote first.
+
+    What each side has read is the id of the last message it has seen:
+    message ids only grow, so everything above it from the other side is
+    unread, with no clock to disagree about.
+    """
+
+    __tablename__ = "chats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_a_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_b_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    a_read_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    b_read_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # The newest message, which is what the list is ordered by: an id rather
+    # than a time, because two chats written to in the same second would
+    # otherwise tie. Null until the first one, so a chat opened and left
+    # empty lists nowhere.
+    last_message_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (UniqueConstraint("user_a_id", "user_b_id", name="uq_chat_pair"),)
+
+
+class ChatMessageModel(Base):
+    """One message in a chat: text only, as written."""
+
+    __tablename__ = "chat_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    chat_id: Mapped[int] = mapped_column(ForeignKey("chats.id"), nullable=False)
+    sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    # Every read is "the messages of one chat, by id": the last page, the ones
+    # after the newest on screen, the ones before the oldest.
+    __table_args__ = (Index("ix_chat_messages_chat_id_id", "chat_id", "id"),)
 
 
 class ProfileInviteModel(Base):

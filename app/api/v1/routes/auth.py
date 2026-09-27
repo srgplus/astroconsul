@@ -13,6 +13,8 @@ from sqlalchemy import delete, select
 from app.api.auth import get_current_user
 from app.core.config import get_settings
 from app.infrastructure.persistence.models import (
+    ChatMessageModel,
+    ChatModel,
     DeviceTokenModel,
     LatestTransitModel,
     ProfileFollowModel,
@@ -44,7 +46,8 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
     Removes: user row, profiles, natal charts used only by this user's profiles,
     latest transit snapshots, follow relationships, likes given and received,
     blocks either way, reports this user filed, invites, subscriptions, the
-    phones registered for pushes, and the Supabase Auth record itself.
+    phones registered for pushes, every chat the user was in with every
+    message of it, and the Supabase Auth record itself.
 
     This is irreversible. Required by App Store guideline 5.1.1(v).
     """
@@ -74,6 +77,13 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
             )
             session.execute(delete(ProfileReportModel).where(ProfileReportModel.reporter_id == user_id))
             session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.invited_by == user_id))
+            # A chat is both people's, but it cannot outlive one of them: the
+            # other side keeps no half of a conversation with nobody.
+            chats = select(ChatModel.id).where((ChatModel.user_a_id == user_id) | (ChatModel.user_b_id == user_id))
+            session.execute(delete(ChatMessageModel).where(ChatMessageModel.chat_id.in_(chats)))
+            session.execute(
+                delete(ChatModel).where((ChatModel.user_a_id == user_id) | (ChatModel.user_b_id == user_id))
+            )
             session.execute(delete(ProfileModel).where(ProfileModel.user_id == user_id))
             session.execute(delete(SubscriptionModel).where(SubscriptionModel.user_id == user_id))
             session.execute(delete(DeviceTokenModel).where(DeviceTokenModel.user_id == user_id))

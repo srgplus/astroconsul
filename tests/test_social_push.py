@@ -197,12 +197,12 @@ class DeviceTests(PushTestCase):
 
         self.assertEqual(response.status_code, 422)
 
-    def test_settings_carry_both_switches(self) -> None:
+    def test_settings_carry_every_switch(self) -> None:
         before = self.as_user(ANNA).get("/api/v1/social/settings").json()
         after = self.as_user(ANNA).put("/api/v1/social/settings", json={"push_follows": False}).json()
 
-        self.assertEqual(before, {"show_counts": True, "push_likes": True, "push_follows": True})
-        self.assertEqual(after, {"show_counts": True, "push_likes": True, "push_follows": False})
+        self.assertEqual(before, {"show_counts": True, "push_likes": True, "push_follows": True, "push_messages": True})
+        self.assertEqual(after, {"show_counts": True, "push_likes": True, "push_follows": False, "push_messages": True})
 
     def test_deleting_the_account_forgets_its_phones(self) -> None:
         response = self.as_user(ANNA).delete("/api/v1/auth/account")

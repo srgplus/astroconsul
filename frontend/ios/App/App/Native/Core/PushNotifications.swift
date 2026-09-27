@@ -3,7 +3,7 @@ import UIKit
 import UserNotifications
 
 /// Pushes from the server: a like, or a new follower, on one of the reader's
-/// charts, the moment it happens.
+/// charts, the moment it happens, and a message somebody wrote to them.
 ///
 /// The weather alerts next door are local notifications the phone schedules
 /// for itself, because a forecast is knowable a fortnight ahead. Nobody knows
@@ -23,6 +23,10 @@ final class PushNotifications: ObservableObject {
     /// Set by a tapped push about a like or a follow. The home screen opens
     /// Activity and clears it.
     @Published var opensActivity = false
+
+    /// Set by a tapped push about a message: the chat it came from. The home
+    /// screen opens that chat and clears it.
+    @Published var opensChat: Int?
 
     private enum Key {
         static let token = "pushDeviceToken"
@@ -51,6 +55,11 @@ final class PushNotifications: ObservableObject {
     /// The pushes a tap can open Activity for.
     nonisolated static func isSocial(kind: String?) -> Bool {
         kind == "like" || kind == "follow"
+    }
+
+    /// A push about a message, which a tap opens the chat of.
+    nonisolated static func isMessage(kind: String?) -> Bool {
+        kind == "message"
     }
 
     // MARK: - Registration
@@ -146,6 +155,7 @@ final class PushNotifications: ObservableObject {
     /// phone stops hearing about the account it is leaving.
     func unregister() async {
         opensActivity = false
+        opensChat = nil
         uploaded = nil
         await setBadge(0)
         guard let token else { return }
@@ -160,15 +170,26 @@ final class PushNotifications: ObservableObject {
 
     // MARK: - Arriving
 
-    /// A push was tapped. One about a like or a follow opens Activity.
-    func handleTap(kind: String?) {
-        guard Self.isSocial(kind: kind), AuthStore.shared.isSignedIn else { return }
-        opensActivity = true
+    /// A push was tapped. One about a like or a follow opens Activity; one
+    /// about a message opens its chat.
+    func handleTap(kind: String?, chatId: Int? = nil) {
+        guard AuthStore.shared.isSignedIn else { return }
+        if Self.isSocial(kind: kind) {
+            opensActivity = true
+        } else if Self.isMessage(kind: kind), let chatId {
+            opensChat = chatId
+        }
     }
 
-    /// The number on the app icon: unread Activity, the same as the bell.
-    /// The server sets it with each push; the app keeps it true after that,
-    /// clearing it once Activity has been looked at.
+    /// Sets the icon to everything unread: Activity and messages together,
+    /// what the bell and the chats button say added up.
+    func syncBadge() async {
+        await setBadge(SocialStore.shared.unreadActivity + ChatStore.shared.unreadCount)
+    }
+
+    /// The number on the app icon: unread Activity and messages, the bell
+    /// and the chats button together (`syncBadge`). The server sets it with
+    /// each push; the app keeps it true after that.
     func setBadge(_ count: Int) async {
         #if DEBUG
         if WeatherPreviewHarness.isEnabled { return }

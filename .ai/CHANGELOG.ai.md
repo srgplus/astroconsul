@@ -4,6 +4,57 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Chats: a plain messenger beside the bell (iOS)
+The owner asked for "a super simple messenger, text with bubbles, like
+iMessage": a button next to Activity, a list of chats, a chat you can write in,
+and a push when someone writes. iOS only for now; the API is ready for the web
+and Android later.
+
+**Who can write to whom.** The owner's rule: a person is their primary
+profile. A chat is between two accounts and starts only from somebody's
+primary chart; any other chart is someone else's (a mother's, a celebrity's the
+app keeps) and has nobody to answer. An account with no primary can neither be
+written to nor write, since nobody could write back: `POST /chats` answers 409
+and the app asks "Which chart is you?", setting the primary from the answer.
+Every profile payload carries `can_message` (in `social_counts`, from the query
+that already read the owner), and the ••• offers "Message" only where it is
+true. Contacts for a new chat: people whose primary chart you follow, and
+people following any of your charts, who have a primary.
+
+**Backend.** `chats` (pair unique, `a_read_id`/`b_read_id`, `last_message_id`)
+and `chat_messages` (index on chat, id), migration `20260927_000005`, which also
+adds `users.push_messages` (default true, in `/social/settings`). Read markers
+and list order are message ids: two messages in the same second tie on time.
+Routes in `app/api/v1/routes/chats.py` (see SKILL.md §6). A block hides the
+chat both ways (blocker 403, blocked 404) without deleting it; account deletion
+removes every chat the account was in, with its messages. `account_cards` and
+`blocked_account_ids` moved out of `SqlAlchemySocialRepository` into module
+functions so the chats draw people the same way in the same session.
+
+**Push.** `chat_push.notify_message` rides on the like/follow push plumbing:
+sender's card name as the title, the text (cut at 180) as the body,
+`thread-id` `chat-<id>`, `kind: message`, `chat_id`, no collapse id (two
+messages are two banners). `social_push.app_badge` makes the icon badge
+Activity + messages for every push; the app's `PushNotifications.syncBadge`
+does the same sum.
+
+**iOS.** `ChatsButton` beside the bell with the shared `CornerCount` badge;
+the hero's lines are inset by both corner buttons so the name stays centred.
+`ChatsScreen` is a NavigationStack sheet (glass backdrop, dark): rows with a
+blue unread dot, the pencil opens `NewChatSheet`, and `OwnChartChooser`
+replaces the list while the loaded list has no primary. `ChatScreen`: blue
+bubbles right, glass left, a time after an hour's pause, Read/Delivered under
+your last message, failed sends marked with retry, Copy in the context menu,
+Report/Block/View Chart in the •••, and a solid backdrop so the list does not
+show through the push transition. No socket: the chat polls every 3 s while it
+is on screen and the app active, the list every 8 s, a foreground push fetches
+at once and shows no banner over the chat it belongs to
+(`ChatStore.visibleChatId`). A tapped message push opens its chat
+(`PushNotifications.opensChat` → `ChatStore.pendingRoute`), over whatever sheet
+was up. The permission question is asked once after the first message sent, if
+nothing has asked yet. Settings → Community: "Notify me about messages".
+Harness: `-uiPreviewWeather -uiPreviewChats`.
+
 ### Likes and new followers are pushed to the owner's phone (APNs)
 Until now a like or a follow waited in Activity until the owner opened the app.
 The weather alerts are local notifications and never touched a server, so there

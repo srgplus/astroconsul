@@ -44,12 +44,19 @@ struct WeatherPreviewHarness: View {
     @State private var showsSearch = false
     @State private var showsAlertsOffer = false
     @State private var showsActivity = false
+    @State private var showsChats = false
     @State private var peopleTarget: PeopleSheet.Target?
 
     /// Add `-uiPreviewActivity` to open straight onto the Activity screen,
     /// the way App Store screenshots of it are taken.
     static var opensActivity: Bool {
         ProcessInfo.processInfo.arguments.contains("-uiPreviewActivity")
+    }
+
+    /// Add `-uiPreviewChats` to open straight onto the chats, with sample
+    /// conversations; what is sent stays on the screen, nothing leaves.
+    static var opensChats: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewChats")
     }
 
     init() {
@@ -95,6 +102,7 @@ struct WeatherPreviewHarness: View {
                     onFindPeople: { showsSearch = true },
                     onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
                     onOpenActivity: { showsActivity = true },
+                    onOpenChats: { showsChats = true },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
@@ -110,7 +118,9 @@ struct WeatherPreviewHarness: View {
             DeviceLocation.shared.start()
             showsAlertsOffer = Self.offersAlerts
             await SocialStore.shared.refreshUnread()
+            await ChatStore.shared.refreshUnread()
             showsActivity = Self.opensActivity
+            showsChats = Self.opensChats && !Self.opensActivity
 
             guard Self.schedulesAlerts else { return }
             await CategoryAlerts.shared.scheduleForPreview(days: WeatherPreviewData.days)
@@ -140,6 +150,9 @@ struct WeatherPreviewHarness: View {
         }
         .sheet(isPresented: $showsActivity) {
             ActivityScreen(list: listModel, skyState: previewState, onFindPeople: { showsSearch = true })
+        }
+        .sheet(isPresented: $showsChats) {
+            ChatsScreen(list: listModel, skyState: previewState)
         }
         .sheet(item: $peopleTarget) { target in
             PeopleSheet(target: target, list: listModel, skyState: previewState)

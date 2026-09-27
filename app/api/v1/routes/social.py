@@ -70,9 +70,10 @@ class SocialSettingsRequest(BaseModel):
     # many it follows. The owner sees both either way.
     show_counts: bool | None = None
     # Whether a like, or a new follower, on this account's charts is pushed
-    # to its phones.
+    # to its phones, and a message somebody writes to it.
     push_likes: bool | None = None
     push_follows: bool | None = None
+    push_messages: bool | None = None
 
 
 class DeviceRequest(BaseModel):
@@ -245,13 +246,15 @@ def update_social_settings(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, bool]:
     """Shows or hides the account's followers and following counts from
-    everyone else, on every chart it owns, and turns the pushes for likes
-    and new followers on or off. Answers with all of them as they stand."""
+    everyone else, on every chart it owns, and turns the pushes for likes,
+    new followers and messages on or off. Answers with all of them as they
+    stand."""
     return _social(repos).update_social_settings(
         user["user_id"],
         show_counts=payload.show_counts,
         push_likes=payload.push_likes,
         push_follows=payload.push_follows,
+        push_messages=payload.push_messages,
     )
 
 

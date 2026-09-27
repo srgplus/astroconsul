@@ -553,6 +553,62 @@ enum WeatherPreviewData {
         )
     }
 
+    /// Chats for the harness account, the newest first and unread. Invented
+    /// names only, for the reason Activity's are.
+    static let chats: [ChatSummary] = [
+        chatSummary(1, "Mira Solis", "mirasolis", sun: "Libra", hours: 0.1, unread: 2, last: 4, mine: false,
+                    text: "And tomorrow is Expansive for me, look!"),
+        chatSummary(2, "Theo Laurent", "theolaurent", sun: "Capricorn", hours: 3, unread: 0, last: 12, mine: true,
+                    text: "Ha, that explains Tuesday"),
+        chatSummary(3, "Nadia Petrova", "nadiapetrova", sun: "Pisces", hours: 30, unread: 0, last: 21, mine: false,
+                    text: "Thank you! Talk soon"),
+    ]
+
+    /// The conversation behind one of the sample chats: a real one for the
+    /// first, and its last message alone for the rest.
+    static func chatMessages(for chatId: Int) -> [ChatMessage] {
+        guard chatId == 1 else {
+            return chats.first { $0.chatId == chatId }?.lastMessage.map { [$0] } ?? []
+        }
+        return [
+            ChatMessage(id: 1, body: "Hi! Your sky has been Flowing all week, what's your secret?", isMine: false,
+                        createdAt: isoInstant(days: -26.0 / 24)),
+            ChatMessage(id: 2, body: "Venus trine my Moon, apparently 😄", isMine: true,
+                        createdAt: isoInstant(days: -25.8 / 24)),
+            ChatMessage(id: 3, body: "Lucky you. Mine is all Pressured until Friday", isMine: false,
+                        createdAt: isoInstant(days: -0.2 / 24)),
+            ChatMessage(id: 4, body: "And tomorrow is Expansive for me, look!", isMine: false,
+                        createdAt: isoInstant(days: -0.1 / 24)),
+        ]
+    }
+
+    private static func chatSummary(
+        _ chatId: Int,
+        _ name: String,
+        _ handle: String,
+        sun: String,
+        hours: Double,
+        unread: Int,
+        last: Int,
+        mine: Bool,
+        text: String
+    ) -> ChatSummary {
+        let stamp = isoInstant(days: -hours / 24)
+        return ChatSummary(
+            chatId: chatId,
+            peer: SocialCard(
+                profileId: "preview-\(handle)",
+                profileName: name,
+                username: handle,
+                natalSummary: NatalSummary(sun: "\(sun) 11°20'04\"", moon: "Taurus 04°12'40\"", asc: "Virgo 23°51'09\"")
+            ),
+            lastMessage: ChatMessage(id: last, body: text, isMine: mine, createdAt: stamp),
+            unreadCount: unread,
+            peerReadId: mine ? last : nil,
+            updatedAt: stamp
+        )
+    }
+
     /// A UTC instant this many days from now, spelled the way the timing
     /// engine spells one.
     private static func isoInstant(days: Double) -> String {

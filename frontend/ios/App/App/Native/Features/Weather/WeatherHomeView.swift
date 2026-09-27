@@ -49,6 +49,9 @@ struct WeatherHomeView: View {
     /// The social sheets a page asks for, presented from here for the same
     /// reason Edit is: a sheet owned by a pager page goes with the page.
     @State private var showsActivity = false
+    /// The chats. Which one to open, if any, waits in `ChatStore.pendingRoute`
+    /// for the screen to take when it is up.
+    @State private var showsChats = false
     @State private var peopleTarget: PeopleSheet.Target?
     @State private var reporting: ProfileSummary?
     @State private var blocking: ProfileSummary?
@@ -130,9 +133,11 @@ struct WeatherHomeView: View {
             // A push tapped before this screen existed: the app was launched
             // by it, and Activity goes up without waiting for the list.
             if push.opensActivity { openActivityFromPush() }
+            if push.opensChat != nil { openChatFromPush() }
             await model.load()
             syncSelection()
             await SocialStore.shared.refreshUnread()
+            await ChatStore.shared.refreshUnread()
             await PushNotifications.shared.refresh()
             await refreshAlerts()
             await offerAlerts()
@@ -151,8 +156,10 @@ struct WeatherHomeView: View {
                     await model.load()
                     syncSelection()
                 }
-                // Someone may have liked or followed while the app was away.
+                // Someone may have liked, followed or written while the app
+                // was away.
                 await SocialStore.shared.refreshUnread()
+                await ChatStore.shared.refreshUnread()
                 await PushNotifications.shared.refresh()
                 await refreshAlerts()
             }
@@ -164,9 +171,11 @@ struct WeatherHomeView: View {
                 if session == nil {
                     await CategoryAlerts.shared.reset()
                     SocialStore.shared.reset()
+                    ChatStore.shared.reset()
                 }
                 await model.load()
                 await SocialStore.shared.refreshUnread()
+                await ChatStore.shared.refreshUnread()
                 // A new account on this phone: its pushes come here now.
                 await PushNotifications.shared.refresh()
                 await refreshAlerts()
@@ -174,6 +183,9 @@ struct WeatherHomeView: View {
         }
         .onChange(of: push.opensActivity) { _, opens in
             if opens { openActivityFromPush() }
+        }
+        .onChange(of: push.opensChat) { _, chatId in
+            if chatId != nil { openChatFromPush() }
         }
         .onChange(of: model.profiles) { _, profiles in
             // A fresh listing carries the server's like counts; whatever was
@@ -238,6 +250,20 @@ struct WeatherHomeView: View {
                     }
                 },
                 onOpenSaved: { selection = $0 }
+            )
+        }
+        .sheet(isPresented: $showsChats) {
+            ChatsScreen(
+                list: model,
+                skyState: visibleState ?? .calm,
+                onOpenSaved: { selection = $0 },
+                onBlocked: {
+                    // A block takes the follows between the two with it.
+                    Task {
+                        await model.load(showSpinner: false)
+                        syncSelection()
+                    }
+                }
             )
         }
         .sheet(item: $peopleTarget) { target in
@@ -312,6 +338,8 @@ struct WeatherHomeView: View {
                     onFindPeople: { showsSearch = true },
                     onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
                     onOpenActivity: { showsActivity = true },
+                    onOpenChats: { showsChats = true },
+                    onMessage: isOwn ? nil : { openChat(with: $0) },
                     followingCount: isOwn ? model.followedProfiles.count : nil,
                     onReport: isOwn ? nil : { reporting = $0 },
                     onBlock: isOwn ? nil : { blocking = $0 }
@@ -414,16 +442,50 @@ struct WeatherHomeView: View {
     private func openActivityFromPush() {
         push.opensActivity = false
         guard auth.isSignedIn, !showsActivity else { return }
+        let covered = closeSheets() || showsChats
+        showsChats = false
+        Task {
+            if covered { try? await Task.sleep(for: .milliseconds(450)) }
+            showsActivity = true
+        }
+    }
+
+    /// A tapped push about a message: the chats, opened on that chat, over
+    /// whatever sheet was up. Already open, they take it from the store.
+    private func openChatFromPush() {
+        guard let chatId = push.opensChat else { return }
+        push.opensChat = nil
+        guard auth.isSignedIn else { return }
+        openChats(on: .chatId(chatId))
+    }
+
+    /// "Message" in the ••• of somebody's own chart.
+    private func openChat(with profile: ProfileSummary) {
+        openChats(on: .profile(profile))
+    }
+
+    private func openChats(on route: ChatRoute) {
+        ChatStore.shared.pendingRoute = route
+        guard !showsChats else { return }
+        let covered = closeSheets() || showsActivity
+        showsActivity = false
+        Task {
+            if covered { try? await Task.sleep(for: .milliseconds(450)) }
+            showsChats = true
+        }
+    }
+
+    /// Puts away the sheets a push opens over, and says whether any was up:
+    /// two presentations in one frame and SwiftUI drops the second, so the
+    /// next one waits for this one to go.
+    private func closeSheets() -> Bool {
         let covered = showsList || showsSearch || showsSettings || showsNewProfile || peopleTarget != nil
         showsList = false
         showsSearch = false
         showsSettings = false
         showsNewProfile = false
         peopleTarget = nil
-        Task {
-            if covered { try? await Task.sleep(for: .milliseconds(450)) }
-            showsActivity = true
-        }
+        return covered
     }
 
     /// Turns the pager to a profile the empty state just made, once the list

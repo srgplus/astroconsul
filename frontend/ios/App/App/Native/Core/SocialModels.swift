@@ -131,6 +131,8 @@ struct SocialSettings: Codable, Equatable {
     /// Optional so an answer from a server that predates the pushes decodes.
     var pushLikes: Bool? = nil
     var pushFollows: Bool? = nil
+    /// Whether a message somebody writes to the reader is pushed.
+    var pushMessages: Bool? = nil
 }
 
 /// One account this reader has blocked.

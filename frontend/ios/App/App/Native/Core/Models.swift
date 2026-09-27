@@ -75,6 +75,11 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     /// "Follows you" under a followed chart.
     var followsYou: Bool? = nil
 
+    /// The viewer can write to this chart: it is its owner's own (their
+    /// primary profile), which is the only way to a person, and it is not the
+    /// viewer's. A chart kept for someone else has nobody behind it to answer.
+    var canMessage: Bool? = nil
+
     var id: String { profileId }
 
     /// `true` for the user's own profiles, `false` for followed ones.

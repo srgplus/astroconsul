@@ -3,7 +3,7 @@
 Activity was the only place a chart's owner heard that anyone was there, and
 only once they opened the app. This sends the same news to their phone as it
 happens, in the words the Activity row uses, with the app icon's badge set to
-the unread count.
+the unread count (Activity and messages together, see `app_badge`).
 
 What earns a push, and what does not:
 
@@ -73,6 +73,14 @@ FOLLOW_QUIET_SECONDS = 60 * 60
 
 _recent_follows: dict[tuple[str, str], float] = {}
 _recent_lock = threading.Lock()
+
+
+def app_badge(repos: RepositoryBundle, user_id: str) -> int:
+    """The number on the app icon: everything unread, Activity and messages
+    together, so the icon agrees with the bell and the chats button added up."""
+    activity = repos.social.unread_activity_count(user_id) if repos.social is not None else 0
+    messages = repos.chats.unread_count(user_id) if repos.chats is not None else 0
+    return activity + messages
 
 
 def notify_like(repos: RepositoryBundle, actor_id: str, profile: dict[str, Any], feels_like: str | None) -> None:
@@ -153,7 +161,7 @@ def _deliver(
 
     actor = social.card_for(actor_id)
     is_primary = repos.profiles.get_primary_profile_id(owner_id) == profile_id
-    badge = social.unread_activity_count(owner_id)
+    badge = app_badge(repos, owner_id)
 
     for device in devices:
         body = compose(

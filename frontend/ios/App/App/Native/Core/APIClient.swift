@@ -168,7 +168,8 @@ actor APIClient {
     func updateSocialSettings(
         showCounts: Bool? = nil,
         pushLikes: Bool? = nil,
-        pushFollows: Bool? = nil
+        pushFollows: Bool? = nil,
+        pushMessages: Bool? = nil
     ) async throws -> SocialSettings {
         // Snake case spelled out: the encoder here converts nothing. A nil
         // is left out of the body, so the server keeps what it has.
@@ -176,11 +177,17 @@ actor APIClient {
             let show_counts: Bool?
             let push_likes: Bool?
             let push_follows: Bool?
+            let push_messages: Bool?
         }
         return try await send(
             "/api/v1/social/settings",
             method: "PUT",
-            body: Body(show_counts: showCounts, push_likes: pushLikes, push_follows: pushFollows)
+            body: Body(
+                show_counts: showCounts,
+                push_likes: pushLikes,
+                push_follows: pushFollows,
+                push_messages: pushMessages
+            )
         )
     }
 
@@ -209,6 +216,69 @@ actor APIClient {
             method: "DELETE",
             body: Optional<EmptyResponse>.none
         )
+    }
+
+    // MARK: - Chats
+
+    /// Every chat with a message in it, the latest first, and what is unread
+    /// in all of them.
+    func fetchChats() async throws -> ChatListResponse {
+        try await get("/api/v1/chats")
+    }
+
+    /// The number on the chats button alone, cheap enough to ask on every
+    /// return to the app.
+    func fetchUnreadChatCount() async throws -> Int {
+        let response: ChatUnreadResponse = try await get("/api/v1/chats/unread")
+        return response.unreadCount
+    }
+
+    /// Who a new chat can be started with: the people on either side of a
+    /// follow who have a chart of their own.
+    func fetchChatContacts() async throws -> [SocialCard] {
+        let response: ChatContactsResponse = try await get("/api/v1/chats/contacts")
+        return response.people
+    }
+
+    /// The chat with the person whose own chart this is, made on first
+    /// asking. 400 for a chart that is nobody's own, 409 while the reader has
+    /// no chart of their own.
+    func openChat(profileId: String) async throws -> ChatSummary {
+        struct Body: Encodable { let profile_id: String }
+        let response: ChatResponse = try await send("/api/v1/chats", method: "POST", body: Body(profile_id: profileId))
+        return response.chat
+    }
+
+    /// The newest page of a chat, the page before `before`, or what came in
+    /// after `after`, oldest first.
+    func fetchMessages(chatId: Int, before: Int? = nil, after: Int? = nil) async throws -> ChatMessagesResponse {
+        var query: [URLQueryItem] = []
+        if let before { query.append(URLQueryItem(name: "before", value: String(before))) }
+        if let after { query.append(URLQueryItem(name: "after", value: String(after))) }
+        return try await get("/api/v1/chats/\(chatId)/messages", query: query)
+    }
+
+    func sendMessage(chatId: Int, body: String) async throws -> ChatMessage {
+        struct Body: Encodable { let body: String }
+        let response: SentMessageResponse = try await send(
+            "/api/v1/chats/\(chatId)/messages",
+            method: "POST",
+            body: Body(body: body)
+        )
+        return response.message
+    }
+
+    /// The screen showed the chat up to `messageId`. Answers what is left
+    /// unread across every chat.
+    func markChatRead(chatId: Int, upTo messageId: Int?) async throws -> Int {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable { let message_id: Int? }
+        let response: ChatUnreadResponse = try await send(
+            "/api/v1/chats/\(chatId)/read",
+            method: "POST",
+            body: Body(message_id: messageId)
+        )
+        return response.unreadCount
     }
 
     /// Who likes one of the caller's own charts. Owner-only: 403 otherwise.
