@@ -35,6 +35,13 @@ struct WeatherHomeView: View {
     @State private var showsNewProfile = false
     @State private var createdProfile: ProfileSummary?
 
+    /// "Which chart is yours?", while the account owns charts and none of
+    /// them is marked as its own.
+    @State private var showsPrimaryPrompt = false
+    /// Set when that sheet sent the reader to make their chart: whatever the
+    /// new-profile form makes next is the account's own.
+    @State private var createsOwnChart = false
+
     /// The profile the ••• menu opened the edit sheet for. Presented from
     /// here rather than from the page: the pager tears its pages down as they
     /// scroll out, and a sheet owned by one of them goes with it.
@@ -140,7 +147,7 @@ struct WeatherHomeView: View {
             await ChatStore.shared.refreshUnread()
             await PushNotifications.shared.refresh()
             await refreshAlerts()
-            await offerAlerts()
+            await offerNext()
         }
         // The category alerts are scheduled days ahead, so the schedule has to
         // be topped up from a live forecast whenever the app is in hand. The
@@ -162,6 +169,9 @@ struct WeatherHomeView: View {
                 await ChatStore.shared.refreshUnread()
                 await PushNotifications.shared.refresh()
                 await refreshAlerts()
+                // An app left running for days never reruns `.task`, and the
+                // question is asked once a day, not once a launch.
+                offerPrimary()
             }
         }
         .onChange(of: auth.session) { _, session in
@@ -172,6 +182,7 @@ struct WeatherHomeView: View {
                     await CategoryAlerts.shared.reset()
                     SocialStore.shared.reset()
                     ChatStore.shared.reset()
+                    PrimaryPromptSchedule.reset()
                 }
                 await model.load()
                 await SocialStore.shared.refreshUnread()
@@ -195,13 +206,13 @@ struct WeatherHomeView: View {
             // A brand-new account reaches this screen with nothing on it; the
             // offer waits for the first profile rather than being spent on an
             // empty sky.
-            Task { await offerAlerts() }
+            Task { await offerNext() }
         }
         // The location prompt goes up from the same `task` as the offer, so on
         // a first run the offer is held back until that one is answered.
         .onChange(of: location.isSettled) { _, settled in
             guard settled else { return }
-            Task { await offerAlerts() }
+            Task { await offerNext() }
         }
         // Whatever the first load settles on — pages, an empty state or an
         // error — is worth more than the splash standing in front of it.
@@ -236,6 +247,26 @@ struct WeatherHomeView: View {
         }
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyState: visibleState) { createdProfile = $0 }
+        }
+        .sheet(isPresented: $showsPrimaryPrompt, onDismiss: primaryPromptClosed) {
+            PrimaryProfilePrompt(
+                profiles: model.ownProfiles,
+                onChoose: { profile in
+                    let error = await model.claimPrimary(profile)
+                    if error == nil {
+                        // Their own chart is page one now; land on it, and
+                        // move the alerts, which follow the primary, onto it.
+                        selection = profile.profileId
+                        await refreshAlerts()
+                    }
+                    return error
+                },
+                onAddOwn: {
+                    createsOwnChart = true
+                    showsPrimaryPrompt = false
+                },
+                onFinish: { showsPrimaryPrompt = false }
+            )
         }
         .sheet(isPresented: $showsActivity) {
             ActivityScreen(
@@ -429,11 +460,54 @@ struct WeatherHomeView: View {
     /// after there is a reading on the screen to explain what is being
     /// offered, and after the location prompt has been dealt with.
     private func offerAlerts() async {
-        guard auth.isSignedIn, !profiles.isEmpty, !showsAlertsOffer else { return }
+        guard auth.isSignedIn, !profiles.isEmpty, !showsAlertsOffer, !coversScreen else { return }
         guard location.isSettled else { return }
         await CategoryAlerts.shared.syncAuthorization()
-        guard CategoryAlerts.shared.shouldOffer else { return }
+        // Asked again after the wait: another trigger can have put a sheet up
+        // in the meantime, and SwiftUI would drop this one on top of it.
+        guard CategoryAlerts.shared.shouldOffer, !coversScreen else { return }
         showsAlertsOffer = true
+    }
+
+    /// The questions this screen puts of its own accord, one at a time: whose
+    /// chart the account is first, because the alerts are scheduled for that
+    /// chart, then the alerts. The second waits for the first to go down.
+    private func offerNext() async {
+        if offerPrimary() { return }
+        await offerAlerts()
+    }
+
+    /// Puts "Which chart is yours?" up while the account owns charts and none
+    /// of them is its own, once a day. Answers whether it went up.
+    ///
+    /// Behind the location prompt, like the alerts offer: that one is the
+    /// system's own and goes up first, and a sheet under it is read blind.
+    @discardableResult
+    private func offerPrimary() -> Bool {
+        guard auth.isSignedIn, model.needsPrimary, !showsPrimaryPrompt, !coversScreen else { return false }
+        guard location.isSettled, PrimaryPromptSchedule.isDue else { return false }
+        PrimaryPromptSchedule.markShown()
+        showsPrimaryPrompt = true
+        return true
+    }
+
+    /// After "Which chart is yours?" has gone, however it went: the new-profile
+    /// form if the reader went to make their chart, else the next question.
+    /// From `onDismiss`, so the sheet is fully down before another goes up.
+    private func primaryPromptClosed() {
+        if createsOwnChart {
+            showsNewProfile = true
+        } else {
+            Task { await offerNext() }
+        }
+    }
+
+    /// Anything already up over the pages, which a question of the screen's
+    /// own must not land on: one sheet at a time is all SwiftUI presents.
+    private var coversScreen: Bool {
+        showsList || showsSearch || showsSettings || showsNewProfile || showsActivity || showsChats
+            || showsAlertsOffer || showsPrimaryPrompt || peopleTarget != nil || editing != nil
+            || reporting != nil || blocking != nil || unfollowing != nil || webDestination != nil
     }
 
     /// A tapped push about a like or a follow: Activity, over whatever sheet
@@ -479,22 +553,31 @@ struct WeatherHomeView: View {
     /// two presentations in one frame and SwiftUI drops the second, so the
     /// next one waits for this one to go.
     private func closeSheets() -> Bool {
-        let covered = showsList || showsSearch || showsSettings || showsNewProfile || peopleTarget != nil
+        let covered = showsList || showsSearch || showsSettings || showsNewProfile || showsPrimaryPrompt
+            || peopleTarget != nil
         showsList = false
         showsSearch = false
         showsSettings = false
         showsNewProfile = false
+        showsPrimaryPrompt = false
         peopleTarget = nil
         return covered
     }
 
     /// Turns the pager to a profile the empty state just made, once the list
-    /// holding its page has come back.
+    /// holding its page has come back. Made from "Which chart is yours?", it
+    /// is the account's own chart as well.
     private func openCreatedProfile() {
+        // Read and cleared either way: a form closed without saving leaves
+        // the question for another day.
+        let isOwnChart = createsOwnChart
+        createsOwnChart = false
         guard let created = createdProfile else { return }
         createdProfile = nil
 
         Task {
+            // A failure is logged by the model, and the question comes back.
+            if isOwnChart { _ = await model.claimPrimary(created) }
             await model.load(showSpinner: false)
             selection = created.profileId
             await refreshAlerts()

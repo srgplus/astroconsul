@@ -284,14 +284,21 @@ export function fetchInviteInfo(token: string): Promise<InviteInfo> {
   return fetch(`/api/v1/invites/${encodeURIComponent(token)}`).then(json<InviteInfo>)
 }
 
-export async function acceptInvite(
-  token: string,
-): Promise<{ status: string; profile_id: string; profile_name: string }> {
+/** `primary_profile_id` is the recipient's own chart after the transfer: null
+ *  when they have none yet, which is when the page asks whether this one is. */
+export interface AcceptedInvite {
+  status: string
+  profile_id: string
+  profile_name: string
+  primary_profile_id?: string | null
+}
+
+export async function acceptInvite(token: string): Promise<AcceptedInvite> {
   const auth = await getAuthHeaders()
   return fetch(`/api/v1/invites/${encodeURIComponent(token)}/accept`, {
     method: "POST",
     headers: auth,
-  }).then(json<{ status: string; profile_id: string; profile_name: string }>)
+  }).then(json<AcceptedInvite>)
 }
 
 // --- Synastry ---

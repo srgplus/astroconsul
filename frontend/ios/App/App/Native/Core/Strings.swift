@@ -113,6 +113,15 @@ private let enUI: [String: String] = [
     "offer.accept": "Turn them on",
     "offer.decline": "Not now",
 
+    // Which chart is the account's own
+    "primary.title": "Which chart is yours?",
+    "primary.titleOne": "Is this your chart?",
+    "primary.body": "Your own chart opens first and gets your alerts. It's also how other people see you when you follow or like them.",
+    "primary.choose": "This is me",
+    "primary.addOwn": "My chart isn't here, add it",
+    "primary.later": "Not now",
+    "primary.failed": "Couldn't save. Try again.",
+
     // Home
     "home.notSignedIn": "Not signed in",
     "home.notSignedInBody": "Sign in to see your forecast.",
@@ -894,6 +903,15 @@ private let ruUI: [String: String] = [
     "offer.footnote": "Около полудня. В настройках можно сдвинуть время или просить сводку каждый день.",
     "offer.accept": "Включить",
     "offer.decline": "Не сейчас",
+
+    // Which chart is the account's own
+    "primary.title": "Какая карта ваша?",
+    "primary.titleOne": "Это ваша карта?",
+    "primary.body": "Своя карта открывается первой и получает уведомления. По ней же вас видят другие, когда вы подписываетесь или ставите лайк.",
+    "primary.choose": "Это я",
+    "primary.addOwn": "Моей карты нет, добавить",
+    "primary.later": "Позже",
+    "primary.failed": "Не удалось сохранить. Попробуйте ещё раз.",
 
     // Home
     "home.notSignedIn": "Вход не выполнен",

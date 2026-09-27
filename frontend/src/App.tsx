@@ -396,12 +396,16 @@ export function App() {
         setProfiles(profilesPayload.profiles)
         try { localStorage.setItem("cachedProfiles", JSON.stringify(profilesPayload.profiles)) } catch {}
 
-        // Primary profile: prefer server-side value, fall back to localStorage
-        const validIds = new Set(profilesPayload.profiles.map((p: ProfileSummary) => p.profile_id))
+        // Primary profile: prefer server-side value, fall back to localStorage.
+        // Only a profile the account owns counts: one it merely follows (a
+        // chart since given away) is dropped, not synced back to the server.
+        const ownIds = new Set(
+          profilesPayload.profiles.filter((p: ProfileSummary) => p.is_own !== false).map((p: ProfileSummary) => p.profile_id),
+        )
         const serverPrimary = profilesPayload.primary_profile_id ?? null
         const localPrimary = localStorage.getItem("primaryProfileId")
-        let effectivePrimary = serverPrimary && validIds.has(serverPrimary) ? serverPrimary : localPrimary
-        if (effectivePrimary && !validIds.has(effectivePrimary)) {
+        let effectivePrimary = serverPrimary && ownIds.has(serverPrimary) ? serverPrimary : localPrimary
+        if (effectivePrimary && !ownIds.has(effectivePrimary)) {
           if (profilesPayload.profiles.length > 0) {
             localStorage.removeItem("primaryProfileId")
             setPrimaryProfileId(null)
@@ -411,8 +415,8 @@ export function App() {
           localStorage.setItem("primaryProfileId", effectivePrimary)
           setPrimaryProfileId(effectivePrimary)
           // Sync localStorage → server if server doesn't have it yet
-          if (!serverPrimary && localPrimary && validIds.has(localPrimary)) {
-            setPrimaryProfile(localPrimary).catch(() => {})
+          if (!serverPrimary && localPrimary && ownIds.has(localPrimary)) {
+            setPrimaryProfile(localPrimary).catch((err) => console.error("Failed to sync primary profile:", err))
           }
         }
 
@@ -1619,6 +1623,11 @@ export function App() {
             setIsCreating(false)
             const profilesPayload = await fetchProfiles()
             setProfiles(profilesPayload.profiles)
+            // An account's first profile comes back as its primary.
+            if (profilesPayload.primary_profile_id) {
+              setPrimaryProfileId(profilesPayload.primary_profile_id)
+              localStorage.setItem("primaryProfileId", profilesPayload.primary_profile_id)
+            }
             setActiveProfileId(profileId)
           }}
         />
