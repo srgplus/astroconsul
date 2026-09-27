@@ -113,13 +113,16 @@ struct FollowBackButton: View {
     var body: some View {
         Button(action: action) {
             Group {
-                if isWorking {
-                    ProgressView().controlSize(.small).tint(Theme.spinner)
-                        .frame(minWidth: 60)
-                } else if isFollowed {
+                // Followed wins over working: a row follows back at once and
+                // lets the request catch up, so it says "Following" while
+                // the request is still out.
+                if isFollowed {
                     Label(L("social.following"), systemImage: "checkmark")
                         .labelStyle(.titleAndIcon)
                         .foregroundStyle(.white.opacity(0.7))
+                } else if isWorking {
+                    ProgressView().controlSize(.small).tint(Theme.spinner)
+                        .frame(minWidth: 60)
                 } else {
                     Text(L("social.followBack"))
                         .foregroundStyle(.white)

@@ -72,7 +72,7 @@ struct ActivityItem: Codable, Hashable, Identifiable {
     let id: String
     let kind: Kind
     let createdAt: String
-    let isUnread: Bool
+    var isUnread: Bool
     let actor: SocialCard
     /// The reader already follows the actor's chart, so the row offers no
     /// "Follow back".

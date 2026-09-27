@@ -57,7 +57,7 @@ class ProfileModel(Base):
     __tablename__ = "profiles"
 
     id: Mapped[str] = mapped_column(String(128), primary_key=True)
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     handle: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
@@ -106,7 +106,7 @@ class ProfileFollowModel(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
-    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     __table_args__ = (UniqueConstraint("user_id", "profile_id", name="uq_user_profile_follow"),)

@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from sqlalchemy import and_, delete, func, or_, select
+from sqlalchemy import and_, delete, func, or_, select, union, union_all
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.infrastructure.persistence.models import (
@@ -95,15 +95,9 @@ class SqlAlchemySocialRepository:
         if not user_ids:
             return {}
 
-        primary = {
-            user_id: primary_id
-            for user_id, primary_id in session.execute(
-                select(UserModel.id, UserModel.primary_profile_id).where(UserModel.id.in_(user_ids))
-            ).all()
-        }
-
         # The primary profile wins outright; without one, the profile touched
-        # last stands in for the account.
+        # last stands in for the account. The owner's primary rides along on
+        # each profile row, so this is one query rather than two.
         chosen: dict[str, tuple[str, str, str, datetime]] = {}
         rows = session.execute(
             select(
@@ -112,39 +106,43 @@ class SqlAlchemySocialRepository:
                 ProfileModel.display_name,
                 ProfileModel.handle,
                 ProfileModel.updated_at,
-            ).where(ProfileModel.user_id.in_(user_ids))
+                UserModel.primary_profile_id,
+            )
+            .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
+            .where(ProfileModel.user_id.in_(user_ids))
         ).all()
-        for profile_id, user_id, name, handle, updated_at in rows:
+        for profile_id, user_id, name, handle, updated_at, primary_id in rows:
             stamp = _aware(updated_at) or _EPOCH
             current = chosen.get(user_id)
-            if primary.get(user_id) == profile_id:
+            if primary_id == profile_id:
                 chosen[user_id] = (profile_id, name, handle, stamp)
-            elif current is None or (primary.get(user_id) != current[0] and stamp > current[3]):
+            elif current is None or (primary_id != current[0] and stamp > current[3]):
                 chosen[user_id] = (profile_id, name, handle, stamp)
 
         summaries: dict[str, Any] = {}
         readings: dict[str, dict[str, Any]] = {}
         picked_ids = [value[0] for value in chosen.values()]
         if picked_ids:
-            for chart_profile_id, payload in session.execute(
-                select(ProfileModel.id, NatalChartModel.chart_payload_json)
-                .join(NatalChartModel, NatalChartModel.id == ProfileModel.chart_id)
-                .where(ProfileModel.id.in_(picked_ids))
-            ).all():
-                chart: dict[str, Any] = payload if isinstance(payload, dict) else {}
-                summaries[str(chart_profile_id)] = chart.get("natal_summary")
-            # The last numbers each chart was read at, so a card opened from
-            # Activity shows the person's day rather than an empty sky.
-            for profile_id, tii, tension, feels in session.execute(
+            # The Big 3 alone, read out of the chart in the database: the
+            # whole payload is some 9 KB a card, and a card shows 100 bytes of
+            # it. With it, the last numbers each chart was read at, so a card
+            # opened from Activity shows the person's day rather than an empty
+            # sky.
+            for chart_profile_id, summary, tii, tension, feels in session.execute(
                 select(
-                    LatestTransitModel.profile_id,
+                    ProfileModel.id,
+                    NatalChartModel.chart_payload_json["natal_summary"],
                     LatestTransitModel.tii,
                     LatestTransitModel.tension_ratio,
                     LatestTransitModel.feels_like,
-                ).where(LatestTransitModel.profile_id.in_(picked_ids))
+                )
+                .join(NatalChartModel, NatalChartModel.id == ProfileModel.chart_id)
+                .outerjoin(LatestTransitModel, LatestTransitModel.profile_id == ProfileModel.id)
+                .where(ProfileModel.id.in_(picked_ids))
             ).all():
+                summaries[str(chart_profile_id)] = summary if isinstance(summary, dict) else None
                 if tii is not None:
-                    readings[profile_id] = {"tii": tii, "tension_ratio": tension, "feels_like": feels}
+                    readings[str(chart_profile_id)] = {"tii": tii, "tension_ratio": tension, "feels_like": feels}
 
         cards: dict[str, dict[str, Any]] = {}
         for user_id in user_ids:
@@ -460,9 +458,21 @@ class SqlAlchemySocialRepository:
             seen_at = _aware(user.activity_seen_at) if user is not None else None
             blocked = self._blocked_ids(session, user_id)
 
-            # (kind, row id, actor, profile, when, day liked, word that day)
+            # (kind, row id, actor, profile, when, day liked, word that day).
+            # The chart each one was on is already joined in to find the
+            # owner's, so its name and handle come along with the row.
             events: list[tuple[str, int, str, str, datetime, date | None, str | None]] = []
-            for row_id, actor_id, profile_id, created_at, day, feels_like in session.execute(
+            targets: dict[str, tuple[str | None, str | None]] = {}
+            for (
+                row_id,
+                actor_id,
+                profile_id,
+                created_at,
+                day,
+                feels_like,
+                target_name,
+                target_handle,
+            ) in session.execute(
                 select(
                     ProfileLikeModel.id,
                     ProfileLikeModel.user_id,
@@ -470,6 +480,8 @@ class SqlAlchemySocialRepository:
                     ProfileLikeModel.created_at,
                     ProfileLikeModel.day,
                     ProfileLikeModel.feels_like,
+                    ProfileModel.display_name,
+                    ProfileModel.handle,
                 )
                 .join(ProfileModel, ProfileModel.id == ProfileLikeModel.profile_id)
                 .where(ProfileModel.user_id == user_id, ProfileLikeModel.user_id != user_id)
@@ -477,15 +489,18 @@ class SqlAlchemySocialRepository:
                 .limit(limit)
             ).all():
                 if actor_id not in blocked:
+                    targets[profile_id] = (target_name, target_handle)
                     events.append(
                         ("like", row_id, actor_id, profile_id, _aware(created_at) or _now_utc(), day, feels_like)
                     )
-            for row_id, actor_id, profile_id, created_at in session.execute(
+            for row_id, actor_id, profile_id, created_at, target_name, target_handle in session.execute(
                 select(
                     ProfileFollowModel.id,
                     ProfileFollowModel.user_id,
                     ProfileFollowModel.profile_id,
                     ProfileFollowModel.created_at,
+                    ProfileModel.display_name,
+                    ProfileModel.handle,
                 )
                 .join(ProfileModel, ProfileModel.id == ProfileFollowModel.profile_id)
                 .where(ProfileModel.user_id == user_id, ProfileFollowModel.user_id != user_id)
@@ -493,6 +508,7 @@ class SqlAlchemySocialRepository:
                 .limit(limit)
             ).all():
                 if actor_id not in blocked:
+                    targets[profile_id] = (target_name, target_handle)
                     events.append(
                         ("follow", row_id, actor_id, profile_id, _aware(created_at) or _now_utc(), None, None)
                     )
@@ -501,14 +517,6 @@ class SqlAlchemySocialRepository:
             events = events[:limit]
 
             cards = self._cards_for_users(session, {event[2] for event in events})
-            targets = {
-                profile_id: (name, handle)
-                for profile_id, name, handle in session.execute(
-                    select(ProfileModel.id, ProfileModel.display_name, ProfileModel.handle).where(
-                        ProfileModel.id.in_({event[3] for event in events})
-                    )
-                ).all()
-            }
             followed = self._followed_profile_ids(
                 session,
                 user_id,
@@ -534,31 +542,38 @@ class SqlAlchemySocialRepository:
 
             return {
                 "items": items,
-                "unread_count": self._unread_count(session, user_id, seen_at, blocked),
+                "unread_count": self._unread_count(session, user_id),
                 "seen_at": _isoformat_z(seen_at) if seen_at else None,
             }
 
-    def _unread_count(self, session: Session, user_id: str, seen_at: datetime | None, blocked: set[str]) -> int:
-        total = 0
-        for model in (ProfileLikeModel, ProfileFollowModel):
-            conditions = [ProfileModel.user_id == user_id, model.user_id != user_id]
-            if seen_at is not None:
-                conditions.append(model.created_at > seen_at)
-            if blocked:
-                conditions.append(model.user_id.not_in(blocked))
-            total += session.execute(
-                select(func.count())
-                .select_from(model)
+    def _unread_count(self, session: Session, user_id: str) -> int:
+        """Likes and follows on the account's charts since Activity was last
+        opened, less anyone across a block. One query, the read marker and
+        the blocks asked inside it: the badge asks on every return to the
+        app, and each query is a round trip to the database."""
+        seen_at = select(UserModel.activity_seen_at).where(UserModel.id == user_id).scalar_subquery()
+        blocked = union(
+            select(UserBlockModel.blocked_id).where(UserBlockModel.blocker_id == user_id),
+            select(UserBlockModel.blocker_id).where(UserBlockModel.blocked_id == user_id),
+        )
+        events = union_all(
+            *(
+                select(model.id)
                 .join(ProfileModel, ProfileModel.id == model.profile_id)
-                .where(and_(*conditions))
-            ).scalar_one()
-        return int(total)
+                .where(
+                    ProfileModel.user_id == user_id,
+                    model.user_id != user_id,
+                    model.user_id.not_in(blocked),
+                    or_(seen_at.is_(None), model.created_at > seen_at),
+                )
+                for model in (ProfileLikeModel, ProfileFollowModel)
+            )
+        ).subquery()
+        return int(session.execute(select(func.count()).select_from(events)).scalar_one())
 
     def unread_activity_count(self, user_id: str) -> int:
         with self.session_factory() as session:
-            user = session.get(UserModel, user_id)
-            seen_at = _aware(user.activity_seen_at) if user is not None else None
-            return self._unread_count(session, user_id, seen_at, self._blocked_ids(session, user_id))
+            return self._unread_count(session, user_id)
 
     def mark_activity_seen(self, user_id: str) -> None:
         with self.session_factory() as session:

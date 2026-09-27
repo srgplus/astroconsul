@@ -43,6 +43,29 @@ final class SocialStore: ObservableObject {
     /// first instead of racing it.
     @Published private(set) var pending: Set<String> = []
 
+    /// The last Activity the server sent. The screen opens on it at once and
+    /// asks again underneath, rather than standing behind a spinner for a
+    /// request that most times brings back the same rows. Not published:
+    /// nothing draws from it but the screen, which copies it on open.
+    private(set) var activity: [ActivityItem]?
+
+    /// The unread count the cached rows were fetched at. The badge asks the
+    /// server on every return to the app; when it answers with another
+    /// number, the rows are out of date and are fetched before the tap.
+    private var activityUnreadAtFetch: Int?
+
+    /// The Activity request in flight, shared by whoever asks while it is
+    /// out: the fetch ahead and the screen opening can land together.
+    private var activityRequest: Task<ActivityResponse, Error>?
+
+    /// Who follows each of the reader's charts, as last fetched, for the
+    /// people sheet to open on while it asks again.
+    private(set) var followers: [String: [SocialPerson]] = [:]
+
+    /// Moved on by every `reset`, so a request that set out for the last
+    /// account cannot leave its rows behind for the next one.
+    private var generation = 0
+
     private let api: APIClient
 
     init(api: APIClient = .shared) {
@@ -139,10 +162,53 @@ final class SocialStore: ObservableObject {
             return
         }
         do {
-            unreadActivity = try await api.fetchUnreadActivityCount()
+            let count = try await api.fetchUnreadActivityCount()
+            unreadActivity = count
+            // Something came in since the rows were fetched, or there are no
+            // rows yet: fetched now, in the background, so the bell opens on
+            // them rather than on a spinner.
+            if activity == nil || activityUnreadAtFetch != count {
+                prefetchActivity()
+            }
         } catch {
             if !error.isCancellation {
                 NSLog("[Social] unread count failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Activity
+
+    /// Fetches Activity and keeps it for the next open. A request already
+    /// out is joined rather than doubled.
+    func fetchActivity() async throws -> [ActivityItem] {
+        let request: Task<ActivityResponse, Error>
+        if let activityRequest {
+            request = activityRequest
+        } else {
+            request = Task { [api] in try await api.fetchActivity() }
+            activityRequest = request
+        }
+        defer {
+            if activityRequest == request { activityRequest = nil }
+        }
+        let account = generation
+        let response = try await request.value
+        // Signed out while it was out: these rows are the last account's.
+        guard account == generation else { throw CancellationError() }
+        activity = response.items
+        activityUnreadAtFetch = response.unreadCount
+        return response.items
+    }
+
+    private func prefetchActivity() {
+        Task {
+            do {
+                _ = try await fetchActivity()
+            } catch {
+                if !error.isCancellation {
+                    NSLog("[Social] activity prefetch failed: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -151,6 +217,14 @@ final class SocialStore: ObservableObject {
     /// server is told so it stays gone on the next launch.
     func markActivitySeen() async {
         unreadActivity = 0
+        // The kept rows have been read too. Left marked new, the next open
+        // would show them under "New" until the refresh moved them down.
+        activity = activity?.map { item -> ActivityItem in
+            var read = item
+            read.isUnread = false
+            return read
+        }
+        activityUnreadAtFetch = 0
         #if DEBUG
         if isOffline { return }
         #endif
@@ -163,10 +237,32 @@ final class SocialStore: ObservableObject {
         }
     }
 
+    // MARK: - Followers
+
+    /// Who follows one of the reader's charts, kept for the next open.
+    func fetchFollowers(of profileId: String) async throws -> [SocialPerson] {
+        let account = generation
+        let people = try await api.fetchFollowers(profileId: profileId)
+        if account == generation { followers[profileId] = people }
+        return people
+    }
+
+    /// Drops a chart's kept followers: after a block, the list it holds has
+    /// someone in it who is no longer there.
+    func forgetFollowers(of profileId: String) {
+        followers[profileId] = nil
+    }
+
     /// Everything here belongs to the account that was signed in.
     func reset() {
         snapshots = [:]
         unreadActivity = 0
         pending = []
+        generation += 1
+        activityRequest?.cancel()
+        activityRequest = nil
+        activity = nil
+        activityUnreadAtFetch = nil
+        followers = [:]
     }
 }

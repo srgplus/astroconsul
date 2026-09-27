@@ -110,7 +110,7 @@ struct ActivityScreen: View {
                 errorText: $previewError,
                 onSubscribe: {
                     Task {
-                        if let error = await list.follow(profile) {
+                        if let error = await list.follow(profile, waitingForList: false) {
                             previewError = error.localizedDescription
                         } else {
                             preview = nil

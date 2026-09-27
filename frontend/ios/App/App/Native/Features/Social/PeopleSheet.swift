@@ -87,12 +87,26 @@ struct PeopleSheet: View {
                 onBlocked: {
                     preview = nil
                     followers = nil
+                    SocialStore.shared.forgetFollowers(of: profile.profileId)
                     Task {
                         await list.load(showSpinner: false)
                         await loadFollowers()
                     }
                 }
             )
+        }
+        // A follow back from a row that the server refused: the row has gone
+        // back to "Follow back", and this says why. The preview shows its own.
+        .alert(
+            L("search.followError"),
+            isPresented: Binding(
+                get: { errorText != nil && preview == nil },
+                set: { if !$0 { errorText = nil } }
+            )
+        ) {
+            Button(L("common.ok"), role: .cancel) { errorText = nil }
+        } message: {
+            Text(errorText ?? "")
         }
     }
 
@@ -266,30 +280,41 @@ struct PeopleSheet: View {
         }
         #endif
         failure = nil
+        // The list from the last open, drawn at once and freshened in place.
+        if followers == nil {
+            followers = SocialStore.shared.followers[profile.profileId]
+        }
         do {
-            followers = try await APIClient.shared.fetchFollowers(profileId: profile.profileId)
+            followers = try await SocialStore.shared.fetchFollowers(of: profile.profileId)
         } catch {
             guard !error.isCancellation else { return }
             NSLog("[People] followers load failed: \(error.localizedDescription)")
-            failure = error.localizedDescription
+            // A kept list stays up rather than turning into an error over one
+            // refresh that did not arrive.
+            if followers == nil { failure = error.localizedDescription }
         }
     }
 
+    /// Follows from a row or from the preview. The row says "Following" at
+    /// once, the way the heart does, and the request catches up; a refusal
+    /// takes it back and says why. The preview waits for the server before
+    /// it closes, and neither waits for the list to reload behind them.
     private func follow(_ person: ProfileSummary) async {
-        guard !following.contains(person.profileId) else { return }
+        let id = person.profileId
+        guard !following.contains(id) else { return }
+        followedHere.insert(id)
         #if DEBUG
         if WeatherPreviewHarness.isEnabled {
-            followedHere.insert(person.profileId)
             preview = nil
             return
         }
         #endif
-        following.insert(person.profileId)
-        defer { following.remove(person.profileId) }
-        if let error = await list.follow(person) {
-            errorText = error.localizedDescription
+        following.insert(id)
+        defer { following.remove(id) }
+        if let error = await list.follow(person, waitingForList: false) {
+            followedHere.remove(id)
+            errorText = error.isCancellation ? nil : error.localizedDescription
         } else {
-            followedHere.insert(person.profileId)
             preview = nil
         }
     }

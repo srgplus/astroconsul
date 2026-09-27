@@ -16,12 +16,13 @@ from pathlib import Path
 from typing import Any
 
 from fastapi.testclient import TestClient
+from sqlalchemy import update
 
 from app.api.auth import get_current_user
 from app.api.dependencies import clear_dependency_caches
 from app.core.config import clear_settings_cache
 from app.infrastructure.persistence.base import Base
-from app.infrastructure.persistence.models import ProfileLikeModel
+from app.infrastructure.persistence.models import ProfileLikeModel, UserModel
 from app.infrastructure.persistence.session import clear_engine_cache, get_engine, get_session_factory
 from app.main import create_app
 
@@ -243,6 +244,46 @@ class ActivityTests(SocialTestCase):
         item = self.as_user(ANNA).get("/api/v1/activity").json()["items"][0]
 
         self.assertTrue(item["actor_followed"])
+
+    def test_actor_card_is_the_primary_chart_with_its_big_three(self) -> None:
+        # A chart made after the primary is the one touched last; the card
+        # still shows the primary, and the Big 3 read out of its chart.
+        self._create_extra_profile(BORIS, "Boris Mum", "boris_mum", "1960-06-15")
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like")
+
+        actor = self.as_user(ANNA).get("/api/v1/activity").json()["items"][0]["actor"]
+        chart = self.as_user(BORIS).get(f"/api/v1/profiles/{self.boris_profile}").json()["chart"]
+
+        self.assertEqual(actor["profile_id"], self.boris_profile)
+        self.assertEqual(actor["natal_summary"], chart["natal_summary"])
+        self.assertTrue(actor["natal_summary"]["sun"])
+
+    def test_unread_leaves_out_what_was_seen_and_counts_what_came_after(self) -> None:
+        # Timestamps are kept to the second, so the like and the visit are
+        # moved back an hour rather than left to land in the same one.
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like")
+        self.as_user(ANNA).post("/api/v1/activity/seen")
+        session_factory = get_session_factory(os.environ["ASTRO_CONSUL_DATABASE_URL"])
+        with session_factory() as session:
+            hour_ago = datetime.now(UTC).replace(microsecond=0) - timedelta(hours=1)
+            session.execute(update(ProfileLikeModel).values(created_at=hour_ago - timedelta(minutes=1)))
+            session.execute(update(UserModel).where(UserModel.id == ANNA).values(activity_seen_at=hour_ago))
+            session.commit()
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/follow")
+        self.as_user(CLARA).post(f"/api/v1/profiles/{self.anna_profile}/like")
+
+        unread = self.as_user(ANNA).get("/api/v1/activity/unread").json()
+        activity = self.as_user(ANNA).get("/api/v1/activity").json()
+
+        self.assertEqual(unread["unread_count"], 2)
+        self.assertEqual(activity["unread_count"], 2)
+        self.assertEqual([item["is_unread"] for item in activity["items"]], [True, True, False])
+
+    def _create_extra_profile(self, user_id: str, name: str, username: str, birth_date: str) -> str:
+        response = self.as_user(user_id).post("/api/v1/profiles", json=_profile_body(name, username, birth_date))
+        self.assertEqual(response.status_code, 200, response.text)
+        profile_id: str = response.json()["profile"]["profile_id"]
+        return profile_id
 
 
 class CountsTests(SocialTestCase):
