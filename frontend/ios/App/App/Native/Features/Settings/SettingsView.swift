@@ -34,6 +34,11 @@ struct SettingsView: View {
     @State private var showsCounts: Bool?
     @State private var countsError: String?
 
+    /// Whether a like, or a new follower, is pushed to this phone. Nil until
+    /// the server has answered, like the counts switch.
+    @State private var pushLikes: Bool?
+    @State private var pushFollows: Bool?
+
     var body: some View {
         NavigationStack {
             Form {
@@ -81,7 +86,12 @@ struct SettingsView: View {
             }
 
             Button(L("settings.signOut"), role: .destructive) {
-                auth.signOut()
+                Task {
+                    // First, while the token still works: this phone stops
+                    // getting the account's pushes.
+                    await PushNotifications.shared.unregister()
+                    auth.signOut()
+                }
             }
         } header: {
             Text(L("settings.account"))
@@ -132,6 +142,7 @@ struct SettingsView: View {
         isDeleting = true
         do {
             try await APIClient.shared.deleteAccount()
+            await PushNotifications.shared.unregister()
             auth.signOut()
             dismiss()
         } catch {
@@ -303,6 +314,17 @@ struct SettingsView: View {
                     }
                 }
                 .disabled(showsCounts == nil)
+
+                Toggle(L("settings.pushLikes"), isOn: pushBinding(.likes))
+                    .disabled(pushLikes == nil)
+                Toggle(L("settings.pushFollows"), isOn: pushBinding(.follows))
+                    .disabled(pushFollows == nil)
+
+                // The switches above are the server's; the phone's own
+                // permission is the other half, and only iOS can give it back.
+                if alerts.authorization == .denied, pushLikes == true || pushFollows == true {
+                    Button(L("settings.openIosSettings")) { openSystemSettings() }
+                }
             }
 
             NavigationLink(L("blocked.title")) {
@@ -360,10 +382,54 @@ struct SettingsView: View {
         )
     }
 
+    private enum PushKind {
+        case likes
+        case follows
+    }
+
+    /// Flipped at once and saved behind it, like the counts switch. Turning
+    /// one on where the phone has never been asked puts the question now.
+    private func pushBinding(_ kind: PushKind) -> Binding<Bool> {
+        Binding(
+            get: { (kind == .likes ? pushLikes : pushFollows) ?? true },
+            set: { isOn in
+                let before = kind == .likes ? pushLikes : pushFollows
+                setPush(kind, isOn)
+                Task {
+                    do {
+                        let saved = try await APIClient.shared.updateSocialSettings(
+                            pushLikes: kind == .likes ? isOn : nil,
+                            pushFollows: kind == .follows ? isOn : nil
+                        )
+                        pushLikes = saved.pushLikes ?? pushLikes
+                        pushFollows = saved.pushFollows ?? pushFollows
+                        if isOn {
+                            await PushNotifications.shared.askIfUndetermined()
+                        }
+                    } catch {
+                        NSLog("[Settings] saving the push setting failed: \(error.localizedDescription)")
+                        setPush(kind, before)
+                        if !error.isCancellation { countsError = error.localizedDescription }
+                    }
+                }
+            }
+        )
+    }
+
+    private func setPush(_ kind: PushKind, _ value: Bool?) {
+        switch kind {
+        case .likes: pushLikes = value
+        case .follows: pushFollows = value
+        }
+    }
+
     private func loadCountsSetting() async {
         guard auth.isSignedIn else { return }
         do {
-            showsCounts = try await APIClient.shared.fetchSocialSettings().showCounts
+            let settings = try await APIClient.shared.fetchSocialSettings()
+            showsCounts = settings.showCounts
+            pushLikes = settings.pushLikes ?? true
+            pushFollows = settings.pushFollows ?? true
         } catch {
             guard !error.isCancellation else { return }
             NSLog("[Settings] loading the counts setting failed: \(error.localizedDescription)")

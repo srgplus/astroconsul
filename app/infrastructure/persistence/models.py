@@ -3,7 +3,20 @@ from __future__ import annotations
 from datetime import date, datetime, time
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, Time, UniqueConstraint, false
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Time,
+    UniqueConstraint,
+    false,
+    true,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
@@ -34,6 +47,11 @@ class UserModel(Base):
     # itself. Everyone else then gets no numbers on its charts; the owner
     # still sees both.
     hide_social_counts: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
+    # Whether a like or a new follower on this account's charts is pushed to
+    # its devices. On unless switched off in Settings; the phone's own
+    # notification permission still decides whether anything arrives.
+    push_likes: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    push_follows: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     profiles: Mapped[list[ProfileModel]] = relationship(back_populates="user")
@@ -262,5 +280,26 @@ class SubscriptionModel(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DeviceTokenModel(Base):
+    """One phone an account is signed in on, as APNs knows it.
+
+    The token is the key: a phone has one per app install, and when a
+    different account signs in on it the row moves to that account rather
+    than the phone getting both accounts' pushes. `environment` is which APNs
+    host the token belongs to (a debug build's tokens only work against the
+    sandbox), and `lang` the language the app was read in, so the text of a
+    push matches the app's rather than the server's guess.
+    """
+
+    __tablename__ = "device_tokens"
+
+    token: Mapped[str] = mapped_column(String(200), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    environment: Mapped[str] = mapped_column(String(16), nullable=False, default="production")
+    lang: Mapped[str] = mapped_column(String(8), nullable=False, default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

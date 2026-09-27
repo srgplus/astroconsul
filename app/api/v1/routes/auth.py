@@ -13,6 +13,7 @@ from sqlalchemy import delete, select
 from app.api.auth import get_current_user
 from app.core.config import get_settings
 from app.infrastructure.persistence.models import (
+    DeviceTokenModel,
     LatestTransitModel,
     ProfileFollowModel,
     ProfileInviteModel,
@@ -42,8 +43,8 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
 
     Removes: user row, profiles, natal charts used only by this user's profiles,
     latest transit snapshots, follow relationships, likes given and received,
-    blocks either way, reports this user filed, invites, subscriptions, and
-    the Supabase Auth record itself.
+    blocks either way, reports this user filed, invites, subscriptions, the
+    phones registered for pushes, and the Supabase Auth record itself.
 
     This is irreversible. Required by App Store guideline 5.1.1(v).
     """
@@ -75,6 +76,7 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
             session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.invited_by == user_id))
             session.execute(delete(ProfileModel).where(ProfileModel.user_id == user_id))
             session.execute(delete(SubscriptionModel).where(SubscriptionModel.user_id == user_id))
+            session.execute(delete(DeviceTokenModel).where(DeviceTokenModel.user_id == user_id))
             session.execute(delete(UserModel).where(UserModel.id == user_id))
 
     # --- 2. Delete Supabase Auth record ---

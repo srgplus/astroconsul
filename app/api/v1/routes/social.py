@@ -23,12 +23,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.api.auth import get_current_user
 from app.api.dependencies import get_repositories
 from app.application.services.email_service import send_report_email
+from app.application.services.social_push import notify_like
 from app.domain.astrology.tii import FEELS_LIKE_LABELS
 from app.domain.moderation import REPORT_DETAILS_MAX, REPORT_REASONS
 from app.infrastructure.repositories.factory import RepositoryBundle
@@ -64,9 +65,24 @@ class ReportRequest(BaseModel):
 
 
 class SocialSettingsRequest(BaseModel):
+    # Each is optional: a client sends the one switch that was flipped.
     # Whether other people see how many follow this account's charts and how
     # many it follows. The owner sees both either way.
-    show_counts: bool
+    show_counts: bool | None = None
+    # Whether a like, or a new follower, on this account's charts is pushed
+    # to its phones.
+    push_likes: bool | None = None
+    push_follows: bool | None = None
+
+
+class DeviceRequest(BaseModel):
+    # The APNs device token, hex, as the phone handed it to the app.
+    token: str = Field(min_length=16, max_length=200, pattern=r"^[0-9a-fA-F]+$")
+    # Which APNs host the token belongs to: a debug build's tokens work only
+    # against the sandbox, TestFlight and the App Store against production.
+    environment: str = Field(default="production", pattern=r"^(production|sandbox)$")
+    # The language the app is read in, for the text of the push.
+    lang: str = Field(default="en", pattern=r"^(en|ru)$")
 
 
 def _social(repos: RepositoryBundle) -> SocialRepository:
@@ -111,6 +127,7 @@ def _require_owner(profile: dict[str, Any], user_id: str) -> None:
 @router.post("/profiles/{profile_id}/like")
 def like_profile(
     profile_id: str,
+    background: BackgroundTasks,
     payload: LikeRequest | None = Body(default=None),
     user: dict[str, Any] = Depends(get_current_user),
     repos: RepositoryBundle = Depends(get_repositories),
@@ -128,12 +145,15 @@ def like_profile(
     # A word the matrix never produces is dropped rather than stored: it is
     # shown to the chart's owner, so it has to be one of ours.
     feels_like = payload.feels_like if payload and payload.feels_like in FEELS_LIKE_LABELS else None
-    social.like_profile(
+    first_today = social.like_profile(
         user["user_id"],
         profile_id,
         feels_like=feels_like,
         tii=payload.tii if payload else None,
     )
+    if first_today:
+        # After the response: the heart fills as fast as it did without it.
+        background.add_task(notify_like, repos, user["user_id"], profile, feels_like)
     return {"status": "ok", **social.social_counts([profile_id], user["user_id"])[profile_id]}
 
 
@@ -225,8 +245,45 @@ def update_social_settings(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, bool]:
     """Shows or hides the account's followers and following counts from
-    everyone else, on every chart it owns."""
-    return _social(repos).update_social_settings(user["user_id"], show_counts=payload.show_counts)
+    everyone else, on every chart it owns, and turns the pushes for likes
+    and new followers on or off. Answers with all of them as they stand."""
+    return _social(repos).update_social_settings(
+        user["user_id"],
+        show_counts=payload.show_counts,
+        push_likes=payload.push_likes,
+        push_follows=payload.push_follows,
+    )
+
+
+# MARK: - Devices
+
+
+@router.post("/devices")
+def register_device(
+    payload: DeviceRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    """The phone the app runs on, for pushes. Sent on every launch, so a
+    changed language or a token the phone rotated is picked up."""
+    _social(repos).register_device(
+        user["user_id"],
+        payload.token.lower(),
+        environment=payload.environment,
+        lang=payload.lang,
+    )
+    return {"status": "ok"}
+
+
+@router.delete("/devices/{token}")
+def unregister_device(
+    token: str,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> dict[str, str]:
+    """Sign-out: this phone stops hearing about the account."""
+    _social(repos).unregister_device(user["user_id"], token.lower())
+    return {"status": "ok"}
 
 
 # MARK: - Blocks

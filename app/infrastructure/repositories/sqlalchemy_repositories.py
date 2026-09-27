@@ -548,7 +548,9 @@ class SqlAlchemyProfileRepository:
                 results.append(summary)
             return results
 
-    def follow_profile(self, user_id: str, profile_id: str) -> None:
+    def follow_profile(self, user_id: str, profile_id: str) -> bool:
+        """True when this is a new follow, False when it was already there:
+        only a new one is worth telling the chart's owner about."""
         with self.session_factory() as session:
             ensure_user(session, user_id)
             existing = session.execute(
@@ -558,7 +560,7 @@ class SqlAlchemyProfileRepository:
                 )
             ).scalar_one_or_none()
             if existing is not None:
-                return
+                return False
             follow = ProfileFollowModel(
                 user_id=user_id,
                 profile_id=profile_id,
@@ -566,6 +568,7 @@ class SqlAlchemyProfileRepository:
             )
             session.add(follow)
             session.commit()
+            return True
 
     def unfollow_profile(self, user_id: str, profile_id: str) -> None:
         with self.session_factory() as session:

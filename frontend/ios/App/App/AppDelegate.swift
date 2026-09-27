@@ -56,6 +56,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    // MARK: - Push
+
+    /// APNs answered `registerForRemoteNotifications` with this install's
+    /// token; the server needs it to push likes and follows here.
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Task { @MainActor in PushNotifications.shared.didRegister(deviceToken: deviceToken) }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        let message = error.localizedDescription
+        Task { @MainActor in PushNotifications.shared.didFailToRegister(message) }
+    }
+
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         // Called when the app was launched with a url. Feel free to add additional processing here,
         // but if you want the App API to support tracking app url opens, make sure to keep this call
@@ -82,6 +95,22 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        [.banner, .sound, .list]
+        // A like or a follow that arrives with the app open shows as a banner
+        // too, and the bell's count catches up with it straight away.
+        let kind = notification.request.content.userInfo["kind"] as? String
+        if PushNotifications.isSocial(kind: kind) {
+            Task { @MainActor in await SocialStore.shared.refreshUnread() }
+        }
+        return [.banner, .sound, .list]
+    }
+
+    /// A tapped push about a like or a follow opens Activity; a weather alert
+    /// just opens the app, as it always has.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let kind = response.notification.request.content.userInfo["kind"] as? String
+        await MainActor.run { PushNotifications.shared.handleTap(kind: kind) }
     }
 }
