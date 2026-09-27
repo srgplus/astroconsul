@@ -478,7 +478,7 @@ private let enSocial: [String: String] = [
     "settings.pushFollows": "Notify me about new followers",
     "settings.pushMessages": "Notify me about messages",
 
-    "chats.title": "Messages",
+    "chats.title": "Chat",
     "chats.new": "New Message",
     "chats.message": "Message",
     "chats.emptyTitle": "No messages yet",
@@ -487,6 +487,7 @@ private let enSocial: [String: String] = [
     "chats.ownBody": "People write to you through your own chart, and see it when you write to them. Choose it once.",
     "chats.noOwnChart": "Add your own chart first: people write to you through it.",
     "chats.searchPrompt": "Search",
+    "chats.searchField": "Search chats and messages…",
     "chats.contactsFailed": "Could not load people",
     "chats.contactsEmptyTitle": "Nobody to write to yet",
     "chats.contactsEmptyBody": "Follow someone's own chart, or wait until someone follows yours.",
@@ -1252,7 +1253,7 @@ private let ruSocial: [String: String] = [
     "settings.pushFollows": "Уведомлять о новых подписчиках",
     "settings.pushMessages": "Уведомлять о сообщениях",
 
-    "chats.title": "Сообщения",
+    "chats.title": "Чат",
     "chats.new": "Новое сообщение",
     "chats.message": "Написать",
     "chats.emptyTitle": "Пока нет сообщений",
@@ -1261,6 +1262,7 @@ private let ruSocial: [String: String] = [
     "chats.ownBody": "Вам пишут через вашу собственную карту, и её видят, когда пишете вы. Выберите её один раз.",
     "chats.noOwnChart": "Сначала добавьте свою карту: вам будут писать через неё.",
     "chats.searchPrompt": "Поиск",
+    "chats.searchField": "Поиск по чатам и сообщениям…",
     "chats.contactsFailed": "Не удалось загрузить список",
     "chats.contactsEmptyTitle": "Пока некому написать",
     "chats.contactsEmptyBody": "Подпишитесь на чью-нибудь собственную карту или дождитесь, пока подпишутся на вашу.",

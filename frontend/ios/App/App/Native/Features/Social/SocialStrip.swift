@@ -4,13 +4,15 @@ import SwiftUI
 ///
 /// On someone else's chart: how many follow the chart and how many its owner
 /// follows, then one follow button — "Follow", "Follow back" or
-/// "✓ Following", the way Instagram has one — and the heart for the state of
-/// the sky on screen, with every like the chart has ever had beside it.
+/// "✓ Following", the way Instagram has one — "Message" when the chart is its
+/// owner's own, and the heart for the state of the sky on screen, with every
+/// like the chart has ever had beside it.
 /// Those numbers are numbers only: nobody reads another person's lists, and
 /// an owner can hide the numbers in Settings.
 ///
 /// On your own: the same two counts, each opening who they are, and in the
-/// heart's place how many likes the chart has had, as plain text. You cannot
+/// heart's place how many likes the chart has had, as plain text by a white
+/// heart. You cannot
 /// like your own charts, so there is nothing there to tap, and glass would
 /// promise a tap. Who liked it is in Activity, the bell in the page's corner.
 struct SocialStrip: View {
@@ -42,6 +44,11 @@ struct SocialStrip: View {
 
     var onOpenPeople: ((PeopleSheet.Tab) -> Void)?
 
+    /// Someone's own chart, which is the one way to write to them: "Message"
+    /// beside the follow button, as Instagram has it. Nil where there is
+    /// nobody behind the chart to answer, or it is the reader's.
+    var onMessage: (() -> Void)?
+
     @ObservedObject private var social = SocialStore.shared
     @ObservedObject private var strings = L10n.shared
     @State private var likeError: String?
@@ -52,32 +59,17 @@ struct SocialStrip: View {
 
     var body: some View {
         WeatherGlassGroup(spacing: 6) {
-            // One line: the people on the left, the follow button in the room
-            // before the heart, and the heart always last, on the right. With
-            // the counts hidden by their owner, the two that are left sit in
-            // the middle instead of against the right edge.
-            HStack(spacing: 6) {
-                if showsCounts {
-                    counts
-                    Spacer(minLength: 0)
+            if showsFollow || showsMessage {
+                // One line while everything fits at full size, "Message"
+                // down to its bubble next, and the buttons on a line of their
+                // own under the counts before any number is cut short.
+                ViewThatFits(in: .horizontal) {
+                    line(compactMessage: false)
+                    line(compactMessage: true)
+                    twoLines
                 }
-                if !isOwn, onFollow != nil || onUnfollow != nil {
-                    FollowButton(
-                        isFollowing: isFollowing,
-                        followsYou: profile.followsYou == true,
-                        isWorking: isFollowWorking,
-                        onFollow: onFollow,
-                        onUnfollow: onUnfollow.map { unfollow in { unfollow(profile) } }
-                    )
-                    // First call on the width, so "Follow back" is spelled
-                    // out whenever the counts can give up a little of theirs.
-                    .layoutPriority(1)
-                }
-                if isOwn {
-                    likesReceived
-                } else {
-                    likePill
-                }
+            } else {
+                line(compactMessage: false)
             }
         }
         .frame(maxWidth: .infinity)
@@ -96,6 +88,70 @@ struct SocialStrip: View {
     }
 
     static let height: CGFloat = 34
+
+    private var showsFollow: Bool { !isOwn && (onFollow != nil || onUnfollow != nil) }
+    private var showsMessage: Bool { !isOwn && onMessage != nil }
+
+    /// The people on the left, the buttons in the room before the heart, and
+    /// the heart always last, on the right. With the counts hidden by their
+    /// owner, what is left sits in the middle instead of against the edge.
+    private func line(compactMessage: Bool) -> some View {
+        HStack(spacing: 6) {
+            if showsCounts {
+                counts
+                Spacer(minLength: 0)
+            }
+            buttons(compactMessage: compactMessage, fillWidth: false)
+            heart
+        }
+    }
+
+    /// The counts and the heart as on one line, and under them the buttons
+    /// sharing the width, the way Instagram lays out Following and Message.
+    private var twoLines: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                if showsCounts {
+                    counts
+                }
+                Spacer(minLength: 0)
+                heart
+            }
+            HStack(spacing: 6) {
+                buttons(compactMessage: false, fillWidth: true)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func buttons(compactMessage: Bool, fillWidth: Bool) -> some View {
+        if showsFollow {
+            FollowButton(
+                isFollowing: isFollowing,
+                followsYou: profile.followsYou == true,
+                isWorking: isFollowWorking,
+                fillsWidth: fillWidth,
+                onFollow: onFollow,
+                onUnfollow: onUnfollow.map { unfollow in { unfollow(profile) } }
+            )
+            // First call on the width, so "Follow back" is spelled out
+            // whenever the counts can give up a little of theirs. Not on a
+            // line of its own, where it and "Message" share it evenly.
+            .layoutPriority(fillWidth ? 0 : 1)
+        }
+        if showsMessage, let onMessage {
+            MessageButton(isCompact: compactMessage, fillsWidth: fillWidth, action: onMessage)
+        }
+    }
+
+    @ViewBuilder
+    private var heart: some View {
+        if isOwn {
+            likesReceived
+        } else {
+            likePill
+        }
+    }
 
     // MARK: - Counts
 
@@ -196,17 +252,18 @@ struct SocialStrip: View {
         .accessibilityAddTraits(.isButton)
     }
 
-    /// Your own chart's likes: a red heart, always filled because it counts
-    /// what came in rather than asking for one, and the number, on the sky
-    /// the way someone else's counts are. A glass capsule here would look
-    /// like the heart people tap on everyone else's page. The heart gives a
-    /// small bounce when the number moves while the page is open.
+    /// Your own chart's likes: a white heart and the number, on the sky the
+    /// way someone else's counts are. White and empty rather than red: red is
+    /// what a heart turns once you have tapped it, and this one cannot be
+    /// tapped. A glass capsule here would look like the heart people tap on
+    /// everyone else's page. The heart gives a small bounce when the number
+    /// moves while the page is open.
     private var likesReceived: some View {
         let count = like.count ?? 0
         return HStack(spacing: 5) {
-            Image(systemName: "heart.fill")
+            Image(systemName: "heart")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Theme.challenge)
+                .foregroundStyle(.white)
                 .symbolEffect(.bounce, value: count)
             Text(LikeCount.short(count))
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
@@ -262,6 +319,8 @@ struct FollowButton: View {
     let isFollowing: Bool
     let followsYou: Bool
     var isWorking = false
+    /// An equal share of a line of its own, beside "Message".
+    var fillsWidth = false
     var onFollow: (() -> Void)?
     var onUnfollow: (() -> Void)?
 
@@ -321,7 +380,49 @@ struct FollowButton: View {
         .font(.system(size: 13, weight: isFollowing ? .semibold : .bold, design: .rounded))
         .lineLimit(1)
         .padding(.horizontal, 12)
+        .frame(maxWidth: fillsWidth ? .infinity : nil)
         .frame(height: SocialStrip.height)
+    }
+}
+
+/// "Message" on someone's own chart, in the quiet glass of "✓ Following"
+/// beside it: the follow button asks for something, this one is simply there.
+/// Where the line has no room for the word, the speech bubble alone; where
+/// it has none for either, a line of its own beside the follow button.
+struct MessageButton: View {
+
+    /// The bubble alone, for a line with no room for the word.
+    var isCompact = false
+    /// An equal share of a line of its own.
+    var fillsWidth = false
+    var action: () -> Void
+
+    @ObservedObject private var strings = L10n.shared
+
+    var body: some View {
+        Group {
+            if isCompact {
+                Image(systemName: "message")
+                    .frame(width: SocialStrip.height)
+            } else {
+                Text(L("chats.message"))
+                    .padding(.horizontal, 12)
+                    .frame(maxWidth: fillsWidth ? .infinity : nil)
+            }
+        }
+        .font(.system(size: 13, weight: .semibold, design: .rounded))
+        .foregroundStyle(.white.opacity(0.9))
+        .lineLimit(1)
+        .frame(height: SocialStrip.height)
+        .weatherGlass(in: .capsule, tint: 0.2, interactive: true)
+        .contentShape(Capsule())
+        // A tap gesture rather than a Button, for the reason the reading's
+        // stamp uses one: inside the pager's scroll view a plain Button
+        // never fires.
+        .onTapGesture(perform: action)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L("chats.message"))
+        .accessibilityAddTraits(.isButton)
     }
 }
 

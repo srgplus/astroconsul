@@ -216,7 +216,8 @@ struct CosmicWeatherView: View {
                         tii: model.today?.tii ?? profile.latestTransit?.tii,
                         followingCount: followingCount,
                         onUnfollow: onUnfollow,
-                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } }
+                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } },
+                        onMessage: profile.canMessage == true ? onMessage.map { message in { message(profile) } } : nil
                     )
                     .padding(.top, -6)
 
