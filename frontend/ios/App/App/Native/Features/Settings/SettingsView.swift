@@ -28,6 +28,12 @@ struct SettingsView: View {
     @State private var isDeleting = false
     @State private var deleteError: String?
 
+    /// Whether other people see this account's followers and following
+    /// counts. Nil until the server has answered, so the switch never shows a
+    /// guess it would then flip back.
+    @State private var showsCounts: Bool?
+    @State private var countsError: String?
+
     var body: some View {
         NavigationStack {
             Form {
@@ -281,11 +287,24 @@ struct SettingsView: View {
         }
     }
 
-    /// Who you have blocked, the rules everyone here agreed to, and a person
-    /// to write to — the last of App Review's four requirements for a social
-    /// network being published contact details a user can actually reach.
+    /// Whether others see your counts, who you have blocked, the rules
+    /// everyone here agreed to, and a person to write to — the last of App
+    /// Review's four requirements for a social network being published
+    /// contact details a user can actually reach.
     private var communitySection: some View {
         Section {
+            if auth.isSignedIn {
+                Toggle(isOn: showsCountsBinding) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L("settings.showCounts"))
+                        Text(L("settings.showCountsHint"))
+                            .font(.footnote)
+                            .foregroundStyle(Theme.textDim)
+                    }
+                }
+                .disabled(showsCounts == nil)
+            }
+
             NavigationLink(L("blocked.title")) {
                 BlockedAccountsView()
             }
@@ -305,6 +324,49 @@ struct SettingsView: View {
             Text(L("settings.community"))
         } footer: {
             Text(L("settings.communityFooter", Legal.supportEmail))
+        }
+        .task { await loadCountsSetting() }
+        .alert(
+            L("settings.showCountsFailed"),
+            isPresented: Binding(
+                get: { countsError != nil },
+                set: { if !$0 { countsError = nil } }
+            )
+        ) {
+            Button(L("common.ok"), role: .cancel) {}
+        } message: {
+            Text(countsError ?? "")
+        }
+    }
+
+    /// Flipped at once and saved behind it; a refused save puts the switch
+    /// back where the server has it and says why.
+    private var showsCountsBinding: Binding<Bool> {
+        Binding(
+            get: { showsCounts ?? true },
+            set: { isOn in
+                let before = showsCounts
+                showsCounts = isOn
+                Task {
+                    do {
+                        showsCounts = try await APIClient.shared.updateSocialSettings(showCounts: isOn).showCounts
+                    } catch {
+                        NSLog("[Settings] saving the counts setting failed: \(error.localizedDescription)")
+                        showsCounts = before
+                        if !error.isCancellation { countsError = error.localizedDescription }
+                    }
+                }
+            }
+        )
+    }
+
+    private func loadCountsSetting() async {
+        guard auth.isSignedIn else { return }
+        do {
+            showsCounts = try await APIClient.shared.fetchSocialSettings().showCounts
+        } catch {
+            guard !error.isCancellation else { return }
+            NSLog("[Settings] loading the counts setting failed: \(error.localizedDescription)")
         }
     }
 

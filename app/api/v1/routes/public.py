@@ -50,8 +50,11 @@ def get_public_profile_detail(
             result["chart"],
             lang,
         )
-        # Public view: only followers_count, no user-specific fields
-        result["profile"]["followers_count"] = profile_data["followers_count"]
+        # Public view: only followers_count, no user-specific fields — and not
+        # even that when the owner hid their counts in Settings.
+        owner = str(profile_data.get("user_id") or "")
+        hidden = repos.social is not None and not repos.social.social_settings(owner)["show_counts"]
+        result["profile"]["followers_count"] = None if hidden else profile_data["followers_count"]
         # An anonymous caller is never Pro, and this route reads any profile by
         # id — without the same trim it is a way around the gate on
         # GET /profiles/{id}. No screen renders these interpretations anyway:

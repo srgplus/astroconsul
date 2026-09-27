@@ -294,6 +294,7 @@ struct WeatherHomeView: View {
                     onFindPeople: { showsSearch = true },
                     onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
                     onOpenActivity: { showsActivity = true },
+                    followingCount: isOwn ? model.followedProfiles.count : nil,
                     onReport: isOwn ? nil : { reporting = $0 },
                     onBlock: isOwn ? nil : { blocking = $0 }
                 )

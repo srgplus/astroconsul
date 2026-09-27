@@ -20,12 +20,14 @@ Every text meant for Apple uses ASCII punctuation only.
 ## Order of operations (each needs the owner's go)
 
 1. **Deploy the backend** (push the branch; it auto-merges and Railway runs
-   migration `20260927_000001`: three new tables and one nullable column,
-   additive only). The app talks to production, so this goes first.
+   migrations `20260927_000001`, three new tables and one nullable column, and
+   `20260927_000002`, one boolean with a default, additive only). The app talks
+   to production, so this goes first.
 2. **Seed the demo account** (hi@srgplus.com) on production, from real
    accounts the owner controls: follow it and like its chart from two or three
    of them, and have it follow them back. The reviewer must open Activity and
-   see real rows, and swipe to followed charts that show "Follows you".
+   see real rows, see real follower and following counts under the charts, and
+   find "Follows you" in the Following list.
 3. **Build 17** (1.3) archived and uploaded to TestFlight.
 4. **App Store Connect**: version string, build, texts, age rating,
    screenshots, review notes, all below.
@@ -102,6 +104,7 @@ YOUR DAY IN TWO NUMBERS
 
 SAFE BY DESIGN
 • Report any profile and block anyone. Blocked accounts are listed in Settings
+• Choose whether others see how many follow you and how many you follow
 • Names that break the community rules are refused
 • Every report is reviewed within 24 hours
 
@@ -135,8 +138,8 @@ On the first screen tap "Sign in with password" (the default path emails a one-t
 
 WHAT TO CHECK
 1. Activity: the bell at the top left of every page. Who liked your chart and who started following you, with "Follow back" on each row. A switch filters it by chart when you keep more than one.
-2. Likes: the heart under every chart you follow. A like is for the state of that person's sky right now (the word under the numbers, for example "Expansive"). When their state changes it is new content and can be liked again. The owner sees each like in Activity, with the state that was liked.
-3. Following: "Following" under a followed chart (it asks before unfollowing), and "Follows you" when they follow you back. Under your own chart, the followers count opens Followers and Following.
+2. Likes: the heart on the right under every chart. A like is for the state of that person's sky right now (the word under the numbers, for example "Expansive"). When their state changes it is new content and can be liked again. The owner sees each like in Activity, with the state that was liked.
+3. Following: one follow button under every chart that is not yours: "Follow", "Follow back" when that person already follows you, and "Following" once you do, which asks before unfollowing. Beside it, how many follow the chart and how many its owner follows. Under your own chart the two counts open Followers and Following, and Settings > Community can hide them from others.
 4. Find people: the magnifying glass at the bottom left. Search by name or @handle, open a preview, tap Follow.
 5. Compatibility: at the bottom of any page, compare two charts, yours and a friend's or two friends'.
 
@@ -164,7 +167,7 @@ Taken from the real app against a local backend seeded with invented people
 (no real names: a real person's name in a screenshot is theirs to lend), with
 the status bar set to 9:41, full battery.
 
-1. A friend's page: the sky, the two numbers, "Following", "Follows you", the heart. Caption: "Follow the people you care about"
+1. A friend's page: the sky, the two numbers, followers and following, "Following", the heart. Caption: "Follow the people you care about"
 2. Activity: who liked and who followed. Caption: "See who liked your sky"
 3. Your own page with the bell's count: Caption: "Your chart, your day in two numbers"
 4. Find people: search results. Caption: "Find friends by name or @handle"
