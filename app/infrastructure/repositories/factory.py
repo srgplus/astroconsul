@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from app.core.config import Settings, get_settings
 from app.infrastructure.persistence.session import database_url_for_settings, get_session_factory
+from app.infrastructure.repositories.chat_repositories import FileChatRepository, SqlAlchemyChatRepository
 from app.infrastructure.repositories.file_repositories import (
     FileChartRepository,
     FileProfileRepository,
@@ -11,6 +12,7 @@ from app.infrastructure.repositories.file_repositories import (
 )
 from app.infrastructure.repositories.protocols import (
     ChartRepository,
+    ChatRepository,
     LocationCacheRepository,
     ProfileRepository,
     SocialRepository,
@@ -29,8 +31,10 @@ class RepositoryBundle:
     profiles: ProfileRepository
     locations: LocationCacheRepository
     # Optional so a bundle built by hand — the route tests build their own —
-    # still constructs; the social routes answer 503 without one.
+    # still constructs; the social routes answer 503 without one, and the
+    # chat routes the same without theirs.
     social: SocialRepository | None = None
+    chats: ChatRepository | None = None
 
 
 def get_repository_bundle(settings: Settings | None = None) -> RepositoryBundle:
@@ -42,12 +46,15 @@ def get_repository_bundle(settings: Settings | None = None) -> RepositoryBundle:
         profiles = SqlAlchemyProfileRepository(session_factory, resolved_settings, charts)
         locations = SqlAlchemyLocationCacheRepository(session_factory)
         social = SqlAlchemySocialRepository(session_factory)
-        return RepositoryBundle(charts=charts, profiles=profiles, locations=locations, social=social)
+        chats = SqlAlchemyChatRepository(session_factory)
+        return RepositoryBundle(charts=charts, profiles=profiles, locations=locations, social=social, chats=chats)
 
     file_profiles = FileProfileRepository()
+    file_social = FileSocialRepository(file_profiles)
     return RepositoryBundle(
         charts=FileChartRepository(),
         profiles=file_profiles,
         locations=NullLocationCacheRepository(),
-        social=FileSocialRepository(file_profiles),
+        social=file_social,
+        chats=FileChatRepository(file_profiles, file_social),
     )

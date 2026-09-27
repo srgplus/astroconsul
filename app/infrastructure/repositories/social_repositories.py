@@ -83,6 +83,93 @@ def _stamp(value: datetime | None) -> str | None:
     return _isoformat_z(aware) if aware is not None else None
 
 
+def account_cards(session: Session, user_ids: set[str]) -> dict[str, dict[str, Any]]:
+    """Each account's card, keyed by account id. An account with no profile
+    gets the empty card rather than being dropped, so a like from it still
+    shows up as something.
+
+    A function rather than a method so the chats can draw the person on the
+    other side the same way, in the session they already hold."""
+    if not user_ids:
+        return {}
+
+    # The primary profile wins outright; without one, the profile touched
+    # last stands in for the account. The owner's primary rides along on
+    # each profile row, so this is one query rather than two.
+    chosen: dict[str, tuple[str, str, str, datetime]] = {}
+    rows = session.execute(
+        select(
+            ProfileModel.id,
+            ProfileModel.user_id,
+            ProfileModel.display_name,
+            ProfileModel.handle,
+            ProfileModel.updated_at,
+            UserModel.primary_profile_id,
+        )
+        .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
+        .where(ProfileModel.user_id.in_(user_ids))
+    ).all()
+    for profile_id, user_id, name, handle, updated_at, primary_id in rows:
+        stamp = _aware(updated_at) or _EPOCH
+        current = chosen.get(user_id)
+        if primary_id == profile_id:
+            chosen[user_id] = (profile_id, name, handle, stamp)
+        elif current is None or (primary_id != current[0] and stamp > current[3]):
+            chosen[user_id] = (profile_id, name, handle, stamp)
+
+    summaries: dict[str, Any] = {}
+    readings: dict[str, dict[str, Any]] = {}
+    picked_ids = [value[0] for value in chosen.values()]
+    if picked_ids:
+        # The Big 3 alone, read out of the chart in the database: the
+        # whole payload is some 9 KB a card, and a card shows 100 bytes of
+        # it. With it, the last numbers each chart was read at, so a card
+        # opened from Activity shows the person's day rather than an empty
+        # sky.
+        for chart_profile_id, summary, tii, tension, feels in session.execute(
+            select(
+                ProfileModel.id,
+                NatalChartModel.chart_payload_json["natal_summary"],
+                LatestTransitModel.tii,
+                LatestTransitModel.tension_ratio,
+                LatestTransitModel.feels_like,
+            )
+            .join(NatalChartModel, NatalChartModel.id == ProfileModel.chart_id)
+            .outerjoin(LatestTransitModel, LatestTransitModel.profile_id == ProfileModel.id)
+            .where(ProfileModel.id.in_(picked_ids))
+        ).all():
+            summaries[str(chart_profile_id)] = summary if isinstance(summary, dict) else None
+            if tii is not None:
+                readings[str(chart_profile_id)] = {"tii": tii, "tension_ratio": tension, "feels_like": feels}
+
+    cards: dict[str, dict[str, Any]] = {}
+    for user_id in user_ids:
+        picked = chosen.get(user_id)
+        if picked is None:
+            cards[user_id] = dict(EMPTY_CARD)
+            continue
+        profile_id, name, handle, _ = picked
+        cards[user_id] = {
+            "profile_id": profile_id,
+            "profile_name": name,
+            "username": handle,
+            "natal_summary": summaries.get(profile_id),
+            "latest_transit": readings.get(profile_id),
+        }
+    return cards
+
+
+def blocked_account_ids(session: Session, user_id: str) -> set[str]:
+    """Every account on the other side of a block with this one, whichever of
+    the two did the blocking."""
+    rows = session.execute(
+        select(UserBlockModel.blocker_id, UserBlockModel.blocked_id).where(
+            or_(UserBlockModel.blocker_id == user_id, UserBlockModel.blocked_id == user_id)
+        )
+    ).all()
+    return {blocked if blocker == user_id else blocker for blocker, blocked in rows}
+
+
 class SqlAlchemySocialRepository:
     def __init__(self, session_factory: sessionmaker[Session]):
         self.session_factory = session_factory
@@ -90,76 +177,7 @@ class SqlAlchemySocialRepository:
     # MARK: - Cards
 
     def _cards_for_users(self, session: Session, user_ids: set[str]) -> dict[str, dict[str, Any]]:
-        """Each account's card, keyed by account id. An account with no
-        profile gets the empty card rather than being dropped, so a like from
-        it still shows up as something."""
-        if not user_ids:
-            return {}
-
-        # The primary profile wins outright; without one, the profile touched
-        # last stands in for the account. The owner's primary rides along on
-        # each profile row, so this is one query rather than two.
-        chosen: dict[str, tuple[str, str, str, datetime]] = {}
-        rows = session.execute(
-            select(
-                ProfileModel.id,
-                ProfileModel.user_id,
-                ProfileModel.display_name,
-                ProfileModel.handle,
-                ProfileModel.updated_at,
-                UserModel.primary_profile_id,
-            )
-            .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
-            .where(ProfileModel.user_id.in_(user_ids))
-        ).all()
-        for profile_id, user_id, name, handle, updated_at, primary_id in rows:
-            stamp = _aware(updated_at) or _EPOCH
-            current = chosen.get(user_id)
-            if primary_id == profile_id:
-                chosen[user_id] = (profile_id, name, handle, stamp)
-            elif current is None or (primary_id != current[0] and stamp > current[3]):
-                chosen[user_id] = (profile_id, name, handle, stamp)
-
-        summaries: dict[str, Any] = {}
-        readings: dict[str, dict[str, Any]] = {}
-        picked_ids = [value[0] for value in chosen.values()]
-        if picked_ids:
-            # The Big 3 alone, read out of the chart in the database: the
-            # whole payload is some 9 KB a card, and a card shows 100 bytes of
-            # it. With it, the last numbers each chart was read at, so a card
-            # opened from Activity shows the person's day rather than an empty
-            # sky.
-            for chart_profile_id, summary, tii, tension, feels in session.execute(
-                select(
-                    ProfileModel.id,
-                    NatalChartModel.chart_payload_json["natal_summary"],
-                    LatestTransitModel.tii,
-                    LatestTransitModel.tension_ratio,
-                    LatestTransitModel.feels_like,
-                )
-                .join(NatalChartModel, NatalChartModel.id == ProfileModel.chart_id)
-                .outerjoin(LatestTransitModel, LatestTransitModel.profile_id == ProfileModel.id)
-                .where(ProfileModel.id.in_(picked_ids))
-            ).all():
-                summaries[str(chart_profile_id)] = summary if isinstance(summary, dict) else None
-                if tii is not None:
-                    readings[str(chart_profile_id)] = {"tii": tii, "tension_ratio": tension, "feels_like": feels}
-
-        cards: dict[str, dict[str, Any]] = {}
-        for user_id in user_ids:
-            picked = chosen.get(user_id)
-            if picked is None:
-                cards[user_id] = dict(EMPTY_CARD)
-                continue
-            profile_id, name, handle, _ = picked
-            cards[user_id] = {
-                "profile_id": profile_id,
-                "profile_name": name,
-                "username": handle,
-                "natal_summary": summaries.get(profile_id),
-                "latest_transit": readings.get(profile_id),
-            }
-        return cards
+        return account_cards(session, user_ids)
 
     def _followed_profile_ids(self, session: Session, user_id: str, profile_ids: set[str]) -> set[str]:
         """Which of these profiles the account already follows — what decides
@@ -176,14 +194,7 @@ class SqlAlchemySocialRepository:
         )
 
     def _blocked_ids(self, session: Session, user_id: str) -> set[str]:
-        """Every account on the other side of a block with this one, whichever
-        of the two did the blocking."""
-        rows = session.execute(
-            select(UserBlockModel.blocker_id, UserBlockModel.blocked_id).where(
-                or_(UserBlockModel.blocker_id == user_id, UserBlockModel.blocked_id == user_id)
-            )
-        ).all()
-        return {blocked if blocker == user_id else blocker for blocker, blocked in rows}
+        return blocked_account_ids(session, user_id)
 
     # MARK: - Likes
 
@@ -270,7 +281,11 @@ class SqlAlchemySocialRepository:
         for the whole day, for a client that shows no state.
 
         `followers_count` and `following_count` are None for everyone but the
-        owner when the owner keeps them hidden (Settings > Community)."""
+        owner when the owner keeps them hidden (Settings > Community).
+
+        `can_message` is whether the viewer can write to the chart: only a
+        chart its owner marked as their own is a way to a person, and only
+        somebody else's."""
         ids = list(dict.fromkeys(profile_ids))
         counts: dict[str, dict[str, Any]] = {
             profile_id: {
@@ -282,6 +297,7 @@ class SqlAlchemySocialRepository:
                 "followers_count": 0,
                 "following_count": 0,
                 "is_liked": False,
+                "can_message": False,
             }
             for profile_id in ids
         }
@@ -325,16 +341,21 @@ class SqlAlchemySocialRepository:
                     counts[profile_id]["is_liked"] = True
                     counts[profile_id]["my_state_likes"].append(state or "")
 
-            # Whose each chart is, and whether that account keeps its numbers
-            # to itself.
-            owners: dict[str, tuple[str, bool]] = {
-                profile_id: (owner_id, bool(hidden))
-                for profile_id, owner_id, hidden in session.execute(
-                    select(ProfileModel.id, ProfileModel.user_id, UserModel.hide_social_counts)
-                    .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
-                    .where(ProfileModel.id.in_(ids))
-                ).all()
-            }
+            # Whose each chart is, whether that account keeps its numbers to
+            # itself, and which of its charts it marked as its own.
+            owners: dict[str, tuple[str, bool]] = {}
+            for profile_id, owner_id, hidden, primary_id in session.execute(
+                select(
+                    ProfileModel.id,
+                    ProfileModel.user_id,
+                    UserModel.hide_social_counts,
+                    UserModel.primary_profile_id,
+                )
+                .outerjoin(UserModel, UserModel.id == ProfileModel.user_id)
+                .where(ProfileModel.id.in_(ids))
+            ).all():
+                owners[profile_id] = (owner_id, bool(hidden))
+                counts[profile_id]["can_message"] = primary_id == profile_id and owner_id != viewer_user_id
             # Following belongs to the account, not the chart: every chart the
             # owner follows, not counting any of its own.
             following: dict[str, int] = {}
@@ -602,11 +623,12 @@ class SqlAlchemySocialRepository:
     @staticmethod
     def _settings_of(user: UserModel | None) -> dict[str, bool]:
         if user is None:
-            return {"show_counts": True, "push_likes": True, "push_follows": True}
+            return {"show_counts": True, "push_likes": True, "push_follows": True, "push_messages": True}
         return {
             "show_counts": not user.hide_social_counts,
             "push_likes": bool(user.push_likes),
             "push_follows": bool(user.push_follows),
+            "push_messages": bool(user.push_messages),
         }
 
     def update_social_settings(
@@ -616,6 +638,7 @@ class SqlAlchemySocialRepository:
         show_counts: bool | None = None,
         push_likes: bool | None = None,
         push_follows: bool | None = None,
+        push_messages: bool | None = None,
     ) -> dict[str, bool]:
         """Changes what is given and leaves the rest as it was."""
         with self.session_factory() as session:
@@ -626,6 +649,8 @@ class SqlAlchemySocialRepository:
                 user.push_likes = push_likes
             if push_follows is not None:
                 user.push_follows = push_follows
+            if push_messages is not None:
+                user.push_messages = push_messages
             session.commit()
             return self._settings_of(user)
 
@@ -917,6 +942,10 @@ class FileSocialRepository:
                 "followers_count": None if hidden else self.profiles.count_followers(profile_id),
                 "following_count": None if hidden or owner is None else self.profiles.count_following(owner),
                 "is_liked": bool(mine),
+                # The first chart stands in for a primary here, as in `card`.
+                "can_message": owner is not None
+                and owner != viewer_user_id
+                and self._card(owner)["profile_id"] == profile_id,
             }
         return counts
 
@@ -1015,6 +1044,7 @@ class FileSocialRepository:
             "show_counts": not mine.get("hide_counts", False),
             "push_likes": mine.get("push_likes", True),
             "push_follows": mine.get("push_follows", True),
+            "push_messages": mine.get("push_messages", True),
         }
 
     def update_social_settings(
@@ -1024,6 +1054,7 @@ class FileSocialRepository:
         show_counts: bool | None = None,
         push_likes: bool | None = None,
         push_follows: bool | None = None,
+        push_messages: bool | None = None,
     ) -> dict[str, bool]:
         data = self._load()
         mine = data.setdefault("settings", {}).setdefault(user_id, {})
@@ -1033,6 +1064,8 @@ class FileSocialRepository:
             mine["push_likes"] = push_likes
         if push_follows is not None:
             mine["push_follows"] = push_follows
+        if push_messages is not None:
+            mine["push_messages"] = push_messages
         self._save(data)
         return self.social_settings(user_id)
 

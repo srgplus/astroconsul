@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.charts import router as charts_router
+from app.api.v1.routes.chats import router as chats_router
 from app.api.v1.routes.health import router as health_router
 from app.api.v1.routes.images import router as images_router
 from app.api.v1.routes.invites import router as invites_router
@@ -21,6 +22,7 @@ router.include_router(charts_router)
 router.include_router(locations_router)
 router.include_router(profiles_router)
 router.include_router(social_router)
+router.include_router(chats_router)
 router.include_router(invites_router)
 router.include_router(public_router)
 router.include_router(images_router)
