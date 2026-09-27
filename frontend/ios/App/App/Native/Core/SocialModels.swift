@@ -121,6 +121,9 @@ struct LikeResponse: Codable {
     /// Today's likes per state and the reader's own, as they stand after it.
     var stateLikes: [String: Int]? = nil
     var myStateLikes: [String]? = nil
+    /// Every like the chart has had, the owner's left out. Nil when the
+    /// owner hides their numbers.
+    var likesTotal: Int? = nil
 }
 
 /// `GET/PUT /api/v1/social/settings`: what the account shows other people

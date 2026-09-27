@@ -22,7 +22,7 @@ from app.api.auth import get_current_user
 from app.api.dependencies import clear_dependency_caches
 from app.core.config import clear_settings_cache
 from app.infrastructure.persistence.base import Base
-from app.infrastructure.persistence.models import ProfileLikeModel, UserModel
+from app.infrastructure.persistence.models import ProfileLikeModel, ProfileModel, UserModel
 from app.infrastructure.persistence.session import clear_engine_cache, get_engine, get_session_factory
 from app.main import create_app
 
@@ -107,18 +107,58 @@ class LikeTests(SocialTestCase):
         self.assertEqual(response.json()["likes_count"], 0)
         self.assertFalse(response.json()["is_liked"])
 
-    def test_own_chart_can_be_liked_and_stays_out_of_activity(self) -> None:
+    def test_own_chart_cannot_be_liked(self) -> None:
         response = self.as_user(ANNA).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})
         self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})
 
         activity = self.as_user(ANNA).get("/api/v1/activity").json()
         detail = self.as_user(ANNA).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
 
-        self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(detail["state_likes"], {"Flowing": 2})
-        self.assertEqual(detail["my_state_likes"], ["Flowing"])
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertEqual(detail["likes_total"], 1)
+        self.assertEqual(detail["my_state_likes"], [])
         self.assertEqual([item["actor"]["username"] for item in activity["items"]], ["boris_i"])
-        self.assertEqual(activity["unread_count"], 1)
+
+    def test_no_chart_of_the_owners_can_be_liked_primary_or_not(self) -> None:
+        second = self._create_profile(ANNA, "Mila Petrova", "mila_p", "2015-06-01")
+        self.as_user(ANNA).put("/api/v1/profiles/primary", json={"profile_id": self.anna_profile})
+
+        response = self.as_user(ANNA).post(f"/api/v1/profiles/{second}/like")
+
+        self.assertEqual(response.status_code, 403, response.text)
+
+    def test_the_owners_old_likes_are_not_counted(self) -> None:
+        # Given before an owner could not like their own chart.
+        session_factory = get_session_factory(os.environ["ASTRO_CONSUL_DATABASE_URL"])
+        with session_factory() as session:
+            session.add(
+                ProfileLikeModel(
+                    user_id=ANNA,
+                    profile_id=self.anna_profile,
+                    day=date.today(),
+                    feels_like="",
+                    created_at=datetime.now(UTC),
+                )
+            )
+            session.commit()
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like")
+
+        seen = self.as_user(CLARA).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+
+        self.assertEqual(seen["likes_total"], 1)
+        self.assertEqual(seen["state_likes"], {"": 1})
+
+    def test_a_chart_handed_on_can_be_liked_by_the_one_who_made_it(self) -> None:
+        made = self._create_profile(ANNA, "Mila Petrova", "mila_p", "2015-06-01")
+        session_factory = get_session_factory(os.environ["ASTRO_CONSUL_DATABASE_URL"])
+        with session_factory() as session:
+            session.execute(update(ProfileModel).where(ProfileModel.id == made).values(user_id=CLARA))
+            session.commit()
+
+        response = self.as_user(ANNA).post(f"/api/v1/profiles/{made}/like")
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["likes_total"], 1)
 
     def test_a_new_state_can_be_liked_again(self) -> None:
         client = self.as_user(BORIS)
@@ -354,15 +394,18 @@ class HiddenCountsTests(SocialTestCase):
             self.assertIsNone(seen["following_count"])
         self.assertEqual((own["followers_count"], own["following_count"]), (1, 1))
 
-    def test_hiding_leaves_the_other_side_and_the_likes_alone(self) -> None:
+    def test_hiding_takes_the_likes_too_and_leaves_the_other_side(self) -> None:
         self._boris_hides()
 
         anna = self.as_user(BORIS).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
         liked = self.as_user(ANNA).post(f"/api/v1/profiles/{self.boris_profile}/like").json()
+        own = self.as_user(BORIS).get(f"/api/v1/profiles/{self.boris_profile}").json()["profile"]
 
         self.assertEqual((anna["followers_count"], anna["following_count"]), (1, 1))
-        self.assertEqual(liked["likes_count"], 1)
+        self.assertIsNone(liked["likes_total"])
         self.assertIsNone(liked["followers_count"])
+        self.assertTrue(liked["is_liked"])
+        self.assertEqual(own["likes_total"], 1)
 
     def test_the_public_page_hides_them_too(self) -> None:
         self._boris_hides()

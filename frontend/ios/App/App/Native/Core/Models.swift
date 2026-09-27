@@ -66,10 +66,15 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
 
     /// A like is for a state of the sky — the feels-like word, today — so
     /// the counts come per state: how many each of today's states has, and
-    /// which of them the viewer liked. The heart reads the entry for the word
-    /// it is drawn over.
+    /// which of them the viewer liked. The heart is filled when the word it
+    /// is drawn over is among the viewer's.
     var stateLikes: [String: Int]? = nil
     var myStateLikes: [String]? = nil
+
+    /// The number beside the heart: every like the chart has had from
+    /// anyone but its owner, never reset by a new word or a new day. Nil
+    /// when the owner keeps their numbers to themselves.
+    var likesTotal: Int? = nil
 
     /// The profile's owner follows one of the viewer's own profiles: the
     /// "Follows you" under a followed chart.

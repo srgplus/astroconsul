@@ -471,7 +471,7 @@ private let enSocial: [String: String] = [
     "blocked.failed": "Something went wrong",
 
     "settings.community": "Community",
-    "settings.showCounts": "Show my followers and following",
+    "settings.showCounts": "Show my followers, following and likes",
     "settings.showCountsHint": "When off, other people don't see these numbers on your charts. You still do.",
     "settings.showCountsFailed": "Could not save the setting",
     "settings.pushLikes": "Notify me about likes",
@@ -1245,7 +1245,7 @@ private let ruSocial: [String: String] = [
     "blocked.failed": "Что-то пошло не так",
 
     "settings.community": "Сообщество",
-    "settings.showCounts": "Показывать подписчиков и подписки",
+    "settings.showCounts": "Показывать подписчиков, подписки и лайки",
     "settings.showCountsHint": "Если выключить, другие не увидят эти числа на ваших картах. Вы их видите всегда.",
     "settings.showCountsFailed": "Не удалось сохранить настройку",
     "settings.pushLikes": "Уведомлять о лайках",

@@ -491,14 +491,20 @@ An account *acts*; a profile *is acted on*; when an account is shown (Activity, 
 shown as its "card" — primary profile, else last-touched. Blocks are account to account and both
 directions: they sever follows and likes, hide search results, and 404 the blocked side.
 A like is for a *state*: the feels-like word on a given day (profile's zone) — a new word or a new
-day is new content. Your own chart can be liked; that like never shows in your own Activity.
-Listings, search and detail carry `state_likes`, `my_state_likes`, `likes_count`, `is_liked`,
-`likes_total`, `followers_count`, `following_count` (charts the owner follows, own ones not
-counted) and `follows_you`. Both counts are null for everyone but the owner when the owner
-hid them (Settings → Community); the public web page hides `followers_count` the same way.
+day is new content, so one person can like a chart again and again. An owner cannot like any chart
+the account owns, primary or not (`POST /like` answers 403); a chart handed on via invite can be
+liked by whoever made it. The number under the heart is `likes_total`: every like ever, the
+current owner's own (from before the rule) left out, never reset. Listings, search and detail
+carry `likes_total`, `my_state_likes` (fills the heart), `state_likes` / `likes_count` /
+`is_liked` (today's, for older builds), `followers_count`, `following_count` (charts the owner
+follows, own ones not counted) and `follows_you`. `followers_count`, `following_count` and
+`likes_total` are null for everyone but the owner when the owner hid them (Settings →
+Community); the public web page hides `followers_count` the same way.
 iOS: one row under a chart (`SocialStrip`): counts left, one Instagram-style `FollowButton`
 (Follow / Follow back / ✓ Following, which asks before unfollowing), heart right. Counts are
-glass capsules opening `PeopleSheet` on your own chart and plain text on others'. "Follows you"
+glass capsules opening `PeopleSheet` on your own chart and plain text on others'. On your own
+chart the heart is plain text too (red filled heart + total, nothing to tap). Totals are
+shortened by `LikeCount.short` (999, 1.2K, 12K, 1.2M, rounded down). "Follows you"
 only appears in the Following list. The ••• has no Unfollow; Block is a plain item.
 Guideline 1.2 checklist this satisfies: name filter, report, block, contact (Settings → Community,
 big3meapp@gmail.com), and terms with community rules accepted at sign-in (`/legal#community`).

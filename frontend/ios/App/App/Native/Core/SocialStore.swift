@@ -5,8 +5,9 @@ import Foundation
 ///
 /// A like is for a *state* of a chart's sky — the feels-like word on screen,
 /// today. When the word changes, or the day does, that is new content and the
-/// heart is empty again. So a chart carries likes per state, and a heart asks
-/// about the state it is drawn over.
+/// heart is empty again. So a heart asks whether the reader liked the state
+/// it is drawn over, and shows beside it every like the chart has ever had:
+/// a number that only grows, the way a profile's likes do elsewhere.
 ///
 /// The heart is tapped on a weather page, on a search preview or from a row
 /// that opened one, and those can be on screen within seconds of each other.
@@ -19,14 +20,16 @@ final class SocialStore: ObservableObject {
     static let shared = SocialStore()
 
     struct Like: Equatable {
-        var count: Int
+        /// Every like the chart has had, its owner's left out. Nil when the
+        /// owner hides their numbers: a heart with nothing beside it.
+        var count: Int?
         var isLiked: Bool
     }
 
-    /// Today's likes on one chart: how many each state has, and which of
-    /// them the reader liked.
+    /// One chart's likes: all it has had, and which of today's states the
+    /// reader liked.
     struct Snapshot: Equatable {
-        var byState: [String: Int]
+        var total: Int?
         var mine: Set<String>
     }
 
@@ -87,29 +90,30 @@ final class SocialStore: ObservableObject {
     /// The heart over one state of a chart, as the reader should see it.
     func like(for profile: ProfileSummary, state: String) -> Like {
         let snapshot = snapshot(for: profile)
-        return Like(count: snapshot.byState[state] ?? 0, isLiked: snapshot.mine.contains(state))
+        return Like(count: snapshot.total, isLiked: snapshot.mine.contains(state))
     }
 
     private func snapshot(for profile: ProfileSummary) -> Snapshot {
         if let newer = snapshots[profile.profileId] { return newer }
-        return Self.snapshot(stateLikes: profile.stateLikes, mine: profile.myStateLikes)
+        return Self.snapshot(total: profile.likesTotal, mine: profile.myStateLikes)
     }
 
-    private static func snapshot(stateLikes: [String: Int]?, mine: [String]?) -> Snapshot {
-        Snapshot(byState: stateLikes ?? [:], mine: Set(mine ?? []))
+    private static func snapshot(total: Int?, mine: [String]?) -> Snapshot {
+        Snapshot(total: total, mine: Set(mine ?? []))
     }
 
     /// Takes the payload's numbers as the truth again, for every chart a
     /// fresh listing just brought in.
     func adopt(_ profiles: [ProfileSummary]) {
-        for profile in profiles where profile.stateLikes != nil {
+        for profile in profiles where profile.myStateLikes != nil {
             snapshots[profile.profileId] = nil
         }
     }
 
     /// Likes or unlikes one state, drawn at once and then corrected to what
     /// the server says. A refused request puts the heart back, and hands the
-    /// error to the caller to show.
+    /// error to the caller to show. Never called on the reader's own charts:
+    /// there the heart is a count and nothing to tap.
     @discardableResult
     func toggleLike(_ profile: ProfileSummary, state: String, tii: Double?) async -> Error? {
         let id = profile.profileId
@@ -120,10 +124,10 @@ final class SocialStore: ObservableObject {
         let wasLiked = before.mine.contains(state)
         if wasLiked {
             guess.mine.remove(state)
-            guess.byState[state] = max((before.byState[state] ?? 1) - 1, 0)
+            guess.total = before.total.map { max($0 - 1, 0) }
         } else {
             guess.mine.insert(state)
-            guess.byState[state] = (before.byState[state] ?? 0) + 1
+            guess.total = before.total.map { $0 + 1 }
         }
         snapshots[id] = guess
 
@@ -139,7 +143,7 @@ final class SocialStore: ObservableObject {
             let response = wasLiked
                 ? try await api.unlikeProfile(id: id, feelsLike: feelsLike)
                 : try await api.likeProfile(id: id, feelsLike: feelsLike, tii: tii)
-            snapshots[id] = Self.snapshot(stateLikes: response.stateLikes, mine: response.myStateLikes)
+            snapshots[id] = Self.snapshot(total: response.likesTotal, mine: response.myStateLikes)
             return nil
         } catch {
             NSLog("[Social] like toggle failed for \(id): \(error.localizedDescription)")

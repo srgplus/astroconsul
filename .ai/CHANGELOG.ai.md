@@ -4,6 +4,33 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### The heart counts every like ever, and owners cannot like their own charts
+The number beside the heart used to be the likes on today's state (word +
+day) and dropped to 0 whenever either changed. The owner wanted it to grow
+like a profile's likes elsewhere: one person can like a chart again under
+each new word or day, and every such like adds to one number.
+
+**Backend.** `POST /profiles/{id}/like` answers 403 when the caller owns the
+chart, any chart of the account, primary or not: an owner who could like
+their own would only be counting themselves, and switching the primary would
+not get around a primary-only rule. A chart handed on through an invite can
+be liked by whoever made it. `social_counts` leaves the current owner's likes
+out of every count (join on `profiles.user_id`), so self-likes from before are
+ignored rather than deleted. `likes_total` is the number to show;
+`hide_social_counts` now nulls it for other viewers with the two follow
+counts. `likes_count` / `state_likes` / `is_liked` stay for older builds
+(`LikeResponse.likesCount` is non-optional there). Pushes are unchanged: the
+first like of the day per liker and chart.
+
+**iOS.** `SocialStore.Snapshot` is `total` + `mine`; `Like.count` is
+`Int?` (nil = the owner hid it, heart alone). On someone else's chart the
+glass heart fills per state as before, with the total beside it. On your own
+chart the heart is `likesReceived`: a red filled heart and the total as plain
+text, not glass, since glass is what the app uses for things you tap; the
+heart bounces when the number moves on screen. `LikeCount.short` gives 999,
+1.2K, 12K, 1.2M, rounded down. The Settings switch reads "Show my followers,
+following and likes".
+
 ### Chats look like the messenger the owner picked: black, faces, tails
 The first version wore the app's frosted sky. The owner sent screenshots of a
 messenger they like and asked for that. The chats are black now:
