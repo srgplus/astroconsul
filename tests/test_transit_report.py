@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 import unittest
+from datetime import date
+from unittest.mock import patch
 
+import transit_builder
+from app.application.services import transit_service
+from app.application.services.transit_service import TransitService
+from app.schemas.requests import ForecastRequest
 from chart_builder import build_chart, save_chart
 from transit_builder import build_transit_report
 
@@ -81,6 +87,44 @@ class TransitReportTests(unittest.TestCase):
                 for aspect in self.report["active_aspects"]
             )
         )
+
+
+class ForecastChartReadTests(unittest.TestCase):
+    def test_forecast_reads_the_chart_once_for_the_whole_window(self) -> None:
+        # On Railway every read of a chart is a trip to the database, and the
+        # forecast used to make one per day.
+        chart = build_chart(1991, 7, 28, 22.1, 52.13472, 23.65694)
+        _, chart_path = save_chart(chart, chart_id="chart_1991_07_28_2206")
+
+        class Profiles:
+            def resolve_profile_chart_id(self, profile_id: str) -> str:
+                return chart_path.name
+
+        request = ForecastRequest(profile_id="p1", start_date=date(2026, 3, 9), days=10, timezone="Europe/Warsaw")
+        real_load = transit_builder.load_saved_chart
+        with (
+            patch.object(transit_builder, "load_saved_chart", wraps=real_load) as inner,
+            patch.object(transit_service, "load_saved_chart", wraps=real_load) as outer,
+        ):
+            forecast = TransitService().build_forecast(request, profile_repository=Profiles())
+
+        self.assertEqual(len(forecast["days"]), 10)
+        self.assertEqual(inner.call_count + outer.call_count, 1)
+
+        # And the days are the ones a fresh read per day gives.
+        for day in forecast["days"][:2]:
+            with self.subTest(date=day["date"]):
+                single = TransitService().build_forecast(
+                    ForecastRequest(
+                        profile_id="p1",
+                        start_date=date.fromisoformat(day["date"]),
+                        days=1,
+                        timezone="Europe/Warsaw",
+                    ),
+                    profile_repository=Profiles(),
+                )["days"][0]
+                self.assertEqual(single["tii"], day["tii"])
+                self.assertEqual(single["top_transits"], day["top_transits"])
 
 
 if __name__ == "__main__":

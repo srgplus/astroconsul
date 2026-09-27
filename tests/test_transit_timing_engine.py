@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import unittest
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from chart_builder import build_chart, save_chart
 from transit_builder import MAX_TRANSIT_ORB, build_transit_report
-from transit_timing_engine import aspect_error_at
+from transit_timing_engine import (
+    TIMING_RESOLUTION,
+    aspect_error_at,
+    minimum_on_minute_grid,
+    timing_settings_for_object,
+)
 
 
 def parse_utc(value: str | None) -> datetime | None:
@@ -113,6 +118,70 @@ class TransitTimingEngineTests(unittest.TestCase):
             self.assertTrue(timing["will_perfect"])
             self.assertLessEqual(float(timing["peak_orb"]), 0.01)
             self.assertEqual(exact_utc, timing["peak_utc"])
+
+
+def walk_every_minute(error_at, start_utc: datetime, end_utc: datetime) -> tuple[datetime, float]:
+    """What the engine did before `minimum_on_minute_grid`: read every minute."""
+    best_moment, best_error = start_utc, error_at(start_utc)
+    cursor = start_utc + TIMING_RESOLUTION
+    while cursor <= end_utc:
+        error = error_at(cursor)
+        if error < best_error:
+            best_moment, best_error = cursor, error
+        cursor += TIMING_RESOLUTION
+    return best_moment, best_error
+
+
+class MinimumOnMinuteGridTests(unittest.TestCase):
+    """The narrowing search has to land on the minute the full walk would."""
+
+    def test_matches_the_walk_around_every_active_aspect(self) -> None:
+        chart = build_chart(1991, 7, 28, 22.1, 52.13472, 23.65694)
+        _, chart_path = save_chart(chart, chart_id="chart_1991_07_28_2206")
+        report = build_transit_report(chart_path.name, "2026-03-09", "03:06:01", include_timing=True)
+
+        for aspect in report["active_aspects"]:
+            transit_object = str(aspect["transit_object"])
+            natal_longitude = natal_longitude_for(report, str(aspect["natal_object"]))
+            exact_angle = int(aspect["exact_angle"])
+            step, _ = timing_settings_for_object(transit_object)
+            # Off the minute and off the peak, the way the engine's brackets are.
+            center = parse_utc(aspect["timing"]["peak_utc"]) + timedelta(seconds=17, minutes=41)
+
+            def error_at(moment: datetime) -> float:
+                return aspect_error_at(transit_object, natal_longitude, exact_angle, moment)
+
+            with self.subTest(aspect=(transit_object, aspect["aspect"], aspect["natal_object"])):
+                self.assertEqual(
+                    minimum_on_minute_grid(error_at, center - step, center + step),
+                    walk_every_minute(error_at, center - step, center + step),
+                )
+
+    def test_ties_go_to_the_earliest_minute(self) -> None:
+        start = datetime(2026, 1, 1, tzinfo=UTC)
+        bottom = (start + timedelta(minutes=1000), start + timedelta(minutes=1300))
+
+        def flat_bottomed(moment: datetime) -> float:
+            if bottom[0] <= moment <= bottom[1]:
+                return 0.5
+            distance = min(abs((moment - edge).total_seconds()) for edge in bottom)
+            return 0.5 + distance / 60
+
+        end = start + timedelta(days=2)
+        self.assertEqual(minimum_on_minute_grid(flat_bottomed, start, end), (bottom[0], 0.5))
+        self.assertEqual(
+            minimum_on_minute_grid(flat_bottomed, start, end), walk_every_minute(flat_bottomed, start, end)
+        )
+
+    def test_short_and_empty_brackets(self) -> None:
+        start = datetime(2026, 1, 1, 12, 0, 30, tzinfo=UTC)
+
+        def rising(moment: datetime) -> float:
+            return (moment - start).total_seconds()
+
+        self.assertEqual(minimum_on_minute_grid(rising, start, start), (start, 0.0))
+        self.assertEqual(minimum_on_minute_grid(rising, start, start + timedelta(seconds=59)), (start, 0.0))
+        self.assertIsNone(minimum_on_minute_grid(rising, start, start - timedelta(minutes=1)))
 
 
 if __name__ == "__main__":

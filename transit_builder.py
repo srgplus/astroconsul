@@ -264,8 +264,12 @@ def build_transit_report(
     transit_latitude: float | None = None,
     transit_longitude: float | None = None,
     lang: str = "en",
+    saved_chart: tuple[Path, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    chart_path, natal_chart = load_saved_chart(chart_id)
+    # `saved_chart` is what `load_saved_chart(chart_id)` returned, for a caller
+    # casting the same chart many times: the forecast reads ten days off one
+    # chart, and each read is a database round trip.
+    chart_path, natal_chart = saved_chart or load_saved_chart(chart_id)
     parsed_date = parse_iso_date(transit_date)
     parsed_time = parse_time_string(transit_time)
     transit_hour = time_to_decimal_hours(parsed_time)
