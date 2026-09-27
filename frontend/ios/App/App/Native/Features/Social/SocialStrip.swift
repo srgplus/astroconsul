@@ -246,15 +246,16 @@ struct SocialStrip: View {
     }
 
     /// Your own chart's likes: a white heart and the number, on the sky the
-    /// way someone else's counts are. White and empty rather than red: red is
-    /// what a heart turns once you have tapped it, and this one cannot be
-    /// tapped. A glass capsule here would look like the heart people tap on
-    /// everyone else's page. The heart gives a small bounce when the number
-    /// moves while the page is open.
+    /// way someone else's counts are. Filled once there is a like at all,
+    /// empty at none. White rather than red: red is what a heart turns once
+    /// you have tapped it, and this one cannot be tapped. A glass capsule
+    /// here would look like the heart people tap on everyone else's page.
+    /// The heart gives a small bounce when the number moves while the page is
+    /// open.
     private var likesReceived: some View {
         let count = like.count ?? 0
         return HStack(spacing: 5) {
-            Image(systemName: "heart")
+            Image(systemName: count > 0 ? "heart.fill" : "heart")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
                 .symbolEffect(.bounce, value: count)

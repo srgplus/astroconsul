@@ -32,8 +32,9 @@ as close as possible:
   put `.searchable` at the bottom of the sheet, half off the screen.
 - **Faces** are neutral: white Sun glyph (72% of the circle) on grey, as
   Activity draws people. The element colours read as a colouring book.
-- **Chart strip.** Your own chart's heart is white and empty, not red: red is
-  the state after a tap, and your own cannot be tapped. Someone's own chart
+- **Chart strip.** Your own chart's heart is white, not red: red is the state
+  after a tap, and your own cannot be tapped. Filled from one like up, empty
+  at zero. Someone's own chart
   (`canMessage`) gets `MessageButton` beside the follow button. Wherever there
   is a button, the counts sit centred on their own line and Following |
   Message | heart share the line under them, the two buttons evenly; with the
