@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// The chats: everyone the reader has written to or heard from, the latest
-/// first, the way Messages lists its conversations. A row opens the
-/// conversation, the pencil starts a new one with somebody the reader follows
-/// or is followed by.
+/// first. Drawn the way the owner asked, after a messenger they like: black,
+/// the title with the reader's own face beside it, a "+" and a search in one
+/// capsule, and rows of a face, a name, a date and the last message.
 ///
 /// A person here is their own chart, and so is the reader: until one of the
 /// reader's charts is marked as theirs, the screen asks which one it is
@@ -11,9 +11,6 @@ import SwiftUI
 struct ChatsScreen: View {
 
     @ObservedObject var list: ProfileListViewModel
-
-    /// The sky of the page this screen was opened from, for the glass.
-    var skyState: SkyState?
 
     /// A person already on the list opens on their own page rather than in a
     /// preview; the presenter turns the pager and puts this sheet away.
@@ -24,12 +21,10 @@ struct ChatsScreen: View {
 
     init(
         list: ProfileListViewModel,
-        skyState: SkyState? = nil,
         onOpenSaved: ((String) -> Void)? = nil,
         onBlocked: (() -> Void)? = nil
     ) {
         self.list = list
-        self.skyState = skyState
         self.onOpenSaved = onOpenSaved
         self.onBlocked = onBlocked
     }
@@ -42,6 +37,9 @@ struct ChatsScreen: View {
     @State private var path: [ChatRoute] = []
     @State private var state: LoadState = .loading
     @State private var composing = false
+    @State private var searching = false
+    @State private var query = ""
+    @FocusState private var searchFocused: Bool
     /// Whether the list itself is on screen, rather than a chat pushed over
     /// it, and the app is in front: only then is it worth asking the server
     /// for fresh rows. State rather than the environment's `scenePhase`,
@@ -57,39 +55,42 @@ struct ChatsScreen: View {
 
     private var chats: [ChatSummary] { store.chats ?? [] }
 
+    /// The chats a search leaves: by name, or by the last thing said.
+    private var visibleChats: [ChatSummary] {
+        let term = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !term.isEmpty else { return chats }
+        return chats.filter { chat in
+            chat.peer.displayName.lowercased().contains(term)
+                || (chat.lastMessage?.body.lowercased().contains(term) ?? false)
+        }
+    }
+
     /// None of the reader's charts is marked as theirs, as far as a loaded
-    /// list can tell. Not while it loads: a chat opened from a push can be up
-    /// before the list is, and would flash the question for nothing.
+    /// list can tell, or they have none of their own at all. Not while it
+    /// loads: a chat opened from a push can be up before the list is, and
+    /// would flash the question for nothing.
     private var needsOwnChart: Bool {
-        list.state == .loaded && list.primaryProfileId == nil
+        list.state == .loaded && list.primaryProfile == nil
+    }
+
+    /// The reader as the people they write to see them.
+    private var ownCard: SocialCard? {
+        guard let own = list.primaryProfile else { return nil }
+        return SocialCard(
+            profileId: own.profileId,
+            profileName: own.profileName,
+            username: own.username,
+            natalSummary: own.natalSummary
+        )
     }
 
     var body: some View {
         NavigationStack(path: $path) {
             content
-                .navigationTitle(L("chats.title"))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.ignoresSafeArea())
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            composing = true
-                        } label: {
-                            Image(systemName: "square.and.pencil")
-                        }
-                        .disabled(needsOwnChart)
-                        .accessibilityLabel(L("chats.new"))
-                    }
-
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                        .accessibilityLabel(L("common.close"))
-                    }
-                }
-                .hidingBarBackground()
+                .toolbar { listToolbar }
                 .onAppear {
                     isShowingList = true
                     Task { await load() }
@@ -99,17 +100,16 @@ struct ChatsScreen: View {
                     ChatScreen(
                         route: route,
                         list: list,
-                        skyState: skyState,
                         onOpenSaved: openSaved,
                         onBlocked: onBlocked
                     )
                 }
         }
         .tint(.white)
-        .presentationBackground { WeatherGlassBackdrop(state: skyState) }
+        .presentationBackground(Color.black)
+        .presentationDragIndicator(.visible)
         .environment(\.colorScheme, .dark)
-        // The pages behind keep decoding their skies for a view nobody has;
-        // the backdrop above draws its own.
+        // The pages behind keep decoding their skies for a view nobody has.
         .onAppear {
             SkyPlayerPool.shared.setPlaying(false, variant: .screen)
             takePendingRoute()
@@ -132,11 +132,158 @@ struct ChatsScreen: View {
             }
         }
         .sheet(isPresented: $composing) {
-            NewChatSheet(skyState: skyState) { card in
+            NewChatSheet { card in
                 guard let profile = card.profile else { return }
                 path.append(.profile(profile))
             }
         }
+    }
+
+    // MARK: - Header
+
+    @ToolbarContentBuilder
+    private var listToolbar: some ToolbarContent {
+        // The title with the reader's face stands on the black, without the
+        // glass pill iOS 26 puts behind a toolbar item.
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) { title }
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .topBarLeading) { title }
+        }
+
+        // One capsule on iOS 26, which groups neighbouring toolbar buttons.
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                composing = true
+            } label: {
+                Image(systemName: "plus")
+            }
+            .disabled(needsOwnChart)
+            .accessibilityLabel(L("chats.new"))
+
+            Button {
+                toggleSearch()
+            } label: {
+                Image(systemName: "magnifyingglass")
+            }
+            .disabled(needsOwnChart || chats.isEmpty)
+            .accessibilityLabel(L("chats.searchPrompt"))
+        }
+    }
+
+    private var title: some View {
+        HStack(spacing: 10) {
+            if let ownCard {
+                ChatAvatar(card: ownCard, size: 34)
+            }
+            Text(L("chats.title"))
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(.white)
+                .fixedSize()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    private func toggleSearch() {
+        searching.toggle()
+        if searching {
+            searchFocused = true
+        } else {
+            query = ""
+            searchFocused = false
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color(white: 0.55))
+                TextField(L("chats.searchPrompt"), text: $query)
+                    .font(.system(size: 17))
+                    .foregroundStyle(.white)
+                    .focused($searchFocused)
+                    .submitLabel(.search)
+                    .autocorrectionDisabled()
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 38)
+            .background(Capsule().fill(Color(white: 0.12)))
+
+            Button(L("common.cancel")) { toggleSearch() }
+                .font(.system(size: 17))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 4)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: - Content
+
+    @ViewBuilder
+    private var content: some View {
+        if needsOwnChart {
+            OwnChartChooser(list: list)
+        } else {
+            VStack(spacing: 0) {
+                if searching {
+                    searchField
+                }
+
+                switch state {
+                case .loading:
+                    ProgressView()
+                        .tint(Theme.spinner)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                case let .failed(text):
+                    message(
+                        icon: "exclamationmark.triangle",
+                        title: L("chats.loadFailed"),
+                        body: text,
+                        action: L("common.tryAgain"),
+                        perform: { Task { await load() } }
+                    )
+
+                case .loaded:
+                    if chats.isEmpty {
+                        message(
+                            icon: "bubble.left.and.bubble.right",
+                            title: L("chats.emptyTitle"),
+                            body: L("chats.emptyBody"),
+                            action: L("chats.new"),
+                            perform: { composing = true }
+                        )
+                    } else {
+                        rows
+                    }
+                }
+            }
+        }
+    }
+
+    private var rows: some View {
+        List {
+            ForEach(visibleChats) { chat in
+                Button {
+                    path.append(.chat(chat))
+                } label: {
+                    ChatRow(chat: chat)
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(Color.black)
+                .listRowSeparatorTint(Color(white: 0.2))
+                .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.immediately)
+        .refreshable { await load() }
     }
 
     /// A chat somebody asked for from outside: a push, or "Message" on a
@@ -166,63 +313,6 @@ struct ChatsScreen: View {
         }
     }
 
-    // MARK: - Content
-
-    @ViewBuilder
-    private var content: some View {
-        if needsOwnChart {
-            OwnChartChooser(list: list)
-        } else {
-            switch state {
-            case .loading:
-                ProgressView()
-                    .tint(Theme.spinner)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            case let .failed(text):
-                message(
-                    icon: "exclamationmark.triangle",
-                    title: L("chats.loadFailed"),
-                    body: text,
-                    action: L("common.tryAgain"),
-                    perform: { Task { await load() } }
-                )
-
-            case .loaded:
-                if chats.isEmpty {
-                    message(
-                        icon: "bubble.left.and.bubble.right",
-                        title: L("chats.emptyTitle"),
-                        body: L("chats.emptyBody"),
-                        action: L("chats.new"),
-                        perform: { composing = true }
-                    )
-                } else {
-                    rows
-                }
-            }
-        }
-    }
-
-    private var rows: some View {
-        List {
-            ForEach(chats) { chat in
-                Button {
-                    path.append(.chat(chat))
-                } label: {
-                    ChatRow(chat: chat)
-                }
-                .buttonStyle(.plain)
-                .listRowBackground(Color.clear)
-                .listRowSeparatorTint(.white.opacity(0.12))
-                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 20))
-            }
-        }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .refreshable { await load() }
-    }
-
     private func message(
         icon: String,
         title: String,
@@ -233,26 +323,26 @@ struct ChatsScreen: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: icon)
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(Color(white: 0.5))
 
             Text(title)
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3).weight(.semibold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
             Text(body)
-                .font(.system(.subheadline, design: .rounded))
-                .foregroundStyle(.white.opacity(0.65))
+                .font(.system(.subheadline))
+                .foregroundStyle(Color(white: 0.6))
                 .multilineTextAlignment(.center)
 
             if let action {
                 Button(action, action: perform)
-                    .font(.system(.body, design: .rounded).weight(.medium))
+                    .font(.system(.body).weight(.semibold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 18)
-                    .frame(height: 40)
-                    .weatherGlass(in: .capsule, tint: 0.3, interactive: true)
-                    .padding(.top, 4)
+                    .padding(.horizontal, 20)
+                    .frame(height: 42)
+                    .background(Capsule().fill(ChatScreen.mine))
+                    .padding(.top, 6)
             }
         }
         .padding(Theme.Spacing.section)
@@ -260,54 +350,65 @@ struct ChatsScreen: View {
     }
 }
 
-/// One conversation in the list: the person as their Sun sign and name, the
-/// last message under it, the time on the right, and a blue dot while any of
-/// theirs is unread.
+/// One conversation in the list: the face, the name, the date with a chevron,
+/// and the last message under it in grey, white while it is unread, with the
+/// count of unread ones on the right.
 struct ChatRow: View {
 
     let chat: ChatSummary
 
     private var isUnread: Bool { chat.unreadCount > 0 }
 
-    /// "You: …" in front of the reader's own last message, as Messages does.
     private var preview: String {
-        guard let last = chat.lastMessage else { return "" }
-        let text = last.body.replacingOccurrences(of: "\n", with: " ")
-        return last.isMine ? L("chats.you", text) : text
+        chat.lastMessage?.body.replacingOccurrences(of: "\n", with: " ") ?? ""
     }
 
     var body: some View {
-        HStack(spacing: 10) {
-            Circle()
-                .fill(isUnread ? ChatScreen.mine : Color.clear)
-                .frame(width: 9, height: 9)
-                .accessibilityHidden(true)
+        HStack(spacing: 12) {
+            ChatAvatar(card: chat.peer, size: 52)
 
-            SocialAvatar(card: chat.peer, size: 46)
-
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
                     Text(chat.peer.displayName)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
 
-                    Spacer(minLength: 4)
+                    Spacer(minLength: 6)
 
                     if let date = chat.date {
                         Text(ChatDate.listStamp(date))
-                            .font(.system(size: 13, design: .rounded))
+                            .font(.system(size: 15))
                             .monospacedDigit()
-                            .foregroundStyle(.white.opacity(0.55))
+                            .foregroundStyle(Color(white: 0.55))
                     }
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color(white: 0.4))
                 }
 
-                Text(preview)
-                    .font(.system(size: 14, weight: isUnread ? .medium : .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(isUnread ? 0.9 : 0.6))
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 8) {
+                    Text(preview)
+                        .font(.system(size: 15))
+                        .foregroundStyle(isUnread ? .white : Color(white: 0.55))
+                        .lineLimit(1)
+
+                    Spacer(minLength: 0)
+
+                    if isUnread {
+                        Text("\(min(chat.unreadCount, 99))")
+                            .font(.system(size: 13, weight: .semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 7)
+                            .frame(minWidth: 22, minHeight: 22)
+                            .background(Capsule().fill(ChatScreen.mine))
+                    }
+                }
             }
+            // The line between rows starts under the text, not under the face.
+            .alignmentGuide(.listRowSeparatorLeading) { dimensions in dimensions[.leading] }
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
@@ -317,58 +418,63 @@ struct ChatRow: View {
 
 /// Asked in place of the list while none of the reader's charts is marked as
 /// their own: people write to someone through that chart, and see it when
-/// that someone writes to them. Picking one marks it primary, the same as the
-/// star in the profile list, and the chats open.
+/// that someone writes to them. The same question as "Which chart is yours?"
+/// on the home screen, in its words, inline because the chats are a sheet
+/// already. Picking one marks it primary and the chats open.
 private struct OwnChartChooser: View {
 
     @ObservedObject var list: ProfileListViewModel
     @State private var picking: String?
+    @State private var failed = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.base) {
                 Image(systemName: "person.crop.circle.badge.questionmark")
                     .font(.system(size: 38, weight: .light))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(Color(white: 0.5))
 
-                Text(L("chats.ownTitle"))
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                Text(L("primary.title"))
+                    .font(.system(.title3).weight(.semibold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
 
                 Text(L(list.ownProfiles.isEmpty ? "chats.noOwnChart" : "chats.ownBody"))
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.65))
+                    .font(.system(.subheadline))
+                    .foregroundStyle(Color(white: 0.6))
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 8) {
                     ForEach(list.ownProfiles) { profile in
                         Button {
                             picking = profile.profileId
+                            failed = false
                             Task {
-                                await list.setPrimary(profile)
+                                // A refusal is said here, under the charts,
+                                // rather than over the pager behind.
+                                failed = await list.claimPrimary(profile) != nil
                                 picking = nil
                             }
                         } label: {
                             HStack(spacing: 12) {
-                                SocialAvatar(
+                                ChatAvatar(
                                     card: SocialCard(
                                         profileId: profile.profileId,
                                         profileName: profile.profileName,
                                         username: profile.username,
                                         natalSummary: profile.natalSummary
                                     ),
-                                    size: 36
+                                    size: 40
                                 )
 
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(profile.profileName)
-                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 17, weight: .semibold))
                                         .foregroundStyle(.white)
                                         .lineLimit(1)
                                     Text("@\(profile.username)")
-                                        .font(.system(size: 12, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.55))
+                                        .font(.system(size: 13))
+                                        .foregroundStyle(Color(white: 0.55))
                                         .lineLimit(1)
                                 }
 
@@ -377,21 +483,31 @@ private struct OwnChartChooser: View {
                                 if picking == profile.profileId {
                                     ProgressView().controlSize(.small).tint(Theme.spinner)
                                 } else {
-                                    Text(L("chats.ownPick"))
-                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.8))
+                                    Text(L("primary.choose"))
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundStyle(ChatScreen.mine)
                                 }
                             }
                             .padding(.horizontal, 14)
-                            .frame(minHeight: 58)
+                            .frame(minHeight: 62)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(Color(white: 0.1))
+                            )
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .disabled(picking != nil)
-                        .weatherGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous), tint: 0.28, interactive: true)
                     }
                 }
                 .padding(.top, 8)
+
+                if failed {
+                    Text(L("primary.failed"))
+                        .font(.system(.footnote))
+                        .foregroundStyle(Theme.error)
+                        .multilineTextAlignment(.center)
+                }
             }
             .padding(Theme.Spacing.section)
         }

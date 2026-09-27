@@ -286,7 +286,6 @@ struct WeatherHomeView: View {
         .sheet(isPresented: $showsChats) {
             ChatsScreen(
                 list: model,
-                skyState: visibleState ?? .calm,
                 onOpenSaved: { selection = $0 },
                 onBlocked: {
                     // A block takes the follows between the two with it.

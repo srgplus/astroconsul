@@ -1,20 +1,19 @@
 import SwiftUI
 import UIKit
 
-/// One conversation, drawn the way Messages draws one: the reader's words in
-/// blue on the right, the other side's on glass on the left, a time over
-/// anything that comes after a pause, and "Read" or "Delivered" under the
-/// reader's last message.
+/// One conversation, drawn the way the owner asked, after a messenger they
+/// like: black, the person's face at the top with their name in a capsule
+/// under it, the reader's words in blue on the right and the other side's in
+/// grey on the left, a tail on the last bubble of each run, a date over
+/// anything that comes after a pause, and "Seen" under the reader's last
+/// message.
 ///
-/// Text only. The person is at the top as their own chart; the ••• has their
-/// chart, Report and Block, which App Review asks of any chat between people.
+/// Text only. The name capsule is the menu: their chart, Report and Block,
+/// which App Review asks of any chat between people.
 struct ChatScreen: View {
 
     @StateObject private var model: ChatViewModel
     @ObservedObject var list: ProfileListViewModel
-
-    /// The sky of the page the chats were opened from, for the backdrop.
-    var skyState: SkyState?
 
     /// A person already on the list opens on their own page; the presenter
     /// turns the pager and puts the chats away.
@@ -27,13 +26,11 @@ struct ChatScreen: View {
     init(
         route: ChatRoute,
         list: ProfileListViewModel,
-        skyState: SkyState? = nil,
         onOpenSaved: ((String) -> Void)? = nil,
         onBlocked: (() -> Void)? = nil
     ) {
         _model = StateObject(wrappedValue: ChatViewModel(route: route))
         self.list = list
-        self.skyState = skyState
         self.onOpenSaved = onOpenSaved
         self.onBlocked = onBlocked
     }
@@ -49,24 +46,32 @@ struct ChatScreen: View {
     @State private var preview: ProfileSummary?
     @State private var previewError: String?
 
-    /// iMessage's own blue, the one colour people read as "mine" in a chat.
-    static let mine = Color(red: 0.04, green: 0.52, blue: 1.0)
+    /// The reader's bubbles: the blue people read as "mine" in a chat.
+    static let mine = Color(red: 0.21, green: 0.47, blue: 0.96)
 
-    /// How long a pause earns a time over the next message.
+    /// The other side's bubbles.
+    static let theirs = Color(red: 0.17, green: 0.17, blue: 0.18)
+
+    /// How long a pause earns a date over the next message.
     private static let pause: TimeInterval = 60 * 60
 
     /// How close two messages from the same side sit to read as one run.
     private static let run: TimeInterval = 5 * 60
 
+    /// Room at the top of the conversation for the name capsule floating
+    /// over it.
+    private static let capsuleRoom: CGFloat = 52
+
     private static let bottom = "bottom"
 
     var body: some View {
         conversation
-            .background { ChatBackdrop(state: skyState) }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(alignment: .top) { nameCapsule }
+            .background(Color.black.ignoresSafeArea())
             .safeAreaInset(edge: .bottom, spacing: 0) { composer }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarItems }
-            .hidingBarBackground()
             .task { await model.load() }
             // Every few seconds while the chat is up and the app is in front:
             // there is no socket, and a push only comes when APNs is set up.
@@ -123,41 +128,31 @@ struct ChatScreen: View {
             }
     }
 
-    // MARK: - Toolbar
+    // MARK: - Header
 
     @ToolbarContentBuilder
     private var toolbarItems: some ToolbarContent {
-        // The person reads as a title, so it skips the glass pill iOS 26 puts
-        // behind toolbar items, the way the list's wordmark does.
+        // The face in the middle of the bar, level with the back button, on
+        // the black rather than in the glass pill iOS 26 puts behind items.
         if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .principal) { header }
+            ToolbarItem(placement: .principal) { face }
                 .sharedBackgroundVisibility(.hidden)
         } else {
-            ToolbarItem(placement: .principal) { header }
+            ToolbarItem(placement: .principal) { face }
         }
-
-        ToolbarItem(placement: .topBarTrailing) { menu }
     }
 
-    /// Their Sun sign over their name, as Messages puts a face over a name.
-    private var header: some View {
-        Button(action: openChart) {
-            VStack(spacing: 1) {
-                if let peer = model.peer {
-                    SocialAvatar(card: peer, size: 26)
-                }
-                Text(model.peer?.displayName ?? " ")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
+    private var face: some View {
+        Group {
+            if let peer = model.peer {
+                ChatAvatar(card: peer, size: 40)
             }
         }
-        .buttonStyle(.plain)
-        .disabled(model.peer?.profile == nil)
-        .accessibilityHint(L("chat.viewChart"))
     }
 
-    private var menu: some View {
+    /// The name under the face, with a chevron that says it opens something:
+    /// their chart, Report and Block.
+    private var nameCapsule: some View {
         Menu {
             if let profile = model.peer?.profile {
                 Button(action: openChart) {
@@ -181,11 +176,35 @@ struct ChatScreen: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 15, weight: .semibold))
+            HStack(spacing: 5) {
+                Text(model.peer?.displayName ?? " ")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 36)
+            .background(
+                Capsule()
+                    .fill(Color(white: 0.12))
+                    .overlay(Capsule().stroke(Color(white: 0.24), lineWidth: 0.5))
+            )
         }
         .disabled(model.peer?.profile == nil)
-        .accessibilityLabel(L("weather.profileOptions"))
+        .accessibilityHint(L("chat.viewChart"))
+        .padding(.top, 2)
+        .frame(maxWidth: .infinity)
+        // Messages scroll up under it and fade out rather than meeting it head on.
+        .background(alignment: .top) {
+            LinearGradient(colors: [.black, .black.opacity(0)], startPoint: .top, endPoint: .bottom)
+                .frame(height: Self.capsuleRoom + 12)
+                .allowsHitTesting(false)
+        }
+        .opacity(model.peer == nil ? 0 : 1)
     }
 
     /// Their page if they are on the list already, the preview otherwise.
@@ -214,7 +233,6 @@ struct ChatScreen: View {
         case .loading:
             ProgressView()
                 .tint(Theme.spinner)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
         case let .failed(text):
             notice(icon: "exclamationmark.triangle", title: L("chat.loadFailed"), body: text) {
@@ -222,7 +240,7 @@ struct ChatScreen: View {
             }
 
         case .needsOwnChart:
-            notice(icon: "person.crop.circle.badge.questionmark", title: L("chats.ownTitle"), body: L("chats.ownBody"))
+            notice(icon: "person.crop.circle.badge.questionmark", title: L("primary.title"), body: L("chats.ownBody"))
 
         case .loaded:
             messagesList
@@ -244,18 +262,17 @@ struct ChatScreen: View {
                                     Text(L("chat.earlier"))
                                 }
                             }
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.7))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color(white: 0.55))
                             .frame(height: 36)
                         }
                         .buttonStyle(.plain)
-                        .padding(.bottom, 4)
                     }
 
                     if model.messages.isEmpty, model.outgoing.isEmpty {
                         Text(L("chat.start", model.peer?.displayName ?? L("social.someone")))
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.55))
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color(white: 0.5))
                             .multilineTextAlignment(.center)
                             .padding(.vertical, 24)
                             .padding(.horizontal, 32)
@@ -269,9 +286,9 @@ struct ChatScreen: View {
                         .frame(height: 1)
                         .id(Self.bottom)
                 }
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
+                .padding(.horizontal, 14)
+                .padding(.top, Self.capsuleRoom)
+                .padding(.bottom, 6)
             }
             .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
@@ -297,8 +314,8 @@ struct ChatScreen: View {
     // MARK: - Rows
 
     /// One line of the conversation, as drawn: a message from the server or
-    /// one on its way, with the time over it after a pause and the status
-    /// under it when it is the reader's last.
+    /// one on its way, with the date over it after a pause, a tail when it
+    /// ends a run, and the status under it when it is the reader's last.
     private struct Row: Identifiable {
         enum Content {
             case message(ChatMessage)
@@ -311,8 +328,16 @@ struct ChatScreen: View {
         let isMine: Bool
         let date: Date?
         var stamp: String?
-        var tight = false
+        /// Follows a message from the same side closely: drawn tight to it.
+        var continuesRun = false
+        /// The last of its run: carries the tail.
+        var endsRun = true
         var status: String?
+
+        var isFailed: Bool {
+            if case let .outgoing(item) = content { return item.failed }
+            return false
+        }
     }
 
     private var rows: [Row] {
@@ -330,21 +355,22 @@ struct ChatScreen: View {
         }
 
         for index in rows.indices {
-            let previous = index > 0 ? rows[index - 1] : nil
             let date = rows[index].date ?? Date()
-            let previousDate = previous.map { $0.date ?? Date() }
-            if let previousDate {
-                if date.timeIntervalSince(previousDate) >= Self.pause {
-                    rows[index].stamp = ChatDate.separator(date)
-                } else if previous?.isMine == rows[index].isMine, date.timeIntervalSince(previousDate) < Self.run {
-                    rows[index].tight = true
-                }
-            } else if rows[index].date != nil {
+            guard index > 0 else {
+                if rows[index].date != nil { rows[index].stamp = ChatDate.separator(date) }
+                continue
+            }
+            let previous = rows[index - 1]
+            let gap = date.timeIntervalSince(previous.date ?? Date())
+            if gap >= Self.pause {
                 rows[index].stamp = ChatDate.separator(date)
+            } else if previous.isMine == rows[index].isMine, gap < Self.run {
+                rows[index].continuesRun = true
+                rows[index - 1].endsRun = false
             }
         }
 
-        // "Read" or "Delivered" under the reader's last message, when it is
+        // "Seen" or "Delivered" under the reader's last message, when it is
         // the last of the conversation: under anything older it is old news.
         if let last = rows.indices.last, rows[last].isMine, case let .message(message) = rows[last].content {
             let isRead = (model.chat?.peerReadId ?? 0) >= message.id
@@ -355,19 +381,19 @@ struct ChatScreen: View {
 
     @ViewBuilder
     private func rowView(_ row: Row) -> some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 4) {
             if let stamp = row.stamp {
                 Text(stamp)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.5))
-                    .padding(.top, 14)
-                    .padding(.bottom, 6)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color(white: 0.55))
+                    .padding(.top, 18)
+                    .padding(.bottom, 8)
             }
 
             HStack(spacing: 0) {
-                if row.isMine { Spacer(minLength: 56) }
+                if row.isMine { Spacer(minLength: 64) }
                 bubble(row)
-                if !row.isMine { Spacer(minLength: 56) }
+                if !row.isMine { Spacer(minLength: 64) }
             }
 
             switch row.content {
@@ -377,7 +403,7 @@ struct ChatScreen: View {
                         Task { await model.retry(item) }
                     } label: {
                         Label(L("chat.failed"), systemImage: "exclamationmark.circle")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Theme.error)
                     }
                     .buttonStyle(.plain)
@@ -391,24 +417,25 @@ struct ChatScreen: View {
                 }
             }
         }
-        .padding(.top, row.tight || row.stamp != nil ? 2 : 8)
+        .padding(.top, row.stamp != nil ? 0 : (row.continuesRun ? 3 : 12))
     }
 
     private func bubble(_ row: Row) -> some View {
-        let isFailed: Bool = {
-            if case let .outgoing(item) = row.content { return item.failed }
-            return false
-        }()
+        let fill = row.isMine ? Self.mine.opacity(row.isFailed ? 0.45 : 1) : Self.theirs
         return Text(row.body)
-            .font(.system(size: 16, design: .rounded))
+            .font(.system(size: 17))
             .foregroundStyle(.white)
-            .padding(.horizontal, 13)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
             .background {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(row.isMine ? Self.mine.opacity(isFailed ? 0.45 : 1) : Color.white.opacity(0.16))
+                RoundedRectangle(cornerRadius: 20, style: .continuous).fill(fill)
             }
-            .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(alignment: row.isMine ? .bottomTrailing : .bottomLeading) {
+                if row.endsRun {
+                    BubbleTail(isMine: row.isMine, color: fill)
+                }
+            }
+            .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 20, style: .continuous))
             .contextMenu {
                 Button {
                     UIPasteboard.general.string = row.body
@@ -427,10 +454,11 @@ struct ChatScreen: View {
 
     private func statusLine(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 11, weight: .medium, design: .rounded))
-            .foregroundStyle(.white.opacity(0.5))
+            .font(.system(size: 13))
+            .foregroundStyle(Color(white: 0.55))
             .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 4)
+            .padding(.trailing, 6)
+            .padding(.top, 2)
     }
 
     // MARK: - Composer
@@ -445,31 +473,44 @@ struct ChatScreen: View {
         model.canWrite && !trimmedDraft.isEmpty && trimmedDraft.count <= 2000
     }
 
+    /// One capsule, the send button inside it on the right: grey while
+    /// there is nothing to send, blue once there is.
     private var composer: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .bottom, spacing: 6) {
             TextField(L("chat.placeholder"), text: $draft, axis: .vertical)
                 .lineLimit(1...6)
-                .font(.system(size: 16, design: .rounded))
+                .font(.system(size: 17))
                 .foregroundStyle(.white)
+                .tint(Self.mine)
                 .focused($isComposing)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 9)
-                .weatherGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), tint: 0.28)
+                .padding(.leading, 16)
+                .padding(.vertical, 11)
 
             Button(action: send) {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(Circle().fill(canSend ? Self.mine : Color.white.opacity(0.16)))
+                    .foregroundStyle(canSend ? Color.white : Color(white: 0.45))
+                    .frame(width: 32, height: 32)
+                    .background(Circle().fill(canSend ? Self.mine : Color(white: 0.2)))
             }
             .buttonStyle(.plain)
             .disabled(!canSend)
+            .padding(.trailing, 6)
+            .padding(.bottom, 6)
             .accessibilityLabel(L("chat.send"))
         }
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(white: 0.09))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(Color(white: 0.2), lineWidth: 1)
+                )
+        )
         .padding(.horizontal, 12)
-        .padding(.top, 6)
+        .padding(.top, 8)
         .padding(.bottom, 8)
+        .background(Color.black.ignoresSafeArea())
         .disabled(!model.canWrite)
     }
 
@@ -496,51 +537,53 @@ struct ChatScreen: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: icon)
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(Color(white: 0.5))
 
             Text(title)
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3).weight(.semibold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
             Text(body)
-                .font(.system(.subheadline, design: .rounded))
-                .foregroundStyle(.white.opacity(0.65))
+                .font(.system(.subheadline))
+                .foregroundStyle(Color(white: 0.6))
                 .multilineTextAlignment(.center)
 
             if let retry {
                 Button(L("common.tryAgain"), action: retry)
-                    .font(.system(.body, design: .rounded).weight(.medium))
+                    .font(.system(.body).weight(.semibold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 18)
-                    .frame(height: 40)
-                    .weatherGlass(in: .capsule, tint: 0.3, interactive: true)
-                    .padding(.top, 4)
+                    .padding(.horizontal, 20)
+                    .frame(height: 42)
+                    .background(Capsule().fill(Self.mine))
+                    .padding(.top, 6)
             }
         }
         .padding(Theme.Spacing.section)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-/// The ground a conversation stands on: the same frosted sky as the chats
-/// sheet, drawn solid so the list does not show through while the chat slides
-/// in over it. No footage behind the frost, which a blur would not show.
-struct ChatBackdrop: View {
+/// The tail on the last bubble of a run: a round one tucked into the bottom
+/// corner and a small one beyond it, the way the reference draws it.
+private struct BubbleTail: View {
 
-    var state: SkyState?
+    let isMine: Bool
+    let color: Color
 
     var body: some View {
-        ZStack {
-            if let state {
-                WeatherSky.gradient(for: state.zone)
-            } else {
-                Theme.bgDeep
-            }
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .environment(\.colorScheme, .dark)
+        ZStack(alignment: isMine ? .bottomTrailing : .bottomLeading) {
+            Circle()
+                .fill(color)
+                .frame(width: 14, height: 14)
+                .offset(x: isMine ? 3 : -3, y: 2)
+
+            Circle()
+                .fill(color)
+                .frame(width: 7, height: 7)
+                .offset(x: isMine ? 10 : -10, y: 8)
         }
-        .ignoresSafeArea()
+        .frame(width: 14, height: 14, alignment: isMine ? .bottomTrailing : .bottomLeading)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

@@ -176,7 +176,7 @@ struct WeatherPreviewHarness: View {
             ActivityScreen(list: listModel, skyState: previewState, onFindPeople: { showsSearch = true })
         }
         .sheet(isPresented: $showsChats) {
-            ChatsScreen(list: listModel, skyState: previewState)
+            ChatsScreen(list: listModel)
         }
         .sheet(item: $peopleTarget) { target in
             PeopleSheet(target: target, list: listModel, skyState: previewState)
