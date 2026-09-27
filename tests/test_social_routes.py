@@ -156,6 +156,7 @@ class ActivityTests(SocialTestCase):
         self.assertEqual(first["actor"]["profile_name"], "Boris Ivanov")
         self.assertEqual(first["target"]["profile_id"], self.anna_profile)
         self.assertFalse(first["actor_followed"])
+        self.assertIn("latest_transit", first["actor"])
 
     def test_follow_back_is_reflected(self) -> None:
         self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/follow")

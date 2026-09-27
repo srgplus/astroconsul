@@ -36,7 +36,9 @@ enum WeatherPreviewData {
         isFollowing: false,
         followersCount: 12,
         followingCount: 8,
-        natalSummary: NatalSummary(sun: "Aries 27°04'12\"", moon: "Leo 03°41'55\"", asc: "Cancer 18°22'07\"")
+        natalSummary: NatalSummary(sun: "Aries 27°04'12\"", moon: "Leo 03°41'55\"", asc: "Cancer 18°22'07\""),
+        likesCount: 24,
+        isLiked: false
     )
 
     /// Everyone here was born in one city and lives in another. The two used
@@ -494,6 +496,58 @@ enum WeatherPreviewData {
             aspect: aspect,
             orb: orb,
             strength: strength
+        )
+    }
+
+    // MARK: - Social
+
+    /// Activity for the harness account: people who liked and followed its
+    /// charts over the last few days, the newest three unread. Invented names
+    /// only — these rows end up in screenshots, and a real person's name in
+    /// an App Store screenshot is theirs to lend, not ours.
+    static let activity = ActivityResponse(
+        items: [
+            activityItem(1, .like, "Mira Solis", "mirasolis", sun: "Libra", hours: 0.3, unread: true, followed: false),
+            activityItem(2, .follow, "Mira Solis", "mirasolis", sun: "Libra", hours: 0.4, unread: true, followed: false),
+            activityItem(3, .like, "Theo Laurent", "theolaurent", sun: "Capricorn", hours: 2.5, unread: true, followed: true),
+            activityItem(4, .follow, "Nadia Petrova", "nadiapetrova", sun: "Pisces", hours: 19, unread: false, followed: false),
+            activityItem(5, .like, "Jonas Berg", "jonasberg", sun: "Aries", hours: 27, unread: false, followed: true),
+            activityItem(6, .like, "Lea Martin", "leamartin", sun: "Gemini", hours: 52, unread: false, followed: false),
+            activityItem(7, .follow, "Omar Haddad", "omarhaddad", sun: "Leo", hours: 75, unread: false, followed: false),
+        ],
+        unreadCount: 3,
+        seenAt: nil
+    )
+
+    static func people(for tab: PeopleSheet.Tab) -> [SocialPerson] {
+        activity.items
+            .filter { $0.kind == (tab == .likes ? .like : .follow) }
+            .map { SocialPerson(actor: $0.actor, createdAt: $0.createdAt, actorFollowed: $0.actorFollowed) }
+    }
+
+    private static func activityItem(
+        _ number: Int,
+        _ kind: ActivityItem.Kind,
+        _ name: String,
+        _ handle: String,
+        sun: String,
+        hours: Double,
+        unread: Bool,
+        followed: Bool
+    ) -> ActivityItem {
+        ActivityItem(
+            id: "\(kind.rawValue):\(number)",
+            kind: kind,
+            createdAt: isoInstant(days: -hours / 24),
+            isUnread: unread,
+            actor: SocialCard(
+                profileId: "preview-\(handle)",
+                profileName: name,
+                username: handle,
+                natalSummary: NatalSummary(sun: "\(sun) 11°20'04\"", moon: "Taurus 04°12'40\"", asc: "Virgo 23°51'09\"")
+            ),
+            actorFollowed: followed,
+            target: ActivityTarget(profileId: profile.profileId, profileName: profile.profileName, username: profile.username)
         )
     }
 

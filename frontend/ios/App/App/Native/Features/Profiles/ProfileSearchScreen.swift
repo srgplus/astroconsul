@@ -115,6 +115,16 @@ struct ProfileSearchScreen: View {
                             close(selecting: profile)
                         }
                     }
+                },
+                onBlocked: {
+                    // The block hides the owner's charts from search, so the
+                    // results are asked for again rather than left showing
+                    // a chart that is no longer there.
+                    preview = nil
+                    Task {
+                        await list.load(showSpinner: false)
+                        await model.search(term)
+                    }
                 }
             )
         }

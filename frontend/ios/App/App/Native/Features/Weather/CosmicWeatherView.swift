@@ -41,6 +41,18 @@ struct CosmicWeatherView: View {
     /// outlive this page.
     var onFindPeople: (() -> Void)?
 
+    /// The social line under the reading, handed up like Edit: who likes and
+    /// who follows one of your own charts, and Activity. The page draws the
+    /// counts; the sheets they open belong to the home screen.
+    var onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)?
+    var onOpenActivity: (() -> Void)?
+
+    /// Report and Block in the ••• of a chart somebody else owns. Handed up
+    /// for the same reason: the report sheet and the confirmation have to
+    /// outlive a page the pager may tear down.
+    var onReport: ((ProfileSummary) -> Void)?
+    var onBlock: ((ProfileSummary) -> Void)?
+
     @StateObject private var model: CosmicWeatherViewModel
     @ObservedObject private var device = DeviceLocation.shared
     @ObservedObject private var strings = L10n.shared
@@ -61,7 +73,11 @@ struct CosmicWeatherView: View {
         onEdit: ((ProfileSummary) -> Void)? = nil,
         onUnfollow: ((ProfileSummary) -> Void)? = nil,
         partners: [ProfileSummary] = [],
-        onFindPeople: (() -> Void)? = nil
+        onFindPeople: (() -> Void)? = nil,
+        onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
+        onOpenActivity: (() -> Void)? = nil,
+        onReport: ((ProfileSummary) -> Void)? = nil,
+        onBlock: ((ProfileSummary) -> Void)? = nil
     ) {
         self.profile = profile
         self.topInset = topInset
@@ -71,6 +87,10 @@ struct CosmicWeatherView: View {
         self.onUnfollow = onUnfollow
         self.partners = partners
         self.onFindPeople = onFindPeople
+        self.onOpenPeople = onOpenPeople
+        self.onOpenActivity = onOpenActivity
+        self.onReport = onReport
+        self.onBlock = onBlock
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
     }
 
@@ -86,6 +106,10 @@ struct CosmicWeatherView: View {
         onUnfollow: ((ProfileSummary) -> Void)? = nil,
         partners: [ProfileSummary] = [],
         onFindPeople: (() -> Void)? = nil,
+        onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
+        onOpenActivity: (() -> Void)? = nil,
+        onReport: ((ProfileSummary) -> Void)? = nil,
+        onBlock: ((ProfileSummary) -> Void)? = nil,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
     ) {
         self.profile = profile
@@ -96,6 +120,10 @@ struct CosmicWeatherView: View {
         self.onUnfollow = onUnfollow
         self.partners = partners
         self.onFindPeople = onFindPeople
+        self.onOpenPeople = onOpenPeople
+        self.onOpenActivity = onOpenActivity
+        self.onReport = onReport
+        self.onBlock = onBlock
         _model = StateObject(wrappedValue: model())
     }
     #endif
@@ -140,6 +168,24 @@ struct CosmicWeatherView: View {
                             // content is the top of the header.
                             profileMenu
                         }
+                        // Activity opposite the •••, on every page: it is the
+                        // account's, not this chart's — likes and follows on
+                        // every chart the reader owns — so it is not tied to
+                        // whose page happens to be showing.
+                        .overlay(alignment: .topLeading) {
+                            if let onOpenActivity {
+                                ActivityBell(action: onOpenActivity)
+                            }
+                        }
+
+                    // Under the reading and above the cards: the chart first,
+                    // then what people made of it, then the detail.
+                    SocialStrip(
+                        profile: profile,
+                        isOwn: onEdit != nil,
+                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } }
+                    )
+                    .padding(.top, -6)
 
                     // A re-read keeps the reading it has on screen — there
                     // is nothing better to put there — so the cards step back
@@ -331,11 +377,35 @@ struct CosmicWeatherView: View {
                 }
             }
 
+            // Plain, not destructive: unfollowing is undone by following again
+            // and loses nothing, so it is not drawn in Block's red.
             if let onUnfollow {
-                Button(role: .destructive) {
+                Button {
                     onUnfollow(profile)
                 } label: {
                     Label(L("weather.unfollow"), systemImage: "person.badge.minus")
+                }
+            }
+
+            // Somebody else's chart only: the ones you own are yours to edit
+            // or delete, not to report.
+            if onReport != nil || onBlock != nil {
+                Divider()
+
+                if let onReport {
+                    Button {
+                        onReport(profile)
+                    } label: {
+                        Label(L("social.report"), systemImage: "exclamationmark.bubble")
+                    }
+                }
+
+                if let onBlock {
+                    Button(role: .destructive) {
+                        onBlock(profile)
+                    } label: {
+                        Label(L("social.block"), systemImage: "hand.raised")
+                    }
                 }
             }
         } label: {
@@ -348,8 +418,11 @@ struct CosmicWeatherView: View {
         // The page tints everything under it white so marks read on the
         // sky. The menu it opens is not on the sky — it is a system popup
         // in the system's own appearance — so a white tint left its icons
-        // white beside black labels. Ink, which resolves either way.
-        .tint(Theme.text)
+        // white beside black labels. Cleared rather than set to ink: any
+        // tint here paints every icon in it, the destructive ones included,
+        // and iOS draws Unfollow and Block red icon and all. With none, the
+        // popup draws itself the way every system menu does.
+        .tint(nil)
         .weatherGlass(in: .circle, interactive: true)
         .accessibilityLabel(L("weather.profileOptions"))
     }

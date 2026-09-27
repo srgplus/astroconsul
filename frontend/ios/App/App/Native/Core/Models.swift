@@ -56,6 +56,18 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     /// screen that shows a profile's chart before you follow it.
     let natalSummary: NatalSummary?
 
+    /// How many accounts like this chart, and whether the viewer is one of
+    /// them. `var` with a default rather than `let`, so the synthesized
+    /// initializer takes them as optional trailing arguments and every sample
+    /// profile built before likes existed still compiles — and a payload from
+    /// a backend that predates them still decodes.
+    var likesCount: Int? = nil
+    var isLiked: Bool? = nil
+
+    /// The profile's owner follows one of the viewer's own profiles: the
+    /// "Follows you" under a followed chart.
+    var followsYou: Bool? = nil
+
     var id: String { profileId }
 
     /// `true` for the user's own profiles, `false` for followed ones.

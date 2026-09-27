@@ -47,6 +47,22 @@ final class AuthStore: ObservableObject {
     }
 
     private init() {
+        #if DEBUG
+        // `-debugAccessToken <jwt>`, with `-apiBaseURL`, signs a debug build
+        // in to a local backend as whoever the token names — several accounts
+        // can be tried on one simulator without a mailbox or a password. Held
+        // in memory only: nothing is written to the Keychain, so the next
+        // plain launch is back on the real session.
+        if let token = UserDefaults.standard.string(forKey: "debugAccessToken"), !token.isEmpty {
+            session = AuthSession(
+                accessToken: token,
+                refreshToken: "",
+                expiresAt: Date().addingTimeInterval(86_400 * 365).timeIntervalSince1970,
+                email: UserDefaults.standard.string(forKey: "debugEmail") ?? "local@debug.test"
+            )
+            return
+        }
+        #endif
         if let data = KeychainStore.read(key: Self.keychainKey),
            let stored = try? JSONDecoder().decode(AuthSession.self, from: data) {
             session = stored

@@ -59,6 +59,8 @@ struct SignInView: View {
                     providerButtons
                     passwordToggle
                 }
+
+                terms
             }
             .padding(Theme.Spacing.section)
             .frame(maxWidth: 420)
@@ -69,6 +71,28 @@ struct SignInView: View {
         .disabled(busy)
         // Nothing to wait for here: the form is the content.
         .onAppear { AppLaunch.shared.markContentReady() }
+    }
+
+    // MARK: - Terms
+
+    /// What signing in agrees to, under every step. The Terms carry the
+    /// community rules — no tolerance for abusive accounts or objectionable
+    /// names — which App Review asks any app with social features to have
+    /// people accept (guideline 1.2), and the age the rating is set for.
+    private var terms: some View {
+        Text(termsText)
+            .font(.system(.caption, design: .rounded))
+            .foregroundStyle(Theme.textDim)
+            .multilineTextAlignment(.center)
+            .tint(Theme.text)
+            .padding(.top, Theme.Spacing.tight)
+    }
+
+    /// The sentence with its two links, built from Markdown so the links sit
+    /// inside the words rather than as buttons after them.
+    private var termsText: AttributedString {
+        let markdown = L("auth.terms", Legal.termsURL.absoluteString, Legal.privacyURL.absoluteString)
+        return (try? AttributedString(markdown: markdown)) ?? AttributedString(markdown)
     }
 
     // MARK: - Header

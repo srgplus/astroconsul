@@ -35,6 +35,7 @@ struct SettingsView: View {
                 notificationsSection
                 appearanceSection
                 languageSection
+                communitySection
                 aboutSection
                 deleteAccountSection
             }
@@ -277,6 +278,33 @@ struct SettingsView: View {
             Text(L("settings.language"))
         } footer: {
             Text(L("settings.languageFooter"))
+        }
+    }
+
+    /// Who you have blocked, the rules everyone here agreed to, and a person
+    /// to write to — the last of App Review's four requirements for a social
+    /// network being published contact details a user can actually reach.
+    private var communitySection: some View {
+        Section {
+            NavigationLink(L("blocked.title")) {
+                BlockedAccountsView()
+            }
+
+            Link(destination: Legal.termsURL) {
+                Label(L("settings.guidelines"), systemImage: "doc.text")
+            }
+
+            Link(destination: Legal.privacyURL) {
+                Label(L("settings.privacy"), systemImage: "hand.raised")
+            }
+
+            Link(destination: Legal.supportMail) {
+                Label(L("settings.contact"), systemImage: "envelope")
+            }
+        } header: {
+            Text(L("settings.community"))
+        } footer: {
+            Text(L("settings.communityFooter", Legal.supportEmail))
         }
     }
 

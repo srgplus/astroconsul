@@ -43,6 +43,13 @@ struct WeatherHomeView: View {
     /// after an edit that only moved the birthplace.
     @State private var editVersions: [String: Int] = [:]
 
+    /// The social sheets a page asks for, presented from here for the same
+    /// reason Edit is: a sheet owned by a pager page goes with the page.
+    @State private var showsActivity = false
+    @State private var peopleTarget: PeopleSheet.Target?
+    @State private var reporting: ProfileSummary?
+    @State private var blocking: ProfileSummary?
+
     /// Primary profile first, the way Weather keeps My Location at page one,
     /// then Favourites, then the rest of the owner's profiles and the followed
     /// ones. The model builds the same groups the list screen draws and
@@ -116,6 +123,7 @@ struct WeatherHomeView: View {
             DeviceLocation.shared.start()
             await model.load()
             syncSelection()
+            await SocialStore.shared.refreshUnread()
             await refreshAlerts()
             await offerAlerts()
         }
@@ -133,6 +141,8 @@ struct WeatherHomeView: View {
                     await model.load()
                     syncSelection()
                 }
+                // Someone may have liked or followed while the app was away.
+                await SocialStore.shared.refreshUnread()
                 await refreshAlerts()
             }
         }
@@ -140,12 +150,19 @@ struct WeatherHomeView: View {
             Task {
                 // Signing out has to take the queue with it: the alerts name a
                 // profile this device can no longer read.
-                if session == nil { await CategoryAlerts.shared.reset() }
+                if session == nil {
+                    await CategoryAlerts.shared.reset()
+                    SocialStore.shared.reset()
+                }
                 await model.load()
+                await SocialStore.shared.refreshUnread()
                 await refreshAlerts()
             }
         }
-        .onChange(of: model.profiles) { _, _ in
+        .onChange(of: model.profiles) { _, profiles in
+            // A fresh listing carries the server's like counts; whatever was
+            // tapped before it is now in them.
+            SocialStore.shared.adopt(profiles)
             syncSelection()
             // A brand-new account reaches this screen with nothing on it; the
             // offer waits for the first profile rather than being spent on an
@@ -187,7 +204,48 @@ struct WeatherHomeView: View {
         .sheet(isPresented: $showsNewProfile, onDismiss: openCreatedProfile) {
             ProfileEditSheet(skyState: visibleState) { createdProfile = $0 }
         }
+        .sheet(isPresented: $showsActivity) {
+            ActivityScreen(
+                list: model,
+                skyState: visibleState ?? .calm,
+                onFindPeople: {
+                    // After the sheet has gone: two presentations in one
+                    // frame and SwiftUI drops the second.
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(350))
+                        showsSearch = true
+                    }
+                },
+                onOpenSaved: { selection = $0 }
+            )
+        }
+        .sheet(item: $peopleTarget) { target in
+            PeopleSheet(
+                target: target,
+                list: model,
+                skyState: visibleState ?? .calm,
+                onOpenSaved: { selection = $0 }
+            )
+        }
+        .sheet(item: $reporting) { profile in
+            ReportSheet(profile: profile) { blocked in
+                if blocked { removeBlocked(profile) }
+            }
+        }
+        .blockConfirmation($blocking) { profile in
+            removeBlocked(profile)
+        }
         .fullScreenCover(item: $webDestination) { WebScreen(destination: $0) }
+    }
+
+    /// A block severs every follow between the two accounts, so the chart it
+    /// was made from leaves the pager: reloaded rather than removed by hand,
+    /// because the block may have taken other charts of the same owner too.
+    private func removeBlocked(_ profile: ProfileSummary) {
+        Task {
+            await model.load(showSpinner: false)
+            syncSelection()
+        }
     }
 
     private var pager: some View {
@@ -215,7 +273,11 @@ struct WeatherHomeView: View {
                     // with. The list is already loaded, so the card asks the
                     // API for nothing but the report itself.
                     partners: profiles.filter { $0.profileId != profile.profileId },
-                    onFindPeople: { showsSearch = true }
+                    onFindPeople: { showsSearch = true },
+                    onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
+                    onOpenActivity: { showsActivity = true },
+                    onReport: isOwn ? nil : { reporting = $0 },
+                    onBlock: isOwn ? nil : { blocking = $0 }
                 )
                 .id("\(profile.profileId)#\(editVersions[profile.profileId] ?? 0)")
             }

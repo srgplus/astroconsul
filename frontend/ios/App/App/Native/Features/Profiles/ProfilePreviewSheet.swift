@@ -12,27 +12,44 @@ struct ProfilePreviewSheet: View {
 
     let profile: ProfileSummary
     var isSubscribing: Bool = false
+    /// Already on the reader's list — opened from Activity or a followers
+    /// list, where the person may be followed already — so the plus becomes
+    /// a checkmark instead of offering to follow twice.
+    var isSubscribed: Bool = false
     /// A refused subscription, shown here rather than by the screen that
     /// presented this one: an alert raised behind a sheet never appears, so
     /// tapping the plus would look like it did nothing.
     @Binding var errorText: String?
     var onSubscribe: () -> Void
+    /// The owner was blocked from here, directly or with a report. The
+    /// presenter closes this and reloads: the chart is no longer theirs to see.
+    var onBlocked: (() -> Void)?
 
     init(
         profile: ProfileSummary,
         isSubscribing: Bool = false,
+        isSubscribed: Bool = false,
         errorText: Binding<String?> = .constant(nil),
-        onSubscribe: @escaping () -> Void
+        onSubscribe: @escaping () -> Void,
+        onBlocked: (() -> Void)? = nil
     ) {
         self.profile = profile
         self.isSubscribing = isSubscribing
+        self.isSubscribed = isSubscribed
         _errorText = errorText
         self.onSubscribe = onSubscribe
+        self.onBlocked = onBlocked
     }
 
     @Environment(\.dismiss) private var dismiss
 
     @ObservedObject private var strings = L10n.shared
+    @ObservedObject private var social = SocialStore.shared
+    @State private var reporting: ProfileSummary?
+    @State private var blocking: ProfileSummary?
+    @State private var likeError: String?
+
+    private var like: SocialStore.Like { social.like(for: profile) }
 
     private var zone: TiiZone? { profile.latestTransit?.tii.map(TiiZone.init(tii:)) }
     private var state: SkyState? {
@@ -58,6 +75,7 @@ struct ProfilePreviewSheet: View {
             ScrollView {
                 VStack(spacing: 18) {
                     hero.padding(.top, 8)
+                    socialRow
                     bigThree
                     birth
                 }
@@ -80,25 +98,124 @@ struct ProfilePreviewSheet: View {
         } message: {
             Text(errorText ?? "")
         }
+        .alert(
+            L("social.likeFailed"),
+            isPresented: Binding(
+                get: { likeError != nil },
+                set: { if !$0 { likeError = nil } }
+            )
+        ) {
+            Button(L("common.ok"), role: .cancel) { likeError = nil }
+        } message: {
+            Text(likeError ?? "")
+        }
+        .sheet(item: $reporting) { profile in
+            ReportSheet(profile: profile) { blocked in
+                if blocked { onBlocked?() }
+            }
+        }
+        .blockConfirmation($blocking) { _ in onBlocked?() }
+    }
+
+    // MARK: - Social
+
+    /// The chart's heart, its followers, and whether its owner follows you:
+    /// what a stranger's chart says about the people around it before you
+    /// decide to follow.
+    private var socialRow: some View {
+        HStack(spacing: 8) {
+            Button {
+                Task {
+                    if let error = await SocialStore.shared.toggleLike(profile) {
+                        likeError = error.localizedDescription
+                    }
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: like.isLiked ? "heart.fill" : "heart")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(like.isLiked ? Theme.challenge : .white)
+                        .contentTransition(.symbolEffect(.replace))
+                    Text("\(like.count)")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .frame(height: 34)
+            }
+            .buttonStyle(.plain)
+            .weatherGlass(in: .capsule, tint: 0.2, interactive: true)
+            .sensoryFeedback(.impact(weight: .light), trigger: like.isLiked)
+            .animation(.easeInOut(duration: 0.2), value: like)
+            .accessibilityLabel(L(like.isLiked ? "social.unlike" : "social.like"))
+            .accessibilityValue(L(count: like.count, "social.likesCount"))
+
+            if let followers = profile.followersCount {
+                Label(L(count: followers, "social.followersCount"), systemImage: "person.2.fill")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.horizontal, 12)
+                    .frame(height: 34)
+                    .weatherGlass(in: .capsule, tint: 0.1)
+            }
+
+            if profile.followsYou == true {
+                Text(L("social.followsYou"))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.horizontal, 12)
+                    .frame(height: 34)
+                    .weatherGlass(in: .capsule, tint: 0.1)
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Chrome
 
     /// Cross on the left, plus on the right — the two answers this screen
-    /// asks for, in the corners Weather puts them.
+    /// asks for, in the corners Weather puts them — with Report and Block in
+    /// a ••• beside the plus.
     private var chrome: some View {
         WeatherGlassGroup(spacing: 12) {
-            HStack {
+            HStack(spacing: 12) {
                 circle(icon: "xmark", label: L("common.cancel")) { dismiss() }
 
                 Spacer()
+
+                Menu {
+                    Button {
+                        reporting = profile
+                    } label: {
+                        Label(L("social.report"), systemImage: "exclamationmark.bubble")
+                    }
+
+                    Button(role: .destructive) {
+                        blocking = profile
+                    } label: {
+                        Label(L("social.block"), systemImage: "hand.raised")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Circle())
+                }
+                // No tint, for the reason the weather page's ••• has none:
+                // a tint paints Block's icon too, which iOS draws red.
+                .tint(nil)
+                .weatherGlass(in: .circle, interactive: true)
+                .accessibilityLabel(L("weather.profileOptions"))
 
                 Button(action: onSubscribe) {
                     Group {
                         if isSubscribing {
                             ProgressView().controlSize(.small).tint(Theme.spinner)
                         } else {
-                            Image(systemName: "plus")
+                            Image(systemName: isSubscribed ? "checkmark" : "plus")
                                 .font(.system(size: 17, weight: .semibold))
                         }
                     }
@@ -106,9 +223,11 @@ struct ProfilePreviewSheet: View {
                     .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
-                .disabled(isSubscribing)
+                .disabled(isSubscribing || isSubscribed)
                 .weatherGlass(in: .circle, interactive: true)
-                .accessibilityLabel(L("search.subscribeTo", profile.profileName))
+                .accessibilityLabel(
+                    isSubscribed ? L("social.following") : L("search.subscribeTo", profile.profileName)
+                )
             }
         }
         .padding(.horizontal, 16)

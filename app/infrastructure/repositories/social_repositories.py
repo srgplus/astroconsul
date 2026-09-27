@@ -27,6 +27,7 @@ from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.infrastructure.persistence.models import (
+    LatestTransitModel,
     NatalChartModel,
     ProfileFollowModel,
     ProfileLikeModel,
@@ -48,6 +49,7 @@ EMPTY_CARD: dict[str, Any] = {
     "profile_name": None,
     "username": None,
     "natal_summary": None,
+    "latest_transit": None,
 }
 
 
@@ -102,6 +104,7 @@ class SqlAlchemySocialRepository:
                 chosen[user_id] = (profile_id, name, handle, stamp)
 
         summaries: dict[str, Any] = {}
+        readings: dict[str, dict[str, Any]] = {}
         picked_ids = [value[0] for value in chosen.values()]
         if picked_ids:
             for profile_id, payload in session.execute(
@@ -110,6 +113,18 @@ class SqlAlchemySocialRepository:
                 .where(ProfileModel.id.in_(picked_ids))
             ).all():
                 summaries[profile_id] = (payload or {}).get("natal_summary")
+            # The last numbers each chart was read at, so a card opened from
+            # Activity shows the person's day rather than an empty sky.
+            for profile_id, tii, tension, feels in session.execute(
+                select(
+                    LatestTransitModel.profile_id,
+                    LatestTransitModel.tii,
+                    LatestTransitModel.tension_ratio,
+                    LatestTransitModel.feels_like,
+                ).where(LatestTransitModel.profile_id.in_(picked_ids))
+            ).all():
+                if tii is not None:
+                    readings[profile_id] = {"tii": tii, "tension_ratio": tension, "feels_like": feels}
 
         cards: dict[str, dict[str, Any]] = {}
         for user_id in user_ids:
@@ -123,6 +138,7 @@ class SqlAlchemySocialRepository:
                 "profile_name": name,
                 "username": handle,
                 "natal_summary": summaries.get(profile_id),
+                "latest_transit": readings.get(profile_id),
             }
         return cards
 
@@ -520,6 +536,7 @@ class FileSocialRepository:
             "profile_name": first.get("profile_name"),
             "username": first.get("username"),
             "natal_summary": first.get("natal_summary"),
+            "latest_transit": first.get("latest_transit"),
         }
 
     def like_profile(self, user_id: str, profile_id: str) -> None:

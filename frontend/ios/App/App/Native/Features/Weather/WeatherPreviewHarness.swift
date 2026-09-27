@@ -43,6 +43,14 @@ struct WeatherPreviewHarness: View {
     @State private var editing: ProfileSummary?
     @State private var showsSearch = false
     @State private var showsAlertsOffer = false
+    @State private var showsActivity = false
+    @State private var peopleTarget: PeopleSheet.Target?
+
+    /// Add `-uiPreviewActivity` to open straight onto the Activity screen,
+    /// the way App Store screenshots of it are taken.
+    static var opensActivity: Bool {
+        ProcessInfo.processInfo.arguments.contains("-uiPreviewActivity")
+    }
 
     init() {
         _listModel = StateObject(
@@ -85,6 +93,8 @@ struct WeatherPreviewHarness: View {
                         $0.profileId != profile.profileId
                     },
                     onFindPeople: { showsSearch = true },
+                    onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
+                    onOpenActivity: { showsActivity = true },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,
@@ -99,6 +109,8 @@ struct WeatherPreviewHarness: View {
         .task {
             DeviceLocation.shared.start()
             showsAlertsOffer = Self.offersAlerts
+            await SocialStore.shared.refreshUnread()
+            showsActivity = Self.opensActivity
 
             guard Self.schedulesAlerts else { return }
             await CategoryAlerts.shared.scheduleForPreview(days: WeatherPreviewData.days)
@@ -125,6 +137,12 @@ struct WeatherPreviewHarness: View {
                 },
                 skyState: previewState
             )
+        }
+        .sheet(isPresented: $showsActivity) {
+            ActivityScreen(list: listModel, skyState: previewState, onFindPeople: { showsSearch = true })
+        }
+        .sheet(item: $peopleTarget) { target in
+            PeopleSheet(target: target, list: listModel, skyState: previewState)
         }
         .sheet(isPresented: $showsSearch) {
             ProfileSearchScreen(
