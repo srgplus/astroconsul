@@ -286,18 +286,7 @@ struct ActivityBell: View {
             .contentShape(Circle())
             .weatherGlass(in: .circle, interactive: true)
             .overlay(alignment: .topTrailing) {
-                if social.unreadActivity > 0 {
-                    Text("\(min(social.unreadActivity, 99))")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 5)
-                        .frame(minWidth: 18, minHeight: 18)
-                        .background(Capsule().fill(Theme.challenge))
-                        .offset(x: 6, y: -5)
-                        .transition(.scale.combined(with: .opacity))
-                        .accessibilityHidden(true)
-                }
+                CornerCount(count: social.unreadActivity)
             }
             // A tap gesture rather than a Button, for the reason the reading's
             // stamp uses one: inside the pager's scroll view a plain Button
@@ -310,5 +299,62 @@ struct ActivityBell: View {
                 social.unreadActivity > 0 ? L(count: social.unreadActivity, "activity.newCount") : ""
             )
             .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// Beside the bell: the way into the chats, with the number of messages not
+/// read yet riding on it the way the bell carries Activity's. Its own button
+/// rather than a tab inside Activity, as Instagram keeps its messages apart
+/// from its hearts: one is people talking to you, the other is news.
+struct ChatsButton: View {
+
+    var action: () -> Void
+
+    @ObservedObject private var chats = ChatStore.shared
+    @ObservedObject private var strings = L10n.shared
+
+    /// The bell's own size, so the two read as a pair.
+    private static let size: CGFloat = 36
+
+    var body: some View {
+        Image(systemName: "message.fill")
+            .foregroundStyle(.white)
+            .font(.system(size: 15, weight: .semibold))
+            .frame(width: Self.size, height: Self.size)
+            .contentShape(Circle())
+            .weatherGlass(in: .circle, interactive: true)
+            .overlay(alignment: .topTrailing) {
+                CornerCount(count: chats.unreadCount)
+            }
+            // A tap gesture rather than a Button, for the bell's reason:
+            // inside the pager's scroll view a plain Button never fires.
+            .onTapGesture(perform: action)
+            .animation(.easeInOut(duration: 0.2), value: chats.unreadCount)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L("chats.title"))
+            .accessibilityValue(chats.unreadCount > 0 ? L(count: chats.unreadCount, "chats.unreadCount") : "")
+            .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// The red count on the corner of the bell and the chats button, while there
+/// is anything new. Capped at 99 so it stays a dot's size.
+struct CornerCount: View {
+
+    let count: Int
+
+    var body: some View {
+        if count > 0 {
+            Text("\(min(count, 99))")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .padding(.horizontal, 5)
+                .frame(minWidth: 18, minHeight: 18)
+                .background(Capsule().fill(Theme.challenge))
+                .offset(x: 6, y: -5)
+                .transition(.scale.combined(with: .opacity))
+                .accessibilityHidden(true)
+        }
     }
 }

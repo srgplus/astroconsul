@@ -97,20 +97,34 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     ) async -> UNNotificationPresentationOptions {
         // A like or a follow that arrives with the app open shows as a banner
         // too, and the bell's count catches up with it straight away.
-        let kind = notification.request.content.userInfo["kind"] as? String
+        let userInfo = notification.request.content.userInfo
+        let kind = userInfo["kind"] as? String
         if PushNotifications.isSocial(kind: kind) {
             Task { @MainActor in await SocialStore.shared.refreshUnread() }
+        }
+        // A message fetches at once on whatever chat screen is up. Over the
+        // conversation it belongs to, the message itself is the news, and a
+        // banner on top would say it twice.
+        if PushNotifications.isMessage(kind: kind) {
+            let chatId = userInfo["chat_id"] as? Int
+            let isOnScreen = await MainActor.run {
+                chatId != nil && ChatStore.shared.visibleChatId == chatId
+            }
+            Task { @MainActor in await ChatStore.shared.pushArrived() }
+            if isOnScreen { return [] }
         }
         return [.banner, .sound, .list]
     }
 
-    /// A tapped push about a like or a follow opens Activity; a weather alert
-    /// just opens the app, as it always has.
+    /// A tapped push about a like or a follow opens Activity, one about a
+    /// message its chat; a weather alert just opens the app, as it always has.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
-        let kind = response.notification.request.content.userInfo["kind"] as? String
-        await MainActor.run { PushNotifications.shared.handleTap(kind: kind) }
+        let userInfo = response.notification.request.content.userInfo
+        let kind = userInfo["kind"] as? String
+        let chatId = userInfo["chat_id"] as? Int
+        await MainActor.run { PushNotifications.shared.handleTap(kind: kind, chatId: chatId) }
     }
 }

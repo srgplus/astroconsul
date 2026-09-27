@@ -34,10 +34,11 @@ struct SettingsView: View {
     @State private var showsCounts: Bool?
     @State private var countsError: String?
 
-    /// Whether a like, or a new follower, is pushed to this phone. Nil until
-    /// the server has answered, like the counts switch.
+    /// Whether a like, a new follower or a message is pushed to this phone.
+    /// Nil until the server has answered, like the counts switch.
     @State private var pushLikes: Bool?
     @State private var pushFollows: Bool?
+    @State private var pushMessages: Bool?
 
     var body: some View {
         NavigationStack {
@@ -319,10 +320,12 @@ struct SettingsView: View {
                     .disabled(pushLikes == nil)
                 Toggle(L("settings.pushFollows"), isOn: pushBinding(.follows))
                     .disabled(pushFollows == nil)
+                Toggle(L("settings.pushMessages"), isOn: pushBinding(.messages))
+                    .disabled(pushMessages == nil)
 
                 // The switches above are the server's; the phone's own
                 // permission is the other half, and only iOS can give it back.
-                if alerts.authorization == .denied, pushLikes == true || pushFollows == true {
+                if alerts.authorization == .denied, pushLikes == true || pushFollows == true || pushMessages == true {
                     Button(L("settings.openIosSettings")) { openSystemSettings() }
                 }
             }
@@ -385,24 +388,35 @@ struct SettingsView: View {
     private enum PushKind {
         case likes
         case follows
+        case messages
+    }
+
+    private func push(_ kind: PushKind) -> Bool? {
+        switch kind {
+        case .likes: return pushLikes
+        case .follows: return pushFollows
+        case .messages: return pushMessages
+        }
     }
 
     /// Flipped at once and saved behind it, like the counts switch. Turning
     /// one on where the phone has never been asked puts the question now.
     private func pushBinding(_ kind: PushKind) -> Binding<Bool> {
         Binding(
-            get: { (kind == .likes ? pushLikes : pushFollows) ?? true },
+            get: { push(kind) ?? true },
             set: { isOn in
-                let before = kind == .likes ? pushLikes : pushFollows
+                let before = push(kind)
                 setPush(kind, isOn)
                 Task {
                     do {
                         let saved = try await APIClient.shared.updateSocialSettings(
                             pushLikes: kind == .likes ? isOn : nil,
-                            pushFollows: kind == .follows ? isOn : nil
+                            pushFollows: kind == .follows ? isOn : nil,
+                            pushMessages: kind == .messages ? isOn : nil
                         )
                         pushLikes = saved.pushLikes ?? pushLikes
                         pushFollows = saved.pushFollows ?? pushFollows
+                        pushMessages = saved.pushMessages ?? pushMessages
                         if isOn {
                             await PushNotifications.shared.askIfUndetermined()
                         }
@@ -420,6 +434,7 @@ struct SettingsView: View {
         switch kind {
         case .likes: pushLikes = value
         case .follows: pushFollows = value
+        case .messages: pushMessages = value
         }
     }
 
@@ -430,6 +445,7 @@ struct SettingsView: View {
             showsCounts = settings.showCounts
             pushLikes = settings.pushLikes ?? true
             pushFollows = settings.pushFollows ?? true
+            pushMessages = settings.pushMessages ?? true
         } catch {
             guard !error.isCancellation else { return }
             NSLog("[Settings] loading the counts setting failed: \(error.localizedDescription)")
