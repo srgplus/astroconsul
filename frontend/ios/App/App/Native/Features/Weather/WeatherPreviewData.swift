@@ -519,9 +519,10 @@ enum WeatherPreviewData {
         seenAt: nil
     )
 
-    static func people(for tab: PeopleSheet.Tab) -> [SocialPerson] {
+    /// The people who followed the harness account, from the same rows.
+    static var followers: [SocialPerson] {
         activity.items
-            .filter { $0.kind == (tab == .likes ? .like : .follow) }
+            .filter { $0.kind == .follow }
             .map { SocialPerson(actor: $0.actor, createdAt: $0.createdAt, actorFollowed: $0.actorFollowed) }
     }
 
@@ -547,7 +548,8 @@ enum WeatherPreviewData {
                 natalSummary: NatalSummary(sun: "\(sun) 11°20'04\"", moon: "Taurus 04°12'40\"", asc: "Virgo 23°51'09\"")
             ),
             actorFollowed: followed,
-            target: ActivityTarget(profileId: profile.profileId, profileName: profile.profileName, username: profile.username)
+            target: ActivityTarget(profileId: profile.profileId, profileName: profile.profileName, username: profile.username),
+            feelsLike: kind == .like ? ["Flowing", "Expansive", "Calm", "Dynamic"][number % 4] : nil
         )
     }
 

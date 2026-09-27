@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,8 @@ from app.api.auth import get_current_user
 from app.api.dependencies import clear_dependency_caches
 from app.core.config import clear_settings_cache
 from app.infrastructure.persistence.base import Base
-from app.infrastructure.persistence.session import clear_engine_cache, get_engine
+from app.infrastructure.persistence.models import ProfileLikeModel
+from app.infrastructure.persistence.session import clear_engine_cache, get_engine, get_session_factory
 from app.main import create_app
 
 ANNA = "user_anna"
@@ -108,6 +110,74 @@ class LikeTests(SocialTestCase):
         response = self.as_user(ANNA).post(f"/api/v1/profiles/{self.anna_profile}/like")
 
         self.assertEqual(response.status_code, 400)
+
+    def test_a_new_state_can_be_liked_again(self) -> None:
+        client = self.as_user(BORIS)
+        path = f"/api/v1/profiles/{self.anna_profile}/like"
+
+        flowing = client.post(path, json={"feels_like": "Flowing"}).json()
+        again = client.post(path, json={"feels_like": "Flowing"}).json()
+        expansive = client.post(path, json={"feels_like": "Expansive"}).json()
+
+        self.assertEqual(flowing["state_likes"], {"Flowing": 1})
+        self.assertEqual(again["state_likes"], {"Flowing": 1})
+        self.assertEqual(expansive["state_likes"], {"Flowing": 1, "Expansive": 1})
+        self.assertEqual(sorted(expansive["my_state_likes"]), ["Expansive", "Flowing"])
+        self.assertEqual(expansive["likes_count"], 2)
+
+    def test_unlike_takes_back_one_state_only(self) -> None:
+        client = self.as_user(BORIS)
+        path = f"/api/v1/profiles/{self.anna_profile}/like"
+        client.post(path, json={"feels_like": "Flowing"})
+        client.post(path, json={"feels_like": "Expansive"})
+
+        after = client.delete(path, params={"feels_like": "Flowing"}).json()
+
+        self.assertEqual(after["state_likes"], {"Expansive": 1})
+        self.assertEqual(after["my_state_likes"], ["Expansive"])
+
+    def test_yesterdays_state_is_not_todays(self) -> None:
+        # A like on the same word two days ago, written the way the route
+        # writes today's.
+        session_factory = get_session_factory(os.environ["ASTRO_CONSUL_DATABASE_URL"])
+        with session_factory() as session:
+            session.add(
+                ProfileLikeModel(
+                    user_id=BORIS,
+                    profile_id=self.anna_profile,
+                    day=date.today() - timedelta(days=2),
+                    feels_like="Calm",
+                    created_at=datetime.now(UTC) - timedelta(days=2),
+                )
+            )
+            session.commit()
+
+        before = self.as_user(BORIS).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+        liked = (
+            self.as_user(BORIS)
+            .post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Calm", "tii": 12})
+            .json()
+        )
+
+        self.assertEqual(before["my_state_likes"], [])
+        self.assertEqual(before["likes_count"], 0)
+        self.assertEqual(liked["state_likes"], {"Calm": 1})
+        self.assertEqual(liked["likes_total"], 2)
+
+    def test_activity_carries_the_word_that_was_liked(self) -> None:
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Expansive"})
+
+        item = self.as_user(ANNA).get("/api/v1/activity").json()["items"][0]
+
+        self.assertEqual(item["feels_like"], "Expansive")
+        self.assertIsNotNone(item["day"])
+
+    def test_a_word_that_is_not_ours_is_dropped(self) -> None:
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Cursed"})
+
+        item = self.as_user(ANNA).get("/api/v1/activity").json()["items"][0]
+
+        self.assertIsNone(item["feels_like"])
 
     def test_like_of_missing_profile_is_404(self) -> None:
         response = self.as_user(ANNA).post("/api/v1/profiles/profile_nope/like")

@@ -109,18 +109,32 @@ class ProfileFollowModel(Base):
 
 
 class ProfileLikeModel(Base):
-    """One account liking one profile. Shaped like a follow on purpose: the
-    liker is an account, the thing liked is a chart, and the profile's owner is
-    who hears about it in their Activity."""
+    """One account liking one *state* of a profile's sky.
+
+    A chart's sky keeps changing: the feels-like word turns over during the
+    day and every day is a new sky. Each state is new content, so a like is
+    for the state it was given to — the word on screen, on that day in the
+    profile's own zone. When the word changes, or the day does, the heart is
+    empty again and the same person can like the new state. The owner hears
+    about each one in their Activity, with the word that was liked.
+    """
 
     __tablename__ = "profile_likes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
     profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    day: Mapped[date] = mapped_column(Date, nullable=False)
+    # The state liked: the feels-like word on screen. Empty rather than null
+    # for a client that sends none, because a null never collides in a unique
+    # key and the same like could then be stored twice.
+    feels_like: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    tii: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    __table_args__ = (UniqueConstraint("user_id", "profile_id", name="uq_user_profile_like"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "profile_id", "day", "feels_like", name="uq_user_profile_state_like"),
+    )
 
 
 class UserBlockModel(Base):

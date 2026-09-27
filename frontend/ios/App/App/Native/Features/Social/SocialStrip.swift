@@ -2,50 +2,63 @@ import SwiftUI
 
 /// The social line under a page's reading.
 ///
-/// On someone else's chart it is a heart to like it, with its count, and
-/// "Follows you" when its owner follows one of yours. On your own it is what
-/// came back to this chart: how many like it and how many follow it, each
-/// opening the people it counts. Activity, which is the whole account's, is
-/// the bell in the page's corner rather than a pill here.
+/// On someone else's chart: a heart to like the state of the sky on screen,
+/// "Following", which asks before it unfollows, and "Follows you" when the
+/// chart's owner follows you back. On your own: how many liked the state on
+/// screen, opening Activity where likes live, and how many follow the chart,
+/// opening who follows it and whom you follow. Activity itself, which is the
+/// whole account's, is the bell in the page's corner.
 struct SocialStrip: View {
 
     let profile: ProfileSummary
     let isOwn: Bool
+
+    /// The state on screen — the feels-like word — and its index. A like is
+    /// for this state: when the word changes, the heart is empty again.
+    var feelsLike: String?
+    var tii: Double?
+
+    var onOpenLikes: (() -> Void)?
     var onOpenPeople: ((PeopleSheet.Tab) -> Void)?
+    /// Handed up rather than acted on: the presenter asks before unfollowing,
+    /// the same question the ••• menu's Unfollow gets.
+    var onUnfollow: ((ProfileSummary) -> Void)?
 
     @ObservedObject private var social = SocialStore.shared
     @ObservedObject private var strings = L10n.shared
     @State private var likeError: String?
     @State private var likeTaps = 0
 
-    private var like: SocialStore.Like { social.like(for: profile) }
+    private var state: String { SocialStore.state(feelsLike) }
+    private var like: SocialStore.Like { social.like(for: profile, state: state) }
 
     var body: some View {
         WeatherGlassGroup(spacing: 8) {
             HStack(spacing: 8) {
+                // The heart always last, on the right: the people first, then
+                // what they made of the sky.
                 if isOwn {
-                    pill(
-                        icon: "heart.fill",
-                        text: "\(like.count)",
-                        label: L(count: like.count, "social.likesCount")
-                    ) { onOpenPeople?(.likes) }
-
                     pill(
                         icon: "person.2.fill",
                         text: "\(profile.followersCount ?? 0)",
                         label: L(count: profile.followersCount ?? 0, "social.followersCount")
                     ) { onOpenPeople?(.followers) }
+
+                    pill(
+                        icon: "heart.fill",
+                        text: "\(like.count)",
+                        label: L(count: like.count, "social.likesCount")
+                    ) { onOpenLikes?() }
                 } else {
-                    likePill
+                    if let onUnfollow {
+                        FollowingPill { onUnfollow(profile) }
+                    }
 
                     if profile.followsYou == true {
-                        Text(L("social.followsYou"))
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.85))
-                            .padding(.horizontal, 12)
-                            .frame(height: Self.height)
-                            .weatherGlass(in: .capsule, tint: 0.1)
+                        FollowsYouTag()
                     }
+
+                    likePill
                 }
             }
         }
@@ -64,9 +77,10 @@ struct SocialStrip: View {
         }
     }
 
-    private static let height: CGFloat = 34
+    static let height: CGFloat = 34
 
-    /// The heart on someone else's chart: filled and red once liked.
+    /// The heart on someone else's chart: filled and red once this state is
+    /// liked, empty again when the state changes.
     private var likePill: some View {
         HStack(spacing: 6) {
             Image(systemName: like.isLiked ? "heart.fill" : "heart")
@@ -89,7 +103,7 @@ struct SocialStrip: View {
         .onTapGesture {
             likeTaps += 1
             Task {
-                if let error = await social.toggleLike(profile) {
+                if let error = await social.toggleLike(profile, state: state, tii: tii) {
                     likeError = error.localizedDescription
                 }
             }
@@ -118,6 +132,73 @@ struct SocialStrip: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityAddTraits(.isButton)
+    }
+}
+
+/// "Following", on a chart the reader follows. Quiet glass with a check, so it
+/// reads as a state rather than a call to action; a tap asks before
+/// unfollowing.
+struct FollowingPill: View {
+
+    /// Nil where there is nothing to do from here — a preview, which cannot
+    /// unfollow — and the pill is then a label.
+    var action: (() -> Void)?
+
+    var body: some View {
+        Label(L("social.following"), systemImage: "checkmark")
+            .labelStyle(.titleAndIcon)
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.9))
+            .padding(.horizontal, 14)
+            .frame(height: SocialStrip.height)
+            .weatherGlass(in: .capsule, tint: 0.2, interactive: action != nil)
+            .contentShape(Capsule())
+            .onTapGesture { action?() }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L("social.following"))
+            .accessibilityHint(action == nil ? "" : L("social.followingHint"))
+            .accessibilityAddTraits(action == nil ? [] : .isButton)
+    }
+}
+
+/// "Follow", on a chart the reader does not follow yet: filled white, the one
+/// solid control on the sky, because it is the one thing the screen asks for.
+struct FollowPill: View {
+
+    var isWorking = false
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Group {
+                if isWorking {
+                    ProgressView().controlSize(.small).tint(Theme.spinner)
+                } else {
+                    Label(L("social.follow"), systemImage: "plus")
+                        .labelStyle(.titleAndIcon)
+                }
+            }
+            .font(.system(size: 13, weight: .bold, design: .rounded))
+            .foregroundStyle(.black)
+            .padding(.horizontal, 16)
+            .frame(height: SocialStrip.height)
+            .background(Capsule().fill(.white))
+        }
+        .buttonStyle(.plain)
+        .disabled(isWorking)
+        .accessibilityLabel(L("social.follow"))
+    }
+}
+
+/// "Follows you": a label, not a control.
+struct FollowsYouTag: View {
+    var body: some View {
+        Text(L("social.followsYou"))
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.85))
+            .padding(.horizontal, 12)
+            .frame(height: SocialStrip.height)
+            .weatherGlass(in: .capsule, tint: 0.1)
     }
 }
 

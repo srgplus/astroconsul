@@ -49,7 +49,10 @@ struct ProfilePreviewSheet: View {
     @State private var blocking: ProfileSummary?
     @State private var likeError: String?
 
-    private var like: SocialStore.Like { social.like(for: profile) }
+    /// The state a like here is for: the word the preview shows, from the
+    /// chart's last reading.
+    private var likeState: String { SocialStore.state(profile.latestTransit?.feelsLike) }
+    private var like: SocialStore.Like { social.like(for: profile, state: likeState) }
 
     private var zone: TiiZone? { profile.latestTransit?.tii.map(TiiZone.init(tii:)) }
     private var state: SkyState? {
@@ -119,14 +122,40 @@ struct ProfilePreviewSheet: View {
 
     // MARK: - Social
 
-    /// The chart's heart, its followers, and whether its owner follows you:
-    /// what a stranger's chart says about the people around it before you
-    /// decide to follow.
+    /// Follow, the chart's followers, whether its owner follows you, and the
+    /// heart for the state of its sky — what a stranger's chart says about the
+    /// people around it before you decide to follow. The heart last, on the
+    /// right, the way it sits on a page.
     private var socialRow: some View {
         HStack(spacing: 8) {
+            if isSubscribed {
+                FollowingPill()
+            } else {
+                FollowPill(isWorking: isSubscribing, action: onSubscribe)
+            }
+
+            if let followers = profile.followersCount {
+                Label("\(followers)", systemImage: "person.2.fill")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.horizontal, 12)
+                    .frame(height: SocialStrip.height)
+                    .weatherGlass(in: .capsule, tint: 0.1)
+                    .accessibilityLabel(L(count: followers, "social.followersCount"))
+            }
+
+            if profile.followsYou == true {
+                FollowsYouTag()
+            }
+
             Button {
                 Task {
-                    if let error = await SocialStore.shared.toggleLike(profile) {
+                    if let error = await SocialStore.shared.toggleLike(
+                        profile,
+                        state: likeState,
+                        tii: profile.latestTransit?.tii
+                    ) {
                         likeError = error.localizedDescription
                     }
                 }
@@ -143,7 +172,7 @@ struct ProfilePreviewSheet: View {
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 14)
-                .frame(height: 34)
+                .frame(height: SocialStrip.height)
             }
             .buttonStyle(.plain)
             .weatherGlass(in: .capsule, tint: 0.2, interactive: true)
@@ -151,24 +180,6 @@ struct ProfilePreviewSheet: View {
             .animation(.easeInOut(duration: 0.2), value: like)
             .accessibilityLabel(L(like.isLiked ? "social.unlike" : "social.like"))
             .accessibilityValue(L(count: like.count, "social.likesCount"))
-
-            if let followers = profile.followersCount {
-                Label(L(count: followers, "social.followersCount"), systemImage: "person.2.fill")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .padding(.horizontal, 12)
-                    .frame(height: 34)
-                    .weatherGlass(in: .capsule, tint: 0.1)
-            }
-
-            if profile.followsYou == true {
-                Text(L("social.followsYou"))
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .padding(.horizontal, 12)
-                    .frame(height: 34)
-                    .weatherGlass(in: .capsule, tint: 0.1)
-            }
         }
         .frame(maxWidth: .infinity)
     }

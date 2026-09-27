@@ -49,6 +49,9 @@ struct WeatherHomeView: View {
     @State private var peopleTarget: PeopleSheet.Target?
     @State private var reporting: ProfileSummary?
     @State private var blocking: ProfileSummary?
+    /// Asked before it happens, from "Following" and from the ••• alike: an
+    /// unfollow takes the page out of the pager under the reader's thumb.
+    @State private var unfollowing: ProfileSummary?
 
     /// Primary profile first, the way Weather keeps My Location at page one,
     /// then Favourites, then the rest of the owner's profiles and the followed
@@ -235,6 +238,21 @@ struct WeatherHomeView: View {
         .blockConfirmation($blocking) { profile in
             removeBlocked(profile)
         }
+        .alert(
+            L("unfollow.title", unfollowing?.profileName ?? ""),
+            isPresented: Binding(
+                get: { unfollowing != nil },
+                set: { if !$0 { unfollowing = nil } }
+            ),
+            presenting: unfollowing
+        ) { profile in
+            Button(L("common.cancel"), role: .cancel) {}
+            Button(L("weather.unfollow"), role: .destructive) {
+                Task { await model.unfollow(profile) }
+            }
+        } message: { _ in
+            Text(L("unfollow.body"))
+        }
         .fullScreenCover(item: $webDestination) { WebScreen(destination: $0) }
     }
 
@@ -268,7 +286,7 @@ struct WeatherHomeView: View {
                     bottomInset: geometry.safeAreaInsets.bottom,
                     isPrimary: profile.profileId == model.primaryProfileId,
                     onEdit: isOwn ? { editing = $0 } : nil,
-                    onUnfollow: isOwn ? nil : { profile in Task { await model.unfollow(profile) } },
+                    onUnfollow: isOwn ? nil : { unfollowing = $0 },
                     // Everyone the compatibility card could pair this page
                     // with. The list is already loaded, so the card asks the
                     // API for nothing but the report itself.

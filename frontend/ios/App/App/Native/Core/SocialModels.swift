@@ -78,6 +78,8 @@ struct ActivityItem: Codable, Hashable, Identifiable {
     /// "Follow back".
     let actorFollowed: Bool
     let target: ActivityTarget
+    /// On a like, the state that was liked: the feels-like word on screen.
+    var feelsLike: String? = nil
 
     var date: Date? { SocialDate.parse(createdAt) }
 }
@@ -99,6 +101,7 @@ struct SocialPerson: Codable, Hashable {
     let actor: SocialCard
     let createdAt: String
     let actorFollowed: Bool
+    var feelsLike: String? = nil
 
     var date: Date? { SocialDate.parse(createdAt) }
 }
@@ -114,6 +117,9 @@ struct LikeResponse: Codable {
     let likesCount: Int
     let followersCount: Int
     let isLiked: Bool
+    /// Today's likes per state and the reader's own, as they stand after it.
+    var stateLikes: [String: Int]? = nil
+    var myStateLikes: [String]? = nil
 }
 
 /// One account this reader has blocked.

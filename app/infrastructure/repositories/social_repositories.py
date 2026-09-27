@@ -19,9 +19,10 @@ own, or failing that the one it touched last. That is its "card".
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -54,6 +55,18 @@ EMPTY_CARD: dict[str, Any] = {
 
 
 _EPOCH = datetime.min.replace(tzinfo=UTC)
+
+
+def today_in(zone_name: str | None) -> date:
+    """Today in a profile's own zone: the day half of the state a like is for.
+
+    One zone per profile rather than the liker's, so everyone who likes a
+    chart on the same day is counted on the same day, wherever they are."""
+    try:
+        zone = ZoneInfo(zone_name) if zone_name else UTC
+    except (ZoneInfoNotFoundError, ValueError):
+        zone = UTC
+    return datetime.now(zone).date()
 
 
 def _aware(value: datetime | None) -> datetime | None:
@@ -168,47 +181,113 @@ class SqlAlchemySocialRepository:
 
     # MARK: - Likes
 
-    def like_profile(self, user_id: str, profile_id: str) -> None:
+    def _profile_days(self, session: Session, profile_ids: list[str]) -> dict[str, date]:
+        """Today for each profile, in the zone its readings are cast in: the
+        place its last reading was for, else the zone it was born in."""
+        if not profile_ids:
+            return {}
+        rows = session.execute(
+            select(ProfileModel.id, ProfileModel.timezone, LatestTransitModel.timezone)
+            .outerjoin(LatestTransitModel, LatestTransitModel.profile_id == ProfileModel.id)
+            .where(ProfileModel.id.in_(profile_ids))
+        ).all()
+        return {profile_id: today_in(current or born) for profile_id, born, current in rows}
+
+    def like_profile(
+        self,
+        user_id: str,
+        profile_id: str,
+        *,
+        feels_like: str | None = None,
+        tii: float | None = None,
+    ) -> None:
+        """Likes the state on screen: this word, today. The same state twice
+        changes nothing; a new word or a new day is a new state and a new like."""
+        state = feels_like or ""
         with self.session_factory() as session:
             ensure_user(session, user_id)
+            day = self._profile_days(session, [profile_id]).get(profile_id, today_in(None))
             existing = session.execute(
                 select(ProfileLikeModel).where(
                     ProfileLikeModel.user_id == user_id,
                     ProfileLikeModel.profile_id == profile_id,
+                    ProfileLikeModel.day == day,
+                    ProfileLikeModel.feels_like == state,
                 )
             ).scalar_one_or_none()
             if existing is not None:
                 return
-            session.add(ProfileLikeModel(user_id=user_id, profile_id=profile_id, created_at=_now_utc()))
-            session.commit()
-
-    def unlike_profile(self, user_id: str, profile_id: str) -> None:
-        with self.session_factory() as session:
-            session.execute(
-                delete(ProfileLikeModel).where(
-                    ProfileLikeModel.user_id == user_id,
-                    ProfileLikeModel.profile_id == profile_id,
+            session.add(
+                ProfileLikeModel(
+                    user_id=user_id,
+                    profile_id=profile_id,
+                    day=day,
+                    feels_like=state,
+                    tii=tii,
+                    created_at=_now_utc(),
                 )
             )
             session.commit()
 
+    def unlike_profile(self, user_id: str, profile_id: str, *, feels_like: str | None = None) -> None:
+        """Takes back the like on today's state. Without a word, every like
+        this account gave the chart today. Earlier states keep theirs: they
+        were liked while they were on screen."""
+        with self.session_factory() as session:
+            day = self._profile_days(session, [profile_id]).get(profile_id, today_in(None))
+            conditions = [
+                ProfileLikeModel.user_id == user_id,
+                ProfileLikeModel.profile_id == profile_id,
+                ProfileLikeModel.day == day,
+            ]
+            if feels_like is not None:
+                conditions.append(ProfileLikeModel.feels_like == feels_like)
+            session.execute(delete(ProfileLikeModel).where(and_(*conditions)))
+            session.commit()
+
     def social_counts(self, profile_ids: list[str], viewer_user_id: str) -> dict[str, dict[str, Any]]:
-        """Likes, followers and whether the viewer likes each profile, for a
-        whole listing in three queries rather than three per card."""
+        """The likes on every state each profile has had today, the states
+        the viewer liked, all likes ever, and followers — for a whole listing
+        in a handful of queries rather than a handful per card.
+
+        `state_likes` and `my_state_likes` are what a client reads against
+        the word it has on screen. `likes_count` and `is_liked` are the same
+        for the whole day, for a client that shows no state."""
         ids = list(dict.fromkeys(profile_ids))
         counts: dict[str, dict[str, Any]] = {
-            profile_id: {"likes_count": 0, "followers_count": 0, "is_liked": False} for profile_id in ids
+            profile_id: {
+                "likes_count": 0,
+                "likes_total": 0,
+                "likes_day": None,
+                "state_likes": {},
+                "my_state_likes": [],
+                "followers_count": 0,
+                "is_liked": False,
+            }
+            for profile_id in ids
         }
         if not ids:
             return counts
 
         with self.session_factory() as session:
-            for profile_id, total in session.execute(
-                select(ProfileLikeModel.profile_id, func.count())
+            days = self._profile_days(session, ids)
+            for profile_id, day in days.items():
+                counts[profile_id]["likes_day"] = day.isoformat()
+
+            for profile_id, day, state, total in session.execute(
+                select(
+                    ProfileLikeModel.profile_id,
+                    ProfileLikeModel.day,
+                    ProfileLikeModel.feels_like,
+                    func.count(),
+                )
                 .where(ProfileLikeModel.profile_id.in_(ids))
-                .group_by(ProfileLikeModel.profile_id)
+                .group_by(ProfileLikeModel.profile_id, ProfileLikeModel.day, ProfileLikeModel.feels_like)
             ).all():
-                counts[profile_id]["likes_count"] = int(total)
+                counts[profile_id]["likes_total"] += int(total)
+                if days.get(profile_id) == day:
+                    counts[profile_id]["likes_count"] += int(total)
+                    counts[profile_id]["state_likes"][state or ""] = int(total)
 
             for profile_id, total in session.execute(
                 select(ProfileFollowModel.profile_id, func.count())
@@ -217,13 +296,15 @@ class SqlAlchemySocialRepository:
             ).all():
                 counts[profile_id]["followers_count"] = int(total)
 
-            for profile_id in session.execute(
-                select(ProfileLikeModel.profile_id).where(
+            for profile_id, day, state in session.execute(
+                select(ProfileLikeModel.profile_id, ProfileLikeModel.day, ProfileLikeModel.feels_like).where(
                     ProfileLikeModel.user_id == viewer_user_id,
                     ProfileLikeModel.profile_id.in_(ids),
                 )
-            ).scalars():
-                counts[profile_id]["is_liked"] = True
+            ).all():
+                if days.get(profile_id) == day:
+                    counts[profile_id]["is_liked"] = True
+                    counts[profile_id]["my_state_likes"].append(state or "")
 
         return counts
 
@@ -289,7 +370,38 @@ class SqlAlchemySocialRepository:
             ]
 
     def list_likers(self, profile_id: str, viewer_user_id: str) -> list[dict[str, Any]]:
-        return self._people(ProfileLikeModel, profile_id, viewer_user_id)
+        """Every like the chart has had, newest first, each with the day it
+        was for and the word that day had — the same person once per day."""
+        with self.session_factory() as session:
+            rows = session.execute(
+                select(
+                    ProfileLikeModel.user_id,
+                    ProfileLikeModel.created_at,
+                    ProfileLikeModel.day,
+                    ProfileLikeModel.feels_like,
+                )
+                .where(ProfileLikeModel.profile_id == profile_id, ProfileLikeModel.user_id != viewer_user_id)
+                .order_by(ProfileLikeModel.created_at.desc())
+                .limit(ACTIVITY_LIMIT * 2)
+            ).all()
+            blocked = self._blocked_ids(session, viewer_user_id)
+            rows = [row for row in rows if row[0] not in blocked]
+            cards = self._cards_for_users(session, {row[0] for row in rows})
+            followed = self._followed_profile_ids(
+                session,
+                viewer_user_id,
+                {card["profile_id"] for card in cards.values() if card["profile_id"]},
+            )
+            return [
+                {
+                    "actor": cards[user_id],
+                    "created_at": _isoformat_z(_aware(created_at)),
+                    "actor_followed": cards[user_id]["profile_id"] in followed,
+                    "day": day.isoformat() if day else None,
+                    "feels_like": feels_like or None,
+                }
+                for user_id, created_at, day, feels_like in rows
+            ]
 
     def list_followers(self, profile_id: str, viewer_user_id: str) -> list[dict[str, Any]]:
         return self._people(ProfileFollowModel, profile_id, viewer_user_id)
@@ -304,18 +416,42 @@ class SqlAlchemySocialRepository:
             seen_at = _aware(user.activity_seen_at) if user is not None else None
             blocked = self._blocked_ids(session, user_id)
 
-            events: list[tuple[str, int, str, str, datetime]] = []
-            for kind, model in (("like", ProfileLikeModel), ("follow", ProfileFollowModel)):
-                for row_id, actor_id, profile_id, created_at in session.execute(
-                    select(model.id, model.user_id, model.profile_id, model.created_at)
-                    .join(ProfileModel, ProfileModel.id == model.profile_id)
-                    .where(ProfileModel.user_id == user_id, model.user_id != user_id)
-                    .order_by(model.created_at.desc())
-                    .limit(limit)
-                ).all():
-                    if actor_id in blocked:
-                        continue
-                    events.append((kind, row_id, actor_id, profile_id, _aware(created_at) or _now_utc()))
+            # (kind, row id, actor, profile, when, day liked, word that day)
+            events: list[tuple[str, int, str, str, datetime, date | None, str | None]] = []
+            for row_id, actor_id, profile_id, created_at, day, feels_like in session.execute(
+                select(
+                    ProfileLikeModel.id,
+                    ProfileLikeModel.user_id,
+                    ProfileLikeModel.profile_id,
+                    ProfileLikeModel.created_at,
+                    ProfileLikeModel.day,
+                    ProfileLikeModel.feels_like,
+                )
+                .join(ProfileModel, ProfileModel.id == ProfileLikeModel.profile_id)
+                .where(ProfileModel.user_id == user_id, ProfileLikeModel.user_id != user_id)
+                .order_by(ProfileLikeModel.created_at.desc())
+                .limit(limit)
+            ).all():
+                if actor_id not in blocked:
+                    events.append(
+                        ("like", row_id, actor_id, profile_id, _aware(created_at) or _now_utc(), day, feels_like)
+                    )
+            for row_id, actor_id, profile_id, created_at in session.execute(
+                select(
+                    ProfileFollowModel.id,
+                    ProfileFollowModel.user_id,
+                    ProfileFollowModel.profile_id,
+                    ProfileFollowModel.created_at,
+                )
+                .join(ProfileModel, ProfileModel.id == ProfileFollowModel.profile_id)
+                .where(ProfileModel.user_id == user_id, ProfileFollowModel.user_id != user_id)
+                .order_by(ProfileFollowModel.created_at.desc())
+                .limit(limit)
+            ).all():
+                if actor_id not in blocked:
+                    events.append(
+                        ("follow", row_id, actor_id, profile_id, _aware(created_at) or _now_utc(), None, None)
+                    )
 
             events.sort(key=lambda event: event[4], reverse=True)
             events = events[:limit]
@@ -336,7 +472,7 @@ class SqlAlchemySocialRepository:
             )
 
             items = []
-            for kind, row_id, actor_id, profile_id, created_at in events:
+            for kind, row_id, actor_id, profile_id, created_at, day, feels_like in events:
                 name, handle = targets.get(profile_id, (None, None))
                 items.append(
                     {
@@ -347,6 +483,8 @@ class SqlAlchemySocialRepository:
                         "actor": cards[actor_id],
                         "actor_followed": cards[actor_id]["profile_id"] in followed,
                         "target": {"profile_id": profile_id, "profile_name": name, "username": handle},
+                        "day": day.isoformat() if day else None,
+                        "feels_like": feels_like or None,
                     }
                 )
 
@@ -539,39 +677,76 @@ class FileSocialRepository:
             "latest_transit": first.get("latest_transit"),
         }
 
-    def like_profile(self, user_id: str, profile_id: str) -> None:
+    # Local development counts a day in UTC: the file store keeps no zone for
+    # the place a profile was last read for.
+
+    def like_profile(
+        self,
+        user_id: str,
+        profile_id: str,
+        *,
+        feels_like: str | None = None,
+        tii: float | None = None,
+    ) -> None:
         data = self._load()
-        if any(like["user_id"] == user_id and like["profile_id"] == profile_id for like in data["likes"]):
+        day = today_in(None).isoformat()
+        state = feels_like or ""
+        if any(
+            like["user_id"] == user_id
+            and like["profile_id"] == profile_id
+            and like.get("day") == day
+            and (like.get("feels_like") or "") == state
+            for like in data["likes"]
+        ):
             return
         data["likes"].append(
             {
                 "id": self._next_id(data),
                 "user_id": user_id,
                 "profile_id": profile_id,
+                "day": day,
+                "feels_like": state,
+                "tii": tii,
                 "created_at": _isoformat_z(_now_utc()),
             }
         )
         self._save(data)
 
-    def unlike_profile(self, user_id: str, profile_id: str) -> None:
+    def unlike_profile(self, user_id: str, profile_id: str, *, feels_like: str | None = None) -> None:
         data = self._load()
+        day = today_in(None).isoformat()
         data["likes"] = [
-            like for like in data["likes"] if not (like["user_id"] == user_id and like["profile_id"] == profile_id)
+            like
+            for like in data["likes"]
+            if not (
+                like["user_id"] == user_id
+                and like["profile_id"] == profile_id
+                and like.get("day") == day
+                and (feels_like is None or (like.get("feels_like") or "") == feels_like)
+            )
         ]
         self._save(data)
 
     def social_counts(self, profile_ids: list[str], viewer_user_id: str) -> dict[str, dict[str, Any]]:
         likes = self._load()["likes"]
-        return {
-            profile_id: {
-                "likes_count": sum(1 for like in likes if like["profile_id"] == profile_id),
+        day = today_in(None).isoformat()
+        counts: dict[str, dict[str, Any]] = {}
+        for profile_id in dict.fromkeys(profile_ids):
+            todays = [like for like in likes if like["profile_id"] == profile_id and like.get("day") == day]
+            states: dict[str, int] = {}
+            for like in todays:
+                states[like.get("feels_like") or ""] = states.get(like.get("feels_like") or "", 0) + 1
+            mine = [like.get("feels_like") or "" for like in todays if like["user_id"] == viewer_user_id]
+            counts[profile_id] = {
+                "likes_count": len(todays),
+                "likes_total": sum(1 for like in likes if like["profile_id"] == profile_id),
+                "likes_day": day,
+                "state_likes": states,
+                "my_state_likes": mine,
                 "followers_count": self.profiles.count_followers(profile_id),
-                "is_liked": any(
-                    like["profile_id"] == profile_id and like["user_id"] == viewer_user_id for like in likes
-                ),
+                "is_liked": bool(mine),
             }
-            for profile_id in dict.fromkeys(profile_ids)
-        }
+        return counts
 
     def followers_among(self, viewer_user_id: str, user_ids: set[str]) -> set[str]:
         return {user_id for user_id in user_ids if self.follows_viewer(user_id, viewer_user_id)}
@@ -595,6 +770,8 @@ class FileSocialRepository:
                 "created_at": like["created_at"],
                 "actor_followed": bool(card["profile_id"])
                 and self.profiles.is_following(viewer_user_id, card["profile_id"]),
+                "day": like.get("day"),
+                "feels_like": like.get("feels_like") or None,
             }
             for like in likes
         ]
@@ -634,6 +811,8 @@ class FileSocialRepository:
                         "profile_name": target.get("profile_name"),
                         "username": target.get("username"),
                     },
+                    "day": like.get("day"),
+                    "feels_like": like.get("feels_like") or None,
                 }
             )
         items = items[:limit]

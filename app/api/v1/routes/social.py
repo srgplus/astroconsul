@@ -20,12 +20,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.api.auth import get_current_user
 from app.api.dependencies import get_repositories
 from app.application.services.email_service import send_report_email
+from app.domain.astrology.tii import FEELS_LIKE_LABELS
 from app.domain.moderation import REPORT_DETAILS_MAX, REPORT_REASONS
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.infrastructure.repositories.protocols import SocialRepository
@@ -33,6 +34,14 @@ from app.infrastructure.repositories.protocols import SocialRepository
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["social"])
+
+
+class LikeRequest(BaseModel):
+    # What the liker was looking at when they tapped the heart: the day's
+    # feels-like word and index, kept with the like so its owner reads
+    # "liked your Expansive day" rather than a bare heart.
+    feels_like: str | None = Field(default=None, max_length=64)
+    tii: float | None = Field(default=None, ge=0, le=100)
 
 
 class BlockRequest(BaseModel):
@@ -93,26 +102,41 @@ def _require_owner(profile: dict[str, Any], user_id: str) -> None:
 @router.post("/profiles/{profile_id}/like")
 def like_profile(
     profile_id: str,
+    payload: LikeRequest | None = Body(default=None),
     user: dict[str, Any] = Depends(get_current_user),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, Any]:
+    """Likes the state of the chart's sky the liker has on screen: the
+    feels-like word, today in the profile's own zone. When the word changes,
+    or the day does, that is a new state and the heart is empty again."""
     social = _social(repos)
     profile = _load_profile(repos, profile_id)
     if _owner(profile) == user["user_id"]:
         raise HTTPException(status_code=400, detail="You can't like your own profile")
     guard_block(social, user["user_id"], profile)
-    social.like_profile(user["user_id"], profile_id)
+    # A word the matrix never produces is dropped rather than stored: it is
+    # shown to the chart's owner, so it has to be one of ours.
+    feels_like = payload.feels_like if payload and payload.feels_like in FEELS_LIKE_LABELS else None
+    social.like_profile(
+        user["user_id"],
+        profile_id,
+        feels_like=feels_like,
+        tii=payload.tii if payload else None,
+    )
     return {"status": "ok", **social.social_counts([profile_id], user["user_id"])[profile_id]}
 
 
 @router.delete("/profiles/{profile_id}/like")
 def unlike_profile(
     profile_id: str,
+    feels_like: str | None = Query(default=None, max_length=64),
     user: dict[str, Any] = Depends(get_current_user),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, Any]:
+    """Takes back the like on one of today's states — the word in
+    `feels_like` — or, without one, every like given to the chart today."""
     social = _social(repos)
-    social.unlike_profile(user["user_id"], profile_id)
+    social.unlike_profile(user["user_id"], profile_id, feels_like=feels_like)
     return {"status": "ok", **social.social_counts([profile_id], user["user_id"])[profile_id]}
 
 

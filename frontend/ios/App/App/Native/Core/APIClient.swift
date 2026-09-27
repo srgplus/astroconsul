@@ -111,12 +111,27 @@ actor APIClient {
     /// Likes a chart, and answers with its counts as they stand afterwards.
     /// The route refuses the caller's own profile (400) and, across a block,
     /// answers the way a missing profile would.
-    func likeProfile(id: String) async throws -> LikeResponse {
-        try await send(likePath(id), method: "POST", body: Optional<EmptyResponse>.none)
+    ///
+    /// A like is for the state on screen: `feelsLike` is the word the page
+    /// shows and `tii` its index, kept with the like so the chart's owner
+    /// reads which of their states was liked.
+    func likeProfile(id: String, feelsLike: String?, tii: Double?) async throws -> LikeResponse {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let feels_like: String?
+            let tii: Double?
+        }
+        return try await send(likePath(id), method: "POST", body: Body(feels_like: feelsLike, tii: tii))
     }
 
-    func unlikeProfile(id: String) async throws -> LikeResponse {
-        try await send(likePath(id), method: "DELETE", body: Optional<EmptyResponse>.none)
+    /// Takes back the like on one of today's states.
+    func unlikeProfile(id: String, feelsLike: String?) async throws -> LikeResponse {
+        try await send(
+            likePath(id),
+            method: "DELETE",
+            query: feelsLike.map { [URLQueryItem(name: "feels_like", value: $0)] } ?? [],
+            body: Optional<EmptyResponse>.none
+        )
     }
 
     private func likePath(_ id: String) -> String {

@@ -183,7 +183,11 @@ struct CosmicWeatherView: View {
                     SocialStrip(
                         profile: profile,
                         isOwn: onEdit != nil,
-                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } }
+                        feelsLike: feelsLike,
+                        tii: model.today?.tii ?? profile.latestTransit?.tii,
+                        onOpenLikes: onOpenActivity,
+                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } },
+                        onUnfollow: onUnfollow
                     )
                     .padding(.top, -6)
 

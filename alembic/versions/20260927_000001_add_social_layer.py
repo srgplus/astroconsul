@@ -2,10 +2,10 @@
 
 Following already existed, and it went one way with nothing coming back: a
 profile's owner never learned who followed them, and nobody could do anything
-to a chart but read it. These tables are the other half — a like the owner
-hears about, a block that works in both directions, and a report a person can
-file against a profile, which App Review requires of anything calling itself a
-social network (guideline 1.2).
+to a chart but read it. These tables are the other half — a like on a state
+of a chart's sky that its owner hears about, a block that works in both
+directions, and a report a person can file against a profile, which App Review
+requires of anything calling itself a social network (guideline 1.2).
 
 Revision ID: 20260927_000001
 Revises: 20260909_000001
@@ -42,13 +42,19 @@ def upgrade() -> None:
         op.add_column("users", sa.Column("activity_seen_at", sa.DateTime(timezone=True), nullable=True))
 
     if "profile_likes" not in tables:
+        # A like is for one state of a chart's sky — the feels-like word, on
+        # one day in the profile's own zone — so the same person can like it
+        # again when the word changes or the day does.
         op.create_table(
             "profile_likes",
             sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
             sa.Column("user_id", sa.String(length=128), sa.ForeignKey("users.id"), nullable=False),
             sa.Column("profile_id", sa.String(length=128), sa.ForeignKey("profiles.id"), nullable=False),
+            sa.Column("day", sa.Date(), nullable=False),
+            sa.Column("feels_like", sa.String(length=64), nullable=False, server_default=""),
+            sa.Column("tii", sa.Float(), nullable=True),
             sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-            sa.UniqueConstraint("user_id", "profile_id", name="uq_user_profile_like"),
+            sa.UniqueConstraint("user_id", "profile_id", "day", "feels_like", name="uq_user_profile_state_like"),
         )
         op.create_index("ix_profile_likes_profile_id", "profile_likes", ["profile_id"])
 

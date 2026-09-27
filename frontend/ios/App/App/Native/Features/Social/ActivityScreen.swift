@@ -201,6 +201,9 @@ struct ActivityScreen: View {
                 SocialPersonRow(
                     card: item.actor,
                     action: sentence(for: item),
+                    // The state that was liked, in the app's language: the
+                    // like was for that sky, not for the chart forever.
+                    detail: item.kind == .like ? Astro.feels(item.feelsLike) : nil,
                     date: item.date,
                     isUnread: item.isUnread
                 )

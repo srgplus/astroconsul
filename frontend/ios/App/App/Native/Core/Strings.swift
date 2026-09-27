@@ -391,6 +391,12 @@ private let enSocial: [String: String] = [
     "social.followersCount.many": "%d followers",
     "social.report": "Report…",
     "social.block": "Block…",
+    "social.follow": "Follow",
+    "social.followingHint": "Asks before unfollowing",
+    "unfollow.title": "Unfollow %@?",
+    "unfollow.body": "Their chart leaves your list. You can follow again at any time.",
+    "people.following": "Following",
+    "people.noFollowing": "You don't follow anyone yet.",
 
     "activity.title": "Activity",
     "activity.loadFailed": "Could not load activity",
@@ -408,9 +414,7 @@ private let enSocial: [String: String] = [
     "activity.newCount.few": "%d new",
     "activity.newCount.many": "%d new",
 
-    "people.likes": "Likes",
     "people.followers": "Followers",
-    "people.noLikes": "No likes yet.",
     "people.noFollowers": "No followers yet.",
 
     "complaint.title": "Report",
@@ -1105,6 +1109,12 @@ private let ruSocial: [String: String] = [
     "social.followersCount.many": "%d подписчиков",
     "social.report": "Пожаловаться…",
     "social.block": "Заблокировать…",
+    "social.follow": "Подписаться",
+    "social.followingHint": "Перед отпиской спросит подтверждение",
+    "unfollow.title": "Отписаться от %@?",
+    "unfollow.body": "Карта уйдёт из вашего списка. Подписаться снова можно в любой момент.",
+    "people.following": "Подписки",
+    "people.noFollowing": "Вы пока ни на кого не подписаны.",
 
     "activity.title": "Активность",
     "activity.loadFailed": "Не удалось загрузить активность",
@@ -1122,9 +1132,7 @@ private let ruSocial: [String: String] = [
     "activity.newCount.few": "%d новых",
     "activity.newCount.many": "%d новых",
 
-    "people.likes": "Лайки",
     "people.followers": "Подписчики",
-    "people.noLikes": "Лайков пока нет.",
     "people.noFollowers": "Подписчиков пока нет.",
 
     "complaint.title": "Жалоба",

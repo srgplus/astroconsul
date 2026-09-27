@@ -56,6 +56,11 @@ _FEELS_LIKE_MATRIX: dict[tuple[str, str], str] = {
 }
 
 
+# Every word the matrix can name, for code that accepts one from a client and
+# has to know it is real.
+FEELS_LIKE_LABELS = frozenset(_FEELS_LIKE_MATRIX.values())
+
+
 def _tii_bucket(tii: float) -> str:
     if tii < 25:
         return "low"

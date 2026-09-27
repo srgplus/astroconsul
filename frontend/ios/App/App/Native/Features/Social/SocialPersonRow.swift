@@ -12,6 +12,9 @@ struct SocialPersonRow<Trailing: View>: View {
     /// What they did, after their name: "liked Anna", "started following you".
     /// Nil for a list that is only names, like the blocked accounts.
     var action: String?
+    /// A word before the time on the second line: the state a like was for,
+    /// or a handle.
+    var detail: String?
     var date: Date?
     /// A dot at the leading edge, for Activity rows newer than the last visit.
     var isUnread = false
@@ -38,10 +41,11 @@ struct SocialPersonRow<Trailing: View>: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                if let date {
-                    Text(SocialDate.relative(date))
+                if let second = secondLine {
+                    Text(second)
                         .font(.system(size: 12, design: .rounded))
                         .foregroundStyle(.white.opacity(0.55))
+                        .lineLimit(1)
                 }
             }
 
@@ -51,6 +55,12 @@ struct SocialPersonRow<Trailing: View>: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+    }
+
+    /// "Expansive · 5 min. ago", either half alone, or nothing.
+    private var secondLine: String? {
+        let parts = [detail, date.map { SocialDate.relative($0) }].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     /// The name set heavier than the rest, so a column of rows can be read
@@ -63,8 +73,8 @@ struct SocialPersonRow<Trailing: View>: View {
 }
 
 extension SocialPersonRow where Trailing == EmptyView {
-    init(card: SocialCard, action: String? = nil, date: Date? = nil, isUnread: Bool = false) {
-        self.init(card: card, action: action, date: date, isUnread: isUnread) { EmptyView() }
+    init(card: SocialCard, action: String? = nil, detail: String? = nil, date: Date? = nil, isUnread: Bool = false) {
+        self.init(card: card, action: action, detail: detail, date: date, isUnread: isUnread) { EmptyView() }
     }
 }
 

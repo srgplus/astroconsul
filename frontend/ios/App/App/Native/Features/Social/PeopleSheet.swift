@@ -1,17 +1,18 @@
 import SwiftUI
 
-/// Who likes one of the reader's charts, and who follows it. Opened from the
-/// counts under that chart's reading, so a number is always one tap from the
-/// people it counts.
+/// Who follows one of the reader's charts, and whom the reader follows.
+/// Opened from the followers count under that chart's reading, so the number
+/// is one tap from the people it counts. Likes are not here: they live in
+/// Activity, next to the state of the sky each one was for.
 struct PeopleSheet: View {
 
     enum Tab: String, CaseIterable, Identifiable {
-        case likes
         case followers
+        case following
 
         var id: String { rawValue }
 
-        var label: String { L(self == .likes ? "people.likes" : "people.followers") }
+        var label: String { L(self == .followers ? "people.followers" : "people.following") }
     }
 
     /// One chart and one list on it: what the presenter hands in.
@@ -29,8 +30,8 @@ struct PeopleSheet: View {
     var onOpenSaved: ((String) -> Void)?
 
     @State private var tab: Tab
-    @State private var people: [Tab: [SocialPerson]] = [:]
-    @State private var failures: [Tab: String] = [:]
+    @State private var followers: [SocialPerson]?
+    @State private var failure: String?
     @State private var following: Set<String> = []
     @State private var followedHere: Set<String> = []
     @State private var preview: ProfileSummary?
@@ -65,12 +66,15 @@ struct PeopleSheet: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
 
-            content
+            switch tab {
+            case .followers: followersList
+            case .following: followingList
+            }
         }
         .tint(.white)
         .presentationBackground { WeatherGlassBackdrop(state: skyState) }
         .environment(\.colorScheme, .dark)
-        .task(id: tab) { await load(tab) }
+        .task { await loadFollowers() }
         .sheet(item: $preview) { person in
             ProfilePreviewSheet(
                 profile: person,
@@ -82,10 +86,10 @@ struct PeopleSheet: View {
                 },
                 onBlocked: {
                     preview = nil
-                    people = [:]
+                    followers = nil
                     Task {
                         await list.load(showSpinner: false)
-                        await load(tab)
+                        await loadFollowers()
                     }
                 }
             )
@@ -125,35 +129,25 @@ struct PeopleSheet: View {
         .padding(.bottom, 12)
     }
 
+    // MARK: - Followers
+
     @ViewBuilder
-    private var content: some View {
-        if let rows = people[tab] {
+    private var followersList: some View {
+        if let rows = followers {
             if rows.isEmpty {
-                Text(L(tab == .likes ? "people.noLikes" : "people.noFollowers"))
-                    .font(.system(size: 15, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.65))
-                    .multilineTextAlignment(.center)
-                    .padding(32)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                empty(L("people.noFollowers"))
             } else {
-                List {
-                    ForEach(Array(rows.enumerated()), id: \.offset) { _, person in
-                        row(person)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparatorTint(.white.opacity(0.12))
-                            .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
-                    }
+                rowsList(Array(rows.enumerated()), id: \.offset) { _, person in
+                    followerRow(person)
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
             }
-        } else if let failure = failures[tab] {
+        } else if let failure {
             VStack(spacing: 10) {
                 Text(failure)
                     .font(.system(size: 15, design: .rounded))
                     .foregroundStyle(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
-                Button(L("common.tryAgain")) { Task { await load(tab) } }
+                Button(L("common.tryAgain")) { Task { await loadFollowers() } }
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
             }
             .padding(32)
@@ -165,21 +159,12 @@ struct PeopleSheet: View {
         }
     }
 
-    private func row(_ person: SocialPerson) -> some View {
+    private func followerRow(_ person: SocialPerson) -> some View {
         HStack(spacing: 12) {
             Button {
-                if let id = person.actor.profileId, list.savedProfileIds.contains(id), let onOpenSaved {
-                    dismiss()
-                    onOpenSaved(id)
-                } else {
-                    preview = person.actor.profile
-                }
+                open(person.actor)
             } label: {
-                SocialPersonRow(
-                    card: person.actor,
-                    action: nil,
-                    date: person.date
-                )
+                SocialPersonRow(card: person.actor, action: nil, date: person.date)
             }
             .buttonStyle(.plain)
             .disabled(person.actor.profile == nil)
@@ -197,23 +182,96 @@ struct PeopleSheet: View {
         }
     }
 
-    private func load(_ tab: Tab) async {
+    // MARK: - Following
+
+    /// Every chart the account follows, from the list already loaded: the
+    /// same cards the pager swipes through, each opening its own page.
+    @ViewBuilder
+    private var followingList: some View {
+        let followed = list.followedProfiles
+        if followed.isEmpty {
+            empty(L("people.noFollowing"))
+        } else {
+            rowsList(followed, id: \.profileId) { profile in
+                Button {
+                    dismiss()
+                    onOpenSaved?(profile.profileId)
+                } label: {
+                    SocialPersonRow(
+                        card: SocialCard(
+                            profileId: profile.profileId,
+                            profileName: profile.profileName,
+                            username: profile.username,
+                            natalSummary: profile.natalSummary,
+                            latestTransit: profile.latestTransit
+                        ),
+                        action: nil,
+                        detail: "@\(profile.username)"
+                    ) {
+                        if profile.followsYou == true {
+                            Text(L("social.followsYou"))
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: - Pieces
+
+    private func rowsList<Data: RandomAccessCollection, ID: Hashable, Row: View>(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        @ViewBuilder row: @escaping (Data.Element) -> Row
+    ) -> some View {
+        List {
+            ForEach(data, id: id) { element in
+                row(element)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparatorTint(.white.opacity(0.12))
+                    .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
+
+    private func empty(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 15, design: .rounded))
+            .foregroundStyle(.white.opacity(0.65))
+            .multilineTextAlignment(.center)
+            .padding(32)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    /// Their page if they are already on the list, the preview otherwise.
+    private func open(_ card: SocialCard) {
+        if let id = card.profileId, list.savedProfileIds.contains(id), let onOpenSaved {
+            dismiss()
+            onOpenSaved(id)
+        } else {
+            preview = card.profile
+        }
+    }
+
+    private func loadFollowers() async {
         #if DEBUG
         if WeatherPreviewHarness.isEnabled {
-            people[tab] = WeatherPreviewData.people(for: tab)
+            followers = WeatherPreviewData.followers
             return
         }
         #endif
-        failures[tab] = nil
+        failure = nil
         do {
-            let rows = tab == .likes
-                ? try await APIClient.shared.fetchLikers(profileId: profile.profileId)
-                : try await APIClient.shared.fetchFollowers(profileId: profile.profileId)
-            people[tab] = rows
+            followers = try await APIClient.shared.fetchFollowers(profileId: profile.profileId)
         } catch {
             guard !error.isCancellation else { return }
-            NSLog("[People] \(tab.rawValue) load failed: \(error.localizedDescription)")
-            failures[tab] = error.localizedDescription
+            NSLog("[People] followers load failed: \(error.localizedDescription)")
+            failure = error.localizedDescription
         }
     }
 

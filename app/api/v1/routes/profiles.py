@@ -409,8 +409,9 @@ def _attach_likes(
     if not profile_data.get("is_own") and social.blocker_of(viewer_id, owner) not in (None, viewer_id):
         raise HTTPException(status_code=404, detail=f"Natal profile not found: {profile_data.get('profile_id')}")
     counts = social.social_counts([str(profile_data["profile_id"])], viewer_id)[str(profile_data["profile_id"])]
-    target["likes_count"] = counts["likes_count"]
-    target["is_liked"] = counts["is_liked"]
+    # Everything a listing carries — today's likes per state, the viewer's own,
+    # the totals — so the detail and the list never disagree about a heart.
+    target.update(counts)
     target["follows_you"] = False if profile_data.get("is_own") else social.follows_viewer(owner, viewer_id)
 
 
