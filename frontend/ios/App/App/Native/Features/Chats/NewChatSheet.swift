@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Who a new chat can be started with: the people whose own chart the reader
-/// follows, and the people following any of the reader's, each shown as their
-/// own chart. Charts kept for somebody else are not here: there is nobody
-/// behind them to answer. Black, like the chats it opens from.
+/// Who a new chat can be started with: the people the reader follows who
+/// follow the reader back (the server's rule, `chat_rules.may_write`), each
+/// shown as their own chart. Charts kept for somebody else are not here:
+/// there is nobody behind them to answer. Black, like the chats it opens from.
 struct NewChatSheet: View {
 
     /// The person picked. The sheet closes itself after.

@@ -6,10 +6,14 @@ import SwiftUI
 /// A form of system controls on the sheet's own ground, like Settings: a list
 /// of reasons to pick one from, a field for anything else, a switch. The
 /// promise under it — reviewed within a day, the reporter not named — is the
-/// one the Terms make.
+/// one the Terms make. Filed from a chat, the report carries the chat's
+/// latest messages, and the footer says so.
 struct ReportSheet: View {
 
     let profile: ProfileSummary
+
+    /// The chat the report is filed from, if it is.
+    var chatId: Int? = nil
 
     /// Called once the report is filed, with whether the owner was blocked
     /// too, so the presenter can take a now-blocked chart off the screen.
@@ -59,7 +63,7 @@ struct ReportSheet: View {
                 Section {
                     Toggle(L("complaint.alsoBlock"), isOn: $alsoBlock)
                 } footer: {
-                    Text(L("complaint.footer"))
+                    Text(L(chatId == nil ? "complaint.footer" : "complaint.footerChat"))
                 }
             }
             .navigationTitle(L("complaint.title"))
@@ -124,7 +128,8 @@ struct ReportSheet: View {
                 id: profile.profileId,
                 reason: reason,
                 details: note.isEmpty ? nil : note,
-                block: alsoBlock
+                block: alsoBlock,
+                chatId: chatId
             )
             sent = response.blocked
         } catch {

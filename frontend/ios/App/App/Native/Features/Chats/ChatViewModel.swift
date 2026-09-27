@@ -17,6 +17,9 @@ final class ChatViewModel: ObservableObject {
         /// The reader has no chart marked as their own, so there is no one
         /// for the other side to see or answer.
         case needsOwnChart
+        /// The server will not open this chat, and said why: the other side
+        /// does not follow you, a block, or the day's new chats are used up.
+        case refused(String)
     }
 
     /// A message written here that the server does not have yet.
@@ -24,9 +27,12 @@ final class ChatViewModel: ObservableObject {
         let id: UUID
         let body: String
         var failed: Bool
-        /// The server turned it down for its words. It stays failed, and
-        /// trying again would only fail the same way.
-        var refused = false
+        /// Why the server would not take it, in its own words: the rule
+        /// between the two, a block, the word filter or a limit. Shown under
+        /// the bubble instead of "tap to try again".
+        var refusal: String? = nil
+        /// A limit passes with time, so that refusal can be tried again.
+        var canRetry = true
     }
 
     @Published private(set) var state: State = .loading
@@ -98,6 +104,10 @@ final class ChatViewModel: ObservableObject {
                 return
             }
             NSLog("[Chat] load failed: \(error.localizedDescription)")
+            if messages.isEmpty, let refusal = Self.refusal(error) {
+                state = .refused(refusal.text)
+                return
+            }
             // Only over a spinner: messages already on screen stay up.
             if messages.isEmpty { state = .failed(error.localizedDescription) }
         }
@@ -210,8 +220,9 @@ final class ChatViewModel: ObservableObject {
 
     /// Tries a message that did not go again.
     func retry(_ item: Outgoing) async {
-        guard let index = outgoing.firstIndex(where: { $0.id == item.id }) else { return }
+        guard let index = outgoing.firstIndex(where: { $0.id == item.id }), outgoing[index].canRetry else { return }
         outgoing[index].failed = false
+        outgoing[index].refusal = nil
         await deliver(outgoing[index])
     }
 
@@ -259,7 +270,10 @@ final class ChatViewModel: ObservableObject {
             if Self.isMissingOwnChart(error) { state = .needsOwnChart }
             if let index = outgoing.firstIndex(where: { $0.id == item.id }) {
                 outgoing[index].failed = true
-                outgoing[index].refused = Self.isRefused(error)
+                if let refusal = Self.refusal(error) {
+                    outgoing[index].refusal = refusal.text
+                    outgoing[index].canRetry = refusal.passes
+                }
             }
         }
     }
@@ -269,12 +283,14 @@ final class ChatViewModel: ObservableObject {
         return false
     }
 
-    /// The word filter's answer (`OBJECTIONABLE_STATUS` in the chat routes).
-    /// The composer never sends an empty or overlong message, so a 422 here
-    /// is the words.
-    private static func isRefused(_ error: Error) -> Bool {
-        if case let .http(status, _) = error as? APIError { return status == 422 }
-        return false
+    /// A refusal the server explained, rather than a failure to reach it:
+    /// sending the same thing again gets the same answer, so its sentence is
+    /// shown instead. Only a limit (429) passes with time.
+    private static func refusal(_ error: Error) -> (text: String, passes: Bool)? {
+        guard case let .http(status, detail) = error as? APIError, [400, 403, 422, 429].contains(status) else {
+            return nil
+        }
+        return (detail ?? L("chat.notSent"), status == 429)
     }
 
     // MARK: - Harness

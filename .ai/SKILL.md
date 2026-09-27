@@ -461,14 +461,14 @@ updated_at: DateTime(tz)
 | GET/PUT | `/api/v1/social/settings` | `{show_counts, push_likes, push_follows, push_messages}`: whether others see the account's followers/following counts (`users.hide_social_counts`), and which pushes it gets; PUT takes any subset |
 | POST/DELETE | `/api/v1/devices`, `/api/v1/devices/{token}` | The phone's APNs token (`environment`, `lang`) for pushes / forget it on sign-out |
 | GET | `/api/v1/chats` | Chats with a message in them, newest message first, each with `peer` (card), `last_message`, `unread_count`, `peer_read_id`; plus the total `unread_count` |
-| POST | `/api/v1/chats` | `{profile_id}` → the chat with that chart's owner, made on first asking. Only a primary profile (400 otherwise), and the caller needs one too (409) |
+| POST | `/api/v1/chats` | `{profile_id}` → the chat with that chart's owner, made on first asking. Only a primary profile (400 otherwise), the caller needs one too (409), that person must follow the caller (403), and at most 20 new conversations a day (429) |
 | GET | `/api/v1/chats/{id}/messages` | Newest page (50), `?before=` older, `?after=` what came in since (polling); oldest first, `has_more` |
-| POST | `/api/v1/chats/{id}/messages` | `{body}` up to 2000 chars; pushes to the other side (`kind: message`, `chat_id`) |
+| POST | `/api/v1/chats/{id}/messages` | `{body}` up to 2000 chars; pushes to the other side (`kind: message`, `chat_id`). 403 unless the other follows you or has written to you, 422 for slurs and sexual violence, 429 past 30 a minute / 500 a day / 20 new conversations a day. Refusals speak `Accept-Language` (en/ru) |
 | POST | `/api/v1/chats/{id}/read` | `{message_id?}` reads up to it; answers the unread total |
-| GET | `/api/v1/chats/unread`, `/api/v1/chats/contacts` | Badge number / people a new chat can start with (either side of a follow, with a primary) |
+| GET | `/api/v1/chats/unread`, `/api/v1/chats/contacts` | Badge number / people a new chat can start with (they follow you, with a primary) |
 | POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
 | DELETE | `/api/v1/blocks/{block_id}` | Unblock |
-| POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block` |
+| POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block`, optional `chat_id` (the chat's last 20 messages go in the moderation mail; `conversation_attached` says whether they did) |
 | PUT | `/api/v1/profiles/primary` | `{profile_id}`: mark one of the caller's own charts as theirs (403 for any other) |
 | POST | `/api/v1/profiles/{id}/invite`, `/api/v1/invites/{token}/accept` | Transfer a chart by email; accept answers the recipient's `primary_profile_id` (null = ask) |
 
@@ -518,12 +518,18 @@ A chat is account to account, one per pair (stored smaller id first). **The rule
 a person is their primary profile. A chat starts only from somebody's primary chart
 (`can_message` on every profile payload says so); a chart kept for someone else (a mother's,
 a celebrity's) has nobody behind it, and an account without a primary can neither be written to
-nor write (409; the chats then ask "Which chart is yours?" inline and claim the answer). Unread and list
+nor write (409; the chats then ask "Which chart is yours?" inline and claim the answer).
+**Who may write** is one function, `app/domain/chat_rules.may_write`: today you may write to someone
+who follows at least one chart you own, and whoever was written to may always answer. It decides open, send, `can_message` and contacts; an
+existing chat stays readable when it stops holding, sending answers 403. Messages go through
+`moderation.message_is_objectionable` (slurs and sexual violence only, read a word at a time) and the limits in
+`chat_rules` (30/min, 500/day, 20 new conversations/day: chats whose first message is yours).
+`POST /reports` takes `chat_id`: the mail carries the chat's last 20 messages (`transcript`). Unread and list
 order are by message id, never by time (timestamps are kept to the second). Blocks hide the chat
 both ways and stop sending; unblocking brings it back. Account deletion takes every chat the
-account was in. A message goes through the same word filter as a profile's name
-(`moderation.check_message_text`): a hit is 422, nothing is stored, and the app marks the
-bubble "not sent" with the reason and no retry (`Outgoing.refused`). No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
+account was in. A refused send (400/403/422/429) keeps the bubble dimmed with the server's
+sentence under it and no retry, except a 429 which can be tapped again (`Outgoing.refusal`,
+`canRetry`). No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
 push in the foreground makes both fetch at once. The icon badge is Activity + messages
 (`social_push.app_badge`, `PushNotifications.syncBadge`).
 iOS: `ChatsButton` beside the bell (`CornerCount` badge shared with it), `ChatsScreen` (list,

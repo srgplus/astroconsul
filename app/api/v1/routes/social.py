@@ -35,6 +35,7 @@ from app.application.services.email_service import send_report_email
 from app.application.services.social_push import notify_like
 from app.domain.astrology.tii import FEELS_LIKE_LABELS
 from app.domain.moderation import REPORT_DETAILS_MAX, REPORT_REASONS
+from app.infrastructure.repositories.chat_repositories import ChatNotFound
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.infrastructure.repositories.protocols import SocialRepository
 
@@ -65,6 +66,10 @@ class ReportRequest(BaseModel):
     # Reporting and blocking are one step in the app: the sheet offers to do
     # both, so the reporter does not have to find the second button after.
     block: bool = False
+    # Reported from a conversation: the chat, whose latest messages go to the
+    # moderation inbox with the report. Only a chat the reporter is in, with
+    # the owner of the reported profile.
+    chat_id: int | None = Field(default=None, ge=1)
 
 
 class SocialSettingsRequest(BaseModel):
@@ -336,6 +341,33 @@ def unblock(
 # MARK: - Reports
 
 
+def _reported_conversation(
+    repos: RepositoryBundle, reporter_id: str, chat_id: int, reported_id: str
+) -> dict[str, Any] | None:
+    """The latest messages of the chat a report came from, each marked as the
+    reporter's or the reported person's. None, and the report goes without
+    them, when the chat is not the reporter's or not with that person: a
+    report is never refused over the conversation it names."""
+    if repos.chats is None:
+        logger.warning("Report names chat %s, but chats are not available here", chat_id)
+        return None
+    try:
+        transcript = repos.chats.transcript(reporter_id, chat_id)
+    except ChatNotFound:
+        logger.warning("Report by %s names chat %s, which is not theirs: filed without it", reporter_id, chat_id)
+        return None
+    if transcript["peer_id"] != reported_id:
+        logger.warning(
+            "Report by %s names chat %s, which is not with the reported account: filed without it",
+            reporter_id,
+            chat_id,
+        )
+        return None
+    for message in transcript["messages"]:
+        message["role"] = "reporter" if message["sender_id"] == reporter_id else "reported"
+    return transcript
+
+
 @router.post("/reports")
 def report_profile(
     payload: ReportRequest,
@@ -344,7 +376,8 @@ def report_profile(
 ) -> dict[str, Any]:
     """Files a report for a person to review, and blocks the owner too when
     asked. The report is stored first; the mail to the moderation inbox is a
-    nudge on top and never fails the request."""
+    nudge on top and never fails the request. Reported from a chat, the mail
+    carries the chat's latest messages, read before any block."""
     social = _social(repos)
     reason = payload.reason.strip().lower()
     if reason not in REPORT_REASONS:
@@ -364,9 +397,22 @@ def report_profile(
         reason,
         report.get("report_id"),
     )
-    send_report_email({**report, "details": details}, profile, user.get("email", ""))
+    conversation = (
+        _reported_conversation(repos, user["user_id"], payload.chat_id, owner) if payload.chat_id is not None else None
+    )
+    send_report_email(
+        {**report, "details": details},
+        profile,
+        user.get("email", ""),
+        conversation=conversation,
+    )
 
     if payload.block:
         social.block_user(user["user_id"], owner)
 
-    return {"status": "ok", "report_id": report.get("report_id"), "blocked": payload.block}
+    return {
+        "status": "ok",
+        "report_id": report.get("report_id"),
+        "blocked": payload.block,
+        "conversation_attached": conversation is not None,
+    }
