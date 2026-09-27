@@ -4,6 +4,41 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### One follow button, follower counts on every chart, and a switch to hide them
+The owner's follow-up to the social layer, decided while tapping through it in
+the simulator. Most of it is iOS; the backend adds one count and one flag.
+
+**Backend.** `social_counts` carries `following_count`: the charts the
+profile's *owner* follows, not counting their own, so every chart of one
+account shows the same number. `users.hide_social_counts` (migration
+`20260927_000002`, a revision of its own because `20260927_000001` had already
+run on production) is set by `GET/PUT /api/v1/social/settings {show_counts}`.
+When it is on, `followers_count` and `following_count` are null for everyone
+but the owner, in listings, search, detail, like responses and the public web
+page. Likes are not hidden. `POST /profiles/{id}/like` now accepts your own
+chart; such a like counts with the rest and never appears in your Activity or
+its unread count.
+
+**iOS.** The social line is one row (`SocialStrip`): followers and following
+on the left, the follow button in the room before the heart, the heart last.
+- `FollowButton` is the only follow control, Instagram-style: "Follow",
+  "Follow back" (they follow you, you do not; Russian falls back to
+  "Подписаться" where "Подписаться в ответ" does not fit), "✓ Following",
+  which asks "Unfollow X?". The separate "Follows you" pill is gone from pages
+  and previews; the Following list in `PeopleSheet` still says it.
+- On your own chart the counts are glass capsules that open `PeopleSheet` on
+  that tab, and the following number is the list's own (`followedProfiles`),
+  so an unfollow shows at once. On anyone else's they are plain text, numbers
+  only, because glass promised a tap; hidden counts leave the button and heart
+  centred.
+- The heart on your own chart is a like, like everywhere else. It used to
+  open Activity, which looked like the same control doing something else.
+- The ••• menu has no Unfollow (the button does it). "Report…" is "Report
+  Profile", "Block…" is "Block", and Block is a plain black item, not red.
+  The block confirmation keeps its destructive button.
+- Settings → Community: "Show my followers and following", read from and saved
+  to `/social/settings`, disabled until the server has answered.
+
 ### iOS: the Astro profile header carries the birth data and the chevron
 `NatalChartCard` opens on a tap, and the only sign of that was a small chevron
 beside the age on the title row ("60 years ⌄"). There it read as a picker for

@@ -453,11 +453,12 @@ updated_at: DateTime(tz)
 | POST | `/api/v1/profiles/{id}/transits/report` | Transit report for date/time |
 | GET | `/api/v1/profiles/{id}/transits/timeline` | Transit timeline for date range |
 | POST/DELETE | `/api/v1/profiles/{id}/follow` | Follow / unfollow a profile |
-| POST/DELETE | `/api/v1/profiles/{id}/like` | Like / unlike the state on screen (`feels_like`, today in the profile's zone); answers its counts |
+| POST/DELETE | `/api/v1/profiles/{id}/like` | Like / unlike the state on screen (`feels_like`, today in the profile's zone), your own chart included; answers its counts |
 | GET | `/api/v1/profiles/{id}/likes`, `/followers` | Who likes / follows it — owner only |
 | GET | `/api/v1/activity` | Likes and follows on every profile the caller owns, newest first |
 | GET | `/api/v1/activity/unread` | The unread count alone (badge) |
 | POST | `/api/v1/activity/seen` | Marks Activity read (`users.activity_seen_at`) |
+| GET/PUT | `/api/v1/social/settings` | `{show_counts}`: whether others see the account's followers/following counts (`users.hide_social_counts`) |
 | POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
 | DELETE | `/api/v1/blocks/{block_id}` | Unblock |
 | POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block` |
@@ -466,13 +467,21 @@ updated_at: DateTime(tz)
 Why it exists: App Review (Sept 2026) — "social network is not saturated; astrology is", and the
 app claimed Social Networking without any user-to-user interaction. Code:
 `app/api/v1/routes/social.py`, `app/infrastructure/repositories/social_repositories.py`
-(`RepositoryBundle.social`), `app/domain/moderation.py` (name filter), migration `20260927_000001`.
+(`RepositoryBundle.social`), `app/domain/moderation.py` (name filter), migrations `20260927_000001`
+and `20260927_000002` (`users.hide_social_counts`).
 An account *acts*; a profile *is acted on*; when an account is shown (Activity, followers) it is
 shown as its "card" — primary profile, else last-touched. Blocks are account to account and both
 directions: they sever follows and likes, hide search results, and 404 the blocked side.
 A like is for a *state*: the feels-like word on a given day (profile's zone) — a new word or a new
-day is new content. Listings, search and detail carry `state_likes`, `my_state_likes`,
-`likes_count`, `is_liked`, `likes_total`, `followers_count`, `follows_you`.
+day is new content. Your own chart can be liked; that like never shows in your own Activity.
+Listings, search and detail carry `state_likes`, `my_state_likes`, `likes_count`, `is_liked`,
+`likes_total`, `followers_count`, `following_count` (charts the owner follows, own ones not
+counted) and `follows_you`. Both counts are null for everyone but the owner when the owner
+hid them (Settings → Community); the public web page hides `followers_count` the same way.
+iOS: one row under a chart (`SocialStrip`): counts left, one Instagram-style `FollowButton`
+(Follow / Follow back / ✓ Following, which asks before unfollowing), heart right. Counts are
+glass capsules opening `PeopleSheet` on your own chart and plain text on others'. "Follows you"
+only appears in the Following list. The ••• has no Unfollow; Block is a plain item.
 Guideline 1.2 checklist this satisfies: name filter, report, block, contact (Settings → Community,
 big3meapp@gmail.com), and terms with community rules accepted at sign-in (`/legal#community`).
 
