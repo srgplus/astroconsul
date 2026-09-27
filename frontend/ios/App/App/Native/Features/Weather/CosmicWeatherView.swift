@@ -156,16 +156,6 @@ struct CosmicWeatherView: View {
             .refreshable { await model.load(profile: profile, showSpinner: false) }
             .scrollIndicators(.hidden)
         }
-        .overlay(alignment: .top) {
-            LinearGradient(
-                colors: [WeatherSky.topColor(for: zone), WeatherSky.topColor(for: zone).opacity(0)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: topInset + 8)
-            .ignoresSafeArea(edges: .top)
-            .allowsHitTesting(false)
-        }
         .overlay(alignment: .bottom) {
             if didCopy {
                 Label(L("report.copied"), systemImage: "checkmark")
