@@ -381,6 +381,12 @@ latitude, longitude: Float nullable
 updated_at: DateTime(tz)
 ```
 
+**ProfileLikeModel** (`profile_likes`) — user_id → users, profile_id → profiles, unique pair
+**UserBlockModel** (`user_blocks`) — blocker_id, blocked_id → users, unique pair
+**ProfileReportModel** (`profile_reports`) — reporter_id → users; profile_id, reported_user_id,
+name/handle snapshot as plain strings (outlive the profile); reason, details, status
+`UserModel.activity_seen_at` — when Activity was last opened
+
 **LocationCacheModel**
 ```
 query: String(255) PK
@@ -446,6 +452,27 @@ updated_at: DateTime(tz)
 | PATCH | `/api/v1/profiles/{id}` | Update profile + recalculate chart |
 | POST | `/api/v1/profiles/{id}/transits/report` | Transit report for date/time |
 | GET | `/api/v1/profiles/{id}/transits/timeline` | Transit timeline for date range |
+| POST/DELETE | `/api/v1/profiles/{id}/follow` | Follow / unfollow a profile |
+| POST/DELETE | `/api/v1/profiles/{id}/like` | Like / unlike a profile (not your own); answers its counts |
+| GET | `/api/v1/profiles/{id}/likes`, `/followers` | Who likes / follows it — owner only |
+| GET | `/api/v1/activity` | Likes and follows on every profile the caller owns, newest first |
+| GET | `/api/v1/activity/unread` | The unread count alone (badge) |
+| POST | `/api/v1/activity/seen` | Marks Activity read (`users.activity_seen_at`) |
+| POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
+| DELETE | `/api/v1/blocks/{block_id}` | Unblock |
+| POST | `/api/v1/reports` | Report a profile (`spam`, `harassment`, `impersonation`, `inappropriate`, `other`), optional `block` |
+
+### Social layer (2026-09-27)
+Why it exists: App Review (Sept 2026) — "social network is not saturated; astrology is", and the
+app claimed Social Networking without any user-to-user interaction. Code:
+`app/api/v1/routes/social.py`, `app/infrastructure/repositories/social_repositories.py`
+(`RepositoryBundle.social`), `app/domain/moderation.py` (name filter), migration `20260927_000001`.
+An account *acts*; a profile *is acted on*; when an account is shown (Activity, followers) it is
+shown as its "card" — primary profile, else last-touched. Blocks are account to account and both
+directions: they sever follows and likes, hide search results, and 404 the blocked side.
+Listings, search and detail carry `likes_count`, `is_liked`, `followers_count`, `follows_you`.
+Guideline 1.2 checklist this satisfies: name filter, report, block, contact (Settings → Community,
+big3meapp@gmail.com), and terms with community rules accepted at sign-in (`/legal#community`).
 
 ### Transit Report Request Body
 ```json
