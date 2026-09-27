@@ -213,12 +213,13 @@ final class ChatLive: ObservableObject {
     }
 
     private static var url: URL? {
-        var components = URLComponents(
+        guard var components = URLComponents(
             url: AppConfig.apiBaseURL.appendingPathComponent("/api/v1/chats/live"),
             resolvingAgainstBaseURL: false
-        )
-        components?.scheme = components?.scheme == "http" ? "ws" : "wss"
-        return components?.url
+        ) else { return nil }
+        let secure = components.scheme != "http"
+        components.scheme = secure ? "wss" : "ws"
+        return components.url
     }
 
     // MARK: - Events
