@@ -53,7 +53,7 @@ class RecordingSender:
 class PushTestCase(SocialTestCase):
     def setUp(self) -> None:
         super().setUp()
-        social_push._recent_follows.clear()
+        social_push._recent_pushes.clear()
         self.sender = RecordingSender()
         patcher = patch.object(social_push, "get_sender", lambda: self.sender)
         patcher.start()
@@ -89,6 +89,15 @@ class LikePushTests(PushTestCase):
         path = f"/api/v1/profiles/{self.anna_profile}/like"
         self.as_user(BORIS).post(path, json={"feels_like": "Flowing"})
         self.as_user(BORIS).post(path, json={"feels_like": "Expansive"})
+        self.as_user(BORIS).post(path, json={"feels_like": "Flowing"})
+
+        self.assertEqual(len(self.sender.sent), 1)
+
+    def test_unliking_and_liking_again_is_not_news_twice(self) -> None:
+        path = f"/api/v1/profiles/{self.anna_profile}/like"
+        for _ in range(3):
+            self.as_user(BORIS).post(path, json={"feels_like": "Flowing"})
+            self.as_user(BORIS).delete(path, params={"feels_like": "Flowing"})
         self.as_user(BORIS).post(path, json={"feels_like": "Flowing"})
 
         self.assertEqual(len(self.sender.sent), 1)

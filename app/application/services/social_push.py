@@ -8,9 +8,12 @@ the unread count (Activity and messages together, see `app_badge`).
 What earns a push, and what does not:
 
 * a like, the first one that person gives the chart that day — liking a
-  second state of the same sky shows in Activity but does not buzz again;
-* a new follow — unfollowing and following again within the hour of quiet
-  below is not news twice;
+  second state of the same sky shows in Activity but does not buzz again,
+  and neither does unliking and liking again within the hour of quiet below:
+  the app lets a heart be tapped as fast as a thumb goes, and the owner's
+  phone should not buzz along;
+* a new follow — unfollowing and following again within that hour is not
+  news twice;
 * never your own action on your own chart, and never when the owner switched
   that kind off in Settings.
 
@@ -67,11 +70,11 @@ FEELS_RU = {
     "Explosive": "Взрывоопасно",
 }
 
-# How long a follow from one person to one chart stays told. Kept in memory:
-# a redeploy forgets it, which at worst lets one repeat through.
-FOLLOW_QUIET_SECONDS = 60 * 60
+# How long a like or a follow from one person to one chart stays told. Kept
+# in memory: a redeploy forgets it, which at worst lets one repeat through.
+QUIET_SECONDS = 60 * 60
 
-_recent_follows: dict[tuple[str, str], float] = {}
+_recent_pushes: dict[tuple[str, str, str], float] = {}
 _recent_lock = threading.Lock()
 
 
@@ -84,22 +87,32 @@ def app_badge(repos: RepositoryBundle, user_id: str) -> int:
 
 
 def notify_like(repos: RepositoryBundle, actor_id: str, profile: dict[str, Any], feels_like: str | None) -> None:
+    if _told_recently("like", actor_id, profile):
+        return
     _notify(repos, "like", actor_id, profile, feels_like)
 
 
 def notify_follow(repos: RepositoryBundle, actor_id: str, profile: dict[str, Any]) -> None:
-    key = (actor_id, str(profile.get("profile_id")))
+    if _told_recently("follow", actor_id, profile):
+        return
+    _notify(repos, "follow", actor_id, profile, None)
+
+
+def _told_recently(kind: str, actor_id: str, profile: dict[str, Any]) -> bool:
+    """True when this person's like or follow on this chart was pushed
+    within the quiet hour; otherwise notes it as told now."""
+    key = (kind, actor_id, str(profile.get("profile_id")))
     now = time.monotonic()
     with _recent_lock:
-        told = _recent_follows.get(key)
-        if told is not None and now - told < FOLLOW_QUIET_SECONDS:
-            logger.info("Follow push to %s skipped: told within the hour", key[1])
-            return
-        _recent_follows[key] = now
+        told = _recent_pushes.get(key)
+        if told is not None and now - told < QUIET_SECONDS:
+            logger.info("%s push to %s skipped: told within the hour", kind.capitalize(), key[2])
+            return True
+        _recent_pushes[key] = now
         # Kept small: anything past its quiet hour can go.
-        for stale in [k for k, at in _recent_follows.items() if now - at >= FOLLOW_QUIET_SECONDS]:
-            del _recent_follows[stale]
-    _notify(repos, "follow", actor_id, profile, None)
+        for stale in [k for k, at in _recent_pushes.items() if now - at >= QUIET_SECONDS]:
+            del _recent_pushes[stale]
+    return False
 
 
 def compose(
