@@ -4,6 +4,39 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Activity opens at once, and a follow back does not wait for the list
+The owner's complaint from TestFlight: Activity sat on "Загрузка" every time it
+opened, and "Follow back" in a followers row spun for a long while.
+
+**Follow.** `ProfileListViewModel.follow` used to await the POST *and then a
+full `GET /profiles` reload* before returning, and the row held its spinner
+through both. It now takes `waitingForList:` (default `true`, which search
+keeps, because it goes to the new page next). Activity and `PeopleSheet` pass
+`false` and follow back optimistically: the row reads "✓ Following" at the tap,
+the request catches up, a refusal takes it back and shows an alert.
+`FollowBackButton` draws "Following" ahead of the spinner so that works.
+
+**Activity.** `SocialStore` keeps the last `GET /activity` rows. Every
+`refreshUnread` (launch and each return to the app) fetches them in the
+background when there are none yet or the unread count differs from the one
+they were fetched at, so the bell opens on rows and refreshes underneath.
+`markActivitySeen` clears `isUnread` on the kept rows (now a `var`) so the next
+open does not show them under New. A request in flight is shared, and `reset`
+(sign-out) drops everything via a generation counter. Followers per chart are
+kept the same way for `PeopleSheet`.
+
+**Backend.** Actor cards (Activity, followers, likers, blocks) read only
+`chart_payload_json -> 'natal_summary'` instead of the whole ~9 KB chart, and
+the primary and the last reading ride along on the rows they already fetched:
+4 queries to 2. Activity takes the target chart's name from its existing join.
+The unread count is one query with the read marker and the blocks as
+subqueries (it was four via the badge route). Activity 12 → 8 queries, badge
+4 → 1, followers 9 → 7. Migration `20260927_000003` adds `ix_profiles_user_id`
+and `ix_profile_follows_profile_id`, checking before each step.
+
+`_now_utc()` keeps timestamps to the second, so an event in the same second as
+the visit is not unread; a test that needs order moves rows back explicitly.
+
 ### One follow button, follower counts on every chart, and a switch to hide them
 The owner's follow-up to the social layer, decided while tapping through it in
 the simulator. Most of it is iOS; the backend adds one count and one flag.

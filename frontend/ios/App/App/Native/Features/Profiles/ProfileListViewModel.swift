@@ -401,22 +401,32 @@ final class ProfileListViewModel: ObservableObject {
         Set(profiles.map(\.profileId))
     }
 
-    /// Follows a profile found in search, then reloads so the pager gains its
+    /// Follows a profile, then reloads so the pager gains its
     /// page. No optimistic insert: a search result carries no reading of its
     /// own worth showing, and the list is the one place that knows the order.
     ///
     /// A failure is reported back rather than pushed into `state`: this is
     /// called from a sheet, and turning the whole pager behind it into an
     /// error screen over one refused subscription is out of proportion.
-    func follow(_ profile: ProfileSummary) async -> Error? {
+    ///
+    /// `waitingForList` is for a caller that goes to the new page next, as
+    /// search does. Everyone else only needs the server to have the follow:
+    /// a row's button says "Following" from there, and the list catches up
+    /// behind it rather than holding the button on its spinner through a
+    /// reload of every chart on it.
+    func follow(_ profile: ProfileSummary, waitingForList: Bool = true) async -> Error? {
         do {
             try await api.followProfile(id: profile.profileId)
-            await load(showSpinner: false)
-            return nil
         } catch {
             NSLog("[Profiles] follow failed: \(error.localizedDescription)")
             return error
         }
+        if waitingForList {
+            await load(showSpinner: false)
+        } else {
+            Task { await load(showSpinner: false) }
+        }
+        return nil
     }
 
     func unfollow(_ profile: ProfileSummary) async {
