@@ -44,15 +44,8 @@ struct ProfilePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @ObservedObject private var strings = L10n.shared
-    @ObservedObject private var social = SocialStore.shared
     @State private var reporting: ProfileSummary?
     @State private var blocking: ProfileSummary?
-    @State private var likeError: String?
-
-    /// The state a like here is for: the word the preview shows, from the
-    /// chart's last reading.
-    private var likeState: String { SocialStore.state(profile.latestTransit?.feelsLike) }
-    private var like: SocialStore.Like { social.like(for: profile, state: likeState) }
 
     private var zone: TiiZone? { profile.latestTransit?.tii.map(TiiZone.init(tii:)) }
     private var state: SkyState? {
@@ -101,17 +94,6 @@ struct ProfilePreviewSheet: View {
         } message: {
             Text(errorText ?? "")
         }
-        .alert(
-            L("social.likeFailed"),
-            isPresented: Binding(
-                get: { likeError != nil },
-                set: { if !$0 { likeError = nil } }
-            )
-        ) {
-            Button(L("common.ok"), role: .cancel) { likeError = nil }
-        } message: {
-            Text(likeError ?? "")
-        }
         .sheet(item: $reporting) { profile in
             ReportSheet(profile: profile) { blocked in
                 if blocked { onBlocked?() }
@@ -122,66 +104,20 @@ struct ProfilePreviewSheet: View {
 
     // MARK: - Social
 
-    /// Follow, the chart's followers, whether its owner follows you, and the
-    /// heart for the state of its sky — what a stranger's chart says about the
-    /// people around it before you decide to follow. The heart last, on the
-    /// right, the way it sits on a page.
+    /// The follow button, then the chart's followers, whom its owner follows
+    /// and the heart for the state of its sky — the lines a page has, so a
+    /// stranger's chart reads the same before you follow it as after. The
+    /// heart is for the word the preview shows, from the chart's last reading.
     private var socialRow: some View {
-        HStack(spacing: 8) {
-            if isSubscribed {
-                FollowingPill()
-            } else {
-                FollowPill(isWorking: isSubscribing, action: onSubscribe)
-            }
-
-            if let followers = profile.followersCount {
-                Label("\(followers)", systemImage: "person.2.fill")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.85))
-                    .padding(.horizontal, 12)
-                    .frame(height: SocialStrip.height)
-                    .weatherGlass(in: .capsule, tint: 0.1)
-                    .accessibilityLabel(L(count: followers, "social.followersCount"))
-            }
-
-            if profile.followsYou == true {
-                FollowsYouTag()
-            }
-
-            Button {
-                Task {
-                    if let error = await SocialStore.shared.toggleLike(
-                        profile,
-                        state: likeState,
-                        tii: profile.latestTransit?.tii
-                    ) {
-                        likeError = error.localizedDescription
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: like.isLiked ? "heart.fill" : "heart")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(like.isLiked ? Theme.challenge : .white)
-                        .contentTransition(.symbolEffect(.replace))
-                    Text("\(like.count)")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .frame(height: SocialStrip.height)
-            }
-            .buttonStyle(.plain)
-            .weatherGlass(in: .capsule, tint: 0.2, interactive: true)
-            .sensoryFeedback(.impact(weight: .light), trigger: like.isLiked)
-            .animation(.easeInOut(duration: 0.2), value: like)
-            .accessibilityLabel(L(like.isLiked ? "social.unlike" : "social.like"))
-            .accessibilityValue(L(count: like.count, "social.likesCount"))
-        }
-        .frame(maxWidth: .infinity)
+        SocialStrip(
+            profile: profile,
+            isOwn: false,
+            feelsLike: profile.latestTransit?.feelsLike,
+            tii: profile.latestTransit?.tii,
+            isFollowing: isSubscribed,
+            isFollowWorking: isSubscribing,
+            onFollow: onSubscribe
+        )
     }
 
     // MARK: - Chrome
@@ -203,7 +139,7 @@ struct ProfilePreviewSheet: View {
                         Label(L("social.report"), systemImage: "exclamationmark.bubble")
                     }
 
-                    Button(role: .destructive) {
+                    Button {
                         blocking = profile
                     } label: {
                         Label(L("social.block"), systemImage: "hand.raised")
@@ -216,7 +152,7 @@ struct ProfilePreviewSheet: View {
                         .contentShape(Circle())
                 }
                 // No tint, for the reason the weather page's ••• has none:
-                // a tint paints Block's icon too, which iOS draws red.
+                // the popup is the system's, and draws its own icons.
                 .tint(nil)
                 .weatherGlass(in: .circle, interactive: true)
                 .accessibilityLabel(L("weather.profileOptions"))

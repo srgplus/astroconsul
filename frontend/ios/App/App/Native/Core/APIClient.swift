@@ -158,6 +158,19 @@ actor APIClient {
         )
     }
 
+    /// Whether other people see the caller's followers and following counts.
+    func fetchSocialSettings() async throws -> SocialSettings {
+        try await get("/api/v1/social/settings")
+    }
+
+    func updateSocialSettings(showCounts: Bool) async throws -> SocialSettings {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let show_counts: Bool
+        }
+        return try await send("/api/v1/social/settings", method: "PUT", body: Body(show_counts: showCounts))
+    }
+
     /// Who likes one of the caller's own charts. Owner-only: 403 otherwise.
     func fetchLikers(profileId: String) async throws -> [SocialPerson] {
         let response: SocialPeopleResponse = try await get("/api/v1/profiles/\(Self.escape(profileId))/likes")

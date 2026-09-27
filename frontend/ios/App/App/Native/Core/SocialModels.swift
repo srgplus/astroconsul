@@ -115,11 +115,18 @@ struct SocialPeopleResponse: Codable {
 /// it, so the heart shows the server's number rather than a guess.
 struct LikeResponse: Codable {
     let likesCount: Int
-    let followersCount: Int
+    /// Nil when the chart's owner keeps their counts to themselves.
+    let followersCount: Int?
     let isLiked: Bool
     /// Today's likes per state and the reader's own, as they stand after it.
     var stateLikes: [String: Int]? = nil
     var myStateLikes: [String]? = nil
+}
+
+/// `GET/PUT /api/v1/social/settings`: what the account shows other people
+/// about itself. So far one switch, the followers and following counts.
+struct SocialSettings: Codable, Equatable {
+    let showCounts: Bool
 }
 
 /// One account this reader has blocked.

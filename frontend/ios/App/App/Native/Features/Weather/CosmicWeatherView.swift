@@ -18,8 +18,8 @@ struct CosmicWeatherView: View {
     /// is somewhere else entirely.
     var isPrimary: Bool = false
 
-    /// What the ••• menu offers, and so what this page lets the viewer do:
-    /// `onEdit` on a profile the account owns, `onUnfollow` on a followed one.
+    /// What this page lets the viewer do: `onEdit`, in the •••, on a profile
+    /// the account owns; `onUnfollow`, behind "✓ Following", on a followed one.
     /// Which of the two is handed in is the presenter's call — the page does
     /// not decide ownership for itself, because `is_own` has come back false
     /// on an owner's own primary profile and that would hide Edit from the
@@ -46,6 +46,11 @@ struct CosmicWeatherView: View {
     /// counts; the sheets they open belong to the home screen.
     var onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)?
     var onOpenActivity: (() -> Void)?
+
+    /// How many charts the account follows, for the count under one of its
+    /// own charts. Handed in from the list the pager is built from, so an
+    /// unfollow shows at once rather than on the next load.
+    var followingCount: Int?
 
     /// Report and Block in the ••• of a chart somebody else owns. Handed up
     /// for the same reason: the report sheet and the confirmation have to
@@ -76,6 +81,7 @@ struct CosmicWeatherView: View {
         onFindPeople: (() -> Void)? = nil,
         onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
         onOpenActivity: (() -> Void)? = nil,
+        followingCount: Int? = nil,
         onReport: ((ProfileSummary) -> Void)? = nil,
         onBlock: ((ProfileSummary) -> Void)? = nil
     ) {
@@ -89,6 +95,7 @@ struct CosmicWeatherView: View {
         self.onFindPeople = onFindPeople
         self.onOpenPeople = onOpenPeople
         self.onOpenActivity = onOpenActivity
+        self.followingCount = followingCount
         self.onReport = onReport
         self.onBlock = onBlock
         _model = StateObject(wrappedValue: CosmicWeatherViewModel())
@@ -108,6 +115,7 @@ struct CosmicWeatherView: View {
         onFindPeople: (() -> Void)? = nil,
         onOpenPeople: ((ProfileSummary, PeopleSheet.Tab) -> Void)? = nil,
         onOpenActivity: (() -> Void)? = nil,
+        followingCount: Int? = nil,
         onReport: ((ProfileSummary) -> Void)? = nil,
         onBlock: ((ProfileSummary) -> Void)? = nil,
         model: @autoclosure @escaping () -> CosmicWeatherViewModel
@@ -122,6 +130,7 @@ struct CosmicWeatherView: View {
         self.onFindPeople = onFindPeople
         self.onOpenPeople = onOpenPeople
         self.onOpenActivity = onOpenActivity
+        self.followingCount = followingCount
         self.onReport = onReport
         self.onBlock = onBlock
         _model = StateObject(wrappedValue: model())
@@ -185,9 +194,10 @@ struct CosmicWeatherView: View {
                         isOwn: onEdit != nil,
                         feelsLike: feelsLike,
                         tii: model.today?.tii ?? profile.latestTransit?.tii,
+                        followingCount: followingCount,
+                        onUnfollow: onUnfollow,
                         onOpenLikes: onOpenActivity,
-                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } },
-                        onUnfollow: onUnfollow
+                        onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } }
                     )
                     .padding(.top, -6)
 
@@ -348,8 +358,9 @@ struct CosmicWeatherView: View {
     }
 
     /// Weather puts its ••• in the same corner. Copy report is in it on every
-    /// page — the reading belongs to whoever is looking at it — and Edit or
-    /// Unfollow join it depending on which one the presenter wired up.
+    /// page — the reading belongs to whoever is looking at it — Edit on your
+    /// own charts, and Report and Block on anyone else's. Unfollow is not
+    /// here: the "✓ Following" button under the reading does it.
     @ViewBuilder
     private var profileMenu: some View {
         Menu {
@@ -371,16 +382,6 @@ struct CosmicWeatherView: View {
                 }
             }
 
-            // Plain, not destructive: unfollowing is undone by following again
-            // and loses nothing, so it is not drawn in Block's red.
-            if let onUnfollow {
-                Button {
-                    onUnfollow(profile)
-                } label: {
-                    Label(L("weather.unfollow"), systemImage: "person.badge.minus")
-                }
-            }
-
             // Somebody else's chart only: the ones you own are yours to edit
             // or delete, not to report.
             if onReport != nil || onBlock != nil {
@@ -394,8 +395,10 @@ struct CosmicWeatherView: View {
                     }
                 }
 
+                // Plain, not red: the owner's call. The confirmation that
+                // follows is where the destructive button sits.
                 if let onBlock {
-                    Button(role: .destructive) {
+                    Button {
                         onBlock(profile)
                     } label: {
                         Label(L("social.block"), systemImage: "hand.raised")
@@ -412,9 +415,7 @@ struct CosmicWeatherView: View {
         // The page tints everything under it white so marks read on the
         // sky. The menu it opens is not on the sky — it is a system popup
         // in the system's own appearance — so a white tint left its icons
-        // white beside black labels. Cleared rather than set to ink: any
-        // tint here paints every icon in it, the destructive ones included,
-        // and iOS draws Unfollow and Block red icon and all. With none, the
+        // white beside black labels. Cleared rather than set to ink, so the
         // popup draws itself the way every system menu does.
         .tint(nil)
         .weatherGlass(in: .circle, interactive: true)
