@@ -19,7 +19,7 @@ import { InviteAcceptPage } from "./components/InviteAcceptPage"
 import { InviteModal } from "./components/InviteModal"
 import SynastryWidget from "./components/SynastryWidget"
 import { useSubscription } from "./hooks/useSubscription"
-import { hidesPaidTier } from "./lib/platform"
+import { hidesPaidTier, isNativeApp } from "./lib/platform"
 import { Paywall } from "./components/Paywall"
 import ProfilePickerModal from "./components/ProfilePickerModal"
 import SynastryReport from "./components/SynastryReport"
@@ -984,7 +984,7 @@ export function App() {
           <div className="mobile-list-header">
             <h1 className="mobile-list-title"><span className="brand-big">big</span><span className="brand-3">3</span><span className="brand-me">.me</span></h1>
             <div className="mobile-list-header-actions">
-              <a href="/news/" className="sidebar-icon-btn" title="News" style={{textDecoration:"none"}}>{"\uD83D\uDCF0"}</a>
+              {!isNativeApp() && <a href="/news/" className="sidebar-icon-btn" title="News" style={{textDecoration:"none"}}>{"\uD83D\uDCF0"}</a>}
               <button type="button" className="sidebar-icon-btn" onClick={() => setSettingsOpen(true)} title={t("sidebar.settings")}>{"\u2699"}</button>
               <button type="button" className="sidebar-icon-btn" onClick={() => setGuideOpen(true)} title={t("sidebar.howItWorks")}>{"\u2139"}</button>
             </div>
@@ -1115,14 +1115,16 @@ export function App() {
               </div>
               {/* Desktop footer */}
               <div className="sidebar-footer sidebar-footer--desktop">
-                <a
-                  href="/news/"
-                  className="sidebar-icon-btn"
-                  title="News"
-                  style={{textDecoration:"none"}}
-                >
-                  {"\uD83D\uDCF0"}
-                </a>
+                {!isNativeApp() && (
+                  <a
+                    href="/news/"
+                    className="sidebar-icon-btn"
+                    title="News"
+                    style={{textDecoration:"none"}}
+                  >
+                    {"\uD83D\uDCF0"}
+                  </a>
+                )}
                 <button
                   type="button"
                   className="sidebar-icon-btn"
