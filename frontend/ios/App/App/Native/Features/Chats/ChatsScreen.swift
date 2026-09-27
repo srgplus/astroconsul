@@ -2,8 +2,9 @@ import SwiftUI
 
 /// The chats: everyone the reader has written to or heard from, the latest
 /// first. Drawn the way the owner asked, after a messenger they like: black,
-/// the title with the reader's own face beside it, a "+" and a search in one
-/// capsule, and rows of a face, a name, a date and the last message.
+/// the title, a "+" and a search in one capsule, and rows of a face, a name,
+/// a date and the last message. Search takes the header's place rather than
+/// opening under it.
 ///
 /// A person here is their own chart, and so is the reader: until one of the
 /// reader's charts is marked as theirs, the screen asks which one it is
@@ -35,6 +36,8 @@ struct ChatsScreen: View {
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var path: [ChatRoute] = []
+    /// The sheet's width, which the header in the bar is stretched across.
+    @State private var width: CGFloat = 0
     @State private var state: LoadState = .loading
     @State private var composing = false
     @State private var searching = false
@@ -73,24 +76,33 @@ struct ChatsScreen: View {
         list.state == .loaded && list.primaryProfile == nil
     }
 
-    /// The reader as the people they write to see them.
-    private var ownCard: SocialCard? {
-        guard let own = list.primaryProfile else { return nil }
-        return SocialCard(
-            profileId: own.profileId,
-            profileName: own.profileName,
-            username: own.username,
-            natalSummary: own.natalSummary
-        )
+    /// Sizes taken off the reference: controls 40pt tall, 19pt from the edges,
+    /// 41pt faces on 64pt rows. "New Message" draws its rows with them too.
+    enum Metrics {
+        static let side: CGFloat = 19
+        static let control: CGFloat = 40
+        static let face: CGFloat = 41
+        static let faceGap: CGFloat = 12
+        static let row: CGFloat = 64
     }
 
     var body: some View {
         NavigationStack(path: $path) {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black.ignoresSafeArea())
+                .background {
+                    GeometryReader { geometry in
+                        Color.black
+                            .ignoresSafeArea()
+                            .onAppear { width = geometry.size.width }
+                            .onChange(of: geometry.size.width) { _, value in width = value }
+                    }
+                }
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { listToolbar }
+                // The whole header as the bar's one item rather than a hidden bar
+                // and a header of its own: a chat pushed over the list has a bar,
+                // and one appearing where there was none jumps as it slides in.
+                .toolbar { headerItem }
                 .onAppear {
                     isShowingList = true
                     Task { await load() }
@@ -142,84 +154,113 @@ struct ChatsScreen: View {
     // MARK: - Header
 
     @ToolbarContentBuilder
-    private var listToolbar: some ToolbarContent {
-        // The title with the reader's face stands on the black, without the
-        // glass pill iOS 26 puts behind a toolbar item.
+    private var headerItem: some ToolbarContent {
+        // On the black, without the glass pill iOS 26 puts behind an item.
         if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .topBarLeading) { title }
+            ToolbarItem(placement: .principal) { header }
                 .sharedBackgroundVisibility(.hidden)
         } else {
-            ToolbarItem(placement: .topBarLeading) { title }
-        }
-
-        // One capsule on iOS 26, which groups neighbouring toolbar buttons.
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                composing = true
-            } label: {
-                Image(systemName: "plus")
-            }
-            .disabled(needsOwnChart)
-            .accessibilityLabel(L("chats.new"))
-
-            Button {
-                toggleSearch()
-            } label: {
-                Image(systemName: "magnifyingglass")
-            }
-            .disabled(needsOwnChart || chats.isEmpty)
-            .accessibilityLabel(L("chats.searchPrompt"))
+            ToolbarItem(placement: .principal) { header }
         }
     }
 
-    private var title: some View {
-        HStack(spacing: 10) {
-            if let ownCard {
-                ChatAvatar(card: ownCard, size: 34)
+    /// The title with "+" and search beside it, or, while searching, the
+    /// search field and a close button in its place: one row of the same
+    /// height either way, so the list under it stays where it is.
+    private var header: some View {
+        ZStack {
+            if searching {
+                searchBar
+                    .transition(.opacity)
+            } else {
+                titleBar
+                    .transition(.opacity)
             }
-            Text(L("chats.title"))
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.white)
-                .fixedSize()
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isHeader)
+        .frame(width: max(width - 2 * Metrics.side, 0), height: Metrics.control)
+        .animation(.easeInOut(duration: 0.2), value: searching)
+    }
+
+    private var titleBar: some View {
+        HStack(spacing: 12) {
+            title
+            Spacer(minLength: 0)
+            actions
+        }
+    }
+
+    /// "+" and search in one glass capsule.
+    private var actions: some View {
+        HStack(spacing: 0) {
+            headerButton("plus", label: L("chats.new"), disabled: needsOwnChart) {
+                composing = true
+            }
+            headerButton("magnifyingglass", label: L("chats.searchPrompt"), disabled: needsOwnChart || chats.isEmpty) {
+                toggleSearch()
+            }
+        }
+        .padding(.horizontal, 4)
+        .frame(height: Metrics.control)
+        .weatherGlass(in: Capsule(), interactive: true)
+    }
+
+    private func headerButton(
+        _ symbol: String,
+        label: String,
+        disabled: Bool,
+        perform: @escaping () -> Void
+    ) -> some View {
+        Button(action: perform) {
+            Image(systemName: symbol)
+                .font(.system(size: 19, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: Metrics.control)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
+        .opacity(disabled ? 0.35 : 1)
+        .accessibilityLabel(label)
+    }
+
+    private var title: some View {
+        Text(L("chats.title"))
+            .font(.system(size: 24, weight: .bold))
+            .foregroundStyle(.white)
+            .fixedSize()
+            .accessibilityAddTraits(.isHeader)
     }
 
     private func toggleSearch() {
         searching.toggle()
-        if searching {
-            searchFocused = true
-        } else {
+        if !searching {
             query = ""
             searchFocused = false
         }
     }
 
-    private var searchField: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Color(white: 0.55))
-                TextField(L("chats.searchPrompt"), text: $query)
-                    .font(.system(size: 17))
-                    .foregroundStyle(.white)
-                    .focused($searchFocused)
-                    .submitLabel(.search)
-                    .autocorrectionDisabled()
-            }
-            .padding(.horizontal, 12)
-            .frame(height: 38)
-            .background(Capsule().fill(Color(white: 0.12)))
+    /// The field where the title was, with a round close button beside it.
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            ChatSearchField(prompt: L("chats.searchField"), text: $query, focus: $searchFocused)
 
-            Button(L("common.cancel")) { toggleSearch() }
-                .font(.system(size: 17))
-                .foregroundStyle(.white)
+            Button(action: toggleSearch) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: Metrics.control, height: Metrics.control)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .weatherGlass(in: Circle(), interactive: true)
+            .accessibilityLabel(L("common.cancel"))
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
-        .padding(.bottom, 8)
+        .task {
+            // Once the field is on screen: focusing it in the same pass as
+            // the tap that adds it is dropped.
+            try? await Task.sleep(for: .milliseconds(60))
+            searchFocused = true
+        }
     }
 
     // MARK: - Content
@@ -230,10 +271,6 @@ struct ChatsScreen: View {
             OwnChartChooser(list: list)
         } else {
             VStack(spacing: 0) {
-                if searching {
-                    searchField
-                }
-
                 switch state {
                 case .loading:
                     ProgressView()
@@ -266,22 +303,25 @@ struct ChatsScreen: View {
         }
     }
 
+    /// A plain column rather than a List: the line between rows starts under
+    /// the name and runs to the edge of the screen, as in the reference.
     private var rows: some View {
-        List {
-            ForEach(visibleChats) { chat in
-                Button {
-                    path.append(.chat(chat))
-                } label: {
-                    ChatRow(chat: chat)
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(visibleChats) { chat in
+                    Button {
+                        path.append(.chat(chat))
+                    } label: {
+                        ChatRow(chat: chat)
+                    }
+                    .buttonStyle(ChatRowButtonStyle())
+
+                    if chat.id != visibleChats.last?.id {
+                        ChatRowSeparator()
+                    }
                 }
-                .buttonStyle(.plain)
-                .listRowBackground(Color.black)
-                .listRowSeparatorTint(Color(white: 0.2))
-                .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
             }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.immediately)
         .refreshable { await load() }
     }
@@ -363,14 +403,16 @@ struct ChatRow: View {
         chat.lastMessage?.body.replacingOccurrences(of: "\n", with: " ") ?? ""
     }
 
-    var body: some View {
-        HStack(spacing: 12) {
-            ChatAvatar(card: chat.peer, size: 52)
+    private typealias Metrics = ChatsScreen.Metrics
 
-            VStack(alignment: .leading, spacing: 4) {
+    var body: some View {
+        HStack(spacing: Metrics.faceGap) {
+            ChatAvatar(card: chat.peer, size: Metrics.face)
+
+            VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 6) {
                     Text(chat.peer.displayName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.system(size: 17, weight: .medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
 
@@ -407,12 +449,60 @@ struct ChatRow: View {
                     }
                 }
             }
-            // The line between rows starts under the text, not under the face.
-            .alignmentGuide(.listRowSeparatorLeading) { dimensions in dimensions[.leading] }
         }
+        .padding(.horizontal, Metrics.side)
+        .frame(minHeight: Metrics.row)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityValue(isUnread ? L(count: chat.unreadCount, "chats.unreadCount") : "")
+    }
+}
+
+/// A row greys a little under the finger, full width, as a list row would.
+struct ChatRowButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(Color(white: configuration.isPressed ? 0.11 : 0))
+    }
+}
+
+/// The hairline between rows: from under the name to the edge of the screen.
+struct ChatRowSeparator: View {
+
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        Rectangle()
+            .fill(Color(white: 0.2))
+            .frame(height: 1 / displayScale)
+            .padding(.leading, ChatsScreen.Metrics.side + ChatsScreen.Metrics.face + ChatsScreen.Metrics.faceGap)
+    }
+}
+
+/// The search capsule of the chats and of "New Message".
+struct ChatSearchField: View {
+
+    let prompt: String
+    @Binding var text: String
+    var focus: FocusState<Bool>.Binding
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(Color(white: 0.6))
+            TextField(prompt, text: $text)
+                .font(.system(size: 17))
+                .foregroundStyle(.white)
+                .focused(focus)
+                .submitLabel(.search)
+                .autocorrectionDisabled()
+        }
+        .padding(.leading, 15)
+        .padding(.trailing, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: ChatsScreen.Metrics.control)
+        .weatherGlass(in: Capsule())
     }
 }
 

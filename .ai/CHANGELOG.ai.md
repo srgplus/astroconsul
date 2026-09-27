@@ -4,6 +4,31 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Chats sized after the reference, neutral faces, Message on a chart
+The owner compared the chats with the messenger they picked and asked for it
+as close as possible:
+- **List header.** "Chat" (RU "Чат"), 24pt bold, without the reader's own
+  face; "+" and search in one 40pt glass capsule. The whole header is the nav
+  bar's `.principal` item stretched to the sheet width minus 19pt a side, not
+  a hidden bar: a hidden bar on the list made the pushed chat's bar jump in.
+- **Search** replaces the header in place: a 40pt capsule ("Search chats and
+  messages…", key `chats.searchField`) and a round close button. The rows do
+  not move. `ChatSearchField` is shared with "New Message".
+- **Rows** are a `LazyVStack`, not a `List`: 41pt faces, 64pt rows, 19pt
+  margins, names medium, a hairline from under the name to the screen edge
+  (`ChatRowSeparator`), grey under the finger (`ChatRowButtonStyle`). Sizes in
+  `ChatsScreen.Metrics`.
+- **New Message** uses the same rows, with the search capsule on top: iOS 26
+  put `.searchable` at the bottom of the sheet, half off the screen.
+- **Faces** are neutral: white Sun glyph (72% of the circle) on grey, as
+  Activity draws people. The element colours read as a colouring book.
+- **Chart strip.** Your own chart's heart is white and empty, not red: red is
+  the state after a tap, and your own cannot be tapped. Someone's own chart
+  (`canMessage`) gets `MessageButton` beside the follow button. The strip is a
+  `ViewThatFits`: one line; then "Message" as a bubble; then the counts and
+  heart on top with Following | Message sharing a line below. Counts are never
+  cut short.
+
 ### The heart counts every like ever, and owners cannot like their own charts
 The number beside the heart used to be the likes on today's state (word +
 day) and dropped to 0 whenever either changed. The owner wanted it to grow

@@ -358,6 +358,28 @@ enum WeatherPreviewData {
         )
     }
 
+    /// A sample page as somebody else's own chart that the reader follows,
+    /// for `-uiPreviewOthers`: it can be written to, and its counts show
+    /// unless `showsCounts` is off, as for an owner who hides them.
+    static func someoneElse(_ profile: ProfileSummary, showsCounts: Bool) -> ProfileSummary {
+        var other = ProfileSummary(
+            profileId: profile.profileId,
+            profileName: profile.profileName,
+            username: profile.username,
+            locationName: profile.locationName,
+            localBirthDatetime: profile.localBirthDatetime,
+            latestTransit: profile.latestTransit,
+            isOwn: false,
+            isFollowing: true,
+            followersCount: showsCounts ? 1240 : nil,
+            followingCount: showsCounts ? 312 : nil,
+            natalSummary: profile.natalSummary,
+            likesTotal: profile.likesTotal
+        )
+        other.canMessage = true
+        return other
+    }
+
     private static func make(
         name: String,
         handle: String,
