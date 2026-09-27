@@ -56,6 +56,25 @@ struct ProfileSummary: Codable, Hashable, Identifiable {
     /// screen that shows a profile's chart before you follow it.
     let natalSummary: NatalSummary?
 
+    /// Today's likes on this chart and whether the viewer liked it today.
+    /// `var` with a default rather than `let`, so the synthesized initializer
+    /// takes them as optional trailing arguments and every sample profile
+    /// built before likes existed still compiles — and a payload from a
+    /// backend that predates them still decodes.
+    var likesCount: Int? = nil
+    var isLiked: Bool? = nil
+
+    /// A like is for a state of the sky — the feels-like word, today — so
+    /// the counts come per state: how many each of today's states has, and
+    /// which of them the viewer liked. The heart reads the entry for the word
+    /// it is drawn over.
+    var stateLikes: [String: Int]? = nil
+    var myStateLikes: [String]? = nil
+
+    /// The profile's owner follows one of the viewer's own profiles: the
+    /// "Follows you" under a followed chart.
+    var followsYou: Bool? = nil
+
     var id: String { profileId }
 
     /// `true` for the user's own profiles, `false` for followed ones.

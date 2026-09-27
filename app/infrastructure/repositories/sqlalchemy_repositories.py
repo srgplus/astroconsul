@@ -18,6 +18,7 @@ from app.infrastructure.persistence.models import (
     NatalChartModel,
     ProfileFollowModel,
     ProfileInviteModel,
+    ProfileLikeModel,
     ProfileModel,
     UserModel,
 )
@@ -431,8 +432,9 @@ class SqlAlchemyProfileRepository:
             model = session.get(ProfileModel, profile_id)
             if model is None:
                 raise FileNotFoundError(f"Natal profile not found: {profile_id}")
-            # Delete related follows
+            # Delete related follows and likes: both hold a foreign key to it
             session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.profile_id == profile_id))
+            session.execute(delete(ProfileLikeModel).where(ProfileLikeModel.profile_id == profile_id))
             # Delete related latest_transit
             if model.latest_transit is not None:
                 session.delete(model.latest_transit)

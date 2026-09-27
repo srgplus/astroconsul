@@ -106,6 +106,116 @@ actor APIClient {
         "/api/v1/profiles/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)/follow"
     }
 
+    // MARK: - Social
+
+    /// Likes a chart, and answers with its counts as they stand afterwards.
+    /// The route refuses the caller's own profile (400) and, across a block,
+    /// answers the way a missing profile would.
+    ///
+    /// A like is for the state on screen: `feelsLike` is the word the page
+    /// shows and `tii` its index, kept with the like so the chart's owner
+    /// reads which of their states was liked.
+    func likeProfile(id: String, feelsLike: String?, tii: Double?) async throws -> LikeResponse {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let feels_like: String?
+            let tii: Double?
+        }
+        return try await send(likePath(id), method: "POST", body: Body(feels_like: feelsLike, tii: tii))
+    }
+
+    /// Takes back the like on one of today's states.
+    func unlikeProfile(id: String, feelsLike: String?) async throws -> LikeResponse {
+        try await send(
+            likePath(id),
+            method: "DELETE",
+            query: feelsLike.map { [URLQueryItem(name: "feels_like", value: $0)] } ?? [],
+            body: Optional<EmptyResponse>.none
+        )
+    }
+
+    private func likePath(_ id: String) -> String {
+        "/api/v1/profiles/\(Self.escape(id))/like"
+    }
+
+    /// Likes and follows on the caller's own profiles, newest first. Reading
+    /// it marks nothing: `markActivitySeen` says the screen was looked at.
+    func fetchActivity() async throws -> ActivityResponse {
+        try await get("/api/v1/activity")
+    }
+
+    /// The badge number alone, cheap enough to ask on every return to the app.
+    func fetchUnreadActivityCount() async throws -> Int {
+        let response: UnreadActivityResponse = try await get("/api/v1/activity/unread")
+        return response.unreadCount
+    }
+
+    func markActivitySeen() async throws {
+        let _: EmptyResponse = try await send(
+            "/api/v1/activity/seen",
+            method: "POST",
+            body: Optional<EmptyResponse>.none
+        )
+    }
+
+    /// Who likes one of the caller's own charts. Owner-only: 403 otherwise.
+    func fetchLikers(profileId: String) async throws -> [SocialPerson] {
+        let response: SocialPeopleResponse = try await get("/api/v1/profiles/\(Self.escape(profileId))/likes")
+        return response.people
+    }
+
+    /// Who follows one of the caller's own charts. Owner-only: 403 otherwise.
+    func fetchFollowers(profileId: String) async throws -> [SocialPerson] {
+        let response: SocialPeopleResponse = try await get("/api/v1/profiles/\(Self.escape(profileId))/followers")
+        return response.people
+    }
+
+    /// Blocks the account that owns a profile. A profile is the only handle
+    /// the app has on the person behind it — account ids never leave the API.
+    func blockOwner(ofProfile profileId: String) async throws {
+        struct Body: Encodable { let profile_id: String }
+        let _: EmptyResponse = try await send(
+            "/api/v1/blocks",
+            method: "POST",
+            body: Body(profile_id: profileId)
+        )
+    }
+
+    func fetchBlockedAccounts() async throws -> [BlockedAccount] {
+        let response: BlocksResponse = try await get("/api/v1/blocks")
+        return response.blocks
+    }
+
+    func unblock(blockId: Int) async throws {
+        let _: EmptyResponse = try await send(
+            "/api/v1/blocks/\(blockId)",
+            method: "DELETE",
+            body: Optional<EmptyResponse>.none
+        )
+    }
+
+    /// Files a report for a person to review, and blocks the owner in the
+    /// same step when `block` is set.
+    func reportProfile(
+        id: String,
+        reason: ReportReason,
+        details: String?,
+        block: Bool
+    ) async throws -> ReportResponse {
+        // Snake case spelled out: the encoder here converts nothing.
+        struct Body: Encodable {
+            let profile_id: String
+            let reason: String
+            let details: String?
+            let block: Bool
+        }
+        return try await send(
+            "/api/v1/reports",
+            method: "POST",
+            body: Body(profile_id: id, reason: reason.rawValue, details: details, block: block)
+        )
+    }
+
     // MARK: - Discovery
 
     /// Public profile search. The route drops the caller's own profiles but

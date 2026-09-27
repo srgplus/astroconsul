@@ -16,8 +16,11 @@ from app.infrastructure.persistence.models import (
     LatestTransitModel,
     ProfileFollowModel,
     ProfileInviteModel,
+    ProfileLikeModel,
     ProfileModel,
+    ProfileReportModel,
     SubscriptionModel,
+    UserBlockModel,
     UserModel,
 )
 from app.infrastructure.persistence.session import session_scope
@@ -38,8 +41,9 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
     """Permanently delete the authenticated user's account and all associated data.
 
     Removes: user row, profiles, natal charts used only by this user's profiles,
-    latest transit snapshots, follow relationships, invites, subscriptions,
-    and the Supabase Auth record itself.
+    latest transit snapshots, follow relationships, likes given and received,
+    blocks either way, reports this user filed, invites, subscriptions, and
+    the Supabase Auth record itself.
 
     This is irreversible. Required by App Store guideline 5.1.1(v).
     """
@@ -57,9 +61,17 @@ def delete_account(user: dict[str, Any] = Depends(get_current_user)) -> Response
             if profile_ids:
                 session.execute(delete(LatestTransitModel).where(LatestTransitModel.profile_id.in_(profile_ids)))
                 session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.profile_id.in_(profile_ids)))
+                session.execute(delete(ProfileLikeModel).where(ProfileLikeModel.profile_id.in_(profile_ids)))
                 session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.profile_id.in_(profile_ids)))
 
             session.execute(delete(ProfileFollowModel).where(ProfileFollowModel.user_id == user_id))
+            session.execute(delete(ProfileLikeModel).where(ProfileLikeModel.user_id == user_id))
+            session.execute(
+                delete(UserBlockModel).where(
+                    (UserBlockModel.blocker_id == user_id) | (UserBlockModel.blocked_id == user_id)
+                )
+            )
+            session.execute(delete(ProfileReportModel).where(ProfileReportModel.reporter_id == user_id))
             session.execute(delete(ProfileInviteModel).where(ProfileInviteModel.invited_by == user_id))
             session.execute(delete(ProfileModel).where(ProfileModel.user_id == user_id))
             session.execute(delete(SubscriptionModel).where(SubscriptionModel.user_id == user_id))

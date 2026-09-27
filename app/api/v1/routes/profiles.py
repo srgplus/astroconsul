@@ -22,6 +22,7 @@ from app.api.paywall import (
     strip_profile_detail,
     strip_transit_report,
 )
+from app.api.v1.routes.social import guard_block
 from app.application.services.chart_service import ChartService
 from app.application.services.location_lookup_service import LocationLookupService
 from app.application.services.profile_service import ProfileService
@@ -34,6 +35,7 @@ from app.data.natal_lookup import (
     get_planet_in_sign,
 )
 from app.domain.astrology.locations import LocationResolutionError, resolve_location_name
+from app.domain.moderation import check_profile_text
 from app.infrastructure.repositories.factory import RepositoryBundle
 from app.schemas.requests import (
     ForecastRequest,
@@ -225,7 +227,23 @@ def list_profiles(
     known = _visible_profile_ids(result)
     result["favorite_profile_ids"] = _keep_known(arrangement.get("favorite_profile_ids", []), known)
     result["profile_order"] = _keep_known(arrangement.get("profile_order", []), known)
+    _attach_social_counts(repos, result.get("profiles") or [], user["user_id"])
     return result
+
+
+def _attach_social_counts(repos: RepositoryBundle, profiles: list[dict[str, Any]], viewer_id: str) -> None:
+    """Likes, followers and the viewer's own like on every card of a listing,
+    in one batch: the saved list shows its owner what came back, and a search
+    result shows a stranger's chart with its count before anyone follows it."""
+    if repos.social is None or not profiles:
+        return
+    counts = repos.social.social_counts([str(p["profile_id"]) for p in profiles], viewer_id)
+    # Whose owners follow the viewer back. Read off the owner id each summary
+    # still carries, so callers attach before they strip it.
+    followers = repos.social.followers_among(viewer_id, {str(p.get("user_id") or "") for p in profiles})
+    for profile in profiles:
+        profile.update(counts.get(str(profile["profile_id"]), {}))
+        profile["follows_you"] = str(profile.get("user_id") or "") in followers
 
 
 @router.put("/arrangement")
@@ -272,7 +290,11 @@ def search_public_profiles(
 ) -> dict[str, object]:
     results = repos.profiles.search_public(q)
     current_user_id = user["user_id"]
-    filtered = [r for r in results if r.get("user_id") != current_user_id]
+    # Neither side of a block finds the other: the blocker asked not to see
+    # them, and the blocked account is not told there is anything to find.
+    blocked = repos.social.blocked_user_ids(current_user_id) if repos.social is not None else set()
+    filtered = [r for r in results if r.get("user_id") != current_user_id and r.get("user_id") not in blocked]
+    _attach_social_counts(repos, filtered, current_user_id)
     # Strip user_id from response — callers don't need it
     for r in filtered:
         r.pop("user_id", None)
@@ -286,9 +308,11 @@ def follow_profile(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, str]:
     try:
-        repos.profiles.load_profile(profile_id)
+        profile = repos.profiles.load_profile(profile_id)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    if repos.social is not None:
+        guard_block(repos.social, user["user_id"], profile)
     repos.profiles.follow_profile(user["user_id"], profile_id)
     return {"status": "ok"}
 
@@ -312,6 +336,7 @@ def create_profile(
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, object]:
     try:
+        check_profile_text(payload.profile_name, payload.username)
         chart_id, chart_reference, chart = chart_service.build_chart_from_request(
             payload,
             save_chart_fn=repos.charts.save_chart,
@@ -362,9 +387,32 @@ def profile_detail(
         result["profile"]["following_count"] = profile_data["following_count"]
         result["profile"]["is_following"] = profile_data["is_following"]
         result["profile"]["is_own"] = profile_data["is_own"]
+        _attach_likes(repos, result["profile"], profile_data, user_id)
         return result if is_pro else strip_profile_detail(result)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+def _attach_likes(
+    repos: RepositoryBundle,
+    target: dict[str, Any],
+    profile_data: dict[str, Any],
+    viewer_id: str,
+) -> None:
+    """The profile's likes, the viewer's own, and whether its owner follows
+    the viewer back — or a 404 when the owner has blocked the viewer, since a
+    blocked account is shown nothing of the blocker's."""
+    social = repos.social
+    if social is None:
+        return
+    owner = str(profile_data.get("user_id", "user_local_dev"))
+    if not profile_data.get("is_own") and social.blocker_of(viewer_id, owner) not in (None, viewer_id):
+        raise HTTPException(status_code=404, detail=f"Natal profile not found: {profile_data.get('profile_id')}")
+    counts = social.social_counts([str(profile_data["profile_id"])], viewer_id)[str(profile_data["profile_id"])]
+    # Everything a listing carries — today's likes per state, the viewer's own,
+    # the totals — so the detail and the list never disagree about a heart.
+    target.update(counts)
+    target["follows_you"] = False if profile_data.get("is_own") else social.follows_viewer(owner, viewer_id)
 
 
 @router.delete("/{profile_id}")
@@ -394,6 +442,7 @@ def update_profile(
     try:
         existing_profile = repos.profiles.load_profile(profile_id)
         _verify_ownership(existing_profile, user["user_id"])
+        check_profile_text(payload.profile_name, payload.username)
         previous_chart_id = str(existing_profile["chart_id"])
         chart_id, chart_reference, chart = chart_service.build_chart_from_request(
             payload,

@@ -12,8 +12,8 @@ import Foundation
 /// translated for both halves of the app. The rest are native-only screens.
 enum Strings {
 
-    static let en: [String: String] = merge(enUI, enAstro, enMood, enGuide)
-    static let ru: [String: String] = merge(ruUI, ruAstro, ruMood, ruGuide)
+    static let en: [String: String] = merge(enUI, enSocial, enAstro, enMood, enGuide)
+    static let ru: [String: String] = merge(ruUI, ruSocial, ruAstro, ruMood, ruGuide)
 
     private static func merge(_ tables: [String: String]...) -> [String: String] {
         tables.reduce(into: [:]) { all, table in
@@ -369,6 +369,93 @@ private let enUI: [String: String] = [
     "error.tooMany": "Too many attempts. Wait a minute and try again.",
     "error.badDetails": "That did not work. Check the details and try again.",
     "error.noURL": "Could not build a URL for %@.",
+]
+
+// MARK: - English: social
+
+/// Likes, Activity, followers, report and block. A table of its own so the
+/// social screens can be read and translated as one piece.
+private let enSocial: [String: String] = [
+    "social.someone": "A big3.me member",
+    "social.following": "Following",
+    "social.followBack": "Follow back",
+    "social.followsYou": "Follows you",
+    "social.like": "Like",
+    "social.unlike": "Unlike",
+    "social.likeFailed": "Could not update the like",
+    "social.likesCount.one": "%d like",
+    "social.likesCount.few": "%d likes",
+    "social.likesCount.many": "%d likes",
+    "social.followersCount.one": "%d follower",
+    "social.followersCount.few": "%d followers",
+    "social.followersCount.many": "%d followers",
+    "social.report": "Report…",
+    "social.block": "Block…",
+    "social.follow": "Follow",
+    "social.followingHint": "Asks before unfollowing",
+    "unfollow.title": "Unfollow %@?",
+    "unfollow.body": "Their chart leaves your list. You can follow again at any time.",
+    "people.following": "Following",
+    "people.noFollowing": "You don't follow anyone yet.",
+
+    "activity.title": "Activity",
+    "activity.loadFailed": "Could not load activity",
+    "activity.emptyTitle": "No activity yet",
+    "activity.emptyBody": "When someone follows or likes one of your charts, it shows up here.",
+    "activity.findPeople": "Find people",
+    "activity.new": "New",
+    "activity.earlier": "Earlier",
+    "activity.recent": "Recent",
+    "activity.likedYours": "liked your chart",
+    "activity.likedOther": "liked %@",
+    "activity.followedYou": "started following you",
+    "activity.followedOther": "started following %@",
+    "activity.filterAll": "All",
+    "activity.filterMine": "My chart",
+    "activity.filterOthers": "Other charts",
+    "activity.nothingHere": "Nothing here yet.",
+    "activity.newCount.one": "%d new",
+    "activity.newCount.few": "%d new",
+    "activity.newCount.many": "%d new",
+
+    "people.followers": "Followers",
+    "people.noFollowers": "No followers yet.",
+
+    "complaint.title": "Report",
+    "complaint.why": "Why are you reporting %@?",
+    "complaint.reason.spam": "Spam or fake account",
+    "complaint.reason.harassment": "Harassment or bullying",
+    "complaint.reason.impersonation": "Pretending to be someone else",
+    "complaint.reason.inappropriate": "Offensive name or content",
+    "complaint.reason.other": "Something else",
+    "complaint.details": "Details",
+    "complaint.detailsPrompt": "Optional",
+    "complaint.alsoBlock": "Also block this person",
+    "complaint.footer": "Every report is reviewed by a person within 24 hours. The account you report is not told who reported it.",
+    "complaint.send": "Send",
+    "complaint.failed": "Could not send the report",
+    "complaint.thanksTitle": "Thanks for telling us",
+    "complaint.thanksBody": "We'll review it within 24 hours.",
+    "complaint.thanksBlocked": "We'll review it within 24 hours. You won't see this person's charts, and they can't find or follow yours.",
+
+    "block.title": "Block %@?",
+    "block.confirm": "Block",
+    "block.body": "They won't be able to find, follow or like your charts, and you won't see theirs. Follows and likes between you are removed. They aren't told.",
+    "block.failed": "Could not block",
+
+    "blocked.title": "Blocked accounts",
+    "blocked.empty": "You haven't blocked anyone.",
+    "blocked.footer": "People you block can't find, follow or like your charts. Unblocking doesn't bring back follows.",
+    "blocked.unblock": "Unblock",
+    "blocked.failed": "Something went wrong",
+
+    "settings.community": "Community",
+    "settings.guidelines": "Terms and community rules",
+    "settings.privacy": "Privacy policy",
+    "settings.contact": "Contact support",
+    "settings.communityFooter": "A question, or a problem with someone's profile? Write to %@. We answer within 24 hours.",
+
+    "auth.terms": "By continuing, you agree to the [Terms of Use](%@), including the community rules, and the [Privacy Policy](%@). big3.me is for people 13 and older.",
 ]
 
 private let enAstro: [String: String] = [
@@ -1006,6 +1093,91 @@ private let ruUI: [String: String] = [
     "error.tooMany": "Слишком много попыток. Подождите минуту и попробуйте снова.",
     "error.badDetails": "Не получилось. Проверьте данные и попробуйте снова.",
     "error.noURL": "Не удалось построить URL для %@.",
+]
+
+// MARK: - Russian: social
+
+private let ruSocial: [String: String] = [
+    "social.someone": "Участник big3.me",
+    "social.following": "Подписаны",
+    "social.followBack": "Подписаться",
+    "social.followsYou": "Подписан(а) на вас",
+    "social.like": "Лайкнуть",
+    "social.unlike": "Убрать лайк",
+    "social.likeFailed": "Не удалось поставить лайк",
+    "social.likesCount.one": "%d лайк",
+    "social.likesCount.few": "%d лайка",
+    "social.likesCount.many": "%d лайков",
+    "social.followersCount.one": "%d подписчик",
+    "social.followersCount.few": "%d подписчика",
+    "social.followersCount.many": "%d подписчиков",
+    "social.report": "Пожаловаться…",
+    "social.block": "Заблокировать…",
+    "social.follow": "Подписаться",
+    "social.followingHint": "Перед отпиской спросит подтверждение",
+    "unfollow.title": "Отписаться от %@?",
+    "unfollow.body": "Карта уйдёт из вашего списка. Подписаться снова можно в любой момент.",
+    "people.following": "Подписки",
+    "people.noFollowing": "Вы пока ни на кого не подписаны.",
+
+    "activity.title": "Активность",
+    "activity.loadFailed": "Не удалось загрузить активность",
+    "activity.emptyTitle": "Пока тихо",
+    "activity.emptyBody": "Когда кто-то подпишется на вашу карту или лайкнет её, это появится здесь.",
+    "activity.findPeople": "Найти людей",
+    "activity.new": "Новое",
+    "activity.earlier": "Ранее",
+    "activity.recent": "Недавнее",
+    "activity.likedYours": "лайкнул(а) вашу карту",
+    "activity.likedOther": "лайкнул(а) карту «%@»",
+    "activity.followedYou": "подписался(-ась) на вас",
+    "activity.followedOther": "подписался(-ась) на карту «%@»",
+    "activity.filterAll": "Все",
+    "activity.filterMine": "Моя карта",
+    "activity.filterOthers": "Другие карты",
+    "activity.nothingHere": "Здесь пока пусто.",
+    "activity.newCount.one": "%d новое",
+    "activity.newCount.few": "%d новых",
+    "activity.newCount.many": "%d новых",
+
+    "people.followers": "Подписчики",
+    "people.noFollowers": "Подписчиков пока нет.",
+
+    "complaint.title": "Жалоба",
+    "complaint.why": "Почему вы жалуетесь на %@?",
+    "complaint.reason.spam": "Спам или фейковый аккаунт",
+    "complaint.reason.harassment": "Оскорбления или травля",
+    "complaint.reason.impersonation": "Выдаёт себя за другого человека",
+    "complaint.reason.inappropriate": "Оскорбительное имя или содержание",
+    "complaint.reason.other": "Другое",
+    "complaint.details": "Подробности",
+    "complaint.detailsPrompt": "Необязательно",
+    "complaint.alsoBlock": "Заодно заблокировать",
+    "complaint.footer": "Каждую жалобу человек рассматривает в течение 24 часов. Владелец профиля не узнает, кто пожаловался.",
+    "complaint.send": "Отправить",
+    "complaint.failed": "Не удалось отправить жалобу",
+    "complaint.thanksTitle": "Спасибо, что сообщили",
+    "complaint.thanksBody": "Мы рассмотрим жалобу в течение 24 часов.",
+    "complaint.thanksBlocked": "Мы рассмотрим её в течение 24 часов. Вы больше не увидите карты этого человека, а он не сможет найти ваши или подписаться на них.",
+
+    "block.title": "Заблокировать %@?",
+    "block.confirm": "Заблокировать",
+    "block.body": "Этот человек не сможет найти ваши карты, подписаться на них или лайкнуть, а вы не будете видеть его карты. Подписки и лайки между вами удалятся. Ему об этом не сообщается.",
+    "block.failed": "Не удалось заблокировать",
+
+    "blocked.title": "Заблокированные",
+    "blocked.empty": "Вы никого не заблокировали.",
+    "blocked.footer": "Заблокированные не могут найти ваши карты, подписаться на них или лайкнуть. После разблокировки подписки не возвращаются.",
+    "blocked.unblock": "Разблокировать",
+    "blocked.failed": "Что-то пошло не так",
+
+    "settings.community": "Сообщество",
+    "settings.guidelines": "Условия и правила сообщества",
+    "settings.privacy": "Политика конфиденциальности",
+    "settings.contact": "Написать в поддержку",
+    "settings.communityFooter": "Вопрос или проблема с чьим-то профилем? Пишите на %@. Отвечаем в течение 24 часов.",
+
+    "auth.terms": "Продолжая, вы принимаете [Условия использования](%@), включая правила сообщества, и [Политику конфиденциальности](%@). big3.me для людей от 13 лет.",
 ]
 
 private let ruAstro: [String: String] = [

@@ -41,6 +41,10 @@ class Settings:
     supabase_anon_key: str | None
     supabase_jwt_secret: str | None
     resend_api_key: str | None
+    # Where a report filed in the app is sent for a person to act on. The
+    # default is the Resend workspace's own address, the one inbox the
+    # sandbox sender can reach before a sending domain is verified.
+    moderation_email: str = "hi@srgplus.com"
 
     @property
     def use_database(self) -> bool:
@@ -87,6 +91,7 @@ def get_settings() -> Settings:
         supabase_anon_key=os.getenv("ASTRO_CONSUL_SUPABASE_ANON_KEY"),
         supabase_jwt_secret=os.getenv("ASTRO_CONSUL_SUPABASE_JWT_SECRET"),
         resend_api_key=os.getenv("ASTRO_CONSUL_RESEND_API_KEY"),
+        moderation_email=os.getenv("ASTRO_CONSUL_MODERATION_EMAIL", "hi@srgplus.com"),
     )
 
 

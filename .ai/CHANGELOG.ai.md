@@ -14,6 +14,68 @@ open. The title row keeps only the title and the age, and the card now ends on
 its last row. The owner chose this layout over a chevron at the foot of the
 card. Do not put the chevron back beside the age.
 
+### The social layer: likes, Activity, block and report
+App Review's call in September put its finger on one thing: the app said
+"social network" in its category, subtitle and review notes, and nothing in it
+let one person do anything to another. Following went one way — a chart's
+owner never learned anyone was there. This is the half that comes back, plus
+what guideline 1.2 requires of any social app.
+
+**Backend.** `app/api/v1/routes/social.py`, backed by
+`app/infrastructure/repositories/social_repositories.py` (SQL and file
+implementations of one `SocialRepository`, on `RepositoryBundle.social`):
+
+- `POST/DELETE /profiles/{id}/like` — likes the *state* on screen: body
+  `{feels_like, tii}`, keyed on (account, profile, day in the profile's zone,
+  word). When the word changes or the day does, it is new content and the
+  heart is empty again; `DELETE ?feels_like=` takes back one state. Not your
+  own (400). Listings, search results and profile detail carry `state_likes`
+  (today, per word), `my_state_likes`, `likes_count`/`is_liked` (today, any
+  word), `likes_total`, `followers_count` and `follows_you`.
+- `GET /profiles/{id}/likes` and `/followers` — owner only.
+- `GET /activity`, `GET /activity/unread`, `POST /activity/seen` — likes and
+  follows on every chart the account owns, newest first, unread against
+  `users.activity_seen_at`. Each row's actor is a *card*: the account shown as
+  its primary profile (or its last-touched one), with Big 3 and last reading.
+- `POST /blocks {profile_id}`, `GET /blocks`, `DELETE /blocks/{id}` — account
+  to account. A block deletes every follow and like between the two, hides
+  each from the other's search, and answers the blocked side with the 404 a
+  missing profile gets; the blocker gets a 403 that says how to undo it.
+- `POST /reports` — spam, harassment, impersonation, inappropriate, other;
+  stored in `profile_reports` with a snapshot of name and handle (no FK, so it
+  outlives the profile), mailed to `ASTRO_CONSUL_MODERATION_EMAIL` (default
+  hi@srgplus.com), optional block in the same step.
+- `app/domain/moderation.py` refuses objectionable names and handles on create
+  and edit. Short list on purpose: stems matched anywhere only where no
+  ordinary word hides them, the rest as whole words.
+- Migration `20260927_000001` adds `profile_likes`, `user_blocks`,
+  `profile_reports` and `users.activity_seen_at`, checking before each step.
+  Account deletion removes likes, blocks and the reports the account filed.
+
+**iOS.** A bell in the top-left corner of every page opens Activity (it is the
+account's, not the page's); its count is `SocialStore.unreadActivity`, asked on
+launch and on every return. Under your own chart: followers (opening
+`PeopleSheet`: Followers and Following) and the state's likes (opening
+Activity — likes live there). Under anyone else's: "Following" (asks before
+unfollowing, as the ••• Unfollow does), "Follows you", and the heart last.
+Report and Block sit in the ••• of charts you do not own and in the search
+preview; `ReportSheet` and the `blockConfirmation` modifier are shared.
+Settings has a Community section (blocked accounts, terms, privacy, support
+mail) and sign-in says what continuing agrees to, including the 13+ age.
+`SocialStore` holds the like state every screen reads, so a heart tapped on one
+screen is filled on the next.
+
+**Trying it end to end.** Debug builds take `-apiBaseURL http://127.0.0.1:8001
+-debugAccessToken <jwt>`: run the backend with `ASTRO_CONSUL_AUTH_ENABLED=true`
+and an HS256 `ASTRO_CONSUL_SUPABASE_JWT_SECRET`, mint tokens for a few invented
+users, and sign the simulator in as any of them. Nothing of this exists in
+Release. The harness (`-uiPreviewWeather`) has sample activity, and
+`-uiPreviewActivity` opens straight onto it.
+
+**Menus.** The profile •••'s `.tint(Theme.text)` painted every icon ink,
+destructive ones included; it is `.tint(nil)` now, so Block is red icon and
+all, the way iOS draws a destructive item. Unfollow is a plain item.
+
 ## 2026-09-09
 
 ### A blocked migration chain served 500s, and a failed deploy now stops
