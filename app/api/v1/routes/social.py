@@ -9,7 +9,9 @@ because they are what keeps the rest of it pleasant.
 
 Who may do what:
 
-* anyone signed in may like, block or report a profile that is not their own;
+* anyone signed in may like any profile, their own included — a like on
+  your own sky is counted with the rest and left out of your Activity;
+* anyone signed in may block or report a profile that is not their own;
 * only a profile's owner may see who follows or likes it — anyone else sees
   how many, unless the owner hid the numbers in Settings;
 * a block works in both directions and says nothing to the blocked account:
@@ -115,11 +117,13 @@ def like_profile(
 ) -> dict[str, Any]:
     """Likes the state of the chart's sky the liker has on screen: the
     feels-like word, today in the profile's own zone. When the word changes,
-    or the day does, that is a new state and the heart is empty again."""
+    or the day does, that is a new state and the heart is empty again.
+
+    Your own chart can be liked too: the heart on your page works the way it
+    does on anyone's, rather than being a second way into Activity. Such a
+    like counts with the others and never shows in your own Activity."""
     social = _social(repos)
     profile = _load_profile(repos, profile_id)
-    if _owner(profile) == user["user_id"]:
-        raise HTTPException(status_code=400, detail="You can't like your own profile")
     guard_block(social, user["user_id"], profile)
     # A word the matrix never produces is dropped rather than stored: it is
     # shown to the chart's owner, so it has to be one of ours.

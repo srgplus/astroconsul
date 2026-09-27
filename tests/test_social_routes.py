@@ -106,10 +106,18 @@ class LikeTests(SocialTestCase):
         self.assertEqual(response.json()["likes_count"], 0)
         self.assertFalse(response.json()["is_liked"])
 
-    def test_cannot_like_own_profile(self) -> None:
-        response = self.as_user(ANNA).post(f"/api/v1/profiles/{self.anna_profile}/like")
+    def test_own_chart_can_be_liked_and_stays_out_of_activity(self) -> None:
+        response = self.as_user(ANNA).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})
 
-        self.assertEqual(response.status_code, 400)
+        activity = self.as_user(ANNA).get("/api/v1/activity").json()
+        detail = self.as_user(ANNA).get(f"/api/v1/profiles/{self.anna_profile}").json()["profile"]
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(detail["state_likes"], {"Flowing": 2})
+        self.assertEqual(detail["my_state_likes"], ["Flowing"])
+        self.assertEqual([item["actor"]["username"] for item in activity["items"]], ["boris_i"])
+        self.assertEqual(activity["unread_count"], 1)
 
     def test_a_new_state_can_be_liked_again(self) -> None:
         client = self.as_user(BORIS)

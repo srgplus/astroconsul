@@ -196,7 +196,6 @@ struct CosmicWeatherView: View {
                         tii: model.today?.tii ?? profile.latestTransit?.tii,
                         followingCount: followingCount,
                         onUnfollow: onUnfollow,
-                        onOpenLikes: onOpenActivity,
                         onOpenPeople: onOpenPeople.map { open in { tab in open(profile, tab) } }
                     )
                     .padding(.top, -6)

@@ -8,9 +8,10 @@ import SwiftUI
 /// the sky on screen. Those numbers are numbers only: nobody reads another
 /// person's lists, and an owner can hide the numbers in Settings.
 ///
-/// On your own: the same two counts, each opening who they are, and how many
-/// liked the state on screen, opening Activity where likes live. Activity
-/// itself, which is the whole account's, is the bell in the page's corner.
+/// On your own: the same two counts, each opening who they are, and the same
+/// heart — you can like your own sky. Who liked it is in Activity, the bell
+/// in the page's corner, and not behind the heart: a heart that looks the
+/// same everywhere but opened a list only here was a trap.
 struct SocialStrip: View {
 
     let profile: ProfileSummary
@@ -35,10 +36,9 @@ struct SocialStrip: View {
     var isFollowWorking = false
     var onFollow: (() -> Void)?
     /// Handed up rather than acted on: the presenter asks before unfollowing,
-    /// the same question the ••• menu's Unfollow gets.
+    /// and the alert has to outlive a page the pager may tear down.
     var onUnfollow: ((ProfileSummary) -> Void)?
 
-    var onOpenLikes: (() -> Void)?
     var onOpenPeople: ((PeopleSheet.Tab) -> Void)?
 
     @ObservedObject private var social = SocialStore.shared
@@ -72,15 +72,7 @@ struct SocialStrip: View {
                     // out whenever the counts can give up a little of theirs.
                     .layoutPriority(1)
                 }
-                if isOwn {
-                    pill(
-                        icon: "heart.fill",
-                        text: "\(like.count)",
-                        label: L(count: like.count, "social.likesCount")
-                    ) { onOpenLikes?() }
-                } else {
-                    likePill
-                }
+                likePill
             }
         }
         .frame(maxWidth: .infinity)
@@ -161,8 +153,8 @@ struct SocialStrip: View {
 
     // MARK: - Likes
 
-    /// The heart on someone else's chart: filled and red once this state is
-    /// liked, empty again when the state changes.
+    /// The heart, on anyone's chart and on your own: filled and red once
+    /// this state is liked, empty again when the state changes.
     private var likePill: some View {
         HStack(spacing: 6) {
             Image(systemName: like.isLiked ? "heart.fill" : "heart")
@@ -191,25 +183,6 @@ struct SocialStrip: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L(like.isLiked ? "social.unlike" : "social.like"))
         .accessibilityValue(L(count: like.count, "social.likesCount"))
-        .accessibilityAddTraits(.isButton)
-    }
-
-    private func pill(icon: String, text: String, label: String, action: @escaping () -> Void) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 13, weight: .semibold))
-            Text(text)
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 14)
-        .frame(height: Self.height)
-        .weatherGlass(in: .capsule, tint: 0.2, interactive: true)
-        .contentShape(Capsule())
-        .onTapGesture(perform: action)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(label)
         .accessibilityAddTraits(.isButton)
     }
 }
