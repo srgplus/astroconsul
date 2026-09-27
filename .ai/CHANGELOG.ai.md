@@ -4,6 +4,21 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### The heart answers every tap, and likes do not buzz twice within the hour
+`SocialStore.toggleLike` used to drop any tap made while the last like
+request was out, yet the haptic still fired, so a quick unlike felt like a
+bug. Now every tap flips the heart at once and only records what the reader
+wants (`wanted`); one request per heart runs behind it and, on each answer,
+sends the reader's latest wish if the server lacks it. Like, unlike, like
+while the first is out ends as one request. A failure puts the heart back to
+what the server has. `adopt` skips charts with a heart in flight so a
+listing read before the tap cannot flip it back.
+
+On the server a like pushed only on the first like of the day, but an
+unlike deletes that row, so like/unlike/like buzzed the owner every time.
+`social_push` now keeps likes under the same in-memory quiet hour as follows
+(`QUIET_SECONDS`, `_recent_pushes` keyed by kind, actor and chart).
+
 ### A chart page loads in a fraction of the time: timing search and the forecast
 The owner found profiles slow to open. A page is two requests, the 10-day
 forecast and the transit report with timing, and both were slow for their own
@@ -31,6 +46,7 @@ so every checkout crosses the Pacific. `/health/ready` (one `SELECT 1`)
 answers in ~1.0 s against ~0.25 s for `/health/live`, and the server side of
 `/health/live` is 7 ms. Moving the service next to the database is the next
 step and the owner's call.
+
 ### Chat messages go through the word filter
 Guideline 1.2 asks for a way to stop objectionable material from being
 posted. Names and handles had it; chat messages did not, so a reviewer could

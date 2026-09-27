@@ -42,9 +42,21 @@ final class SocialStore: ObservableObject {
     /// opened. Drives the count on the bell.
     @Published private(set) var unreadActivity = 0
 
-    /// Charts with a like request in flight, so a second tap waits for the
-    /// first instead of racing it.
-    @Published private(set) var pending: Set<String> = []
+    /// One heart: a chart, and the state of its sky the like is for.
+    private struct LikeKey: Hashable {
+        let profileId: String
+        let state: String
+    }
+
+    /// What the reader last asked of each heart, while the server has yet to
+    /// hear it. A tap changes this and the snapshot and nothing else, so the
+    /// heart answers every tap at once, however fast they come.
+    private var wanted: [LikeKey: Bool] = [:]
+
+    /// Hearts with a request out. A tap while one is out is not dropped: it
+    /// changes `wanted`, and the request, once answered, sends what the
+    /// reader wants now if the server does not have it yet.
+    private var pending: Set<LikeKey> = []
 
     /// The last Activity the server sent. The screen opens on it at once and
     /// asks again underneath, rather than standing behind a spinner for a
@@ -102,54 +114,87 @@ final class SocialStore: ObservableObject {
         Snapshot(total: total, mine: Set(mine ?? []))
     }
 
+    /// A snapshot with one state liked or not, the total moved to match.
+    private static func snapshot(_ snapshot: Snapshot, liking liked: Bool, state: String) -> Snapshot {
+        guard snapshot.mine.contains(state) != liked else { return snapshot }
+        var next = snapshot
+        if liked {
+            next.mine.insert(state)
+            next.total = snapshot.total.map { $0 + 1 }
+        } else {
+            next.mine.remove(state)
+            next.total = snapshot.total.map { max($0 - 1, 0) }
+        }
+        return next
+    }
+
     /// Takes the payload's numbers as the truth again, for every chart a
-    /// fresh listing just brought in.
+    /// fresh listing just brought in. Not for a chart whose heart is still
+    /// on its way to the server: the listing was read before the tap landed,
+    /// and would put the heart back for a moment.
     func adopt(_ profiles: [ProfileSummary]) {
         for profile in profiles where profile.myStateLikes != nil {
-            snapshots[profile.profileId] = nil
+            let id = profile.profileId
+            guard !pending.contains(where: { $0.profileId == id }) else { continue }
+            snapshots[id] = nil
         }
     }
 
-    /// Likes or unlikes one state, drawn at once and then corrected to what
-    /// the server says. A refused request puts the heart back, and hands the
-    /// error to the caller to show. Never called on the reader's own charts:
-    /// there the heart is a count and nothing to tap.
+    /// Likes or unlikes one state. The heart flips on every tap, at once:
+    /// the server is told behind it, one request at a time per heart, and
+    /// only what the reader wants by the time the last answer comes is sent.
+    /// Like, unlike, like while the first request is out ends as that one
+    /// like and no more. A refused request puts the heart back to what the
+    /// server has, and hands the error to the caller to show. Never called
+    /// on the reader's own charts: there the heart is a count and nothing to
+    /// tap.
     @discardableResult
     func toggleLike(_ profile: ProfileSummary, state: String, tii: Double?) async -> Error? {
         let id = profile.profileId
-        guard !pending.contains(id) else { return nil }
-
-        let before = snapshot(for: profile)
-        var guess = before
-        let wasLiked = before.mine.contains(state)
-        if wasLiked {
-            guess.mine.remove(state)
-            guess.total = before.total.map { max($0 - 1, 0) }
-        } else {
-            guess.mine.insert(state)
-            guess.total = before.total.map { $0 + 1 }
-        }
-        snapshots[id] = guess
+        let shown = snapshot(for: profile)
+        let liked = !shown.mine.contains(state)
+        snapshots[id] = Self.snapshot(shown, liking: liked, state: state)
 
         #if DEBUG
         if isOffline { return nil }
         #endif
 
-        pending.insert(id)
-        defer { pending.remove(id) }
+        let key = LikeKey(profileId: id, state: state)
+        wanted[key] = liked
+        // The request out for this heart sends this tap when it answers.
+        guard !pending.contains(key) else { return nil }
+        pending.insert(key)
+        defer { pending.remove(key) }
 
-        do {
-            let feelsLike = state.isEmpty ? nil : state
-            let response = wasLiked
-                ? try await api.unlikeProfile(id: id, feelsLike: feelsLike)
-                : try await api.likeProfile(id: id, feelsLike: feelsLike, tii: tii)
-            snapshots[id] = Self.snapshot(total: response.likesTotal, mine: response.myStateLikes)
-            return nil
-        } catch {
-            NSLog("[Social] like toggle failed for \(id): \(error.localizedDescription)")
-            snapshots[id] = before
-            return error.isCancellation ? nil : error
+        let account = generation
+        let feelsLike = state.isEmpty ? nil : state
+        // What the server has: the heart as it was before the first tap.
+        var confirmed = !liked
+        while let want = wanted[key], want != confirmed {
+            do {
+                let response = want
+                    ? try await api.likeProfile(id: id, feelsLike: feelsLike, tii: tii)
+                    : try await api.unlikeProfile(id: id, feelsLike: feelsLike)
+                // Signed out while it was out: the heart was the last account's.
+                guard account == generation else { return nil }
+                confirmed = want
+                // Tapped again meanwhile: the newer guess stays on screen
+                // until the request that carries it answers.
+                if wanted[key] == want {
+                    snapshots[id] = Self.snapshot(total: response.likesTotal, mine: response.myStateLikes)
+                }
+            } catch {
+                guard account == generation else { return nil }
+                NSLog("[Social] like toggle failed for \(id): \(error.localizedDescription)")
+                wanted[key] = nil
+                if let current = snapshots[id] {
+                    snapshots[id] = Self.snapshot(current, liking: confirmed, state: state)
+                }
+                return error.isCancellation ? nil : error
+            }
         }
+        wanted[key] = nil
+        return nil
     }
 
     /// Asks for the unread count. Quiet on failure: a badge that misses one
@@ -265,6 +310,7 @@ final class SocialStore: ObservableObject {
     func reset() {
         snapshots = [:]
         unreadActivity = 0
+        wanted = [:]
         pending = []
         generation += 1
         activityRequest?.cancel()
