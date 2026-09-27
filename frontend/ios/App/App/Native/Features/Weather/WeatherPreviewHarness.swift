@@ -130,7 +130,12 @@ struct WeatherPreviewHarness: View {
                     onOpenPeople: { profile, tab in peopleTarget = PeopleSheet.Target(profile: profile, tab: tab) },
                     onOpenActivity: { showsActivity = true },
                     onOpenChats: { showsChats = true },
-                    onMessage: { _ in showsChats = true },
+                    // Onto that person's chat, over the list, as the home
+                    // screen opens it.
+                    onMessage: { profile in
+                        ChatStore.shared.pendingRoute = .profile(profile)
+                        showsChats = true
+                    },
                     model: CosmicWeatherViewModel(
                         previewDays: WeatherPreviewData.days(for: profile),
                         previewAspects: WeatherPreviewData.aspects,

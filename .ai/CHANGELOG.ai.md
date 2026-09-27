@@ -24,10 +24,12 @@ as close as possible:
   Activity draws people. The element colours read as a colouring book.
 - **Chart strip.** Your own chart's heart is white and empty, not red: red is
   the state after a tap, and your own cannot be tapped. Someone's own chart
-  (`canMessage`) gets `MessageButton` beside the follow button. The strip is a
-  `ViewThatFits`: one line; then "Message" as a bubble; then the counts and
-  heart on top with Following | Message sharing a line below. Counts are never
-  cut short.
+  (`canMessage`) gets `MessageButton` beside the follow button. Wherever there
+  is a button, the counts sit centred on their own line and Following |
+  Message | heart share the line under them, the two buttons evenly; with the
+  counts hidden, that one line stays centred at its own width. "Message"
+  shrinks to its bubble if the line has no room. `-uiPreviewOthers` makes the
+  preview's later pages other people's charts.
 
 ### The heart counts every like ever, and owners cannot like their own charts
 The number beside the heart used to be the likes on today's state (word +
