@@ -216,6 +216,30 @@ class MessageTests(ChatTestCase):
         self.assertEqual(endless.status_code, 422)
         self.assertEqual(self.chats(ANNA)["chats"], [])
 
+    def test_a_message_with_a_forbidden_word_is_not_sent(self) -> None:
+        client = self.as_user(BORIS)
+
+        english = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "You are a b1tch"})
+        russian = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "Ну ты и сука"})
+        spaced = client.post(f"/api/v1/chats/{self.chat_id}/messages", json={"body": "f.u.c.k you"})
+
+        for response in (english, russian, spaced):
+            self.assertEqual(response.status_code, 422, response.text)
+            self.assertIn("can't be sent", response.json()["detail"])
+        self.assertEqual(self.chats(ANNA)["chats"], [])
+        self.assertEqual(self.unread(ANNA), 0)
+
+    def test_ordinary_words_that_hide_a_forbidden_one_go_through(self) -> None:
+        for body in (
+            "Dick and I are going to Scunthorpe on the 5th",
+            "Grapes at 10:45?",
+            "Дебаты в субботу, страхуем друг друга",
+            "Ребане споёт в 7",
+        ):
+            self.send(BORIS, self.chat_id, body)
+
+        self.assertEqual(self.unread(ANNA), 4)
+
     def test_nobody_can_write_to_someone_who_no_longer_has_a_chart(self) -> None:
         self.send(BORIS, self.chat_id, "Hi")
         self.as_user(ANNA).delete(f"/api/v1/profiles/{self.anna_profile}")

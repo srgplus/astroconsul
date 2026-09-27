@@ -24,6 +24,9 @@ final class ChatViewModel: ObservableObject {
         let id: UUID
         let body: String
         var failed: Bool
+        /// The server turned it down for its words. It stays failed, and
+        /// trying again would only fail the same way.
+        var refused = false
     }
 
     @Published private(set) var state: State = .loading
@@ -256,12 +259,21 @@ final class ChatViewModel: ObservableObject {
             if Self.isMissingOwnChart(error) { state = .needsOwnChart }
             if let index = outgoing.firstIndex(where: { $0.id == item.id }) {
                 outgoing[index].failed = true
+                outgoing[index].refused = Self.isRefused(error)
             }
         }
     }
 
     private static func isMissingOwnChart(_ error: Error) -> Bool {
         if case let .http(status, _) = error as? APIError { return status == 409 }
+        return false
+    }
+
+    /// The word filter's answer (`OBJECTIONABLE_STATUS` in the chat routes).
+    /// The composer never sends an empty or overlong message, so a 422 here
+    /// is the words.
+    private static func isRefused(_ error: Error) -> Bool {
+        if case let .http(status, _) = error as? APIError { return status == 422 }
         return false
     }
 

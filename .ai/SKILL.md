@@ -506,7 +506,7 @@ glass capsules opening `PeopleSheet` on your own chart and plain text on others'
 chart the heart is plain text too (red filled heart + total, nothing to tap). Totals are
 shortened by `LikeCount.short` (999, 1.2K, 12K, 1.2M, rounded down). "Follows you"
 only appears in the Following list. The ••• has no Unfollow; Block is a plain item.
-Guideline 1.2 checklist this satisfies: name filter, report, block, contact (Settings → Community,
+Guideline 1.2 checklist this satisfies: word filter (names, handles, chat messages), report, block, contact (Settings → Community,
 big3meapp@gmail.com), and terms with community rules accepted at sign-in (`/legal#community`).
 
 ### Chats (2026-09-27)
@@ -521,7 +521,9 @@ a celebrity's) has nobody behind it, and an account without a primary can neithe
 nor write (409; the chats then ask "Which chart is yours?" inline and claim the answer). Unread and list
 order are by message id, never by time (timestamps are kept to the second). Blocks hide the chat
 both ways and stop sending; unblocking brings it back. Account deletion takes every chat the
-account was in. No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
+account was in. A message goes through the same word filter as a profile's name
+(`moderation.check_message_text`): a hit is 422, nothing is stored, and the app marks the
+bubble "not sent" with the reason and no retry (`Outgoing.refused`). No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
 push in the foreground makes both fetch at once. The icon badge is Activity + messages
 (`social_push.app_badge`, `PushNotifications.syncBadge`).
 iOS: `ChatsButton` beside the bell (`CornerCount` badge shared with it), `ChatsScreen` (list,
