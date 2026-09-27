@@ -39,10 +39,57 @@ struct ActivityScreen: View {
     @ObservedObject private var strings = L10n.shared
     @State private var preview: ProfileSummary?
     @State private var previewError: String?
+    @State private var filter: Filter = .all
+
+    /// Whose charts the list is about. The reader's own chart is the one
+    /// marked primary — "your chart" in the rows — and the rest are charts
+    /// they made for other people, named in the rows.
+    enum Filter: String, CaseIterable, Identifiable {
+        case all
+        case mine
+        case others
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .all: return L("activity.filterAll")
+            case .mine: return L("activity.filterMine")
+            case .others: return L("activity.filterOthers")
+            }
+        }
+    }
+
+    /// Only worth offering to someone who keeps more than one chart; with one,
+    /// every row is about it and the switch would filter nothing.
+    private var offersFilter: Bool { list.ownProfiles.count > 1 }
+
+    private func passes(_ item: ActivityItem) -> Bool {
+        switch filter {
+        case .all: return true
+        case .mine: return item.target.profileId == list.primaryProfileId
+        case .others: return item.target.profileId != list.primaryProfileId
+        }
+    }
+
+    private var unread: [ActivityItem] { model.unread.filter(passes) }
+    private var earlier: [ActivityItem] { model.earlier.filter(passes) }
 
     var body: some View {
         VStack(spacing: 0) {
             header
+
+            if offersFilter, model.state == .loaded, !model.items.isEmpty {
+                Picker("", selection: $filter) {
+                    ForEach(Filter.allCases) { option in
+                        Text(option.label).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 4)
+            }
+
             content
         }
         .tint(.white)
@@ -161,17 +208,26 @@ struct ActivityScreen: View {
         }
     }
 
+    @ViewBuilder
     private var rows: some View {
-        List {
-            if !model.unread.isEmpty {
-                section(L("activity.new"), items: model.unread)
+        if unread.isEmpty, earlier.isEmpty {
+            Text(L("activity.nothingHere"))
+                .font(.system(size: 15, design: .rounded))
+                .foregroundStyle(.white.opacity(0.65))
+                .padding(32)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        } else {
+            List {
+                if !unread.isEmpty {
+                    section(L("activity.new"), items: unread)
+                }
+                if !earlier.isEmpty {
+                    section(L(unread.isEmpty ? "activity.recent" : "activity.earlier"), items: earlier)
+                }
             }
-            if !model.earlier.isEmpty {
-                section(L(model.unread.isEmpty ? "activity.recent" : "activity.earlier"), items: model.earlier)
-            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
     }
 
     private func section(_ title: String, items: [ActivityItem]) -> some View {
