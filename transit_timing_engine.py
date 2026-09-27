@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 
 import swisseph as swe
@@ -12,6 +13,12 @@ swe.set_ephe_path(str(EPHE_PATH))
 
 TIMING_RESOLUTION = timedelta(minutes=1)
 EXACT_TOLERANCE = 0.01
+
+# How finely each pass of `minimum_on_minute_grid` samples its bracket, and the
+# bracket width (in minutes) below which it stops narrowing and reads every
+# minute.
+REFINE_SAMPLES = 32
+REFINE_EXHAUSTIVE_MINUTES = 64
 
 SCAN_SETTINGS: dict[str, dict[str, timedelta]] = {
     "Moon": {"step": timedelta(minutes=30), "horizon": timedelta(days=7)},
@@ -265,6 +272,62 @@ def sample_points(
     return sorted(set(samples))
 
 
+def minimum_on_minute_grid(
+    error_at: Callable[[datetime], float],
+    start_utc: datetime,
+    end_utc: datetime,
+) -> tuple[datetime, float] | None:
+    """The earliest of the smallest errors at start, start + 1 min, ... <= end.
+
+    What reading every minute of the bracket gives, from a few dozen readings
+    rather than thousands: a bracket two coarse steps wide is 2,880 minutes for
+    an outer planet, and that minute-by-minute walk was most of the time a
+    transit report took.
+
+    Each pass samples the bracket at an even stride and keeps only the stretch
+    between the best sample's two neighbours, until the stretch is short
+    enough to read whole. Every sample sits on the same minute grid the walk
+    used, so the moments and the cache keys match it. The error across a
+    bracket between two coarse samples falls to one minimum and rises again
+    (a planet does not turn back twice in two days), and for such a curve the
+    best minute always lies between the best sample's neighbours, ties
+    included, so nothing the walk would find is narrowed away.
+
+    The one place that does not hold is a bottom flat to the sixth decimal the
+    errors are rounded to: a planet at its station, the true node's wobble.
+    The rounded values flicker there instead of making one dip, and the search
+    can settle up to a quarter of an hour from the walk's minute, on an orb
+    0.000001 deg higher.
+    """
+    if end_utc < start_utc:
+        return None
+
+    low = 0
+    high = (end_utc - start_utc) // TIMING_RESOLUTION
+
+    while True:
+        span = high - low
+        if span <= REFINE_EXHAUSTIVE_MINUTES:
+            steps = list(range(low, high + 1))
+        else:
+            stride = -(-span // REFINE_SAMPLES)
+            steps = list(range(low, high + 1, stride))
+            if steps[-1] != high:
+                steps.append(high)
+
+        # (error, step) orders ties by the earlier minute, as the walk did.
+        best_error, best_step = min(
+            (error_at(start_utc + step * TIMING_RESOLUTION), step) for step in steps
+        )
+
+        if span <= REFINE_EXHAUSTIVE_MINUTES:
+            return start_utc + best_step * TIMING_RESOLUTION, best_error
+
+        position = steps.index(best_step)
+        low = steps[max(0, position - 1)]
+        high = steps[min(len(steps) - 1, position + 1)]
+
+
 def find_peak_within_interval(
     current_utc: datetime,
     *,
@@ -301,19 +364,22 @@ def find_peak_within_interval(
         local_start = start_utc
         local_end = end_utc
 
-    cursor = local_start
-    while cursor <= local_end:
-        error = aspect_error_at(
+    refined = minimum_on_minute_grid(
+        lambda moment: aspect_error_at(
             transit_object_id,
             natal_longitude,
             exact_angle,
-            cursor,
+            moment,
             longitude_cache=longitude_cache,
-        )
-        if error < best_error or (error == best_error and cursor < best_moment):
-            best_moment = cursor
+        ),
+        local_start,
+        local_end,
+    )
+    if refined is not None:
+        moment, error = refined
+        if error < best_error or (error == best_error and moment < best_moment):
+            best_moment = moment
             best_error = error
-        cursor += TIMING_RESOLUTION
 
     return best_moment, round(best_error, 6)
 
@@ -362,16 +428,16 @@ def find_all_exact_passes(
         local_end = samples[min(len(samples) - 1, idx + 1)]
         best_moment, best_error = scored[idx]
 
-        cursor = local_start
-        while cursor <= local_end:
-            error = aspect_error_at(
-                transit_object_id, natal_longitude, exact_angle, cursor,
+        refined = minimum_on_minute_grid(
+            lambda moment: aspect_error_at(
+                transit_object_id, natal_longitude, exact_angle, moment,
                 longitude_cache=longitude_cache,
-            )
-            if error < best_error:
-                best_moment = cursor
-                best_error = error
-            cursor += TIMING_RESOLUTION
+            ),
+            local_start,
+            local_end,
+        )
+        if refined is not None and refined[1] < best_error:
+            best_moment, best_error = refined
 
         if best_error <= tolerance:
             passes.append({

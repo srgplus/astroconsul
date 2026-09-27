@@ -4,6 +4,33 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### A chart page loads in a fraction of the time: timing search and the forecast
+The owner found profiles slow to open. A page is two requests, the 10-day
+forecast and the transit report with timing, and both were slow for their own
+reason:
+- **Timing.** `find_peak_within_interval` and `find_all_exact_passes` walked
+  the bracket around each minimum one minute at a time: 2,880 ephemeris reads
+  for an outer planet (two 1-day coarse steps), per minimum, per aspect. A
+  report took 1.5 s median and up to 9 s on a Mac. `minimum_on_minute_grid`
+  now narrows the bracket in passes of 32 samples on the same minute grid and
+  reads the last 64 minutes whole: ~10x faster (0.17 s median, serial). On 750
+  random moments in 2025-2028 across the three test charts the output is
+  identical to the walk. It differs only where the curve is flat to the
+  6-decimal rounding (a planet at its station, the true node's wobble): there
+  it can settle up to 15 minutes away on an orb 0.000001 deg higher, 9 of
+  ~5,000 aspects in a 2015-2035 sample. `MinimumOnMinuteGridTests` holds it to
+  the walk.
+- **Forecast.** `build_forecast` called `build_transit_report` ten times and
+  each call re-read the chart (`load_saved_chart`): a database round trip per
+  day. It reads once and passes `saved_chart=` through; 12 pool checkouts per
+  forecast became 3.
+
+The rest of the slowness is not code: prod runs in Railway's
+`asia-southeast1` (Singapore) while Supabase is `aws-0-us-west-2` (Oregon),
+so every checkout crosses the Pacific. `/health/ready` (one `SELECT 1`)
+answers in ~1.0 s against ~0.25 s for `/health/live`, and the server side of
+`/health/live` is 7 ms. Moving the service next to the database is the next
+step and the owner's call.
 ### Chat messages go through the word filter
 Guideline 1.2 asks for a way to stop objectionable material from being
 posted. Names and handles had it; chat messages did not, so a reviewer could

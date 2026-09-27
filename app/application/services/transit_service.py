@@ -19,7 +19,7 @@ from app.domain.astrology.tii import (
     feels_like,
     top_active_transits,
 )
-from app.domain.astrology.transits import build_transit_report, build_transit_timeline
+from app.domain.astrology.transits import build_transit_report, build_transit_timeline, load_saved_chart
 from app.domain.astrology.utils import parse_time_string
 
 
@@ -170,6 +170,10 @@ class TransitService:
         start = date.fromisoformat(str(payload.start_date))
         num_days = payload.days
         lang = getattr(payload, "lang", "ru")
+        # Read once for the whole window rather than once per day: on Railway
+        # every read is a trip to the database, and ten of them were most of
+        # the time a forecast took.
+        saved_chart = load_saved_chart(chart_id)
 
         prev_tii: float | None = None
         days: list[dict] = []
@@ -186,6 +190,7 @@ class TransitService:
                 utc_noon.strftime("%H:%M:%S"),
                 include_timing=False,
                 lang=lang,
+                saved_chart=saved_chart,
             )
 
             active_aspects = report.get("active_aspects", [])
