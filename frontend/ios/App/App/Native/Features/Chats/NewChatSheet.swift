@@ -3,16 +3,13 @@ import SwiftUI
 /// Who a new chat can be started with: the people whose own chart the reader
 /// follows, and the people following any of the reader's, each shown as their
 /// own chart. Charts kept for somebody else are not here: there is nobody
-/// behind them to answer.
+/// behind them to answer. Black, like the chats it opens from.
 struct NewChatSheet: View {
-
-    var skyState: SkyState?
 
     /// The person picked. The sheet closes itself after.
     var onPick: (SocialCard) -> Void
 
-    init(skyState: SkyState? = nil, onPick: @escaping (SocialCard) -> Void) {
-        self.skyState = skyState
+    init(onPick: @escaping (SocialCard) -> Void) {
         self.onPick = onPick
     }
 
@@ -34,6 +31,8 @@ struct NewChatSheet: View {
     var body: some View {
         NavigationStack {
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.ignoresSafeArea())
                 .navigationTitle(L("chats.new"))
                 .navigationBarTitleDisplayMode(.inline)
                 .searchable(text: $query, prompt: L("chats.searchPrompt"))
@@ -47,10 +46,9 @@ struct NewChatSheet: View {
                         .accessibilityLabel(L("common.cancel"))
                     }
                 }
-                .hidingBarBackground()
         }
         .tint(.white)
-        .presentationBackground { WeatherGlassBackdrop(state: skyState) }
+        .presentationBackground(Color.black)
         .environment(\.colorScheme, .dark)
         .task { await load() }
     }
@@ -78,7 +76,6 @@ struct NewChatSheet: View {
         } else if people == nil {
             ProgressView()
                 .tint(Theme.spinner)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if people?.isEmpty == true {
             notice(title: L("chats.contactsEmptyTitle"), body: L("chats.contactsEmptyBody"))
         } else {
@@ -88,12 +85,31 @@ struct NewChatSheet: View {
                         onPick(card)
                         dismiss()
                     } label: {
-                        SocialPersonRow(card: card, detail: card.username.map { "@\($0)" })
+                        HStack(spacing: 12) {
+                            ChatAvatar(card: card, size: 44)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(card.displayName)
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                if let username = card.username {
+                                    Text("@\(username)")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Color(white: 0.55))
+                                        .lineLimit(1)
+                                }
+                            }
+                            .alignmentGuide(.listRowSeparatorLeading) { dimensions in dimensions[.leading] }
+
+                            Spacer(minLength: 8)
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparatorTint(.white.opacity(0.12))
-                    .listRowInsets(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
+                    .listRowBackground(Color.black)
+                    .listRowSeparatorTint(Color(white: 0.2))
+                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
                 }
             }
             .listStyle(.plain)
@@ -105,19 +121,18 @@ struct NewChatSheet: View {
         VStack(spacing: Theme.Spacing.base) {
             Image(systemName: "person.2")
                 .font(.system(size: 38, weight: .light))
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(Color(white: 0.5))
 
             Text(title)
-                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .font(.system(.title3).weight(.semibold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
             Text(body)
-                .font(.system(.subheadline, design: .rounded))
-                .foregroundStyle(.white.opacity(0.65))
+                .font(.system(.subheadline))
+                .foregroundStyle(Color(white: 0.6))
                 .multilineTextAlignment(.center)
         }
         .padding(Theme.Spacing.section)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

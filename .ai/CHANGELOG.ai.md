@@ -4,6 +4,27 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-27
 
+### Chats look like the messenger the owner picked: black, faces, tails
+The first version wore the app's frosted sky. The owner sent screenshots of a
+messenger they like and asked for that. The chats are black now:
+- the list: the reader's face beside a bold "Messages", "+" and search in one
+  capsule (iOS 26 groups the two buttons), rows of face, name, date with a
+  chevron and a one-line grey preview, a blue count while unread, and a search
+  field that filters by name or last message;
+- a conversation: the face in the middle of the bar, the name in a capsule
+  under it that opens View Chart, Report and Block (the ••• is gone), blue
+  bubbles right and grey left in plain SF 17, a two-dot tail on the last
+  bubble of each run, "Seen" under your last message, and one capsule for the
+  field with the send button inside, grey until there is text.
+`ChatAvatar` stands in for photos: the Sun sign's glyph on its element's
+colour (fire red, earth green, air gold, water blue). The "You:" prefix on the
+list's preview went, as in the reference. The chats' inline "which chart is
+yours" now speaks the home screen's `primary.*` strings and saves through
+`ProfileListViewModel.claimPrimary`, so a refusal shows under the charts
+instead of turning the pager into an error screen; it asks while
+`primaryProfile` is nil once the list has loaded. Nothing changed on the
+backend.
+
 ### Every account has one chart of its own, and the app asks when it cannot tell
 Nothing ever set `users.primary_profile_id` on its own: not the server, not the
 web, not iOS. On production (read on 2026-09-27) 36 of the 38 accounts that own

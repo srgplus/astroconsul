@@ -512,17 +512,20 @@ A chat is account to account, one per pair (stored smaller id first). **The rule
 a person is their primary profile. A chat starts only from somebody's primary chart
 (`can_message` on every profile payload says so); a chart kept for someone else (a mother's,
 a celebrity's) has nobody behind it, and an account without a primary can neither be written to
-nor write (409, the app then asks "Which chart is you?" and sets the primary). Unread and list
+nor write (409; the chats then ask "Which chart is yours?" inline and claim the answer). Unread and list
 order are by message id, never by time (timestamps are kept to the second). Blocks hide the chat
 both ways and stop sending; unblocking brings it back. Account deletion takes every chat the
 account was in. No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
 push in the foreground makes both fetch at once. The icon badge is Activity + messages
 (`social_push.app_badge`, `PushNotifications.syncBadge`).
 iOS: `ChatsButton` beside the bell (`CornerCount` badge shared with it), `ChatsScreen` (list,
-compose via `NewChatSheet`, `OwnChartChooser`), `ChatScreen` (bubbles, Read/Delivered, Report,
+compose via `NewChatSheet`, `OwnChartChooser`), `ChatScreen` (bubbles, Seen/Delivered, Report,
 Block), `ChatStore` (unread, kept list, `pendingRoute`, `visibleChatId` so no banner over the
 open chat), "Message" in the ••• of a chart with `can_message`. Harness: `-uiPreviewWeather
 -uiPreviewChats` opens it on sample chats.
+The chats are black, not the sky glass the rest of the app wears: the owner picked the look
+from a messenger they like. Faces are `ChatAvatar` (Sun glyph on the element's colour; there
+are no photos). The name capsule under the face is the menu (View Chart, Report, Block).
 
 ### Transit Report Request Body
 ```json
