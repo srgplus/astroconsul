@@ -118,9 +118,10 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
     <div className="landing-page">
       <header className="landing-header">
         <B3Logo size="md" />
-        <nav className="landing-nav">
-          <a href="/news/" className="landing-nav-link">News</a>
-        </nav>
+        {/* The spacer between the logo and the sign-in buttons. It used to
+            hold a link to /news, which reads as a horoscope blog to App
+            Review (guideline 4.3); the blog stays up at its own address. */}
+        <div className="landing-nav" />
         <div className="landing-header-actions">
           <button type="button" className="landing-auth-btn" onClick={onSignIn}>
             {t("landing.signIn")}
@@ -148,6 +149,8 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
         </div>
         <div className="landing-pills landing-fade-in" style={{ animationDelay: "0.3s" }}>
           <span className="landing-pill">{t("landing.pill.followFriends")}</span>
+          <span className="landing-pill">{t("landing.pill.likes")}</span>
+          <span className="landing-pill">{t("landing.pill.messages")}</span>
           <span className="landing-pill">{t("landing.pill.compatibility")}</span>
           <span className="landing-pill">{t("landing.pill.dailyScore")}</span>
           <span className="landing-pill">{t("landing.pill.natalChart")}</span>
@@ -171,7 +174,6 @@ export function LandingPage({ onSignIn, onSignUp }: LandingPageProps) {
       <footer className="landing-footer">
         <span className="landing-footer__copy">&copy; big3.me {new Date().getFullYear()}</span>
         <span className="landing-footer__links">
-          <a href="/news/">News</a>
           <a href="/support">Support</a>
           <a href="/legal">Terms</a>
           <a href="/privacy">Privacy</a>

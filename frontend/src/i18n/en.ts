@@ -552,12 +552,14 @@ export const en: Record<string, string> = {
 
   // Landing page
   "landing.hero": "Your friends. One feed.",
-  "landing.subtitle": "A social network built around birth charts. Follow friends, compare charts, and discover compatibility — all powered by real-time Swiss Ephemeris calculations.",
+  "landing.subtitle": "A social network built around birth charts. Follow friends, like their sky when it changes, message them in the iPhone app, and compare charts. Every position is computed with the Swiss Ephemeris.",
   "landing.cta": "Create Your Profile",
   "landing.signIn": "Sign In",
   "landing.signUp": "Sign Up",
   "landing.signUpUnlock": "Sign up to connect and compare",
   "landing.pill.followFriends": "Follow Friends",
+  "landing.pill.likes": "Likes",
+  "landing.pill.messages": "Messages",
   "landing.pill.compatibility": "Compatibility",
   "landing.pill.dailyScore": "Daily Score",
   "landing.pill.natalChart": "Birth Chart",

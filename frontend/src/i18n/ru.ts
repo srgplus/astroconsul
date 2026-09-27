@@ -552,12 +552,14 @@ export const ru: Record<string, string> = {
 
   // Landing page
   "landing.hero": "Твои друзья. Одна лента.",
-  "landing.subtitle": "Социальная сеть вокруг карт рождения. Следи за друзьями, сравнивай карты, открывай совместимость на реальных вычислениях Swiss Ephemeris.",
+  "landing.subtitle": "Социальная сеть вокруг карт рождения. Следи за друзьями, лайкай их небо, когда оно меняется, пиши им в приложении для iPhone и сравнивай карты. Каждое положение планет считается по Swiss Ephemeris.",
   "landing.cta": "Создать профиль",
   "landing.signIn": "Войти",
   "landing.signUp": "Регистрация",
   "landing.signUpUnlock": "Зарегистрируйся чтобы подключаться и сравнивать",
   "landing.pill.followFriends": "Подписки",
+  "landing.pill.likes": "Лайки",
+  "landing.pill.messages": "Сообщения",
   "landing.pill.compatibility": "Совместимость",
   "landing.pill.dailyScore": "Дневной счёт",
   "landing.pill.natalChart": "Карта рождения",

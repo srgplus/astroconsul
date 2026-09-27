@@ -12,6 +12,16 @@
  * paywall to a reviewer even when nothing is for sale, so the gated content is
  * left out rather than locked.
  */
-export const hidesPaidTier = (): boolean =>
-  typeof window !== "undefined" &&
-  !!(window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()
+export const hidesPaidTier = (): boolean => isNativeApp()
+
+/**
+ * Whether this page runs inside the iOS app's WebView. Besides the paid tier,
+ * the app leaves out the link to /news: its daily transit posts read as a
+ * horoscope blog to App Review (guideline 4.3).
+ */
+export function isNativeApp(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    !!(window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()
+  )
+}
