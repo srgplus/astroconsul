@@ -198,7 +198,9 @@ struct WeatherPreviewHarness: View {
             ActivityScreen(list: listModel, skyState: previewState, onFindPeople: { showsSearch = true })
         }
         .sheet(isPresented: $showsChats) {
-            ChatsScreen(list: listModel)
+            // "View Chart" on a chat with a page here turns the pager to it,
+            // as on an account.
+            ChatsScreen(list: listModel, onOpenSaved: { selection = $0 })
         }
         .sheet(item: $peopleTarget) { target in
             PeopleSheet(target: target, list: listModel, skyState: previewState)
