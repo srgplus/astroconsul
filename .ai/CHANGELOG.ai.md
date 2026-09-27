@@ -44,7 +44,12 @@ implementations of one `SocialRepository`, on `RepositoryBundle.social`):
 - `POST /reports` — spam, harassment, impersonation, inappropriate, other;
   stored in `profile_reports` with a snapshot of name and handle (no FK, so it
   outlives the profile), mailed to `ASTRO_CONSUL_MODERATION_EMAIL` (default
-  hi@srgplus.com), optional block in the same step.
+  big3meapp@gmail.com, the inbox all user mail goes to) with Reply-To set to
+  the reporter, optional block in the same step. Every backend mail is now
+  sent from `ASTRO_CONSUL_EMAIL_FROM` (default `big3.me <noreply@big3.me>`, a
+  verified Resend domain) instead of the sandbox `onboarding@resend.dev`,
+  which could only reach the Resend account's own inbox — so profile-transfer
+  invites to anyone else had been failing too.
 - `app/domain/moderation.py` refuses objectionable names and handles on create
   and edit. Short list on purpose: stems matched anywhere only where no
   ordinary word hides them, the rest as whole words.

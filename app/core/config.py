@@ -41,10 +41,14 @@ class Settings:
     supabase_anon_key: str | None
     supabase_jwt_secret: str | None
     resend_api_key: str | None
-    # Where a report filed in the app is sent for a person to act on. The
-    # default is the Resend workspace's own address, the one inbox the
-    # sandbox sender can reach before a sending domain is verified.
-    moderation_email: str = "hi@srgplus.com"
+    # Where a report filed in the app is sent for a person to act on: the same
+    # inbox the Terms and the support page publish, where all user mail lands.
+    moderation_email: str = "big3meapp@gmail.com"
+    # The sender on every mail the backend sends. big3.me is a verified
+    # sending domain in Resend (DKIM on resend._domainkey, SPF and MX on the
+    # `send` subdomain); the sandbox sender it replaces could only reach the
+    # Resend account's own inbox, so invites and reports to anyone else failed.
+    email_from: str = "big3.me <noreply@big3.me>"
 
     @property
     def use_database(self) -> bool:
@@ -91,7 +95,8 @@ def get_settings() -> Settings:
         supabase_anon_key=os.getenv("ASTRO_CONSUL_SUPABASE_ANON_KEY"),
         supabase_jwt_secret=os.getenv("ASTRO_CONSUL_SUPABASE_JWT_SECRET"),
         resend_api_key=os.getenv("ASTRO_CONSUL_RESEND_API_KEY"),
-        moderation_email=os.getenv("ASTRO_CONSUL_MODERATION_EMAIL", "hi@srgplus.com"),
+        moderation_email=os.getenv("ASTRO_CONSUL_MODERATION_EMAIL", "big3meapp@gmail.com"),
+        email_from=os.getenv("ASTRO_CONSUL_EMAIL_FROM", "big3.me <noreply@big3.me>"),
     )
 
 
