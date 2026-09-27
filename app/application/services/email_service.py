@@ -13,7 +13,6 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 
 RESEND_API_URL = "https://api.resend.com/emails"
-FROM_EMAIL = "big3.me <onboarding@resend.dev>"
 
 
 def send_invite_email(
@@ -64,7 +63,7 @@ def send_invite_email(
                 "Content-Type": "application/json",
             },
             json={
-                "from": FROM_EMAIL,
+                "from": settings.email_from,
                 "to": [to_email],
                 "subject": f"{profile_name} — your natal profile on big3.me",
                 "html": html_body,
@@ -132,8 +131,11 @@ def send_report_email(report: dict[str, Any], profile: dict[str, Any], reporter_
                 "Content-Type": "application/json",
             },
             json={
-                "from": FROM_EMAIL,
+                "from": settings.email_from,
                 "to": [settings.moderation_email],
+                # Replying goes straight to the person who filed it, which is
+                # the "timely response to concerns" guideline 1.2 asks for.
+                **({"reply_to": [reporter_email]} if reporter_email else {}),
                 "subject": f"Report #{report.get('report_id')}: {reason} on @{profile.get('username', '')}",
                 "html": html_body,
             },

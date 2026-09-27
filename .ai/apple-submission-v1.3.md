@@ -32,12 +32,22 @@ Every text meant for Apple uses ASCII punctuation only.
 5. **Submit for review.**
 
 Also, before submitting:
-- The moderation inbox (`ASTRO_CONSUL_MODERATION_EMAIL`, default
-  hi@srgplus.com) must be watched: the Terms and the review notes promise a
-  24-hour response to reports.
-- **App Privacy** in App Store Connect (web UI, no API): add "Other User
-  Content" (profile names, handles) and confirm "User ID" and "Email" are
-  declared as linked to the user, used for app functionality only.
+- The moderation inbox is **big3meapp@gmail.com** (`ASTRO_CONSUL_MODERATION_EMAIL`),
+  the same address the Terms, the support page and Settings publish: all user
+  mail lands there. It must be watched: the Terms and the review notes promise
+  a 24-hour response to reports. Report mails come from noreply@big3.me with
+  Reply-To set to the reporter.
+- **App Privacy** in App Store Connect. Web UI only, no public API, so a
+  session does it in the owner's logged-in Chrome (Claude in Chrome), with his
+  go before pressing Publish: App Store Connect → big3.me → App Privacy →
+  Edit. Add data type **Other User Content** (profile display names and
+  @handles shown to other members): Linked to the user: Yes; Used for
+  tracking: No; Purpose: App Functionality. Check that **Email Address** and
+  **User ID** are declared the same way (linked, not tracking, App
+  Functionality), and that **Other Data Types / sensitive** is not needed:
+  birth date, time and place are entered for charts, declare them under
+  "Other Data" if the questionnaire asks, linked, App Functionality. Then
+  Publish.
 
 ---
 
