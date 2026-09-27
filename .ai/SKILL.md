@@ -453,7 +453,7 @@ updated_at: DateTime(tz)
 | POST | `/api/v1/profiles/{id}/transits/report` | Transit report for date/time |
 | GET | `/api/v1/profiles/{id}/transits/timeline` | Transit timeline for date range |
 | POST/DELETE | `/api/v1/profiles/{id}/follow` | Follow / unfollow a profile |
-| POST/DELETE | `/api/v1/profiles/{id}/like` | Like / unlike a profile (not your own); answers its counts |
+| POST/DELETE | `/api/v1/profiles/{id}/like` | Like / unlike the state on screen (`feels_like`, today in the profile's zone); answers its counts |
 | GET | `/api/v1/profiles/{id}/likes`, `/followers` | Who likes / follows it — owner only |
 | GET | `/api/v1/activity` | Likes and follows on every profile the caller owns, newest first |
 | GET | `/api/v1/activity/unread` | The unread count alone (badge) |
@@ -470,7 +470,9 @@ app claimed Social Networking without any user-to-user interaction. Code:
 An account *acts*; a profile *is acted on*; when an account is shown (Activity, followers) it is
 shown as its "card" — primary profile, else last-touched. Blocks are account to account and both
 directions: they sever follows and likes, hide search results, and 404 the blocked side.
-Listings, search and detail carry `likes_count`, `is_liked`, `followers_count`, `follows_you`.
+A like is for a *state*: the feels-like word on a given day (profile's zone) — a new word or a new
+day is new content. Listings, search and detail carry `state_likes`, `my_state_likes`,
+`likes_count`, `is_liked`, `likes_total`, `followers_count`, `follows_you`.
 Guideline 1.2 checklist this satisfies: name filter, report, block, contact (Settings → Community,
 big3meapp@gmail.com), and terms with community rules accepted at sign-in (`/legal#community`).
 

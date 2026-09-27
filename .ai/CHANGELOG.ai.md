@@ -25,10 +25,13 @@ what guideline 1.2 requires of any social app.
 `app/infrastructure/repositories/social_repositories.py` (SQL and file
 implementations of one `SocialRepository`, on `RepositoryBundle.social`):
 
-- `POST/DELETE /profiles/{id}/like` — likes a chart, answers with its counts.
-  Not your own (400). Listings, search results and profile detail carry
-  `likes_count`, `is_liked`, `followers_count` and `follows_you` (the owner
-  follows one of your charts).
+- `POST/DELETE /profiles/{id}/like` — likes the *state* on screen: body
+  `{feels_like, tii}`, keyed on (account, profile, day in the profile's zone,
+  word). When the word changes or the day does, it is new content and the
+  heart is empty again; `DELETE ?feels_like=` takes back one state. Not your
+  own (400). Listings, search results and profile detail carry `state_likes`
+  (today, per word), `my_state_likes`, `likes_count`/`is_liked` (today, any
+  word), `likes_total`, `followers_count` and `follows_you`.
 - `GET /profiles/{id}/likes` and `/followers` — owner only.
 - `GET /activity`, `GET /activity/unread`, `POST /activity/seen` — likes and
   follows on every chart the account owns, newest first, unread against
@@ -51,8 +54,10 @@ implementations of one `SocialRepository`, on `RepositoryBundle.social`):
 
 **iOS.** A bell in the top-left corner of every page opens Activity (it is the
 account's, not the page's); its count is `SocialStore.unreadActivity`, asked on
-launch and on every return. Under your own chart: likes and followers pills
-opening `PeopleSheet`. Under anyone else's: the heart and "Follows you".
+launch and on every return. Under your own chart: followers (opening
+`PeopleSheet`: Followers and Following) and the state's likes (opening
+Activity — likes live there). Under anyone else's: "Following" (asks before
+unfollowing, as the ••• Unfollow does), "Follows you", and the heart last.
 Report and Block sit in the ••• of charts you do not own and in the search
 preview; `ReportSheet` and the `blockConfirmation` modifier are shared.
 Settings has a Community section (blocked accounts, terms, privacy, support
