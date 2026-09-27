@@ -6,7 +6,8 @@ import UIKit
 /// person's face at the top with their name in a capsule under it, the
 /// reader's words in blue on the right and the other side's in grey on the
 /// left, a tail on the last bubble of each run, a date over anything that
-/// comes after a pause, and "Seen" under the reader's last message.
+/// comes after a pause, "Seen" under the reader's last message, and three
+/// dots in a grey bubble while the other side types.
 ///
 /// Text only. The name capsule is the menu: their chart, Report and Block,
 /// which App Review asks of any chat between people.
@@ -36,9 +37,10 @@ struct ChatScreen: View {
     }
 
     @ObservedObject private var store = ChatStore.shared
+    @ObservedObject private var live = ChatLive.shared
+    @ObservedObject private var activity = AppActivity.shared
     @ObservedObject private var strings = L10n.shared
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.scenePhase) private var scenePhase
     @State private var draft = ""
     @FocusState private var isComposing: Bool
     @State private var reporting: ProfileSummary?
@@ -58,6 +60,11 @@ struct ChatScreen: View {
 
     private static let bottom = "bottom"
 
+    /// How often the screen asks for what came in: often while the live
+    /// line is down, and only as a safety net while it is up.
+    private static let pollWithoutLine: Duration = .seconds(3)
+    private static let pollWithLine: Duration = .seconds(15)
+
     var body: some View {
         conversation
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -67,30 +74,42 @@ struct ChatScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarItems }
             .task { await model.load() }
-            // Every few seconds while the chat is up and the app is in front:
-            // there is no socket, and a push only comes when APNs is set up.
+            // While the chat is up and the app is in front: every few seconds
+            // without the live line, now and then with it, for anything it
+            // missed.
             .task(id: model.chatId) {
                 guard model.chatId != nil else { return }
                 while !Task.isCancelled {
-                    try? await Task.sleep(for: .seconds(3))
+                    try? await Task.sleep(for: live.isConnected ? Self.pollWithLine : Self.pollWithoutLine)
                     guard !Task.isCancelled else { break }
                     await model.poll()
                 }
             }
             .onAppear {
-                model.isActive = scenePhase == .active
+                model.isActive = activity.isActive
                 store.visibleChatId = model.chatId
             }
             .onDisappear {
                 if store.visibleChatId == model.chatId { store.visibleChatId = nil }
+                model.stopTyping()
             }
             .onChange(of: model.chatId) { _, id in store.visibleChatId = id }
-            .onChange(of: scenePhase) { _, phase in
-                model.isActive = phase == .active
-                if phase == .active { Task { await model.poll() } }
+            .onChange(of: activity.isActive) { _, active in
+                model.isActive = active
+                if active {
+                    Task { await model.poll() }
+                } else {
+                    model.stopTyping()
+                }
             }
             .onChange(of: store.arrivals) { _, _ in
                 Task { await model.poll() }
+            }
+            .onReceive(live.events) { event in
+                model.receive(event)
+            }
+            .onChange(of: draft) { _, text in
+                model.draftChanged(text)
             }
             .sheet(item: $reporting) { profile in
                 // The chat goes with the report: its latest messages are
@@ -285,6 +304,17 @@ struct ChatScreen: View {
                         rowView(row)
                     }
 
+                    if isPeerTyping {
+                        HStack(spacing: 0) {
+                            TypingBubble()
+                                .accessibilityElement()
+                                .accessibilityLabel(L("chat.typingLabel", model.peer?.displayName ?? L("social.someone")))
+                            Spacer(minLength: 64)
+                        }
+                        .padding(.top, 12)
+                        .transition(.opacity)
+                    }
+
                     Color.clear
                         .frame(height: 1)
                         .id(Self.bottom)
@@ -295,12 +325,20 @@ struct ChatScreen: View {
             }
             .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
-            // The newest message in view whenever one is added, sent or come in.
+            // The newest message in view whenever one is added, sent or come
+            // in, and the dots when they appear.
             .onChange(of: rows.last?.id) { _, _ in
                 withAnimation(.easeOut(duration: 0.2)) {
                     proxy.scrollTo(Self.bottom, anchor: .bottom)
                 }
             }
+            .onChange(of: isPeerTyping) { _, typing in
+                guard typing else { return }
+                withAnimation(.easeOut(duration: 0.2)) {
+                    proxy.scrollTo(Self.bottom, anchor: .bottom)
+                }
+            }
+            .animation(.easeOut(duration: 0.2), value: isPeerTyping)
             .onChange(of: isComposing) { _, composing in
                 guard composing else { return }
                 Task {
@@ -312,6 +350,12 @@ struct ChatScreen: View {
                 }
             }
         }
+    }
+
+    /// The other side is typing in this chat, as the live line last said.
+    private var isPeerTyping: Bool {
+        guard let id = model.chatId else { return false }
+        return store.typingChats.contains(id)
     }
 
     // MARK: - Rows
@@ -588,6 +632,55 @@ struct ChatScreen: View {
             }
         }
         .padding(Theme.Spacing.section)
+    }
+}
+
+/// The other side typing: three dots in their grey bubble, with its tail,
+/// swelling one after another. Still with Reduce Motion.
+private struct TypingBubble: View {
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// One swell along the three dots, in seconds.
+    private static let period = 1.2
+
+    var body: some View {
+        Group {
+            if reduceMotion {
+                dots(at: nil)
+            } else {
+                TimelineView(.animation) { context in
+                    dots(at: context.date.timeIntervalSinceReferenceDate)
+                }
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background {
+            RoundedRectangle(cornerRadius: 20, style: .continuous).fill(ChatPalette.theirs)
+        }
+        .overlay(alignment: .bottomLeading) {
+            BubbleTail(isMine: false, color: ChatPalette.theirs)
+        }
+    }
+
+    private func dots(at time: TimeInterval?) -> some View {
+        HStack(spacing: 5) {
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(ChatPalette.theirsText)
+                    .frame(width: 8, height: 8)
+                    .opacity(time.map { Self.strength(at: $0, dot: index) } ?? 0.55)
+            }
+        }
+        // A line of text's height, so the bubble is as tall as a message.
+        .frame(height: 22)
+    }
+
+    /// Each dot a little behind the one before it, between faint and full.
+    private static func strength(at time: TimeInterval, dot: Int) -> Double {
+        let wave = sin(time * 2 * .pi / period - Double(dot) * 0.8)
+        return 0.3 + 0.35 * (wave + 1)
     }
 }
 

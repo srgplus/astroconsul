@@ -464,7 +464,8 @@ updated_at: DateTime(tz)
 | POST | `/api/v1/chats` | `{profile_id}` → the chat with that chart's owner, made on first asking. Only a primary profile (400 otherwise), the caller needs one too (409), that person must follow the caller (403), and at most 20 new conversations a day (429) |
 | GET | `/api/v1/chats/{id}/messages` | Newest page (50), `?before=` older, `?after=` what came in since (polling); oldest first, `has_more` |
 | POST | `/api/v1/chats/{id}/messages` | `{body}` up to 2000 chars; pushes to the other side (`kind: message`, `chat_id`). 403 unless the other follows you or has written to you, 422 for slurs and sexual violence, 429 past 30 a minute / 500 a day / 20 new conversations a day. Refusals speak `Accept-Language` (en/ru) |
-| POST | `/api/v1/chats/{id}/read` | `{message_id?}` reads up to it; answers the unread total |
+| POST | `/api/v1/chats/{id}/read` | `{message_id?}` reads up to it; answers the unread total; the other side's "Seen" hears of it on the live line |
+| WS | `/api/v1/chats/live` | The live line, same `Authorization` header. Down: `ready`, `message` (the message as the account reads it, its `chat` row, `unread_count`), `read` (`peer_read_id`), `typing`, `unread`. Up: `{"type":"typing","chat_id","typing"}` only |
 | GET | `/api/v1/chats/unread`, `/api/v1/chats/contacts` | Badge number / people a new chat can start with (they follow you, with a primary) |
 | POST/GET | `/api/v1/blocks` | Block the owner of `{profile_id}` / list own blocks |
 | DELETE | `/api/v1/blocks/{block_id}` | Unblock |
@@ -529,13 +530,22 @@ order are by message id, never by time (timestamps are kept to the second). Bloc
 both ways and stop sending; unblocking brings it back. Account deletion takes every chat the
 account was in. A refused send (400/403/422/429) keeps the bubble dimmed with the server's
 sentence under it and no retry, except a 429 which can be tapped again (`Outgoing.refusal`,
-`canRetry`). No socket: the open chat polls `?after=` every 3 s, the list every 8 s, and a
-push in the foreground makes both fetch at once. The icon badge is Activity + messages
+`canRetry`). **Live line** (`app/application/services/chat_live.py`, iOS `Core/ChatLive.swift`):
+one WebSocket per open app to `/chats/live`, while signed in and in front. A sent message, a read
+and typing reach the other side at once; `send_message` and `mark_read` publish in background
+tasks (before the push). The hub is in memory, which holds while one uvicorn process serves the
+app; a second process or replica needs a relay (Postgres LISTEN/NOTIFY) or its phones fall back
+on polling. Polling stays as the net: the open chat asks `?after=` (from the last *fetched* id,
+so a message the line missed is still fetched) every 3 s without the line and 15 s with it, the
+list every 8 s / 30 s, and the line coming back or a foreground push makes both fetch at once.
+"In front" is `AppActivity` (UIKit notices), never `scenePhase`: the window is a hand-made
+`UIHostingController` and a hosted view's `scenePhase` never reads `.active`, which is why the
+chat once neither polled nor marked anything read. The icon badge is Activity + messages
 (`social_push.app_badge`, `PushNotifications.syncBadge`).
 iOS: `ChatsButton` beside the bell (`CornerCount` badge shared with it), `ChatsScreen` (list,
 compose via `NewChatSheet`, `OwnChartChooser`), `ChatScreen` (bubbles, Seen/Delivered, Report,
-Block), `ChatStore` (unread, kept list, `pendingRoute`, `visibleChatId` so no banner over the
-open chat), "Message" in the ••• of a chart with `can_message`. Harness: `-uiPreviewWeather
+Block, three dots while the other side types), `ChatStore` (unread, kept list, `typingChats`,
+`pendingRoute`, `visibleChatId` so no banner over the open chat), "Message" in the ••• of a chart with `can_message`. Harness: `-uiPreviewWeather
 -uiPreviewChats` opens it on sample chats.
 The chats are a plain messenger ground, not the sky glass the rest of the app wears: the owner
 picked the look from a messenger they like. Black in the dark, white in the light, following

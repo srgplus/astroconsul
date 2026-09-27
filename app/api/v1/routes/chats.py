@@ -23,22 +23,47 @@ What is sent goes through a word filter for slurs and sexual violence
 The refusals are said in the language the app is read in: it sends it as
 Accept-Language, and anything but Russian reads English.
 
-The phone of the one written to hears about it through the pushes the social
-layer set up (see `chat_push`).
+The other side hears about it at once while the app is open, down the live
+line (`/chats/live`, see `chat_live`): the message, "Seen" when it is read,
+and the dots while someone types. With the app closed, through the pushes
+the social layer set up (see `chat_push`).
 """
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
+import time
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Body,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 
 from app.api.auth import get_current_user
 from app.api.dependencies import get_repositories
 from app.api.v1.routes.social import _load_profile, _owner, _social, guard_block
+from app.application.services.chat_live import (
+    PEER_TTL,
+    LiveConnection,
+    announce_message,
+    announce_read,
+    hub,
+    should_pass_typing,
+    typing_peer,
+)
 from app.application.services.chat_push import notify_message
 from app.domain.chat_rules import MESSAGES_PER_DAY, MESSAGES_PER_MINUTE, NEW_CHATS_PER_DAY, may_write
 from app.domain.moderation import message_is_objectionable
@@ -294,7 +319,9 @@ def send_message(
         raise _refusal(request, 422, "objectionable")
     _require_within_limits(request, chats, user_id, peer)
     message = chats.send_message(user_id, chat_id, body)
-    # After the response: the push is a nudge, and sending waits for nothing.
+    # After the response, so sending waits for nothing: first onto the open
+    # screens, then the push, which is a nudge.
+    background.add_task(announce_message, repos, user_id, peer, chat_id, message)
     background.add_task(notify_message, repos, user_id, peer, chat_id, message)
     return {"message": message}
 
@@ -302,14 +329,100 @@ def send_message(
 @router.post("/{chat_id}/read")
 def mark_read(
     chat_id: int,
+    background: BackgroundTasks,
     payload: ReadRequest | None = Body(default=None),
     user: dict[str, Any] = Depends(get_current_user),
     repos: RepositoryBundle = Depends(get_repositories),
 ) -> dict[str, int]:
     """The screen showed the chat up to `message_id`. Answers what is left
-    unread across every chat, for the button's number."""
+    unread across every chat, for the button's number. The other side's
+    "Seen" hears of it down the live line."""
     try:
         unread = _chats(repos).mark_read(user["user_id"], chat_id, payload.message_id if payload else None)
     except ChatNotFound as exc:
         raise HTTPException(status_code=404, detail="Chat not found") from exc
+    background.add_task(announce_read, repos, user["user_id"], chat_id, unread)
     return {"unread_count": unread}
+
+
+@router.websocket("/live")
+async def live(
+    websocket: WebSocket,
+    user: dict[str, Any] = Depends(get_current_user),
+    repos: RepositoryBundle = Depends(get_repositories),
+) -> None:
+    """The live line: one socket per open app, signed in with the same
+    Authorization header as every request. The server sends what happens in
+    the account's chats as it happens (see `chat_live`); the app sends one
+    thing, `{"type": "typing", "chat_id": 12, "typing": true}`, while its
+    reader types, and `false` when they stop.
+
+    Nothing that matters travels only here: messages and reads go through
+    the routes above, and an app that loses the line fetches what it missed
+    once it is back."""
+    await websocket.accept()
+    connection = hub.register(user["user_id"])
+    sender = asyncio.create_task(_send_events(websocket, connection))
+    try:
+        connection.offer({"type": "ready"})
+        await _receive_events(websocket, connection, repos)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        hub.unregister(connection)
+        sender.cancel()
+
+
+async def _send_events(websocket: WebSocket, connection: LiveConnection) -> None:
+    """Down the socket, whatever the hub queued for it, in order."""
+    try:
+        while True:
+            event = await connection.queue.get()
+            await websocket.send_json(event)
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:
+        # The socket went while an event was on its way; the receiving side
+        # notices and cleans up.
+        logger.info("Live chat line for %s closed while sending: %s", connection.user_id, exc)
+
+
+async def _receive_events(websocket: WebSocket, connection: LiveConnection, repos: RepositoryBundle) -> None:
+    """Up the socket: "typing", passed on to the other side of its chat.
+    Anything else, or anything unreadable, is ignored rather than fatal: an
+    app a version ahead may say things this one does not know."""
+    while True:
+        message = await websocket.receive()
+        if message["type"] == "websocket.disconnect":
+            raise WebSocketDisconnect(message.get("code", 1000))
+        text = message.get("text")
+        if not isinstance(text, str):
+            continue
+        try:
+            event = json.loads(text)
+        except ValueError:
+            logger.info("Live chat line for %s sent something that is not JSON", connection.user_id)
+            continue
+        if not isinstance(event, dict) or event.get("type") != "typing":
+            continue
+        chat_id = event.get("chat_id")
+        if not isinstance(chat_id, int) or isinstance(chat_id, bool):
+            continue
+        typing = event.get("typing", True) is not False
+        if not should_pass_typing(connection, chat_id, typing):
+            continue
+        peer = await _typing_peer(connection, repos, chat_id)
+        if peer is not None:
+            hub.publish(peer, {"type": "typing", "chat_id": chat_id, "typing": typing})
+
+
+async def _typing_peer(connection: LiveConnection, repos: RepositoryBundle, chat_id: int) -> str | None:
+    """The other side of a chat this socket types in, as last learned: the
+    database is asked once a minute per chat, not on every keystroke."""
+    now = time.monotonic()
+    known = connection.peers.get(chat_id)
+    if known is not None and now - known[1] < PEER_TTL:
+        return known[0]
+    peer = await run_in_threadpool(typing_peer, repos, connection.user_id, chat_id)
+    connection.peers[chat_id] = (peer, now)
+    return peer
