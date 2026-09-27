@@ -3,7 +3,7 @@ import SwiftUI
 /// The birth chart behind every reading on this screen: sign, degrees, house
 /// and ℞ for a body that was retrograde at birth.
 ///
-/// The card opens with the big three — the app is named for them — set apart
+/// Under the birth moment, the table opens with the big three — the app is named for them — set apart
 /// from the rest of the personal chart, and tapping it unfolds the outer
 /// planets and the special points.
 ///
@@ -89,11 +89,6 @@ struct NatalChartCard: View {
                     group(TransitGroup.outer.title, rows(Self.outer))
                     group(TransitGroup.special.title, rows(Self.special))
                 }
-
-                WeatherCardDivider()
-
-                footer
-                    .padding(.top, 11)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -135,40 +130,38 @@ struct NatalChartCard: View {
         }
     }
 
+    /// The title, then the birth moment the chart is cast for, with the
+    /// chevron that says the card opens standing beside it. Not beside the
+    /// age: on the title row the chevron read as a picker for the age.
     private var header: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "circle.dotted")
-                .font(.system(size: 12, weight: .semibold))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "circle.dotted")
+                    .font(.system(size: 12, weight: .semibold))
 
-            Text(L("natal.title").uppercased())
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .tracking(0.5)
+                Text(L("natal.title").uppercased())
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .tracking(0.5)
 
-            Spacer(minLength: 8)
+                Spacer(minLength: 8)
 
-            if let age {
-                Text(age)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                if let age {
+                    Text(age)
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                }
+            }
+
+            HStack(spacing: 8) {
+                birthLines
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 14, weight: .semibold))
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    .accessibilityHidden(true)
             }
         }
         .foregroundStyle(.white.opacity(0.7))
-        .padding(.bottom, 2)
-    }
-
-    /// The birth data, and the chevron that says the card opens. The chevron
-    /// used to sit in the header, where beside the age it read as a picker for
-    /// the age; here it is where the rows stop, so it reads as the list going
-    /// on. It stays when the birth data is private, since the drawer does.
-    private var footer: some View {
-        HStack(spacing: 8) {
-            birthLines
-
-            Image(systemName: "chevron.down")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.7))
-                .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                .accessibilityHidden(true)
-        }
+        .padding(.bottom, 10)
     }
 
     /// A band inside the drawer, labelled the way Active Transits labels its
