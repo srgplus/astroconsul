@@ -40,12 +40,15 @@ reason:
   day. It reads once and passes `saved_chart=` through; 12 pool checkouts per
   forecast became 3.
 
-The rest of the slowness is not code: prod runs in Railway's
+The rest of the slowness was not code: prod ran in Railway's
 `asia-southeast1` (Singapore) while Supabase is `aws-0-us-west-2` (Oregon),
-so every checkout crosses the Pacific. `/health/ready` (one `SELECT 1`)
-answers in ~1.0 s against ~0.25 s for `/health/live`, and the server side of
-`/health/live` is 7 ms. Moving the service next to the database is the next
-step and the owner's call.
+so every pool checkout crossed the Pacific. With the owner's go-ahead the
+service now runs in `us-west2` (Railway US West, set in the service's region
+settings, not in `railway.json`). Measured from the owner's Mac:
+`/health/ready` (one `SELECT 1`) 0.96 s -> 0.16 s, `/public/featured`
+0.97 s -> 0.16 s, `/health/live` 0.24 s -> 0.09 s. Keep the service in the
+database's region: a request makes several checkouts, so app-to-database
+distance costs more than reader-to-app distance.
 
 ### Chat messages go through the word filter
 Guideline 1.2 asks for a way to stop objectionable material from being
