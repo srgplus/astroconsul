@@ -233,8 +233,8 @@ actor APIClient {
         return response.unreadCount
     }
 
-    /// Who a new chat can be started with: the people on either side of a
-    /// follow who have a chart of their own.
+    /// Who a new chat can be started with: the people who follow the reader
+    /// and are followed back, and have a chart of their own.
     func fetchChatContacts() async throws -> [SocialCard] {
         let response: ChatContactsResponse = try await get("/api/v1/chats/contacts")
         return response.people
@@ -242,7 +242,8 @@ actor APIClient {
 
     /// The chat with the person whose own chart this is, made on first
     /// asking. 400 for a chart that is nobody's own, 409 while the reader has
-    /// no chart of their own.
+    /// no chart of their own, 403 unless the two follow each other, 429 once
+    /// the day's new chats are used up.
     func openChat(profileId: String) async throws -> ChatSummary {
         struct Body: Encodable { let profile_id: String }
         let response: ChatResponse = try await send("/api/v1/chats", method: "POST", body: Body(profile_id: profileId))
@@ -318,12 +319,14 @@ actor APIClient {
     }
 
     /// Files a report for a person to review, and blocks the owner in the
-    /// same step when `block` is set.
+    /// same step when `block` is set. From a chat, `chatId` sends the chat's
+    /// latest messages to the moderation inbox with the report.
     func reportProfile(
         id: String,
         reason: ReportReason,
         details: String?,
-        block: Bool
+        block: Bool,
+        chatId: Int? = nil
     ) async throws -> ReportResponse {
         // Snake case spelled out: the encoder here converts nothing.
         struct Body: Encodable {
@@ -331,11 +334,12 @@ actor APIClient {
             let reason: String
             let details: String?
             let block: Bool
+            let chat_id: Int?
         }
         return try await send(
             "/api/v1/reports",
             method: "POST",
-            body: Body(profile_id: id, reason: reason.rawValue, details: details, block: block)
+            body: Body(profile_id: id, reason: reason.rawValue, details: details, block: block, chat_id: chatId)
         )
     }
 
@@ -598,6 +602,9 @@ actor APIClient {
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        // The language the app is read in, not the phone's: the chats say
+        // their refusals in it, and the rest of the API ignores it.
+        request.setValue(LanguageStore.code, forHTTPHeaderField: "Accept-Language")
 
         if let body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

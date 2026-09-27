@@ -1,17 +1,22 @@
 # App Store submission 1.3: the social network
 
-**Status:** DRAFT. Nothing sent to Apple. Prepared 2026-09-27.
+**Status:** DRAFT. Nothing sent to Apple. Prepared 2026-09-27, updated the
+same day for the messenger (Messages, push notifications, and what guideline
+1.2 asks of a chat).
 
 **Why this version exists.** The App Review appointment (Sept 21, 2026) said it
 plainly: the app claimed Social Networking in its category, subtitle and review
 notes, but nothing in it let one person do anything to another. "Social network
 is not saturated. On the other hand, astrology is." This version makes the
-social network real (likes, Activity, followers and following, report, block)
-and the texts below describe only what the build does.
+social network real (likes, Activity, followers and following, private
+messages between people who follow each other, push notifications, report,
+block) and the texts below describe only what the build does.
 
 **How it is submitted.** As an update to the existing record, per the call:
 the rejected 1.1 version record is edited (version string 1.1 -> 1.3, build
-17 attached), not a new app and not an appeal.
+19 attached), not a new app and not an appeal. Build 18 is a TestFlight build
+shipped from main before the messenger safety work; the build for submission
+is **19**, archived from main once `claude/messenger-review-safety` has merged.
 
 Every text meant for Apple uses ASCII punctuation only.
 
@@ -21,17 +26,25 @@ Every text meant for Apple uses ASCII punctuation only.
 
 1. **Deploy the backend** (push the branch; it auto-merges and Railway runs
    migrations `20260927_000001`, three new tables and one nullable column, and
-   `20260927_000002`, one boolean with a default, additive only). The app talks
-   to production, so this goes first.
-2. **Seed the demo account** (hi@srgplus.com) on production, from real
-   accounts the owner controls: follow it and like its chart from two or three
-   of them, and have it follow them back. The reviewer must open Activity and
-   see real rows, see real follower and following counts under the charts, and
-   find "Follows you" in the Following list. One of them also writes to it,
-   so Chats has a conversation to open.
-3. **A 1.3 build after 18** archived and uploaded to TestFlight. Build 18
-   predates the chat word filter's "not sent" line: on it a refused message
-   reads "Not sent. Tap to try again", and trying again fails the same way.
+   `20260927_000002`, one boolean with a default, additive only; the later
+   `20260927_000003` to `_000005` add indexes, device tokens and the chats, and
+   the messenger safety work adds no migration). The app talks to production,
+   so this goes first.
+2. **Seed the demo accounts** on production, from real accounts the owner
+   controls. The main demo account (hi@srgplus.com): follow it and like its
+   chart from two or three of them, and have it follow them back. The reviewer
+   must open Activity and see real rows, see real follower and following
+   counts under the charts, and find "Follows you" in the Following list.
+   **Messages need two demo accounts with an existing conversation**: a second
+   demo account with its own chart marked as its own, the two following each
+   other, and a few messages written both ways, so the reviewer opens Messages
+   on a real chat and can write, report and block in it. Put the second
+   account's email and password in the review notes (App Review Information
+   takes one sign-in).
+3. **Build 19** (1.3) archived and uploaded to TestFlight, after the messenger
+   safety branch has merged and deployed. Build 18 predates it: there a
+   refused message reads "Not sent. Tap to try again", and trying again fails
+   the same way.
 4. **App Store Connect**: version string, build, texts, age rating,
    screenshots, review notes, all below.
 5. **Submit for review.**
@@ -47,9 +60,10 @@ Also, before submitting:
   go before pressing Publish: App Store Connect → big3.me → App Privacy →
   Edit. Add data type **Other User Content** (profile display names and
   @handles shown to other members): Linked to the user: Yes; Used for
-  tracking: No; Purpose: App Functionality. Add **Emails or Text Messages**
-  (the text of chat messages, stored so both people can read them) the same
-  way: linked, not tracking, App Functionality. Check that **Email Address** and
+  tracking: No; Purpose: App Functionality. Add data type **Emails or Text
+  Messages** (the private messages between members, stored on our servers):
+  Linked to the user: Yes; Used for tracking: No; Purpose: App
+  Functionality. Check that **Email Address** and
   **User ID** are declared the same way (linked, not tracking, App
   Functionality), and that **Other Data Types / sensitive** is not needed:
   birth date, time and place are entered for charts, declare them under
@@ -63,7 +77,7 @@ Also, before submitting:
 | Field | Value |
 |---|---|
 | Version string | 1.3 |
-| Build | 17 |
+| Build | 19 |
 | Category | Social Networking (already set) |
 | Subtitle | Birth Chart Social Network (unchanged, now true) |
 
@@ -127,11 +141,12 @@ The questionnaire's social media questions became mandatory in September 2026.
 |---|---|---|
 | Social media (`socialMedia`) | Yes | People discover, follow and like each other's charts |
 | Social media age restricted (`socialMediaAgeRestricted`) | No | No age gate in the app; the rating does the work |
-| User-generated content (`userGeneratedContent`) | Yes | Profile names, handles and chat messages are shown to other members |
-| Messaging and chat | Yes | Members write to each other in Chats (text only) |
+| User-generated content (`userGeneratedContent`) | Yes | Profile names, handles and private messages are shown to other members |
+| Messaging and chat | Yes | Private text messages between two members who follow each other |
 
 Result: 13+, with the Social Media descriptor. Sign-in already says
-"big3.me is for people 13 and older".
+"big3.me is for people 13 and older". Check the rating on the questionnaire's
+summary screen after answering Messaging and chat = Yes, before saving.
 
 ## Review notes (paste as is)
 
@@ -147,13 +162,19 @@ WHAT TO CHECK
 3. Following: one follow button under every chart that is not yours: "Follow", "Follow back" when that person already follows you, and "Following" once you do, which asks before unfollowing. Beside it, how many follow the chart and how many its owner follows. Under your own chart the two counts open Followers and Following, and Settings > Community can hide them from others.
 4. Find people: the magnifying glass at the bottom left. Search by name or @handle, open a preview, tap Follow.
 5. Compatibility: at the bottom of any page, compare two charts, yours and a friend's or two friends'.
-6. Chats: the button beside the bell. Write to anyone who has marked a chart as their own, from "Message" under their chart or "New Message" in Chats. Delivered and Seen show under your last message, and a push arrives when someone writes.
+6. Messages: the speech bubble beside the bell at the top of every page opens your chats; "+" starts a new one, and "Message" under the chart of someone you follow opens a chat with them. Two people can write to each other only while they follow each other, so nobody receives messages from strangers. The demo account already has a conversation with our second demo account (sign-in below), so you can read, write, report and block there.
+7. Push notifications: new likes, new followers and new messages arrive as notifications once you allow them. Each kind can be turned off in Settings > Community.
+
+SECOND DEMO ACCOUNT (for Messages)
+Email: [second demo account email]
+Password: [second demo account password]
 
 SAFETY (guideline 1.2)
 - Report: the "..." menu on any chart you do not own, and on search previews. Reports reach our moderation inbox and are reviewed within 24 hours.
-- Block: the same menus. A block removes all follows and likes between the two accounts, hides each from the other's search, and is not announced. Settings > Community > Blocked accounts lists them, with Unblock.
-- Objectionable words are refused in profile names and handles, and in chat messages: such a message is not sent, and only its sender sees why.
-- In a chat, Report and Block sit in the menu under the other person's face. A block closes the chat for both sides.
+- Block: the same menus. A block removes all follows and likes between the two accounts, closes any chat between them, hides each from the other's search, and is not announced. Settings > Community > Blocked accounts lists them, with Unblock.
+- Report and Block inside a chat: tap the person's name at the top of the conversation. A report made there sends the latest 20 messages of the conversation to our moderation inbox with the report.
+- Objectionable names and handles are refused when a profile is created or edited, and messages with objectionable words are refused when they are sent, with a message that says why.
+- Messages are limited against spam: 30 a minute and 500 a day per sender, and 20 new conversations a day per account.
 - The Terms, including community rules with zero tolerance for objectionable content and abusive users, are accepted at sign-in: https://big3.me/legal#community
 - Contact: Settings > Community > Contact support (big3meapp@gmail.com), and https://big3.me/support
 

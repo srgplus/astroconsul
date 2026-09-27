@@ -19,6 +19,12 @@ already read.
 A block cuts a chat the way it cuts everything else. A chat across a block is
 left out of the list and the badge, and nothing more can be sent into it. It
 is not deleted: lifting the block brings it back as it was.
+
+Who may write to whom beyond that is the owner's rule in
+`app.domain.chat_rules.may_write` (today: the two follow each other). This
+module supplies what it reads (`follows_between`, `contacts`), the counts the
+routes' anti-spam limits read (`messages_sent_since`, `chats_started_since`),
+and the conversation a report carries (`transcript`).
 """
 
 from __future__ import annotations
@@ -33,10 +39,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.domain.chat_rules import may_write
 from app.infrastructure.persistence.models import (
     ChatMessageModel,
     ChatModel,
-    ProfileFollowModel,
     ProfileModel,
     UserBlockModel,
     UserModel,
@@ -45,6 +51,7 @@ from app.infrastructure.repositories.social_repositories import (
     FileSocialRepository,
     account_cards,
     blocked_account_ids,
+    follow_ties,
 )
 from app.infrastructure.repositories.sqlalchemy_repositories import _isoformat_z, _now_utc, ensure_user
 
@@ -58,6 +65,10 @@ CATCH_UP_LIMIT = 200
 
 # Chats in the list. It is a list of conversations, not an archive.
 CHATS_LIMIT = 100
+
+# Messages a report carries to the moderation inbox: the latest ones, enough
+# to read what happened without mailing a whole history.
+TRANSCRIPT_LENGTH = 20
 
 
 class ChatNotFound(LookupError):
@@ -100,6 +111,14 @@ def _message(message: ChatMessageModel, viewer_id: str) -> dict[str, Any]:
         "is_mine": message.sender_id == viewer_id,
         "created_at": _stamp(message.created_at),
     }
+
+
+def _card_name(card: dict[str, Any]) -> str:
+    """How a moderator reads one side of a conversation: the name and the
+    handle of the chart the account is drawn as."""
+    name = str(card.get("profile_name") or "").strip() or "(no chart)"
+    handle = card.get("username")
+    return f"{name} (@{handle})" if handle else name
 
 
 class SqlAlchemyChatRepository:
@@ -158,6 +177,85 @@ class SqlAlchemyChatRepository:
                 .join(UserModel, UserModel.primary_profile_id == ProfileModel.id)
                 .where(UserModel.id == user_id, ProfileModel.user_id == user_id)
             ).scalar_one_or_none()
+
+    def follows_between(self, user_id: str, other_id: str) -> tuple[bool, bool]:
+        """Whether the account follows the other (a chart the other owns),
+        and whether the other follows it back: what `may_write` reads."""
+        with self.session_factory() as session:
+            follows, followed_by = follow_ties(session, user_id, {other_id})
+            return other_id in follows, other_id in followed_by
+
+    def has_conversation(self, user_id: str, peer_id: str) -> bool:
+        """Whether the two already have a chat with a message in it. Writing
+        into one is not starting anything, whatever the daily limit says."""
+        first, second = ordered_pair(user_id, peer_id)
+        with self.session_factory() as session:
+            chat = self._find(session, first, second)
+            return chat is not None and chat.last_message_id is not None
+
+    def messages_sent_since(self, user_id: str, since: datetime) -> int:
+        """Messages this account has sent since then, in every chat."""
+        with self.session_factory() as session:
+            return int(
+                session.execute(
+                    select(func.count())
+                    .select_from(ChatMessageModel)
+                    .where(ChatMessageModel.sender_id == user_id, ChatMessageModel.created_at >= since)
+                ).scalar_one()
+            )
+
+    def chats_started_since(self, user_id: str, since: datetime) -> int:
+        """Conversations this account started since then: chats whose first
+        message is its own and was sent after `since`."""
+        with self.session_factory() as session:
+            first_ids = (
+                select(func.min(ChatMessageModel.id))
+                .join(ChatModel, ChatModel.id == ChatMessageModel.chat_id)
+                .where(or_(ChatModel.user_a_id == user_id, ChatModel.user_b_id == user_id))
+                .group_by(ChatMessageModel.chat_id)
+            )
+            return int(
+                session.execute(
+                    select(func.count())
+                    .select_from(ChatMessageModel)
+                    .where(
+                        ChatMessageModel.id.in_(first_ids),
+                        ChatMessageModel.sender_id == user_id,
+                        ChatMessageModel.created_at >= since,
+                    )
+                ).scalar_one()
+            )
+
+    def transcript(self, user_id: str, chat_id: int, *, limit: int = TRANSCRIPT_LENGTH) -> dict[str, Any]:
+        """The latest messages of a chat the account is in, oldest first,
+        each with who wrote it: what a report from the chat mails to the
+        moderation inbox. A block does not hide it: reporting and blocking
+        are one step in the app, and the report is read first."""
+        with self.session_factory() as session:
+            chat = self._member_chat(session, user_id, chat_id)
+            peer = _peer(chat, user_id)
+            rows = list(
+                session.execute(
+                    select(ChatMessageModel)
+                    .where(ChatMessageModel.chat_id == chat_id)
+                    .order_by(ChatMessageModel.id.desc())
+                    .limit(limit)
+                ).scalars()
+            )
+            cards = account_cards(session, {user_id, peer})
+            return {
+                "chat_id": chat_id,
+                "peer_id": peer,
+                "messages": [
+                    {
+                        "sender_id": message.sender_id,
+                        "sender_name": _card_name(cards.get(message.sender_id, {})),
+                        "body": message.body,
+                        "created_at": _stamp(message.created_at),
+                    }
+                    for message in reversed(rows)
+                ],
+            }
 
     def list_chats(self, user_id: str, *, limit: int = CHATS_LIMIT) -> dict[str, Any]:
         """Every chat with a message in it, the most recent first, less those
@@ -335,27 +433,15 @@ class SqlAlchemyChatRepository:
 
     def contacts(self, user_id: str) -> list[dict[str, Any]]:
         """Who a new chat can be started with from the list, as cards: the
-        people whose own chart the account follows, and the people following
-        any of its charts. Only those with a chart of their own, which is
-        what they are written to through, and less anyone across a block.
+        people the chats' rule lets the account write to (`may_write`: the
+        two follow each other). Only those with a chart of their own, which
+        is what they are written to through, and less anyone across a block.
 
-        Following a chart kept for somebody else, a celebrity's or a
-        mother's, puts nobody here: the person to write to is their own
-        chart."""
+        The follows count account to account, whichever charts they are on;
+        each person is drawn as their own chart all the same."""
         with self.session_factory() as session:
-            followed_owners = (
-                select(ProfileModel.user_id)
-                .join(ProfileFollowModel, ProfileFollowModel.profile_id == ProfileModel.id)
-                .join(UserModel, UserModel.id == ProfileModel.user_id)
-                .where(ProfileFollowModel.user_id == user_id, UserModel.primary_profile_id == ProfileModel.id)
-            )
-            followers = (
-                select(ProfileFollowModel.user_id)
-                .join(ProfileModel, ProfileModel.id == ProfileFollowModel.profile_id)
-                .where(ProfileModel.user_id == user_id)
-            )
-            ids = set(session.execute(union(followed_owners, followers)).scalars())
-            ids.discard(user_id)
+            follows, followed_by = follow_ties(session, user_id)
+            ids = {other for other in follows | followed_by if may_write(other in follows, other in followed_by)}
             ids -= blocked_account_ids(session, user_id)
             if not ids:
                 return []
@@ -377,9 +463,9 @@ class SqlAlchemyChatRepository:
 class FileChatRepository:
     """The same chats for file persistence, which is local development only.
 
-    One JSON file holds chats and messages. Contacts come from the charts the
-    account follows alone: the follows file has no reverse index, so the
-    people following yours are not found here.
+    One JSON file holds chats and messages. Contacts are found from the
+    charts the account follows: the follows file has no reverse index, which
+    the mutual rule does not need.
     """
 
     def __init__(self, profiles: Any, social: FileSocialRepository, path: Path | None = None):
@@ -470,6 +556,52 @@ class FileChatRepository:
         profile_id = self.social.card_for(user_id)["profile_id"]
         return str(profile_id) if profile_id else None
 
+    def follows_between(self, user_id: str, other_id: str) -> tuple[bool, bool]:
+        return self.social.follows_viewer(user_id, other_id), self.social.follows_viewer(other_id, user_id)
+
+    def has_conversation(self, user_id: str, peer_id: str) -> bool:
+        first, second = ordered_pair(user_id, peer_id)
+        return any(
+            chat["a"] == first and chat["b"] == second and chat.get("last_message_id") for chat in self._load()["chats"]
+        )
+
+    @staticmethod
+    def _sent_at(message: dict[str, Any]) -> datetime:
+        return datetime.fromisoformat(str(message["created_at"]).replace("Z", "+00:00"))
+
+    def messages_sent_since(self, user_id: str, since: datetime) -> int:
+        messages = self._load()["messages"]
+        return sum(1 for m in messages if m["sender_id"] == user_id and self._sent_at(m) >= since)
+
+    def chats_started_since(self, user_id: str, since: datetime) -> int:
+        data = self._load()
+        mine = {chat["id"] for chat in data["chats"] if user_id in (chat["a"], chat["b"])}
+        first: dict[int, dict[str, Any]] = {}
+        for message in data["messages"]:
+            if message["chat_id"] in mine and message["chat_id"] not in first:
+                first[message["chat_id"]] = message
+        return sum(1 for m in first.values() if m["sender_id"] == user_id and self._sent_at(m) >= since)
+
+    def transcript(self, user_id: str, chat_id: int, *, limit: int = TRANSCRIPT_LENGTH) -> dict[str, Any]:
+        data = self._load()
+        chat = self._member_chat(data, user_id, chat_id)
+        peer = self._peer(chat, user_id)
+        names = {account: _card_name(self.social.card_for(account)) for account in (user_id, peer)}
+        messages = [m for m in data["messages"] if m["chat_id"] == chat_id][-limit:]
+        return {
+            "chat_id": chat_id,
+            "peer_id": peer,
+            "messages": [
+                {
+                    "sender_id": m["sender_id"],
+                    "sender_name": names.get(m["sender_id"], m["sender_id"]),
+                    "body": m["body"],
+                    "created_at": m["created_at"],
+                }
+                for m in messages
+            ],
+        }
+
     def list_chats(self, user_id: str, *, limit: int = CHATS_LIMIT) -> dict[str, Any]:
         data = self._load()
         blocked = self.social.blocked_user_ids(user_id)
@@ -555,7 +687,8 @@ class FileChatRepository:
             for summary in self.profiles.list_followed(user_id)
             if (owner := self.profiles.get_owner_user_id(summary["profile_id"]))
             and owner != user_id
-            and self.primary_profile_of(owner) == summary["profile_id"]
+            and self.primary_profile_of(owner) is not None
+            and may_write(*self.follows_between(user_id, owner))
         }
         people = [self.social.card_for(owner) for owner in owners - blocked]
         people.sort(key=lambda card: str(card.get("profile_name") or "").casefold())

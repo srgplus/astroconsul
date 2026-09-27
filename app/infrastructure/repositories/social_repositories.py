@@ -27,6 +27,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from sqlalchemy import and_, delete, func, or_, select, union, union_all
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.domain.chat_rules import may_write
 from app.infrastructure.persistence.models import (
     DeviceTokenModel,
     LatestTransitModel,
@@ -170,6 +171,35 @@ def blocked_account_ids(session: Session, user_id: str) -> set[str]:
     return {blocked if blocker == user_id else blocker for blocker, blocked in rows}
 
 
+def follow_ties(session: Session, user_id: str, others: set[str] | None = None) -> tuple[set[str], set[str]]:
+    """The follows between one account and others, account to account: the
+    accounts it follows (at least one chart they own) and the accounts that
+    follow it (at least one chart it owns). With `others`, only among those;
+    without, everyone on either side. What the chats' rule (`may_write`)
+    reads, two queries for a whole listing."""
+    candidates = None if others is None else {other for other in others if other and other != user_id}
+    if candidates is not None and not candidates:
+        return set(), set()
+
+    follows = (
+        select(ProfileModel.user_id)
+        .join(ProfileFollowModel, ProfileFollowModel.profile_id == ProfileModel.id)
+        .where(ProfileFollowModel.user_id == user_id, ProfileModel.user_id != user_id)
+    )
+    followed_by = (
+        select(ProfileFollowModel.user_id)
+        .join(ProfileModel, ProfileModel.id == ProfileFollowModel.profile_id)
+        .where(ProfileModel.user_id == user_id, ProfileFollowModel.user_id != user_id)
+    )
+    if candidates is not None:
+        follows = follows.where(ProfileModel.user_id.in_(candidates))
+        followed_by = followed_by.where(ProfileFollowModel.user_id.in_(candidates))
+    return (
+        {owner for owner in session.execute(follows.distinct()).scalars() if owner},
+        set(session.execute(followed_by.distinct()).scalars()),
+    )
+
+
 class SqlAlchemySocialRepository:
     def __init__(self, session_factory: sessionmaker[Session]):
         self.session_factory = session_factory
@@ -291,8 +321,9 @@ class SqlAlchemySocialRepository:
         (Settings > Community).
 
         `can_message` is whether the viewer can write to the chart: only a
-        chart its owner marked as their own is a way to a person, and only
-        somebody else's."""
+        chart its owner marked as their own is a way to a person, only
+        somebody else's, and only while the chats' rule lets the two of them
+        write (`may_write`: they follow each other)."""
         ids = list(dict.fromkeys(profile_ids))
         counts: dict[str, dict[str, Any]] = {
             profile_id: {
@@ -355,6 +386,7 @@ class SqlAlchemySocialRepository:
             # Whose each chart is, whether that account keeps its numbers to
             # itself, and which of its charts it marked as its own.
             owners: dict[str, tuple[str, bool]] = {}
+            own_charts: set[str] = set()
             for profile_id, owner_id, hidden, primary_id in session.execute(
                 select(
                     ProfileModel.id,
@@ -366,11 +398,19 @@ class SqlAlchemySocialRepository:
                 .where(ProfileModel.id.in_(ids))
             ).all():
                 owners[profile_id] = (owner_id, bool(hidden))
-                counts[profile_id]["can_message"] = primary_id == profile_id and owner_id != viewer_user_id
+                if primary_id == profile_id and owner_id != viewer_user_id:
+                    own_charts.add(profile_id)
+            owner_ids = {owner_id for owner_id, _ in owners.values()}
+            if own_charts:
+                follows, followed_by = follow_ties(
+                    session, viewer_user_id, {owners[profile_id][0] for profile_id in own_charts}
+                )
+                for profile_id in own_charts:
+                    owner_id = owners[profile_id][0]
+                    counts[profile_id]["can_message"] = may_write(owner_id in follows, owner_id in followed_by)
             # Following belongs to the account, not the chart: every chart the
             # owner follows, not counting any of its own.
             following: dict[str, int] = {}
-            owner_ids = {owner_id for owner_id, _ in owners.values()}
             if owner_ids:
                 for owner_id, total in session.execute(
                     select(ProfileFollowModel.user_id, func.count())
@@ -964,7 +1004,8 @@ class FileSocialRepository:
                 # The first chart stands in for a primary here, as in `card`.
                 "can_message": owner is not None
                 and owner != viewer_user_id
-                and self._card(owner)["profile_id"] == profile_id,
+                and self._card(owner)["profile_id"] == profile_id
+                and may_write(self.follows_viewer(viewer_user_id, owner), self.follows_viewer(owner, viewer_user_id)),
             }
         return counts
 

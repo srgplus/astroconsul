@@ -1,15 +1,11 @@
 """What may not be posted, and what a report may say.
 
-One person puts text in front of another on big3.me in two places: a
-profile's display name and handle, and a chat message. There are no posts or
-comments. So this is where objectionable material is stopped on the way in,
-which is the first of App Review's four requirements for a social network
-(guideline 1.2). The other three — report, block and published contact
-details — live in the social routes, the app, and the legal pages.
-
-Names and messages go through the same list. A message is between two people,
-but its reader did not choose its words, and a slur in a chat is exactly what
-the requirement is about.
+The text one person puts in front of another on big3.me is a profile's
+display name and its handle, and the messages of the chats. There are no
+posts or comments. So this is where objectionable material is stopped on the
+way in, which is the first of App Review's four requirements for a social
+network (guideline 1.2). The other three (report, block and published
+contact details) live in the social routes, the app, and the legal pages.
 
 The list is deliberately short and unambiguous. A filter that rejects "Dick"
 or "Scunthorpe" turns real people away from their own names, which is worse
@@ -20,6 +16,10 @@ than the rare slur that gets past it and is then reported. So:
   only as whole words;
 * spacing, underscores, dots and the usual digit-for-letter swaps are undone
   first, so "f_u_c_k" and "sh1t" do not walk around it.
+
+A message is checked with the same lists, a word at a time (see
+`message_is_objectionable`): collapsing the spaces of a whole sentence would
+glue innocent neighbours into a stem ("поп издал" reads "попиздал").
 """
 
 from __future__ import annotations
@@ -65,6 +65,8 @@ _WORDS = (
     "porn",
     "nigga",
     "хуй",
+    "нахуй",
+    "похуй",
     "сука",
     "суки",
     "сучка",
@@ -102,6 +104,40 @@ def contains_objectionable(text: str | None) -> bool:
     return any(word in words for word in _WORDS)
 
 
+def _word_is_objectionable(word: str) -> bool:
+    """One word of a message, normalized: a stem anywhere in it once its
+    inner separators are gone, or a whole word of the list, with or without
+    the punctuation around it ("s.h.i.t!")."""
+    collapsed = _SEPARATORS.sub("", word)
+    if any(stem in collapsed for stem in _STEMS):
+        return True
+    parts = set(_WORD_SPLIT.split(word)) | set(_WORD_SPLIT.split(collapsed))
+    return any(part in parts for part in _WORDS)
+
+
+def message_is_objectionable(text: str | None) -> bool:
+    """True when a message carries a word that may not be sent to anyone.
+
+    The lists are the names' own; only the reading differs. A name is short
+    and read as one piece, a message is read a word at a time, plus any run
+    of single letters spelled out with spaces ("f u c k"), which is the one
+    way around a word-by-word check that people actually use."""
+    if not text:
+        return False
+    words = _normalize(text).split()
+    if any(_word_is_objectionable(word) for word in words):
+        return True
+    run: list[str] = []
+    for word in [*words, ""]:
+        if len(word) == 1:
+            run.append(word)
+            continue
+        if len(run) > 1 and _word_is_objectionable("".join(run)):
+            return True
+        run = []
+    return False
+
+
 def check_profile_text(profile_name: str, username: str) -> None:
     """Raise ValueError when a name or handle may not be posted.
 
@@ -110,12 +146,3 @@ def check_profile_text(profile_name: str, username: str) -> None:
     """
     if contains_objectionable(profile_name) or contains_objectionable(username):
         raise ValueError("This name can't be used on big3.me. Please choose another one.")
-
-
-def check_message_text(body: str) -> None:
-    """Raise ValueError when a chat message may not be sent.
-
-    Nothing is stored and nobody is told: the sender sees why it did not go
-    and can say it another way."""
-    if contains_objectionable(body):
-        raise ValueError("This message can't be sent: it has words that aren't allowed on big3.me.")

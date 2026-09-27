@@ -99,7 +99,9 @@ struct ChatScreen: View {
                 Task { await model.poll() }
             }
             .sheet(item: $reporting) { profile in
-                ReportSheet(profile: profile) { blocked in
+                // The chat goes with the report: its latest messages are
+                // what the moderator reads.
+                ReportSheet(profile: profile, chatId: model.chatId) { blocked in
                     if blocked { leaveBlocked() }
                 }
             }
@@ -241,6 +243,9 @@ struct ChatScreen: View {
 
         case .needsOwnChart:
             notice(icon: "person.crop.circle.badge.questionmark", title: L("primary.title"), body: L("chats.ownBody"))
+
+        case let .refused(text):
+            notice(icon: "exclamationmark.bubble", title: L("chat.refusedTitle"), body: text)
 
         case .loaded:
             messagesList
@@ -398,11 +403,8 @@ struct ChatScreen: View {
 
             switch row.content {
             case let .outgoing(item):
-                if item.refused {
-                    Label(L("chat.refused"), systemImage: "exclamationmark.circle")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Theme.error)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                if let refusal = item.refusal {
+                    refusalLine(item, refusal)
                 } else if item.failed {
                     Button {
                         Task { await model.retry(item) }
@@ -455,6 +457,29 @@ struct ChatScreen: View {
                     }
                 }
             }
+    }
+
+    /// Why the server would not take a message, in its words, under the
+    /// bubble: no "try again", since the same text would be refused again.
+    /// A limit passes, so that one can be tapped once the wait is over.
+    @ViewBuilder
+    private func refusalLine(_ item: ChatViewModel.Outgoing, _ text: String) -> some View {
+        let label = Label(text, systemImage: "exclamationmark.circle")
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(Theme.error)
+            .multilineTextAlignment(.trailing)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.leading, 64)
+        if item.canRetry {
+            Button {
+                Task { await model.retry(item) }
+            } label: {
+                label
+            }
+            .buttonStyle(.plain)
+        } else {
+            label
+        }
     }
 
     private func statusLine(_ text: String) -> some View {

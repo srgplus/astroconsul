@@ -18,6 +18,79 @@ On the server a like pushed only on the first like of the day, but an
 unlike deletes that row, so like/unlike/like buzzed the owner every time.
 `social_push` now keeps likes under the same in-memory quiet hour as follows
 (`QUIET_SECONDS`, `_recent_pushes` keyed by kind, actor and chart).
+### The messenger is ready for App Review: mutual follow, a word filter, limits, reports with the chat
+Guideline 1.2 asks any app where people write to each other for a filter,
+report, block and published contact. The chats had block, report and (see
+below) a word filter, but let anyone with a chart write to anyone with one,
+took messages as fast as a phone could post, and a report from a chat said
+nothing about the chat.
+
+**Who may write** is one function, `app/domain/chat_rules.may_write(sender
+follows recipient, recipient follows sender)`: the owner's rule is mutual
+follow, where "follows" means at least one chart the other account owns (a
+follow on someone's mother's chart counts as following them). Switching to
+one-way is one line there. It is read by `POST /chats` and `POST
+/chats/{id}/messages` (403, "You can write to each other while you follow
+each other."), by `can_message` in `social_counts` (SQL and file), and by
+`GET /chats/contacts`. The other rules stand (a primary on both sides, no
+block; a block deletes the follows, so it breaks the rule too). A chat that
+exists stays readable when a follow goes; only sending stops, and following
+again opens it. `follow_ties(session, user, others)` in
+`social_repositories` gives both directions for a whole listing in two
+queries.
+
+**Filter.** `moderation.message_is_objectionable` reads a message with the
+names' lists a word at a time, plus runs of spelled-out single letters ("f u c
+k"). Gluing a whole sentence together the way names are read would turn "поп
+издал" into a stem. "нахуй" and "похуй" joined the whole-word list (names too).
+Refused with 422 and nothing stored.
+
+**Limits** (constants in `chat_rules`): 30 messages a minute and 500 a day
+per sender (`Retry-After` 60 / 3600), and 20 new conversations a day, where a
+new conversation is a chat whose first message is yours: answering someone
+else's first message, or going on in a chat that has messages, never counts.
+`POST /chats` checks the new-chat limit too, so the refusal comes before
+typing. Plain count queries on `chat_messages`, no new table, no migration.
+The per-sender count has no index on `(sender_id, created_at)`; fine at
+today's volume, add one if `chat_messages` grows large.
+
+**Refusals speak the app's language.** iOS now sends `Accept-Language:
+<LanguageStore.code>` on every request; the chat routes answer in Russian for
+`ru`, English otherwise (`REFUSALS` in `chats.py`). Nothing else in the API
+reads the header.
+
+**Reports from a chat.** `POST /reports` takes `chat_id`. When the reporter is
+in that chat and it is with the reported profile's owner, the moderation mail
+gets the last 20 messages (`ChatRepository.transcript`), oldest first, with
+each sender's name and handle, reporter/reported, and UTC time, escaped.
+Otherwise the report is filed without them and a warning is logged: a report
+is never refused over the chat it names. The transcript is read before the
+optional block. The response has `conversation_attached`. `report_email()`
+builds the subject and body so tests can read it. The chat id is not stored
+on `profile_reports` (that would need a migration); the mail is the record.
+
+**iOS.** `ChatScreen`'s Report passes `chatId`, and `ReportSheet`'s footer
+says the latest messages go with the report. A send refused with
+400/403/422/429 shows the server's sentence under the bubble instead of "Tap
+to try again" (`Outgoing.refusal`); only a 429 can be tapped to retry, since
+a limit passes. A chat the server will not open (403/429 on `POST /chats`)
+shows `.refused` with the sentence and no retry button. The empty-state texts
+say "people you follow who follow you back".
+
+**Legal and App Store.** Terms (section 5) and Privacy (new 3a, Private
+Messages, plus Apple Push Notification service and Resend under sharing)
+cover messages. `.ai/apple-submission-v1.3.md`: Messages and pushes in the
+review notes, Messaging and chat = Yes, App Privacy "Emails or Text
+Messages", two demo accounts with a conversation, build 19.
+
+**Against the entries below.** It replaces `moderation.check_message_text`
+and `Outgoing.refused` from "Chat messages go through the word filter": that
+filter read a whole message the way it reads a name, spaces glued, so "поп
+издал" was refused. That entry also records the owner choosing "anyone with a
+chart of their own" over mutual follows, while this work was asked for mutual
+follow. The choice lives in `may_write` alone: `return True` there brings back
+anyone-with-a-chart for open, send, `can_message` and contacts, and the Terms
+and the review notes then need their "follow each other" lines taken out.
 
 ### A chart page loads in a fraction of the time: timing search and the forecast
 The owner found profiles slow to open. A page is two requests, the 10-day
