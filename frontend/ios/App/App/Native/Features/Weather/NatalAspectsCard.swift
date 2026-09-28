@@ -16,10 +16,16 @@ import SwiftUI
 /// with one difference: the name is spelled out. Up there the transit's arc
 /// fills the middle of the row and three glyphs have to carry the naming; here
 /// nothing is moving, so the room goes to saying what the aspect is.
+///
+/// Tapping a row opens `NatalAspectDetailSheet`, the way an Active Transits
+/// row opens the transit's.
 struct NatalAspectsCard: View {
 
     /// The grid as the report sent it — `TransitPositions.natalAspects`.
     let aspects: [NatalAspect]
+    /// Natal positions by object id — `TransitPositions.natal` — for the
+    /// sheet a row opens.
+    var positions: [String: ChartPosition] = [:]
 
     @Environment(\.transitPalette) private var palette
 
@@ -29,6 +35,7 @@ struct NatalAspectsCard: View {
     /// full grid runs to thirty-odd rows, which is a chart to study rather
     /// than a card to read.
     @State private var mostImpact = true
+    @State private var selected: NatalAspect?
 
     private var visible: [NatalAspect] {
         mostImpact ? aspects.filter(\.isImpactful) : aspects
@@ -86,8 +93,13 @@ struct NatalAspectsCard: View {
 
                         row(aspect)
                             .padding(.vertical, 11)
+                            .contentShape(Rectangle())
+                            .onTapGesture { selected = aspect }
                     }
                 }
+            }
+            .sheet(item: $selected) { aspect in
+                NatalAspectDetailSheet(aspect: aspect, positions: positions)
             }
         }
     }
@@ -167,6 +179,8 @@ struct NatalAspectsCard: View {
                 String(format: "%.2f", aspect.orb)
             )
         )
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint(L("natalAspects.rowHint"))
     }
 }
 
@@ -176,7 +190,10 @@ struct NatalAspectsCard: View {
         WeatherSky.gradient(for: .active).ignoresSafeArea()
 
         ScrollView {
-            NatalAspectsCard(aspects: WeatherPreviewData.positions.natalAspects)
+            NatalAspectsCard(
+                aspects: WeatherPreviewData.positions.natalAspects,
+                positions: WeatherPreviewData.positions.natal
+            )
                 .padding(16)
         }
     }
