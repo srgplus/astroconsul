@@ -16,6 +16,11 @@ the one the repo says. Needs the three `ASC_*` repository secrets (see
 SKILL.md 1a); until they are set the first step fails and names what is
 missing. Not yet run: the first run is the test of the signing.
 
+Xcode Cloud, if the owner turns it on, finds
+`frontend/ios/App/ci_scripts/ci_post_clone.sh` beside the project: Node from
+Homebrew, `npm ci`, `npm run build`, `npx cap copy ios`. Nothing else in the
+repo changes for it; the workflow itself is made once in Xcode (SKILL.md 1a).
+
 ## 2026-09-27
 
 ### The chats are live: messages as they are written, "Seen" as it happens, dots while typing

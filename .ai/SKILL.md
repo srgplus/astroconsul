@@ -109,6 +109,15 @@ certificate), so the repository secrets are the key alone: `ASC_KEY_ID`,
 project's `CURRENT_PROJECT_VERSION`, bumped in a commit as before, unless the
 run is given one; App Store Connect refuses a number it already has.
 
+Xcode Cloud is the other way, and the repository is ready for it:
+`frontend/ios/App/ci_scripts/ci_post_clone.sh` installs Node and makes the
+generated web assets. Turning it on is one time in Xcode on a Mac (Product ->
+Xcode Cloud -> Create Workflow: archive iOS, TestFlight internal testing,
+start on main or by hand), and its Next Build Number set above the last one
+uploaded, since Xcode Cloud numbers its own builds. Its logs live in App Store
+Connect, out of a session's reach, which is why the GitHub workflow is the one
+sessions run.
+
 ### One simulator per worktree, and only when asked
 
 A simulator is booted when someone asks to *see* the app, not because a session
