@@ -1,0 +1,143 @@
+name: TestFlight
+
+# Archives the app and uploads it to TestFlight, from a Mac runner rather than
+# the owner's Mac. Run by hand (Actions -> TestFlight -> Run workflow) or by a
+# session through the API; it runs on whatever ref it is started on, main
+# unless told otherwise.
+#
+# Signing is Xcode's own automatic signing, authenticated with an App Store
+# Connect API key, so the key is the only thing kept in secrets: no
+# certificates, no profiles. Three repository secrets:
+#
+#   ASC_KEY_ID      the key's ID, ten characters
+#   ASC_ISSUER_ID   the Issuer ID shown above the keys (a UUID)
+#   ASC_KEY_P8      the whole AuthKey_<id>.p8 file, BEGIN and END lines included
+#
+# The key wants the Admin role: the upload is signed with a cloud-managed
+# distribution certificate, which the lesser roles may not use.
+#
+# The build number is the project's CURRENT_PROJECT_VERSION, bumped in a
+# commit the way every build so far has been, unless one is given here.
+# App Store Connect refuses a number it already has, and says so in the log.
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Build number (empty: the project's CURRENT_PROJECT_VERSION)"
+        required: false
+        default: ""
+
+# One upload at a time, and never one cancelled halfway.
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    # The Xcode the app is developed against, as in CI.
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      BUILD_NUMBER: ${{ inputs.build_number }}
+    steps:
+      - name: Check the App Store Connect key is set
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          missing=""
+          [ -n "$ASC_KEY_ID" ] || missing="$missing ASC_KEY_ID"
+          [ -n "$ASC_ISSUER_ID" ] || missing="$missing ASC_ISSUER_ID"
+          [ -n "$ASC_KEY_P8" ] || missing="$missing ASC_KEY_P8"
+          if [ -n "$missing" ]; then
+            echo "::error::Repository secrets missing:$missing (Settings -> Secrets and variables -> Actions)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # The target copies public/, capacitor.config.json and config.xml, which
+      # are generated rather than tracked (see ci.yml).
+      - name: Build web assets
+        run: |
+          npm ci
+          npm run build
+          npx cap copy ios
+        working-directory: frontend
+
+      - name: Report the toolchain
+        run: xcodebuild -version
+
+      - name: Install the API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
+          chmod 600 "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" >> "$GITHUB_ENV"
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project big3.me.xcodeproj \
+            -scheme big3.me \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/big3.me.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            ${BUILD_NUMBER:+CURRENT_PROJECT_VERSION=$BUILD_NUMBER}
+        working-directory: frontend/ios/App
+
+      - name: Upload to TestFlight
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>teamID</key>
+            <string>85679N47YT</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/big3.me.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Say what went up
+        run: |
+          info="$RUNNER_TEMP/big3.me.xcarchive/Info.plist"
+          version=$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' "$info")
+          build=$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleVersion' "$info")
+          echo "Uploaded big3.me $version ($build) from ${GITHUB_SHA::7}. It shows in TestFlight once App Store Connect has processed it, usually 10-30 minutes." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the API key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/asc"

@@ -98,6 +98,17 @@ A red check leaves the PR open and says nothing, so check after pushing:
 `gh pr checks` or `gh run list`. If main moved ahead and the PR conflicts,
 rebase onto `origin/main` and force-push the branch.
 
+### TestFlight without a Mac
+
+`.github/workflows/testflight.yml` archives and uploads from a `macos-26`
+runner: Actions -> TestFlight -> Run workflow, or `workflow_dispatch` through
+the API from a session. Signing is Xcode's automatic signing authenticated with
+an App Store Connect API key (Admin role, for the cloud-managed distribution
+certificate), so the repository secrets are the key alone: `ASC_KEY_ID`,
+`ASC_ISSUER_ID`, `ASC_KEY_P8` (the whole .p8). The build number is the
+project's `CURRENT_PROJECT_VERSION`, bumped in a commit as before, unless the
+run is given one; App Store Connect refuses a number it already has.
+
 ### One simulator per worktree, and only when asked
 
 A simulator is booted when someone asks to *see* the app, not because a session

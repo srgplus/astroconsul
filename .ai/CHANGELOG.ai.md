@@ -2,6 +2,20 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-09-28
+
+### TestFlight from GitHub Actions
+Builds 19 to 21 were archived and uploaded from the owner's Mac; a cloud
+session could bump the number but not ship it. `testflight.yml` does both
+steps on a `macos-26` runner, started by hand or by a session
+(`workflow_dispatch`, optional `build_number`). It builds the web assets as
+CI does, archives Release for `generic/platform=iOS` with
+`-allowProvisioningUpdates` and the API key, then `-exportArchive` with
+`destination: upload`, `manageAppVersionAndBuildNumber` off so the number is
+the one the repo says. Needs the three `ASC_*` repository secrets (see
+SKILL.md 1a); until they are set the first step fails and names what is
+missing. Not yet run: the first run is the test of the signing.
+
 ## 2026-09-27
 
 ### The chats are live: messages as they are written, "Seen" as it happens, dots while typing
