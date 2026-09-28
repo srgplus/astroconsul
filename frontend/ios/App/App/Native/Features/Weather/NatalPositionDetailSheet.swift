@@ -40,6 +40,9 @@ struct NatalPositionDetailSheet: View {
     /// A transit row opens the same sheet the Active Transits card opens, so
     /// the window and the interpretation are read in one place only.
     @State private var selectedTransit: ActiveAspect?
+    /// A chart aspect row likewise opens the sheet the Chart aspects card
+    /// opens.
+    @State private var selectedAspect: NatalAspect?
 
     /// Tightest first: the closer the orb, the louder the aspect.
     private var aspects: [NatalAspect] {
@@ -81,6 +84,9 @@ struct NatalPositionDetailSheet: View {
                 positions: positions,
                 now: now
             )
+        }
+        .sheet(item: $selectedAspect) { aspect in
+            NatalAspectDetailSheet(aspect: aspect, positions: positions.natal)
         }
     }
 
@@ -268,6 +274,8 @@ struct NatalPositionDetailSheet: View {
                 ForEach(aspects) { aspect in
                     aspectRow(aspect)
                         .padding(.top, 10)
+                        .contentShape(Rectangle())
+                        .onTapGesture { selectedAspect = aspect }
                 }
             }
         }
@@ -319,6 +327,7 @@ struct NatalPositionDetailSheet: View {
                 String(format: "%.2f", aspect.orb)
             )
         )
+        .accessibilityAddTraits(.isButton)
     }
 
     // MARK: - What is transiting it

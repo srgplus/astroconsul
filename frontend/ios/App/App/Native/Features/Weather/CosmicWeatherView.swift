@@ -581,7 +581,10 @@ struct CosmicWeatherView: View {
         // Where those positions stand to each other. Under the table and not
         // above it: a row here names two bodies, and the table is where a
         // reader just looked them up.
-        NatalAspectsCard(aspects: model.positions.natalAspects)
+        NatalAspectsCard(
+            aspects: model.positions.natalAspects,
+            positions: model.positions.natal
+        )
 
         // The first card that needs a second chart, so it comes after every
         // one that reads this person's own sky.

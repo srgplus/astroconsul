@@ -271,7 +271,7 @@ struct TransitDetailSheet: View {
                     .padding(.bottom, 4)
 
                 if let transiting {
-                    positionRow(
+                    SheetPositionRow(
                         object: aspect.transitObject,
                         position: transiting,
                         label: L("detail.transiting")
@@ -280,7 +280,7 @@ struct TransitDetailSheet: View {
                 }
 
                 if let natal {
-                    positionRow(
+                    SheetPositionRow(
                         object: aspect.natalObject,
                         position: natal,
                         label: L("detail.natal")
@@ -289,60 +289,6 @@ struct TransitDetailSheet: View {
                 }
             }
         }
-    }
-
-    private func positionRow(object: String, position: ChartPosition, label: String) -> some View {
-        HStack(spacing: 8) {
-            Text(AstroGlyph.object(object))
-                .font(.system(size: 15))
-                .foregroundStyle(Theme.text)
-                .frame(width: 22, alignment: .leading)
-
-            Text(Astro.object(object))
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.text)
-                .lineLimit(1)
-
-            Spacer(minLength: 6)
-
-            if let degree = position.formattedDegree {
-                Text(degree)
-                    .font(.system(size: 14, design: .rounded))
-                    .foregroundStyle(Theme.textStrong)
-                    .monospacedDigit()
-                    .fixedSize()
-            }
-
-            // Sign name, no glyph: U+2648-2653 resolve through the emoji font,
-            // which the simulator draws as tofu and a device draws in colour.
-            // Neither is what this row wants.
-            if let sign = Astro.sign(position.sign) {
-                Text(sign)
-                    .font(.system(size: 14, design: .rounded))
-                    .foregroundStyle(Theme.textStrong)
-                    .lineLimit(1)
-                    .fixedSize()
-            }
-
-            // A house symbol, not the web's △: that triangle is the glyph for
-            // a trine, so on a row about aspects it reads as one.
-            if let house = position.houseNumber {
-                HStack(spacing: 3) {
-                    Image(systemName: "house")
-                        .font(.system(size: 11))
-
-                    Text("\(house)")
-                        .font(.system(size: 13, design: .rounded))
-                        .monospacedDigit()
-                }
-                .foregroundStyle(Theme.textDim)
-                .fixedSize()
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(L("detail.house", house))
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label) \(Astro.object(object))")
     }
 }
 
@@ -396,5 +342,96 @@ struct SheetCardHeader: View {
             }
         }
         .foregroundStyle(Theme.textDim)
+    }
+}
+
+/// One point of an aspect, where it stands: glyph and name, then the degree,
+/// the sign and the house. Both detail sheets that name two points print them
+/// this way — the transit sheet one moving body and one natal point, the
+/// chart aspect sheet two natal points.
+struct SheetPositionRow: View {
+
+    let object: String
+    let position: ChartPosition
+    /// "transiting" or "natal", read before the name by VoiceOver.
+    let label: String
+    /// Retrograde at birth, on a sheet about the chart itself. The transit
+    /// sheet marks the moving body's retrograde in its title instead.
+    var marksRetrograde = false
+    /// The angles are the cusps of houses 1 and 10 by definition, so a house
+    /// beside them would repeat the name. Only the chart aspect sheet drops
+    /// it; the transit sheet has always printed it.
+    var showsAngleHouse = true
+
+    @ObservedObject private var strings = L10n.shared
+
+    private var house: Int? {
+        guard showsAngleHouse || (object != "ASC" && object != "MC") else { return nil }
+        return position.houseNumber
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(AstroGlyph.object(object))
+                .font(.system(size: 15))
+                .foregroundStyle(Theme.text)
+                .frame(width: 22, alignment: .leading)
+
+            HStack(spacing: 5) {
+                Text(Astro.object(object))
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                if marksRetrograde, position.retrograde == true {
+                    Text("\u{211E}")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.textDim)
+                        .fixedSize()
+                        .accessibilityLabel(L("detail.retrograde"))
+                }
+            }
+
+            Spacer(minLength: 6)
+
+            if let degree = position.formattedDegree {
+                Text(degree)
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundStyle(Theme.textStrong)
+                    .monospacedDigit()
+                    .fixedSize()
+            }
+
+            // Sign name, no glyph: U+2648-2653 resolve through the emoji font,
+            // which the simulator draws as tofu and a device draws in colour.
+            // Neither is what this row wants.
+            if let sign = Astro.sign(position.sign) {
+                Text(sign)
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundStyle(Theme.textStrong)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+
+            // A house symbol, not the web's △: that triangle is the glyph for
+            // a trine, so on a row about aspects it reads as one.
+            if let house {
+                HStack(spacing: 3) {
+                    Image(systemName: "house")
+                        .font(.system(size: 11))
+
+                    Text("\(house)")
+                        .font(.system(size: 13, design: .rounded))
+                        .monospacedDigit()
+                }
+                .foregroundStyle(Theme.textDim)
+                .fixedSize()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(L("detail.house", house))
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label) \(Astro.object(object))")
     }
 }

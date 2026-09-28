@@ -242,6 +242,7 @@ private let enUI: [String: String] = [
     // Natal aspect grid
     "natalAspects.title": "Chart aspects",
     "natalAspects.nothingStrong": "No exact or strong aspects in this chart.",
+    "natalAspects.rowHint": "Opens this aspect in detail",
 
     // Compatibility (synastry). Keys shared with the web's own widget and
     // report, so the pair, the score labels and the four categories are
@@ -665,6 +666,7 @@ private let enGuide: [String: String] = [
     "about.windowTitle": "About the window",
     "about.positionsTitle": "About the positions",
     "about.pointTitle": "About this point",
+    "about.aspectTitle": "About this aspect",
     "about.chartAspectsTitle": "About chart aspects",
     "about.transitsHereTitle": "About transits to this point",
     "about.moonTitle": "About the Moon",
@@ -1030,6 +1032,7 @@ private let ruUI: [String: String] = [
     // Natal aspect grid
     "natalAspects.title": "Аспекты карты",
     "natalAspects.nothingStrong": "В этой карте нет точных и сильных аспектов.",
+    "natalAspects.rowHint": "Открывает подробности аспекта",
 
     // Совместимость
     "synastry.title": "Совместимость",
@@ -1429,6 +1432,7 @@ private let ruGuide: [String: String] = [
     "about.windowTitle": "Об окне",
     "about.positionsTitle": "О позициях",
     "about.pointTitle": "Об этой точке",
+    "about.aspectTitle": "Об этом аспекте",
     "about.chartAspectsTitle": "Об аспектах карты",
     "about.transitsHereTitle": "О транзитах к этой точке",
     "about.moonTitle": "О Луне",
