@@ -107,7 +107,11 @@ an App Store Connect API key (Admin role, for the cloud-managed distribution
 certificate), so the repository secrets are the key alone: `ASC_KEY_ID`,
 `ASC_ISSUER_ID`, `ASC_KEY_P8` (the whole .p8). The build number is the
 project's `CURRENT_PROJECT_VERSION`, bumped in a commit as before, unless the
-run is given one; App Store Connect refuses a number it already has.
+run is given one; App Store Connect refuses a number it already has. Two targets
+carry the number and the version (the app and `NotificationService`), and an
+extension whose `CURRENT_PROJECT_VERSION` or `MARKETING_VERSION` differs from
+the app's is refused at upload, so a bump changes every such line in
+`project.pbxproj`, four of each.
 
 Xcode Cloud is the other way, and the repository is ready for it:
 `frontend/ios/App/ci_scripts/ci_post_clone.sh` installs Node and makes the
@@ -562,6 +566,15 @@ list every 8 s / 30 s, and the line coming back or a foreground push makes both 
 `UIHostingController` and a hosted view's `scenePhase` never reads `.active`, which is why the
 chat once neither polled nor marked anything read. The icon badge is Activity + messages
 (`social_push.app_badge`, `PushNotifications.syncBadge`).
+**A push from a person** (message, like, follow) carries `sender` (`id`: a hash of the account,
+`name`, `sign`: the Sun sign), `mutable-content: 1`, and for a like or a follow `short_body`
+(the sentence without the name). The app's Notification Service Extension
+(`frontend/ios/App/NotificationService/`, bundle `me.big3.app.NotificationService`) draws the
+Sun sign on a charcoal circle and hands iOS an incoming `INSendMessageIntent`, so the banner is
+a communication notification: the face on the left, the app icon small in its corner, the name
+as the title. Needs the `com.apple.developer.usernotifications.communication` entitlement and
+`NSUserActivityTypes: INSendMessageIntent` in the app. Anything missing leaves the push as the
+server wrote it.
 iOS: `ChatsButton` beside the bell (`CornerCount` badge shared with it), `ChatsScreen` (list,
 compose via `NewChatSheet`, `OwnChartChooser`), `ChatScreen` (bubbles, Seen/Delivered, Report,
 Block, three dots while the other side types), `ChatStore` (unread, kept list, `typingChats`,

@@ -46,6 +46,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>INSendMessageIntent</string>
+	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>The forecast is calculated for where you are now, not where you were born. big3.me uses your location only to name that place.</string>
 	<key>SUPABASE_ANON_KEY</key>
