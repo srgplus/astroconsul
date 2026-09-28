@@ -3,7 +3,9 @@
 It rides on what the likes and follows already use: the APNs client in
 `push_service` and the phones the social repository keeps for each account.
 The banner is the sender's name over the text, the way Messages draws one,
-and each chat stacks on its own in Notification Centre. The icon's badge is
+with their face beside it: the phone's notification extension draws their
+Sun sign from `sender`, with the app's icon small in the corner. Each chat
+stacks on its own in Notification Centre. The icon's badge is
 everything unread in the app, Activity and messages together.
 
 Every message is news, so there is no quiet period and no collapsing: two
@@ -19,7 +21,7 @@ import logging
 from typing import Any
 
 from app.application.services.push_service import get_sender
-from app.application.services.social_push import app_badge
+from app.application.services.social_push import app_badge, sender_payload
 from app.infrastructure.repositories.factory import RepositoryBundle
 
 logger = logging.getLogger(__name__)
@@ -71,24 +73,29 @@ def _deliver(
     if not devices:
         return
 
-    name = str(social.card_for(sender_id).get("profile_name") or "").strip()
+    card = social.card_for(sender_id)
+    name = str(card.get("profile_name") or "").strip()
     badge = app_badge(repos, recipient_id)
 
     for device in devices:
+        lang = device.get("lang", "en")
         payload = {
             "aps": {
                 "alert": {
-                    "title": name or SOMEONE.get(device.get("lang", "en"), SOMEONE["en"]),
+                    "title": name or SOMEONE.get(lang, SOMEONE["en"]),
                     "body": preview(str(message.get("body") or "")),
                 },
                 "sound": "default",
                 "badge": badge,
                 # One stack per chat in Notification Centre, as Messages does.
                 "thread-id": f"chat-{chat_id}",
+                # Lets the app's notification extension draw the sender.
+                "mutable-content": 1,
             },
             # Read by the app: a tap opens this chat.
             "kind": "message",
             "chat_id": chat_id,
+            "sender": sender_payload(sender_id, card, lang),
         }
         result = sender.send(device["token"], device.get("environment", "production"), payload)
         if result.gone:

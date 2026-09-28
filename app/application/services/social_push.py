@@ -17,6 +17,12 @@ What earns a push, and what does not:
 * never your own action on your own chart, and never when the owner switched
   that kind off in Settings.
 
+Each push also says who acted (`sender`): the phone draws that person's Sun
+sign as their face and their name as the title, the way Messages shows a
+text, with the app's icon small in the corner. The body under the name then
+drops the name (`short_body`). A phone without the extension that draws it
+shows the full sentence, which names them itself.
+
 It runs after the response has gone (FastAPI background task), so a like is
 as fast with a push as without, and it never raises: a failure is logged.
 """
@@ -54,6 +60,22 @@ TEXTS: dict[str, dict[str, str]] = {
     },
 }
 
+# The same words for a banner whose title is already the person's name.
+SHORT_TEXTS: dict[str, dict[str, str]] = {
+    "en": {
+        "like.yours": "Liked your chart",
+        "like.other": "Liked {chart}",
+        "follow.yours": "Started following you",
+        "follow.other": "Started following {chart}",
+    },
+    "ru": {
+        "like.yours": "Лайкнул(а) вашу карту",
+        "like.other": "Лайкнул(а) карту «{chart}»",
+        "follow.yours": "Подписался(-ась) на вас",
+        "follow.other": "Подписался(-ась) на карту «{chart}»",
+    },
+}
+
 # The feels-like words in Russian, as the app prints them.
 FEELS_RU = {
     "Calm": "Спокойно",
@@ -84,6 +106,31 @@ def app_badge(repos: RepositoryBundle, user_id: str) -> int:
     activity = repos.social.unread_activity_count(user_id) if repos.social is not None else 0
     messages = repos.chats.unread_count(user_id) if repos.chats is not None else 0
     return activity + messages
+
+
+def sender_payload(actor_id: str, card: dict[str, Any], lang: str) -> dict[str, str]:
+    """Who a push is from, for the phone to draw as a person: an id that
+    stays the same for them, the name, and the sign their Sun is in, which is
+    the face the app gives everyone. The id is a hash of the account, so no
+    account id leaves the server."""
+    name = str(card.get("profile_name") or "").strip()
+    sender = {
+        "id": hashlib.sha1(f"person:{actor_id}".encode()).hexdigest()[:20],
+        "name": name or TEXTS.get(lang, TEXTS["en"])["someone"],
+    }
+    sign = sun_sign(card)
+    if sign:
+        sender["sign"] = sign
+    return sender
+
+
+def sun_sign(card: dict[str, Any]) -> str | None:
+    """The sign the Sun was in: the chart builder writes "Aries 27°04'12\"",
+    so the first word."""
+    summary = card.get("natal_summary")
+    sun = summary.get("sun") if isinstance(summary, dict) else None
+    words = str(sun or "").split()
+    return words[0] if words else None
 
 
 def notify_like(repos: RepositoryBundle, actor_id: str, profile: dict[str, Any], feels_like: str | None) -> None:
@@ -123,11 +170,14 @@ def compose(
     chart_name: str | None,
     is_primary: bool,
     feels_like: str | None,
+    titled: bool = False,
 ) -> str:
-    """The banner's text for one event in one language."""
+    """The banner's text for one event in one language. `titled` is for a
+    banner whose title already names the person, so the text does not."""
     texts = TEXTS.get(lang, TEXTS["en"])
     actor = (actor_name or "").strip() or texts["someone"]
-    template = texts[f"{kind}.yours" if is_primary or not chart_name else f"{kind}.other"]
+    key = f"{kind}.yours" if is_primary or not chart_name else f"{kind}.other"
+    template = SHORT_TEXTS.get(lang, SHORT_TEXTS["en"])[key] if titled else texts[key]
     body = template.format(actor=actor, chart=chart_name or "")
     if kind == "like" and feels_like:
         word = FEELS_RU.get(feels_like, feels_like) if lang == "ru" else feels_like
@@ -177,25 +227,28 @@ def _deliver(
     badge = app_badge(repos, owner_id)
 
     for device in devices:
-        body = compose(
-            kind,
-            device.get("lang", "en"),
-            actor_name=actor.get("profile_name"),
-            chart_name=profile.get("profile_name"),
-            is_primary=is_primary,
-            feels_like=feels_like,
-        )
+        lang = device.get("lang", "en")
+        words: dict[str, Any] = {
+            "actor_name": actor.get("profile_name"),
+            "chart_name": profile.get("profile_name"),
+            "is_primary": is_primary,
+            "feels_like": feels_like,
+        }
         payload = {
             "aps": {
-                "alert": {"body": body},
+                "alert": {"body": compose(kind, lang, **words)},
                 "sound": "default",
                 "badge": badge,
                 # One stack in Notification Centre for everything social.
                 "thread-id": "activity",
+                # Lets the app's notification extension draw the person.
+                "mutable-content": 1,
             },
             # Read by the app: a tap opens Activity.
             "kind": kind,
             "profile_id": profile_id,
+            "sender": sender_payload(actor_id, actor, lang),
+            "short_body": compose(kind, lang, titled=True, **words),
         }
         result = sender.send(
             device["token"],

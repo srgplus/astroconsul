@@ -85,6 +85,20 @@ class LikePushTests(PushTestCase):
         self.assertEqual(sent["payload"]["kind"], "like")
         self.assertEqual(sent["payload"]["profile_id"], self.anna_profile)
 
+    def test_a_like_says_who_it_is_from_for_the_phone_to_draw(self) -> None:
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})
+
+        payload = self.sender.sent[0]["payload"]
+        self.assertEqual(payload["aps"]["mutable-content"], 1)
+        self.assertEqual(payload["sender"]["name"], "Boris Ivanov")
+        # Born 2 November 1988: the Sun in Scorpio.
+        self.assertEqual(payload["sender"]["sign"], "Scorpio")
+        self.assertEqual(payload["short_body"], "Liked your chart · Flowing")
+        # A hash, the same for every push from Boris, and not his account id.
+        self.assertNotIn(BORIS, payload["sender"]["id"])
+        self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/follow")
+        self.assertEqual(self.sender.sent[1]["payload"]["sender"]["id"], payload["sender"]["id"])
+
     def test_a_second_state_the_same_day_does_not_buzz_again(self) -> None:
         path = f"/api/v1/profiles/{self.anna_profile}/like"
         self.as_user(BORIS).post(path, json={"feels_like": "Flowing"})
@@ -131,6 +145,9 @@ class LikePushTests(PushTestCase):
         self.as_user(CLARA).post(f"/api/v1/profiles/{self.anna_profile}/like")
 
         self.assertEqual(self.sender.bodies(), ["A big3.me member liked your chart"])
+        sender = self.sender.sent[0]["payload"]["sender"]
+        self.assertEqual(sender["name"], "A big3.me member")
+        self.assertNotIn("sign", sender)
 
     def test_a_token_apns_dropped_is_forgotten(self) -> None:
         self.sender.gone = {ANNA_PHONE}
@@ -154,6 +171,7 @@ class FollowPushTests(PushTestCase):
 
         self.assertEqual(self.sender.bodies(), ["Boris Ivanov started following you"])
         self.assertEqual(self.sender.sent[0]["payload"]["kind"], "follow")
+        self.assertEqual(self.sender.sent[0]["payload"]["short_body"], "Started following you")
 
     def test_following_again_is_not_news_twice(self) -> None:
         path = f"/api/v1/profiles/{self.anna_profile}/follow"
@@ -183,6 +201,7 @@ class FollowPushTests(PushTestCase):
         self.as_user(BORIS).post(f"/api/v1/profiles/{mum}/follow")
 
         self.assertEqual(self.sender.bodies(), ["Boris Ivanov started following Mum"])
+        self.assertEqual(self.sender.sent[0]["payload"]["short_body"], "Started following Mum")
 
 
 class DeviceTests(PushTestCase):
@@ -225,6 +244,13 @@ class ComposeTests(unittest.TestCase):
         body = compose("like", "ru", actor_name="Борис", chart_name="Мама", is_primary=False, feels_like=None)
 
         self.assertEqual(body, "Борис лайкнул(а) карту «Мама»")
+
+    def test_under_the_name_in_russian(self) -> None:
+        body = compose(
+            "like", "ru", actor_name="Борис", chart_name="Мама", is_primary=False, feels_like="Calm", titled=True
+        )
+
+        self.assertEqual(body, "Лайкнул(а) карту «Мама» · Спокойно")
 
     def test_unknown_language_reads_english(self) -> None:
         body = compose("follow", "de", actor_name="Boris", chart_name=None, is_primary=False, feels_like=None)

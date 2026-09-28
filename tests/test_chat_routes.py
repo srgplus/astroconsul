@@ -478,6 +478,10 @@ class MessagePushTests(ChatTestCase):
         self.assertEqual(sent["payload"]["aps"]["badge"], 2)
         self.assertEqual(sent["payload"]["kind"], "message")
         self.assertEqual(sent["payload"]["chat_id"], self.chat_id)
+        # Boris's face for the banner: his Sun sign, drawn by the phone.
+        self.assertEqual(sent["payload"]["aps"]["mutable-content"], 1)
+        self.assertEqual(sent["payload"]["sender"]["name"], "Boris Ivanov")
+        self.assertEqual(sent["payload"]["sender"]["sign"], "Scorpio")
 
     def test_the_badge_counts_activity_and_messages_together(self) -> None:
         self.as_user(BORIS).post(f"/api/v1/profiles/{self.anna_profile}/like", json={"feels_like": "Flowing"})

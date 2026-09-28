@@ -4,6 +4,40 @@ Changes relevant for AI assistants working on this codebase.
 
 ## 2026-09-28
 
+### A push from a person shows their face, as Messages does
+The owner wanted the banners for a message, a like and a follow to look like
+a text in Messages: the person's face on the left, the app's icon small in
+its corner, their name as the title. That is an iOS communication
+notification, and it takes a Notification Service Extension: the push is
+handed to it before it shows, and it may redraw it.
+
+**Server.** `social_push.sender_payload` adds `sender` to every such push:
+`id` (the first 20 hex of `sha1("person:" + account id)`, the same for every
+push from that person and no account id on the phone), `name` (the card's
+name, or "A big3.me member") and `sign` (the Sun sign, first word of
+`natal_summary.sun`; absent without a chart). `aps` gains
+`mutable-content: 1`. A like or a follow also carries `short_body`,
+`compose(..., titled=True)` from `SHORT_TEXTS`: "Started following you",
+"Liked your chart · Flowing", "Подписался(-ась) на вас", since the name is
+the title now. The full sentence stays in `alert.body` for a phone without
+the extension.
+
+**iOS.** New target `NotificationService`
+(`frontend/ios/App/NotificationService/`, `me.big3.app.NotificationService`,
+embedded by the app's "Embed Foundation Extensions" phase). It draws the Sun
+glyph (U+2648 to U+2653, text form) on a charcoal circle, `ChatAvatar`'s dark
+colours, a person outline without a sign; builds an `INPerson` and an
+incoming `INSendMessageIntent` whose conversation is the push's thread
+(`chat-N`, `activity`); donates it; and returns
+`content.updating(from: intent)`. Any failure, or the deadline, returns the
+push as it came. The app gets the
+`com.apple.developer.usernotifications.communication` entitlement and
+`NSUserActivityTypes: [INSendMessageIntent]`. Automatic signing registers the
+new bundle id and the capability on the first archive with
+`-allowProvisioningUpdates`. The extension's `CURRENT_PROJECT_VERSION` and
+`MARKETING_VERSION` must match the app's (App Store Connect refuses the
+upload otherwise); a bump changes all four lines of each.
+
 ### TestFlight from GitHub Actions
 Builds 19 to 21 were archived and uploaded from the owner's Mac; a cloud
 session could bump the number but not ship it. `testflight.yml` does both
