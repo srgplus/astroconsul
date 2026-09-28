@@ -1,10 +1,12 @@
 # App Store submission 1.3: the social network
 
-**Status:** App Store Connect filled on 2026-09-27 through the API: version
-record 1.1 -> **1.3**, **build 19** attached, promotional text, keywords,
-description, review notes and the age rating answers below are saved (state
-PREPARE_FOR_SUBMISSION). Nothing is submitted. Still to do: App Privacy (web
-UI), the demo account's content, the 6.9" screenshots, then Submit.
+**Status:** SUBMITTED on 2026-09-28 (03:21 UTC) as version 1.3 with **build
+22**, state WAITING_FOR_REVIEW, release type After Approval (it goes live as
+soon as it is approved). Everything below is what was sent, except the review
+notes' item 6, where "Message" is described as the button beside "Following"
+under a chart. App Privacy is published (8 data types, App Functionality,
+linked, no tracking), the age rating is 13+, and the 6.9" set holds seven
+screenshots of invented people.
 
 **Why this version exists.** The App Review appointment (Sept 21, 2026) said it
 plainly: the app claimed Social Networking in its category, subtitle and review
@@ -128,7 +130,7 @@ YOUR DAY IN TWO NUMBERS
 SAFE BY DESIGN
 • Report or block anyone, from their chart or from a chat. Blocked accounts are listed in Settings
 • Choose whether others see how many follow you and how many you follow
-• Names and messages that break the community rules are refused
+• Names that break the community rules, and messages with slurs, are refused
 • Every report is reviewed within 24 hours
 
 REAL COMPUTATION
@@ -166,7 +168,7 @@ WHAT TO CHECK
 3. Following: one button under every chart that is not yours: "Follow", "Follow back" when that person follows you, and "Following", which asks before unfollowing. Beside it, the follower and following counts; under your own chart they open the lists, and Settings > Community can hide them.
 4. Find people: the magnifying glass at the bottom left. Search by name or @handle, open a preview, tap Follow.
 5. Compatibility: at the bottom of any page, compare two charts, yours and a friend's or two friends'.
-6. Messages: the speech bubble beside the bell at the top of every page opens your chats. "New Message" lists the people who follow you, and "Message" in the "..." menu of their chart opens a chat. You can write only to people who follow you, and anyone you write to can answer, so nobody receives a first message from a stranger. The demo account already has a conversation with another member, so you can read it, answer, report and block there.
+6. Messages: the speech bubble beside the bell at the top of every page opens your chats. "New Message" lists the people who follow you, and "Message" beside "Following" under their chart opens a chat. You can write only to people who follow you, and anyone you write to can answer, so nobody receives a first message from a stranger. The demo account already has a conversation with another member, so you can read it, answer, report and block there.
 7. Push notifications for new likes, followers and messages, once allowed. Each kind has its own switch in Settings > Community.
 
 SAFETY (guideline 1.2)
