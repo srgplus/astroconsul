@@ -15,6 +15,9 @@ struct WeatherSkeleton: View {
         case forecast
         /// A header, a band label and its transit rows.
         case transits
+        /// The Profile card folded: its title, the birth moment and the big
+        /// three.
+        case profile
     }
 
     let kind: Kind
@@ -29,6 +32,7 @@ struct WeatherSkeleton: View {
             case .summary: summary
             case .forecast: forecast
             case .transits: transits
+            case .profile: profile
             }
         }
         .opacity(dim ? 0.6 : 1)
@@ -98,6 +102,32 @@ struct WeatherSkeleton: View {
                     bar(width: 56, height: 12)
                 }
                 .padding(.vertical, 12)
+            }
+        }
+    }
+
+    private var profile: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header
+
+            VStack(alignment: .leading, spacing: 6) {
+                bar(width: 132, height: 12)
+                bar(width: 108, height: 12)
+            }
+            .padding(.bottom, 12)
+
+            ForEach([CGFloat(52), 60, 88], id: \.self) { width in
+                WeatherCardDivider()
+
+                HStack(spacing: 10) {
+                    bar(width: 18, height: 15, radius: 5)
+                    bar(width: width, height: 15)
+                    Spacer(minLength: 8)
+                    bar(width: 48, height: 13)
+                    bar(width: 64, height: 13)
+                    bar(width: 26, height: 13)
+                }
+                .padding(.vertical, 13)
             }
         }
     }

@@ -233,9 +233,9 @@ private let enUI: [String: String] = [
     "moon.nextFullMoon": "Next full moon",
 
     // Natal chart card
-    "natal.title": "Astro profile",
-    "natal.expand": "Shows the rest of the profile",
-    "natal.collapse": "Hides the rest of the profile",
+    "natal.title": "Profile",
+    "natal.expand": "Shows the whole chart and its aspects",
+    "natal.collapse": "Leaves only the big three",
     "natal.rowHint": "Opens this point in detail",
     "natal.transitsHere": "Transits to this point",
 
@@ -1023,9 +1023,9 @@ private let ruUI: [String: String] = [
     "moon.nextFullMoon": "След. полнолуние",
 
     // Natal chart card
-    "natal.title": "Астропрофиль",
-    "natal.expand": "Показывает остальной профиль",
-    "natal.collapse": "Скрывает остальной профиль",
+    "natal.title": "Профиль",
+    "natal.expand": "Показывает всю карту и её аспекты",
+    "natal.collapse": "Оставляет только большую тройку",
     "natal.rowHint": "Открывает подробности точки",
     "natal.transitsHere": "Транзиты к этой точке",
 

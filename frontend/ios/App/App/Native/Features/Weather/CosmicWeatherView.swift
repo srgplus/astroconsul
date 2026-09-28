@@ -562,29 +562,13 @@ struct CosmicWeatherView: View {
 
     @ViewBuilder
     private var content: some View {
+        // Who this is, straight under who follows them: the owner wanted the
+        // profile at the top with the social line, and the whole chart, its
+        // aspects included, folded into this one card so it could move there.
+        profileCard
+
         forecast
         transits
-
-        // The chart every reading above is cast against, so it closes the
-        // screen rather than opening it: today first, the birth data last.
-        // It draws nothing until the natal positions land.
-        NatalChartCard(
-            profile: profile,
-            positions: model.positions.natal,
-            natalAspects: model.positions.natalAspects,
-            transits: model.activeAspects,
-            retrograde: model.retrogradeObjects,
-            transitPositions: model.positions,
-            now: model.readingTime
-        )
-
-        // Where those positions stand to each other. Under the table and not
-        // above it: a row here names two bodies, and the table is where a
-        // reader just looked them up.
-        NatalAspectsCard(
-            aspects: model.positions.natalAspects,
-            positions: model.positions.natal
-        )
 
         // The first card that needs a second chart, so it comes after every
         // one that reads this person's own sky.
@@ -594,6 +578,28 @@ struct CosmicWeatherView: View {
             skyState: state,
             onFindPeople: onFindPeople
         )
+    }
+
+    /// The natal positions ride on the transit report, the slower of the two
+    /// requests, and this card sits above the forecast. Without a skeleton it
+    /// would land after the forecast and shove it down, so it holds its place
+    /// until then. A report that failed, or a chart with no birth data to
+    /// show, leaves no card at all.
+    @ViewBuilder
+    private var profileCard: some View {
+        if !model.positions.natal.isEmpty {
+            NatalChartCard(
+                profile: profile,
+                positions: model.positions.natal,
+                natalAspects: model.positions.natalAspects,
+                transits: model.activeAspects,
+                retrograde: model.retrogradeObjects,
+                transitPositions: model.positions,
+                now: model.readingTime
+            )
+        } else if model.transitsState == .idle || model.transitsState == .loading {
+            WeatherSkeleton(kind: .profile)
+        }
     }
 
     @ViewBuilder
