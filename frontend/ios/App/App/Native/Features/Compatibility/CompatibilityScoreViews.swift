@@ -33,7 +33,7 @@ struct PersonAvatar: View {
             .accessibilityHidden(true)
     }
 
-    /// "Alena Brama" → "AB", "Asmik" → "A". Two letters at most: three initials
+    /// "Maya Collins" → "MC", "Nora" → "N". Two letters at most: three initials
     /// on a 52pt disc is a word, not a mark.
     static func initials(_ name: String) -> String {
         let words = name.split(whereSeparator: \.isWhitespace)
