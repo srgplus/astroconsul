@@ -98,6 +98,26 @@ A red check leaves the PR open and says nothing, so check after pushing:
 `gh pr checks` or `gh run list`. If main moved ahead and the PR conflicts,
 rebase onto `origin/main` and force-push the branch.
 
+### TestFlight without a Mac
+
+`.github/workflows/testflight.yml` archives and uploads from a `macos-26`
+runner: Actions -> TestFlight -> Run workflow, or `workflow_dispatch` through
+the API from a session. Signing is Xcode's automatic signing authenticated with
+an App Store Connect API key (Admin role, for the cloud-managed distribution
+certificate), so the repository secrets are the key alone: `ASC_KEY_ID`,
+`ASC_ISSUER_ID`, `ASC_KEY_P8` (the whole .p8). The build number is the
+project's `CURRENT_PROJECT_VERSION`, bumped in a commit as before, unless the
+run is given one; App Store Connect refuses a number it already has.
+
+Xcode Cloud is the other way, and the repository is ready for it:
+`frontend/ios/App/ci_scripts/ci_post_clone.sh` installs Node and makes the
+generated web assets. Turning it on is one time in Xcode on a Mac (Product ->
+Xcode Cloud -> Create Workflow: archive iOS, TestFlight internal testing,
+start on main or by hand), and its Next Build Number set above the last one
+uploaded, since Xcode Cloud numbers its own builds. Its logs live in App Store
+Connect, out of a session's reach, which is why the GitHub workflow is the one
+sessions run.
+
 ### One simulator per worktree, and only when asked
 
 A simulator is booted when someone asks to *see* the app, not because a session
