@@ -305,9 +305,10 @@ enum LikeCount {
 /// they follow you and you do not, "✓ Following" once you do. Whether someone
 /// follows you is otherwise said only in your own Following list.
 ///
-/// Solid white while it asks for something, because that is the one thing
-/// the screen wants; quiet glass once it is done. "✓ Following" asks before
-/// it unfollows, and is a label where nothing can be undone from here.
+/// Bright glass while it asks for something, because that is the one thing
+/// the screen wants: glass like the heart beside it, but white enough that it
+/// still stands out. Quiet dark glass once it is done. "✓ Following" asks
+/// before it unfollows, and is a label where nothing can be undone from here.
 struct FollowButton: View {
 
     let isFollowing: Bool
@@ -335,7 +336,7 @@ struct FollowButton: View {
             } else {
                 content
                     .foregroundStyle(.black)
-                    .background(Capsule().fill(.white))
+                    .weatherGlass(in: .capsule, tint: 0.8, color: .white, interactive: action != nil)
             }
         }
         .contentShape(Capsule())
