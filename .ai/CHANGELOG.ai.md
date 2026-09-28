@@ -14,7 +14,13 @@ CI does, archives Release for `generic/platform=iOS` with
 `destination: upload`, `manageAppVersionAndBuildNumber` off so the number is
 the one the repo says. Needs the three `ASC_*` repository secrets (see
 SKILL.md 1a); until they are set the first step fails and names what is
-missing. Not yet run: the first run is the test of the signing.
+missing. First run with the App Manager key `L7APSK3N6N` archived fine
+and failed the export with "Cloud signing permission error" (no iOS
+Distribution certificate, no profile): App Manager may not use the
+cloud-managed distribution certificate. With the Admin team key
+`A392F2FGBV` ("App Clips") it uploaded 1.3 (21) in under 4 minutes, archive
+1:40, export and upload 1:25. A key's role cannot be changed after it is
+made; the secrets hold `A392F2FGBV` now.
 
 Xcode Cloud, if the owner turns it on, finds
 `frontend/ios/App/ci_scripts/ci_post_clone.sh` beside the project: Node from
