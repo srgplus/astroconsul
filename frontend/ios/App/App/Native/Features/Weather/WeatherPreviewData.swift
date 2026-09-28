@@ -9,24 +9,24 @@ enum WeatherPreviewData {
 
     static let profile = ProfileSummary(
         profileId: "preview-profile",
-        profileName: "Alena Brama",
-        username: "alenabrama",
+        profileName: "Maya Collins",
+        username: "mayacollins",
         // Born in one city, living in another, so the harness shows at a
         // glance that the screens label the reading with the current
         // location and never with the birthplace.
-        locationName: "Brest, Belarus",
+        locationName: "Portland, Oregon",
         localBirthDatetime: "1990-04-17T09:20:00",
         latestTransit: LatestTransit(
             transitDate: "2026-09-06",
             transitTime: "12:00:00",
-            timezone: "Europe/Warsaw",
-            locationName: "Warsaw, Poland",
-            latitude: 52.23,
-            longitude: 21.01,
+            timezone: "America/New_York",
+            locationName: "New York, New York",
+            latitude: 40.71,
+            longitude: -74.01,
             updatedAt: nil,
-            tii: 51,
+            tii: 84,
             tensionRatio: 0.42,
-            feelsLike: "Flowing"
+            feelsLike: "Powerful"
         ),
         // The API reports the owner's own primary profile with `is_own: false`,
         // which used to drop it into "Following" and bury it at the bottom of
@@ -42,37 +42,62 @@ enum WeatherPreviewData {
         likesTotal: 1_284
     )
 
+    /// Invented people only, as in Activity and the chats: App Store
+    /// screenshots are taken from this harness, and a real person's name in
+    /// one is theirs to lend.
+    ///
     /// Everyone here was born in one city and lives in another. The two used
     /// to be the same string, which made the harness useless for the question
     /// it exists to answer — a card showing the birthplace and a card showing
     /// the current location looked identical.
     static let profiles: [ProfileSummary] = [
         profile,
-        make(name: "Alex Mosendz", handle: "alexmosendz", bornIn: "Khmelnytskyi, Ukraine", livesIn: "Berlin, Germany", tii: 11, feels: "Subtle pressure"),
-        make(name: "Asmik", handle: "asmik", bornIn: "Yerevan, Armenia", livesIn: "Lisbon, Portugal", tii: 27, feels: "Flowing"),
-        make(name: "Britney Spears", handle: "britneyspears", bornIn: "McComb, Mississippi", livesIn: "Los Angeles, California", tii: 42, feels: "Dynamic"),
-        make(name: "Kevin Van Vliet", handle: "kevinvanvliet", bornIn: "Rotterdam, Netherlands", livesIn: "Amsterdam, Netherlands", tii: 65, feels: "Expansive"),
-        make(name: "Kim Kardashian", handle: "kimkardashian", bornIn: "Los Angeles, California", livesIn: "Calabasas, California", tii: 73, feels: "Charged"),
-        make(name: "Liliia Mosendz", handle: "liliiamosendz", bornIn: "Kyiv, Ukraine", livesIn: "Vienna, Austria", tii: 88, feels: "Explosive"),
+        make(name: "Theo Laurent", handle: "theolaurent", bornIn: "Lyon, France", livesIn: "Austin, Texas", tii: 94, feels: "Explosive"),
+        make(name: "Jonas Berg", handle: "jonasberg", bornIn: "Minneapolis, Minnesota", livesIn: "Brooklyn, New York", tii: 16, feels: "Calm"),
+        make(name: "Chloe Rivers", handle: "chloerivers", bornIn: "Atlanta, Georgia", livesIn: "Los Angeles, California", tii: 42, feels: "Dynamic"),
+        make(name: "Daan Visser", handle: "daanvisser", bornIn: "Rotterdam, Netherlands", livesIn: "Seattle, Washington", tii: 65, feels: "Expansive"),
+        make(name: "Sofia Marin", handle: "sofiamarin", bornIn: "San Juan, Puerto Rico", livesIn: "Miami, Florida", tii: 73, feels: "Charged"),
+        make(name: "Ivy Novak", handle: "ivynovak", bornIn: "Portland, Maine", livesIn: "Chicago, Illinois", tii: 21, feels: "Grinding"),
     ] + filler
 
     /// Real accounts follow dozens of profiles; the bar has to survive that.
-    private static let filler: [ProfileSummary] = (1...26).map { number in
+    /// Invented names and real cities, so a screenshot that scrolls into them
+    /// still reads as a list of people.
+    private static let filler: [ProfileSummary] = fillerNames.enumerated().map { index, name in
+        let number = index + 1
+        // The best-looking skies only: these cards end up in App Store
+        // screenshots, and Flowing's and Intense's dusty orange read badly.
         let readings: [(Double, String)] = [
-            (18, "Calm"), (36, "Flowing"), (57, "Dynamic"), (71, "Charged"), (91, "Volatile"),
+            (16, "Calm"), (22, "Grinding"), (46, "Dynamic"), (68, "Expansive"), (73, "Charged"),
+            (86, "Powerful"), (93, "Explosive"),
         ]
         let reading = readings[number % readings.count]
+        let city = fillerCities[index % fillerCities.count]
         return make(
-            name: "Profile \(number)",
-            handle: "profile\(number)",
-            bornIn: "Born \(number)",
+            name: name,
+            handle: name.lowercased().replacingOccurrences(of: " ", with: ""),
+            bornIn: fillerCities[(index + 5) % fillerCities.count],
             // Every fourth has no reading location on file, so the harness also
             // shows what a profile that never set one falls back to.
-            livesIn: number % 4 == 0 ? nil : "Living \(number)",
+            livesIn: number % 4 == 0 ? nil : city,
             tii: reading.0,
             feels: reading.1
         )
     }
+
+    private static let fillerNames = [
+        "Aria Lindqvist", "Bram Kowal", "Celia Moreau", "Dario Fenn", "Elin Sato", "Felix Arendt",
+        "Greta Holm", "Hugo Varga", "Iris Dunmore", "Jude Okoro", "Kaia Brandt", "Luca Ferri",
+        "Mila Kovac", "Nico Albers", "Olive Tran", "Pablo Nieves", "Quinn Hale", "Rosa Vidal",
+        "Sami Ekholm", "Tess Moreno", "Umar Siddiq", "Vera Lund", "Wes Carter", "Xenia Pavlou",
+        "Yara Haddad", "Zane Mercer",
+    ]
+
+    private static let fillerCities = [
+        "New York, New York", "Los Angeles, California", "San Francisco, California", "Chicago, Illinois",
+        "Austin, Texas", "London, England", "Miami, Florida", "Nashville, Tennessee", "Seattle, Washington",
+        "Paris, France", "Boston, Massachusetts", "San Diego, California", "Portland, Oregon", "Phoenix, Arizona",
+    ]
 
     static let days: [ForecastDay] = {
         // The third number is the day's tension. It moves day to day the way
@@ -431,11 +456,11 @@ enum WeatherPreviewData {
     /// Profiles the harness account has not subscribed to, so the search
     /// screen has something to put in its "new profiles" group.
     static let discoveries: [ProfileSummary] = [
-        make(name: "Ada Lovelace", handle: "adalovelace", bornIn: "London, England", livesIn: "London, England", tii: 34, feels: "Flowing", isOwn: false),
-        make(name: "Adam Nowak", handle: "adamnowak", bornIn: "Kraków, Poland", livesIn: "Warsaw, Poland", tii: 61, feels: "Expansive", isOwn: false),
-        make(name: "Adele", handle: "adele", bornIn: "Tottenham, England", livesIn: "Los Angeles, California", tii: 79, feels: "Charged", isOwn: false),
+        make(name: "Ada Brooks", handle: "adabrooks", bornIn: "London, England", livesIn: "London, England", tii: 18, feels: "Calm", isOwn: false),
+        make(name: "Adam Nowak", handle: "adamnowak", bornIn: "Kraków, Poland", livesIn: "Boston, Massachusetts", tii: 61, feels: "Expansive", isOwn: false),
+        make(name: "Adela Ruiz", handle: "adelaruiz", bornIn: "San Antonio, Texas", livesIn: "Los Angeles, California", tii: 79, feels: "Charged", isOwn: false),
         make(name: "Adrian Rossi", handle: "adrianrossi", bornIn: "Milan, Italy", livesIn: "Rome, Italy", tii: 22, feels: "Calm", isOwn: false),
-        make(name: "Aisha Karim", handle: "aishakarim", bornIn: "Lahore, Pakistan", livesIn: "Dubai, UAE", tii: 47, feels: "Dynamic", isOwn: false),
+        make(name: "Aisha Karim", handle: "aishakarim", bornIn: "Lahore, Pakistan", livesIn: "Houston, Texas", tii: 47, feels: "Dynamic", isOwn: false),
     ]
 
     // MARK: - Compatibility

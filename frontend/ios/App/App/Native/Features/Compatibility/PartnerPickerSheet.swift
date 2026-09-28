@@ -76,7 +76,7 @@ struct PartnerPickerSheet: View {
         .scrollDismissesKeyboard(.interactively)
     }
 
-    /// The page's own half of the pair, so the sheet reads as "Alena × …"
+    /// The page's own half of the pair, so the sheet reads as "Maya × …"
     /// rather than as a bare list of names.
     ///
     /// A row rather than a section header: a plain list pins its headers, and
