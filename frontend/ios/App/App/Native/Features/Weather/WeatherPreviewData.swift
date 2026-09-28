@@ -67,9 +67,12 @@ enum WeatherPreviewData {
         let number = index + 1
         // The best-looking skies only: these cards end up in App Store
         // screenshots, and Flowing's and Intense's dusty orange read badly.
+        // Ordered so the first cards of the list, which the App Store
+        // screenshot shows, run through different skies: rain, lightning,
+        // still water, then the named samples' blue and gold, a storm, a sunset.
         let readings: [(Double, String)] = [
-            (16, "Calm"), (22, "Grinding"), (46, "Dynamic"), (68, "Expansive"), (73, "Charged"),
-            (86, "Powerful"), (93, "Explosive"),
+            (46, "Dynamic"), (22, "Grinding"), (93, "Explosive"), (16, "Calm"), (88, "Volatile"),
+            (73, "Charged"), (86, "Powerful"),
         ]
         let reading = readings[number % readings.count]
         let city = fillerCities[index % fillerCities.count]
