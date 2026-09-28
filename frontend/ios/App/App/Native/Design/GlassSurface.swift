@@ -12,21 +12,25 @@ extension View {
     /// `tint` is how much of that dark carries. Controls that hold a glyph or
     /// two get the light default; a panel of running text needs more, or the
     /// sky behind it reads through the words.
+    ///
+    /// `color` is what the tint is made of. White, at a strong `tint`, is
+    /// bright glass for the one control on a screen that asks for a tap.
     @ViewBuilder
     func weatherGlass<S: Shape>(
         in shape: S,
         tint: Double = 0.16,
+        color: Color = .black,
         interactive: Bool = false
     ) -> some View {
         if #available(iOS 26.0, *) {
-            let glass = Glass.regular.tint(Color.black.opacity(tint))
+            let glass = Glass.regular.tint(color.opacity(tint))
             glassEffect(interactive ? glass.interactive() : glass, in: shape)
         } else {
             background {
                 shape
                     .fill(.ultraThinMaterial)
                     .environment(\.colorScheme, .dark)
-                    .overlay(shape.fill(Color.black.opacity(tint)))
+                    .overlay(shape.fill(color.opacity(tint)))
                     .overlay(shape.stroke(Color.white.opacity(0.24), lineWidth: 1))
             }
             .clipShape(shape)
