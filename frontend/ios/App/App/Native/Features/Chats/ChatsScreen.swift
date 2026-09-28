@@ -90,6 +90,7 @@ struct ChatsScreen: View {
         NavigationStack(path: $path) {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .softTopEdge()
                 .background {
                     GeometryReader { geometry in
                         ChatPalette.background

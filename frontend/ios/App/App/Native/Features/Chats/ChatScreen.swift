@@ -58,6 +58,13 @@ struct ChatScreen: View {
     /// over it.
     private static let capsuleRoom: CGFloat = 52
 
+    /// On iOS 26 the capsule is a bar and takes its own room (`NameBar`):
+    /// what is left here is the gap between it and the first message.
+    private static var topPadding: CGFloat {
+        if #available(iOS 26.0, *) { return 8 }
+        return capsuleRoom
+    }
+
     private static let bottom = "bottom"
 
     /// How often the screen asks for what came in: often while the live
@@ -68,7 +75,7 @@ struct ChatScreen: View {
     var body: some View {
         conversation
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .top) { nameCapsule }
+            .modifier(NameBar(capsule: nameCapsule, fadeHeight: Self.capsuleRoom + 12))
             .background(ChatPalette.background.ignoresSafeArea())
             .safeAreaInset(edge: .bottom, spacing: 0) { composer }
             .navigationBarTitleDisplayMode(.inline)
@@ -213,16 +220,6 @@ struct ChatScreen: View {
         .accessibilityHint(L("chat.viewChart"))
         .padding(.top, 2)
         .frame(maxWidth: .infinity)
-        // Messages scroll up under it and fade out rather than meeting it head on.
-        .background(alignment: .top) {
-            LinearGradient(
-                colors: [ChatPalette.background, ChatPalette.background.opacity(0)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-                .frame(height: Self.capsuleRoom + 12)
-                .allowsHitTesting(false)
-        }
         .opacity(model.peer == nil ? 0 : 1)
     }
 
@@ -320,7 +317,7 @@ struct ChatScreen: View {
                         .id(Self.bottom)
                 }
                 .padding(.horizontal, 14)
-                .padding(.top, Self.capsuleRoom)
+                .padding(.top, Self.topPadding)
                 .padding(.bottom, 6)
             }
             .defaultScrollAnchor(.bottom)
@@ -632,6 +629,41 @@ struct ChatScreen: View {
             }
         }
         .padding(Theme.Spacing.section)
+    }
+}
+
+/// The name capsule at the top of the conversation. On iOS 26 it is a bar
+/// of its own, so the soft edge the system draws under the navigation bar
+/// runs on under the capsule too: one blur, strongest at the top and gone
+/// below the capsule, with no line where the navigation bar ends. Before
+/// that it floats over the messages, which fade out under it.
+private struct NameBar<Bar: View>: ViewModifier {
+
+    let capsule: Bar
+    let fadeHeight: CGFloat
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .safeAreaBar(edge: .top, spacing: 0) {
+                    // A little room under the capsule for the blur to fade out in.
+                    capsule.padding(.bottom, 6)
+                }
+                .softTopEdge()
+        } else {
+            content.overlay(alignment: .top) {
+                capsule.background(alignment: .top) {
+                    LinearGradient(
+                        colors: [ChatPalette.background, ChatPalette.background.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                        .frame(height: fadeHeight)
+                        .allowsHitTesting(false)
+                }
+            }
+        }
     }
 }
 
