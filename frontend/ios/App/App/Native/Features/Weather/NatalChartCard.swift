@@ -1,23 +1,26 @@
 import SwiftUI
 
-/// The birth chart behind every reading on this screen: sign, degrees, house
-/// and ℞ for a body that was retrograde at birth.
+/// The Profile card: the birth chart behind every reading on this screen,
+/// with sign, degrees, house and ℞ for a body that was retrograde at birth.
 ///
-/// Under the birth moment, the table opens with the big three — the app is named for them — set apart
-/// from the rest of the personal chart, and tapping it unfolds the outer
-/// planets and the special points.
+/// Folded, it is the birth moment and the big three, which the app is named
+/// for. The chevron unfolds everything else the chart has: the rest of the
+/// personal planets, the outer planets, the special points and, last, the
+/// chart's own aspect grid. One card rather than a table and a grid apart, so
+/// the whole profile sits under the social line as a single block.
 ///
 /// It costs no extra request. The transit report that feeds Active Transits
-/// already carries `natal_positions` and `angle_positions`, and the view model
-/// indexes both into `TransitPositions.natal`.
+/// already carries `natal_positions`, `angle_positions` and `natal_aspects`,
+/// and the view model indexes them into `TransitPositions`.
 struct NatalChartCard: View {
 
     let profile: ProfileSummary
     /// Natal positions by object id — `TransitPositions.natal`.
     let positions: [String: ChartPosition]
-    /// The natal aspect grid and the transit report's own positions, for the
-    /// sheet a row opens. Empty until the transit report lands, which only
-    /// costs the sheet its two lower cards.
+    /// The natal aspect grid, drawn at the foot of the drawer, and with the
+    /// transit report's own positions, for the sheet a row opens. Empty until
+    /// the transit report lands, which costs the drawer its grid and the
+    /// sheet its two lower cards.
     var natalAspects: [NatalAspect] = []
     var transits: [ActiveAspect] = []
     var retrograde: Set<String> = []
@@ -27,8 +30,11 @@ struct NatalChartCard: View {
     @ObservedObject private var strings = L10n.shared
 
     @State private var isExpanded = false
+    /// The aspect grid's "Most impact" switch, kept here rather than in the
+    /// grid so it survives the drawer folding.
+    @State private var mostImpact = true
     /// The row whose sheet is open. Tapping a row is caught before the card's
-    /// own tap, so opening a point does not also fold the drawer.
+    /// own tap, so opening a point does not also unfold the drawer.
     @State private var selected: Row?
 
     /// The rows each band can draw, as object ids. The names are looked up
@@ -72,30 +78,42 @@ struct NatalChartCard: View {
                     tappable(row, emphasised: true)
                 }
 
-                // The big three stand apart on a gap rather than a heading:
-                // the card is one table, and a label over three rows would
-                // cost more room than it earns.
-                if !bigThree.isEmpty, !personal.isEmpty {
-                    Color.clear.frame(height: 13)
-                }
-
-                ForEach(personal) { row in
-                    WeatherCardDivider()
-
-                    tappable(row)
-                }
-
                 if isExpanded {
+                    // The big three stand apart on a gap rather than a
+                    // heading: the card is one table, and a label over three
+                    // rows would cost more room than it earns.
+                    if !bigThree.isEmpty, !personal.isEmpty {
+                        gap
+                    }
+
+                    ForEach(personal) { row in
+                        WeatherCardDivider()
+
+                        tappable(row)
+                    }
+
                     group(TransitGroup.outer.title, rows(Self.outer))
                     group(TransitGroup.special.title, rows(Self.special))
+
+                    if !natalAspects.isEmpty {
+                        gap
+
+                        NatalAspectsSection(
+                            aspects: natalAspects,
+                            positions: positions,
+                            mostImpact: $mostImpact
+                        )
+                    }
                 }
             }
+            // Folded, the whole card is the way in: only its three rows do
+            // anything else. Open, only the header folds it again, so a tap
+            // that misses a row a long way down the drawer does not snap the
+            // card shut under the reader's finger.
             .contentShape(Rectangle())
             .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.22)) { isExpanded.toggle() }
+                if !isExpanded { toggle() }
             }
-            .accessibilityAddTraits(.isButton)
-            .accessibilityHint(L(isExpanded ? "natal.collapse" : "natal.expand"))
             .sheet(item: $selected) { row in
                 NatalPositionDetailSheet(
                     object: row.id,
@@ -114,7 +132,7 @@ struct NatalChartCard: View {
     ///
     /// A point the report carries no sign or degree for — Chiron and Selena
     /// come back empty on some charts — has nothing to open, so it stays a
-    /// plain line and the tap falls through to the card's drawer.
+    /// plain line and the tap falls through to the card.
     @ViewBuilder
     private func tappable(_ row: Row, emphasised: Bool = false) -> some View {
         if row.position.sign != nil || row.position.formattedDegree != nil {
@@ -130,9 +148,21 @@ struct NatalChartCard: View {
         }
     }
 
+    /// The space that sets one part of the table apart from the next.
+    private var gap: some View {
+        Color.clear.frame(height: 13)
+    }
+
+    private func toggle() {
+        withAnimation(.easeInOut(duration: 0.22)) { isExpanded.toggle() }
+    }
+
     /// The title, then the birth moment the chart is cast for, with the
     /// chevron that says the card opens standing beside it. Not beside the
     /// age: on the title row the chevron read as a picker for the age.
+    ///
+    /// The header is the card's fold control, so it is the one element
+    /// VoiceOver announces as the button.
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
@@ -162,6 +192,11 @@ struct NatalChartCard: View {
         }
         .foregroundStyle(.white.opacity(0.7))
         .padding(.bottom, 10)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: toggle)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint(L(isExpanded ? "natal.collapse" : "natal.expand"))
     }
 
     /// A band inside the drawer, labelled the way Active Transits labels its

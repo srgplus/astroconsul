@@ -29,6 +29,25 @@ repo changes for it; the workflow itself is made once in Xcode (SKILL.md 1a).
 
 ## 2026-09-27
 
+### iOS: "Astro profile" is "Profile", one card with the aspects, under the social line
+The owner wanted the whole chart in one widget so it could move to the top.
+`NatalChartCard` now sits first in `CosmicWeatherView.content`, straight under
+`SocialStrip`, above the forecast. Title `natal.title` is "Profile" /
+"Профиль".
+- Folded it shows only the big three (Sun, Moon, ASC). MC, Mercury, Venus and
+  Mars moved into the drawer with the outer planets and the special points.
+- The drawer ends with the chart's aspect grid. `NatalAspectsCard` became
+  `NatalAspectsSection` (no panel of its own, a gap and its own title row with
+  the "Most impact" switch); the switch state lives in the card so folding
+  keeps it. Its rows still open `NatalAspectDetailSheet`. The separate aspects
+  card is gone from the screen.
+- Folded, a tap anywhere on the card opens it; open, only the header folds it,
+  so a tap far down the aspect list does not snap the card shut. The header
+  is the VoiceOver button.
+- The natal positions ride on the slower transit report, so while it loads the
+  card holds its place with `WeatherSkeleton(kind: .profile)`; a failed report
+  or a chart without birth data draws no card.
+
 ### The chats are live: messages as they are written, "Seen" as it happens, dots while typing
 The owner, with the chat open, never saw Victoria's answers arrive, and the
 list kept "2" unread after they had read them. **The cause** was one line:

@@ -285,7 +285,7 @@ struct NatalPositionDetailSheet: View {
     /// engine emits each combination once, in the order the bodies happen to
     /// be listed.
     ///
-    /// `NatalAspectsCard` prints the whole reading — "Луна квадрат Сатурн" —
+    /// `NatalAspectsSection` prints the whole reading — "Луна квадрат Сатурн" —
     /// because its rows come from all over the chart. Here every row starts
     /// with the point the sheet is about, so naming it again on each line
     /// would cost the width the other half needs.

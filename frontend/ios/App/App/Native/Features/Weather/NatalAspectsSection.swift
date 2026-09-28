@@ -8,6 +8,12 @@ import SwiftUI
 /// reader could see that their Sun and Saturn were tied together and had no
 /// way to find out by how much.
 ///
+/// It closes the Profile card's drawer rather than standing as a card of its
+/// own: the owner wanted every detail of the chart behind one chevron, so the
+/// whole profile could sit at the top of the screen as one block. It has no
+/// panel of its own for that reason, and it is only drawn for a grid with
+/// something in it.
+///
 /// It costs no extra request. The transit report that feeds Active Transits
 /// already sends `natal_aspects`, and the view model keeps them on
 /// `TransitPositions.natalAspects` for the wheel to draw from.
@@ -19,7 +25,7 @@ import SwiftUI
 ///
 /// Tapping a row opens `NatalAspectDetailSheet`, the way an Active Transits
 /// row opens the transit's.
-struct NatalAspectsCard: View {
+struct NatalAspectsSection: View {
 
     /// The grid as the report sent it — `TransitPositions.natalAspects`.
     let aspects: [NatalAspect]
@@ -27,15 +33,17 @@ struct NatalAspectsCard: View {
     /// sheet a row opens.
     var positions: [String: ChartPosition] = [:]
 
+    /// On by default, the way the web table opens: exact and strong only. A
+    /// full grid runs to thirty-odd rows, which is a chart to study rather
+    /// than a card to read. Held by the card, so folding the drawer does not
+    /// forget the reader's choice.
+    @Binding var mostImpact: Bool
+
+    @State private var selected: NatalAspect?
+
     @Environment(\.transitPalette) private var palette
 
     @ObservedObject private var strings = L10n.shared
-
-    /// On by default, the way the web table opens: exact and strong only. A
-    /// full grid runs to thirty-odd rows, which is a chart to study rather
-    /// than a card to read.
-    @State private var mostImpact = true
-    @State private var selected: NatalAspect?
 
     private var visible: [NatalAspect] {
         mostImpact ? aspects.filter(\.isImpactful) : aspects
@@ -63,47 +71,52 @@ struct NatalAspectsCard: View {
     }
 
     var body: some View {
-        if !aspects.isEmpty {
-            WeatherCard {
-                header
+        VStack(alignment: .leading, spacing: 0) {
+            WeatherCardDivider()
 
-                if visible.isEmpty {
+            header
+                .padding(.top, 14)
+                .padding(.bottom, 10)
+
+            if visible.isEmpty {
+                WeatherCardDivider()
+
+                Text(L("natalAspects.nothingStrong"))
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 14)
+            }
+
+            ForEach(groups, id: \.group) { band in
+                WeatherCardDivider()
+
+                Text(band.group.title.uppercased())
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .tracking(0.5)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+
+                ForEach(band.aspects) { aspect in
                     WeatherCardDivider()
 
-                    Text(L("natalAspects.nothingStrong"))
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.7))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 14)
-                }
-
-                ForEach(groups, id: \.group) { band in
-                    WeatherCardDivider()
-
-                    Text(band.group.title.uppercased())
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .tracking(0.5)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 12)
-                        .padding(.bottom, 8)
-
-                    ForEach(band.aspects) { aspect in
-                        WeatherCardDivider()
-
-                        row(aspect)
-                            .padding(.vertical, 11)
-                            .contentShape(Rectangle())
-                            .onTapGesture { selected = aspect }
-                    }
+                    row(aspect)
+                        .padding(.vertical, 11)
+                        .contentShape(Rectangle())
+                        .onTapGesture { selected = aspect }
                 }
             }
-            .sheet(item: $selected) { aspect in
-                NatalAspectDetailSheet(aspect: aspect, positions: positions)
-            }
+        }
+        .sheet(item: $selected) { aspect in
+            NatalAspectDetailSheet(aspect: aspect, positions: positions)
         }
     }
 
+    /// Set like the card's own title rather than like a band label, so the
+    /// grid reads as a second table in the card and its Personal, Outer and
+    /// Special bands as its own, not as more rows of the positions above.
     private var header: some View {
         HStack(spacing: 8) {
             Image(systemName: "circle.hexagongrid.circle")
@@ -130,7 +143,6 @@ struct NatalAspectsCard: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.2)) { mostImpact.toggle() }
         }
-        .padding(.bottom, 2)
     }
 
     /// Every fixed column on the row is as narrow as its own content allows,
@@ -183,19 +195,3 @@ struct NatalAspectsCard: View {
         .accessibilityHint(L("natalAspects.rowHint"))
     }
 }
-
-#if DEBUG
-#Preview {
-    ZStack {
-        WeatherSky.gradient(for: .active).ignoresSafeArea()
-
-        ScrollView {
-            NatalAspectsCard(
-                aspects: WeatherPreviewData.positions.natalAspects,
-                positions: WeatherPreviewData.positions.natal
-            )
-                .padding(16)
-        }
-    }
-}
-#endif
