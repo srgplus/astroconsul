@@ -105,6 +105,18 @@ extension View {
     func chatGlass<S: Shape>(in shape: S, interactive: Bool = false) -> some View {
         modifier(ChatGlass(shape: shape, interactive: interactive))
     }
+
+    /// Whatever scrolls up under the bar blurs out gradually, strongest at
+    /// the top, rather than stopping at a frosted band with a line under it:
+    /// the hard edge is what iOS 26 drew in the chats' sheet on its own.
+    @ViewBuilder
+    func softTopEdge() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            self
+        }
+    }
 }
 
 private struct ChatGlass<S: Shape>: ViewModifier {

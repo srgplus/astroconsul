@@ -48,6 +48,17 @@ The owner wanted the whole chart in one widget so it could move to the top.
   card holds its place with `WeatherSkeleton(kind: .profile)`; a failed report
   or a chart without birth data draws no card.
 
+### The chats' header blurs out softly, with no line under it
+On the owner's phone (iOS 26) the chats' sheet drew the bar's hard scroll
+edge: a frosted band ending in a line. Under it the name capsule had its own
+background-to-clear gradient starting opaque right at that line, so the two
+met in a seam. `softTopEdge()` (`ChatPalette.swift`) sets
+`scrollEdgeEffectStyle(.soft, for: .top)` on the list and the conversation.
+In a conversation the capsule is a `safeAreaBar` on iOS 26 (`NameBar`), so
+the one soft edge runs from the top of the sheet to below the capsule; the
+old overlay and gradient stay for iOS 17 to 18, and the messages' top
+padding is 8 rather than 52 where the bar takes its own room.
+
 ### The chats are live: messages as they are written, "Seen" as it happens, dots while typing
 The owner, with the chat open, never saw Victoria's answers arrive, and the
 list kept "2" unread after they had read them. **The cause** was one line:
