@@ -2,6 +2,22 @@
 
 Changes relevant for AI assistants working on this codebase.
 
+## 2026-10-26
+
+### The web app also answers at /app (SRG-843)
+big3.me's home page is moving to a landing on SRG+ Sites (site `big3`,
+`srgplus/srgplus-sites` `sites/scs/big3`, preview `big3.sites.srgplus.com`):
+"/" becomes a beta landing with iPhone (TestFlight), Android (Google Play) and
+web buttons, and every other address is passed to this server on Railway as
+it is. The web app needs an address of its own, so the server serves the SPA
+at `/app` too (`main.py`), and `App.tsx` shows the sign-in window to a
+signed-out visitor at `/app` instead of the old landing (Back goes to "/").
+The landing sends the iOS app (`window.Capacitor` or "big3me" in the user
+agent), signed-in visitors (a Supabase `sb-*-auth-token` in localStorage) and
+returns from sign-in or Stripe (`?code=`, `#access_token=`, `?payment=`)
+straight to `/app` with the same query and hash, so nothing here has to
+change its redirect addresses. Until the domain moves, "/" is unchanged.
+
 ## 2026-09-28
 
 ### A push from a person shows their face, as Messages does

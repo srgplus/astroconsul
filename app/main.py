@@ -153,6 +153,13 @@ def create_app() -> FastAPI:
     def home() -> HTMLResponse:
         return _serve_spa()
 
+    # The web app's own address. big3.me's home page becomes a landing on SRG+
+    # Sites (SRG-843) that sends the apps, signed-in people and its "Web app"
+    # button here; "/" keeps serving the app until the domain moves.
+    @app.get("/app", response_class=HTMLResponse)
+    def web_app() -> HTMLResponse:
+        return _serve_spa()
+
     @app.get("/invite/{token}", response_class=HTMLResponse)
     def invite_page(token: str) -> HTMLResponse:
         return _serve_spa()

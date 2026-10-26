@@ -117,5 +117,17 @@ class AccountRouteTests(unittest.TestCase):
         self.assertIn("text/html", response.headers["content-type"])
 
 
+    def test_app_route_answers_as_the_spa_root(self) -> None:
+        # /app is where big3.me's landing (SRG+ Sites, SRG-843) sends the apps,
+        # signed-in people and its "Web app" button.
+        home = self.client.get("/")
+        web_app = self.client.get("/app")
+        missing = self.client.get("/not-a-route-in-this-app")
+
+        self.assertEqual(web_app.status_code, home.status_code)
+        self.assertEqual(web_app.text, home.text)
+        self.assertNotEqual(web_app.text, missing.text)
+
+
 if __name__ == "__main__":
     unittest.main()

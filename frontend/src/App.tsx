@@ -34,6 +34,7 @@ import type { HealthResponse, ProfileSummary, ProfileDetailResponse, TransitRepo
  * a reviewer should reach it in one tap, not by hunting through the web view.
  */
 const ACCOUNT_ROUTE = "/account"
+const APP_ROUTE = "/app"
 
 const OBJECT_GLYPHS: Record<string, string> = {
   Sun: "\u2609", Moon: "\u263D", Mercury: "\u263F", Venus: "\u2640", Mars: "\u2642",
@@ -949,8 +950,13 @@ export function App() {
 
   if (!user) {
     const isIOSApp = navigator.userAgent.includes("big3me")
-    if (isIOSApp || showAuth) {
-      return <AuthScreen onBack={isIOSApp ? undefined : () => setShowAuth(false)} />
+    // /app is the web app's own address: big3.me's home page becomes a landing on
+    // SRG+ Sites (SRG-843), and its buttons and the apps open here. Signed out at
+    // /app means the sign-in window; its Back goes to the home page.
+    const atApp = window.location.pathname === APP_ROUTE
+    if (isIOSApp || showAuth || atApp) {
+      const onBack = isIOSApp ? undefined : atApp ? () => window.location.assign("/") : () => setShowAuth(false)
+      return <AuthScreen onBack={onBack} />
     }
     return <LandingPage onSignIn={() => setShowAuth(true)} onSignUp={() => setShowAuth(true)} />
   }
