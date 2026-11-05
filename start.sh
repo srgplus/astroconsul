@@ -15,9 +15,16 @@ set -e
 # `set -e` above turns a non-zero exit into an aborted start, Railway retries
 # per its restart policy and then marks the deploy failed, and the previous
 # deployment keeps serving. A release that cannot migrate must not serve.
+#
+# An SRG+ Sites preview (SITES_ENV=preview, SRG-1125) is a second copy of the server on the production database: it
+# never migrates it. The live server does, as before.
 if [ -n "$ASTRO_CONSUL_DATABASE_URL" ]; then
-  echo "Running Alembic migrations..."
-  alembic upgrade head
+  if [ "${SITES_ENV:-}" = "preview" ]; then
+    echo "SRG+ Sites preview: no migrations here (the live server runs them)."
+  else
+    echo "Running Alembic migrations..."
+    alembic upgrade head
+  fi
 fi
 
 # Start the application

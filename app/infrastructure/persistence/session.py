@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 from functools import lru_cache
@@ -19,13 +20,32 @@ def normalize_database_url(database_url: str) -> str:
     return database_url
 
 
+def pool_options() -> dict[str, int]:
+    """The connection pool's size, from ASTRO_CONSUL_DB_POOL_SIZE and ASTRO_CONSUL_DB_MAX_OVERFLOW (SRG-1125).
+
+    Supabase's session pooler gives this database 15 clients in all, and SQLAlchemy's default pool (5 + 10 overflow)
+    lets one process take every one of them. A second copy of the server on the same database (an SRG+ Sites preview
+    next to the live one) runs with a small pool so neither waits for a connection. Unset or unreadable: SQLAlchemy's
+    defaults, as before.
+    """
+    options: dict[str, int] = {}
+    size = os.getenv("ASTRO_CONSUL_DB_POOL_SIZE", "").strip()
+    if size.isdigit() and int(size) >= 1:
+        options["pool_size"] = int(size)
+    overflow = os.getenv("ASTRO_CONSUL_DB_MAX_OVERFLOW", "").strip()
+    if overflow.isdigit():
+        options["max_overflow"] = int(overflow)
+    return options
+
+
 @lru_cache(maxsize=8)
 def get_engine(database_url: str) -> Engine:
     normalized_url = normalize_database_url(database_url)
     connect_args: dict[str, object] = {}
     if normalized_url.startswith("sqlite"):
         connect_args["check_same_thread"] = False
-    return create_engine(normalized_url, future=True, pool_pre_ping=True, connect_args=connect_args)
+        return create_engine(normalized_url, future=True, pool_pre_ping=True, connect_args=connect_args)
+    return create_engine(normalized_url, future=True, pool_pre_ping=True, connect_args=connect_args, **pool_options())
 
 
 @lru_cache(maxsize=8)
