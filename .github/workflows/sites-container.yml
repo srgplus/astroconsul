@@ -1,0 +1,68 @@
+# big3.me's server as an SRG+ Sites container (SRG-1125; srgplus/srgplus-sites docs/containers.md).
+#
+# The Docker image is built here and pushed into the site's own repository of the platform's registry with push
+# credentials the Sites API gives this run (GitHub OIDC: the site big3 allows srgplus/astroconsul in its
+# settings.container.repos), then the Sites API makes an image-only version of big3: the newest build of the site with
+# this image, on its preview (big3.sites.srgplus.com) at once. The live big3.me moves only when a person publishes it.
+# No Cloudflare or Sites key sits in this repository.
+name: Sites container (big3)
+
+on:
+  push:
+    branches: ["feature/SRG-1125-**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sites-container-big3
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SITES_API: https://sites.srgplus.com
+      SITE: big3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Push credentials for big3's repository
+        id: registry
+        run: |
+          # A fresh OIDC token for each call to the Sites API: GitHub's live only minutes.
+          oidc() { curl -sSf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$SITES_API" | jq -r .value; }
+          OUT=$(curl -sS -X POST -H "Authorization: Bearer $(oidc)" -H "content-type: application/json" -d '{}' "$SITES_API/v1/sites/$SITE/registry")
+          PASS=$(echo "$OUT" | jq -r '.password // empty')
+          if [ -z "$PASS" ]; then echo "The Sites API refused: $(echo "$OUT" | jq -c '{error, error_description}')"; exit 1; fi
+          echo "::add-mask::$PASS"
+          echo "$PASS" | docker login "$(echo "$OUT" | jq -r .registry)" -u "$(echo "$OUT" | jq -r .username)" --password-stdin
+          echo "image=$(echo "$OUT" | jq -r .image)" >> "$GITHUB_OUTPUT"
+
+      - name: Build (linux/amd64) and push
+        id: push
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          IMAGE="${{ steps.registry.outputs.image }}:${GITHUB_SHA::12}"
+          docker build --platform linux/amd64 \
+            --build-arg VITE_SUPABASE_URL --build-arg VITE_SUPABASE_ANON_KEY \
+            -t "$IMAGE" .
+          docker image ls "${{ steps.registry.outputs.image }}"
+          docker push "$IMAGE" | tee push.log
+          DIGEST=$(grep -o 'sha256:[0-9a-f]\{64\}' push.log | tail -1)
+          if [ -z "$DIGEST" ]; then echo "docker push gave no digest"; exit 1; fi
+          echo "ref=${{ steps.registry.outputs.image }}@$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Image-only version of big3 (its preview at once)
+        run: |
+          oidc() { curl -sSf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$SITES_API" | jq -r .value; }
+          CODE=$(curl -sS -o version.json -w '%{http_code}' -X POST -H "Authorization: Bearer $(oidc)" -H "content-type: application/json" \
+            -d "{\"image\": \"${{ steps.push.outputs.ref }}\"}" "$SITES_API/v1/sites/$SITE/versions/container")
+          jq . version.json
+          [ "$CODE" = "201" ] || { echo "The Sites API answered $CODE"; exit 1; }
+          echo "### big3 version $(jq -r .version version.json) with image ${{ steps.push.outputs.ref }}" >> "$GITHUB_STEP_SUMMARY"
