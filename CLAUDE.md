@@ -9,6 +9,7 @@ Read `.ai/SKILL.md` before any task for full project context.
 - **Local backend:** `uvicorn app.main:app --port 8001`
 - **Local frontend:** `cd frontend && npm run dev` (port 5173)
 - **Build check:** `cd frontend && npm run build` (must pass before push)
+- **App Store (iOS): STOPPED** by the owner on 2026-11-25 (SRG-1741). Apple rejects big3.me under guideline 4.3(b) (astrology is a saturated category): 1.0 to 1.3 (22), the 2026-09-21 call, and on 2026-11-26 App Review wrote that it "can't alter our position". The rejection carries an Extended Review warning, and the app sits on the SRG PLUS INC developer account with SRG+ and the other apps, so a repeat risks that account. Never submit it to App Store review or external TestFlight review again unless the owner says so. big3.me lives on the web and on Android. Details: `.ai/apple-submission-v1.3.md`
 - **iOS simulator:** stays off unless the user asks for it. `./scripts/ios-simulator.sh --run` builds, installs and launches on this worktree's own device (`big3 <worktree>`), creating and booting it on first run and passing launch arguments through (`--run -uiPreviewWeather` opens the weather harness). `--udid` resolves the device for `xcodebuild` without booting anything; `--list` / `--prune` clean up leftovers
 - **Persistence:** `file` locally, `database` on Railway (env var `ASTRO_CONSUL_PERSISTENCE_BACKEND`)
 - **Auth:** Disabled locally, Supabase Auth on prod

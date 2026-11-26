@@ -1,5 +1,13 @@
 # App Store submission 1.3: the social network
 
+**Outcome: REJECTED, iOS STOPPED.** App Review rejected 1.3 (22) on 2026-10-19 under
+guideline 4.3(b) again, with an Extended Review warning, and refused it for
+external TestFlight on 2026-10-28. We asked on 2026-11-18 what still made it
+"primarily astrology" and whether a public beta was possible; on 2026-11-26
+App Review answered only that they "can't alter our position". The owner
+stopped iOS on 2026-11-25 (SRG-1741): no new submission, big3.me stays on the
+web and Android. The text below is the record of what was sent.
+
 **Status:** SUBMITTED on 2026-09-28 (03:21 UTC) as version 1.3 with **build
 22**, state WAITING_FOR_REVIEW, release type After Approval (it goes live as
 soon as it is approved). Everything below is what was sent, except the review
